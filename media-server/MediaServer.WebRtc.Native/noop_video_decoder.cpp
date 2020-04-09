@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "../noop_video_frame_buffer.h"
+#include "noop_video_frame_buffer.h"
 #include "common_video/h264/h264_common.h"
 #include "noop_video_decoder.h"
 

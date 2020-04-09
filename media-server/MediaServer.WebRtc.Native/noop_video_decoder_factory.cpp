@@ -1,9 +1,9 @@
 #include "pch.h"
 
 #include "modules/video_coding/codecs/h264/include/h264.h"
-#include "noop_video/decoder/noop_video_decoder.h"
-#include "noop_video/decoder/noop_video_decoder_factory.h"
-#include "noop_video/noop_video_helper.h"
+#include "noop_video_decoder.h"
+#include "noop_video_decoder_factory.h"
+#include "noop_video_helper.h"
 
 using namespace webrtc;
 

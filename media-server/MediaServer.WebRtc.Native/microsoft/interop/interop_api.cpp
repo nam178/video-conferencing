@@ -12,7 +12,7 @@
 #include "interop_api.h"
 #include "media/external_video_track_source_impl.h"
 #include "media/local_video_track.h"
-#include "passive_video/passive_video_track.h"
+#include "passive_video_track.h"
 #include "peer_connection.h"
 #include "peer_connection_interop.h"
 #include "sdp_utils.h"

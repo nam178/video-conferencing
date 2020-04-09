@@ -7,8 +7,8 @@
 
 #include "interop/global_factory.h"
 #include "media/local_video_track.h"
-#include "noop_video/decoder/noop_video_decoder_factory.h"
-#include "noop_video/encoder/noop_video_encoder_factory.h"
+#include "noop_video_decoder_factory.h"
+#include "noop_video_encoder_factory.h"
 #include "peer_connection.h"
 #include "api/peerconnectionfactoryproxy.h"
 #include "utils.h"
