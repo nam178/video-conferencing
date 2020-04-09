@@ -24,20 +24,18 @@
       <Private>true</Private>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\Microsoft.MixedReality.WebRTC.Native.Win32\Microsoft.MixedReality.WebRTC.Native.Win32.vcxproj">
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-    </ProjectReference>
+    <ProjectReference Include="..\MediaServer.WebRtc.Native\MediaServer.WebRtc.Native.vcxproj" />
   </ItemGroup>
   <!-- copy here -->
   <ItemGroup>
-    <ContentWithTargetPath Include="..\bin\Win32\x64\$(Configuration)\Microsoft.MixedReality.WebRTC.Native.dll">
+    <ContentWithTargetPath Include="..\bin\Win32\x64\$(Configuration)\MediaServer.WebRtc.Native.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>Microsoft.MixedReality.WebRTC.Native.dll</TargetPath>
-    </ContentWithTargetPath >
-    <ContentWithTargetPath Include="..\bin\Win32\x64\$(Configuration)\Microsoft.MixedReality.WebRTC.Native.pdb">
+      <TargetPath>MediaServer.WebRtc.Native.dll</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="..\bin\Win32\x64\$(Configuration)\MediaServer.WebRtc.Native.pdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>Microsoft.MixedReality.WebRTC.Native.pdb</TargetPath>
-    </ContentWithTargetPath >
+      <TargetPath>MediaServer.WebRtc.Native.pdb</TargetPath>
+    </ContentWithTargetPath>
   </ItemGroup>
 
   

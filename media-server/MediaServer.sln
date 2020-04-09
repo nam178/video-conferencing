@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer", "MediaServer\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.WebRtc.Managed", "MediaServer.WebRtc.Managed\MediaServer.WebRtc.Managed.csproj", "{0B700A98-7F4E-4364-A0C1-39ED5A6D3A7D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.MixedReality.WebRTC.Native.Win32", "Microsoft.MixedReality.WebRTC.Native.Win32\Microsoft.MixedReality.WebRTC.Native.Win32.vcxproj", "{928899BC-F131-4343-A1AB-72F3A5787E41}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MediaServer.WebRtc.Native", "MediaServer.WebRtc.Native\MediaServer.WebRtc.Native.vcxproj", "{928899BC-F131-4343-A1AB-72F3A5787E41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
