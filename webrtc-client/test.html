@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Video Test</title>
+    </head>
+    <body>
+        <video id="local_video" playsinline autoplay src="f4.mp4" crossOrigin="anonymous" width="700" controls loop></video>
+        <video id="remote_video" playsinline autoplay width="700" controls loop></video>
+        <script type="text/javascript">
+        var peerConnection = new RTCPeerConnection({
+            sdpSemantics: 'unified-plan',
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' }
+            ]
+        });
+
+        ///// WEB SOCKET STUFF /////
+        var webSocket = new WebSocket('ws://localhost:8080');
+
+        webSocket.addEventListener('open', () => {
+            console.info('connected to web socket');
+
+            // Send heart beat every 5 seconds
+            window.setInterval(() => {
+    
+                sendWebSocketCommand('HeartBeat', {
+                    clientUnixTimestamp: new Date().getTime()/1000
+                });
+            }, 5000);
+
+            // Start peer connection
+            sendWebSocketCommand('Register');
+        });
+
+        webSocket.addEventListener('error', function() {
+            console.error('ERROR', arguments);
+        });
+
+        webSocket.addEventListener('message', async function(message) {
+            console.info('MESSAGE', message.data, arguments);
+
+            var messageStructure = JSON.parse(message.data);
+            
+            switch(messageStructure.command)
+            {
+                case 'Ready':
+                    console.log('server is ready, starting peer connection..');
+                    startPeerConnection();
+                    break;
+                case 'SetIceCandidate':
+                    await peerConnection.addIceCandidate(messageStructure.args);
+                    console.info('Received and set remote ice candidate', messageStructure.args);
+                    break;
+                case 'SetAnswer':
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(messageStructure.args));
+                    console.info('Received and set remote sdp', messageStructure.args.sdp);
+                    break;
+                default:
+                    throw `Invalid command ${messageStructure.command}`;
+            }
+        });
+
+        function sendWebSocketCommand(command, args)
+        {
+            webSocket.send(JSON.stringify({
+                command: command,
+                args: args
+            }));         
+            console.log('WebSocket command sent', command, args);
+        }
+
+        ///// PEER CONNECTION STUFF /////
+
+        var localVideo = document.getElementById('local_video');
+        var isStarted = false;
+        async function startPeerConnection()
+        {
+            if(isStarted)
+                return;
+            isStarted = true;
+            
+            var stream = localVideo.captureStream();
+            console.log('localVideo stream', stream);
+
+            peerConnection.addEventListener('icecandidate', e => {
+                console.log('Received ICE candidate', e);
+                if(e.candidate)
+                {
+                    sendWebSocketCommand('AddIceCandidate', {
+                        candidate: {
+                            candidate: e.candidate.candidate,
+                            sdpMid: e.candidate.sdpMid,
+                            sdpMLineIndex: e.candidate.sdpMLineIndex
+                        }
+                    });
+                }
+            });
+
+            peerConnection.addEventListener('iceconnectionstatechange', e => {
+                console.log('ice state change', e);
+            });
+
+            peerConnection.addEventListener("negotiationneeded", async () => {
+                console.warn('re-negotiation needed');
+                await sendOfferAsync();
+            }, false);
+
+            peerConnection.addEventListener('track', e => {
+                console.log('pc2 received remote stream');
+                document.getElementById('remote_video').srcObject = e.streams[0];
+            });
+
+            stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+        }
+
+        async function sendOfferAsync()
+        {
+            // TODO: handle the case where this called twice
+            // and race
+
+            var offer = await peerConnection.createOffer({
+                    offerToReceiveAudio: 1,
+                    offerToReceiveVideo: 1
+                });
+
+            console.log('offer created', offer);
+
+            sendWebSocketCommand('SetOffer', {
+                offer: {
+                    type: offer.type,
+                    sdp: offer.sdp
+                }
+            });
+
+            await peerConnection.setLocalDescription(offer);
+        }
+        </script>
+    </body>
+</html>

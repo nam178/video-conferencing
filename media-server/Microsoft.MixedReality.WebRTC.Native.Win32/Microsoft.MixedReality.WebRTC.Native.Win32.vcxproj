@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{928899BC-F131-4343-A1AB-72F3A5787E41}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>Microsoft.MixedReality.WebRTC.Native.Win32</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutDir>..\bin\Win32\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>..\build\Microsoft.MixedReality.WebRTC.Native\Win32\$(PlatformTarget)\$(Configuration)\</IntDir>
+    <TargetName>Microsoft.MixedReality.WebRTC.Native</TargetName>
+    <WebRTCCoreRepoPath>C:\webrtc-uwp-sdk\webrtc-uwp-sdk\webrtc\xplatform\webrtc</WebRTCCoreRepoPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <NativeUnityPluginSourceFiles Include="$(OutDir)\Microsoft.MixedReality.WebRTC.Native.dll;$(OutDir)\Microsoft.MixedReality.WebRTC.Native.pdb" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;UNICODE;_WINDLL;MR_SHARING_WIN;MRS_USE_STR_WRAPPER;_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\microsoft;$(ProjectDir)\microsoft\include;$(WebRTCCoreRepoPath);$(WebRTCCoreRepoPath)\third_party\libyuv\include;$(WebRTCCoreRepoPath)\third_party\abseil-cpp;$(WebRTCCoreRepoPath)\sdk\windows\wrapper\generated\cppwinrt;$(WebRTCCoreRepoPath)\sdk\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>strmiids.lib;Msdmo.lib;dmoguids.lib;wmcodecdspuuid.lib;Secur32.lib;winmm.lib;Ole32.lib;Evr.lib;mfreadwrite.lib;mf.lib;mfuuid.lib;mfplat.lib;mfplay.lib;webrtc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WebRTCCoreRepoPath)\out\webrtc_win_$(PlatformTarget)_$(Configuration);$(WebRTCCoreRepoPath)\out\webrtc_win_$(PlatformTarget)_$(Configuration)\obj;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="microsoft\include\audio_frame.h" />
+    <ClInclude Include="microsoft\include\video_frame.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="microsoft\include\export.h" />
+    <ClInclude Include="microsoft\include\external_video_track_source_interop.h" />
+    <ClInclude Include="microsoft\include\interop_api.h" />
+    <ClInclude Include="microsoft\include\local_video_track_interop.h" />
+    <ClInclude Include="microsoft\include\peer_connection_interop.h" />
+    <ClInclude Include="microsoft\include\result.h" />
+    <ClInclude Include="microsoft\audio_frame_observer.h" />
+    <ClInclude Include="microsoft\callback.h" />
+    <ClInclude Include="microsoft\data_channel.h" />
+    <ClInclude Include="microsoft\interop\global_factory.h" />
+    <ClInclude Include="microsoft\media\external_video_track_source.h" />
+    <ClInclude Include="microsoft\media\external_video_track_source_impl.h" />
+    <ClInclude Include="microsoft\media\local_video_track.h" />
+    <ClInclude Include="microsoft\mrs_errors.h" />
+    <ClInclude Include="microsoft\peer_connection.h" />
+    <ClInclude Include="microsoft\refptr.h" />
+    <ClInclude Include="microsoft\ref_counted_base.h" />
+    <ClInclude Include="microsoft\sdp_utils.h" />
+    <ClInclude Include="microsoft\str.h" />
+    <ClInclude Include="microsoft\targetver.h" />
+    <ClInclude Include="microsoft\tracked_object.h" />
+    <ClInclude Include="microsoft\utils.h" />
+    <ClInclude Include="microsoft\video_frame_observer.h" />
+    <ClInclude Include="noop_video\decoder\noop_video_decoder.h" />
+    <ClInclude Include="noop_video\decoder\noop_video_decoder_factory.h" />
+    <ClInclude Include="noop_video\encoder\noop_video_encoder.h" />
+    <ClInclude Include="noop_video\encoder\noop_video_encoder_factory.h" />
+    <ClInclude Include="noop_video\noop_video_frame_buffer.h" />
+    <ClInclude Include="noop_video\noop_video_helper.h" />
+    <ClInclude Include="not_supported_exception.h" />
+    <ClInclude Include="passive_video\passive_video_track.h" />
+    <ClInclude Include="passive_video\passive_video_track_interop.h" />
+    <ClInclude Include="passive_video\passive_video_track_source.h" />
+    <ClInclude Include="passive_video\passive_video_track_source_interop.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="microsoft\audio_frame_observer.cpp" />
+    <ClCompile Include="microsoft\data_channel.cpp" />
+    <ClCompile Include="microsoft\interop\external_video_track_source_interop.cpp" />
+    <ClCompile Include="microsoft\interop\global_factory.cpp" />
+    <ClCompile Include="microsoft\interop\interop_api.cpp" />
+    <ClCompile Include="microsoft\interop\local_video_track_interop.cpp" />
+    <ClCompile Include="microsoft\interop\peer_connection_interop.cpp" />
+    <ClCompile Include="microsoft\media\external_video_track_source.cpp" />
+    <ClCompile Include="microsoft\media\local_video_track.cpp" />
+    <ClCompile Include="microsoft\mrs_errors.cpp" />
+    <ClCompile Include="microsoft\peer_connection.cpp" />
+    <ClCompile Include="microsoft\sdp_utils.cpp" />
+    <ClCompile Include="microsoft\str.cpp" />
+    <ClCompile Include="microsoft\tracked_object.cpp" />
+    <ClCompile Include="microsoft\video_frame_observer.cpp" />
+    <ClCompile Include="noop_video\decoder\noop_video_decoder.cpp" />
+    <ClCompile Include="noop_video\decoder\noop_video_decoder_factory.cpp" />
+    <ClCompile Include="noop_video\encoder\noop_video_encoder.cpp" />
+    <ClCompile Include="noop_video\encoder\noop_video_encoder_factory.cpp" />
+    <ClCompile Include="noop_video\noop_video_frame_buffer.cpp" />
+    <ClCompile Include="noop_video\noop_video_helper.cpp" />
+    <ClCompile Include="passive_video\passive_video_track.cpp" />
+    <ClCompile Include="passive_video\passive_video_track_interop.cpp" />
+    <ClCompile Include="passive_video\passive_video_track_source.cpp" />
+    <ClCompile Include="passive_video\passive_video_track_source_interop.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
