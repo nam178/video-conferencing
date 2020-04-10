@@ -14,18 +14,20 @@ namespace MediaServer
 class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
 {
     using CandidateListPtr = void *;
-    using TransceiverPtr = void *;
+    using RtpTransceiverInterfacePtr = void *;
+    using RtpReceiverInterfacePtr = void *;
 
   public:
     // Override PeerConnectionObserver
-    void OnRenegotiationNeeded() final override;
+    void OnRenegotiationNeeded() override;
     void OnIceGatheringChange(
-        webrtc::PeerConnectionInterface::IceGatheringState new_state) final override;
+        webrtc::PeerConnectionInterface::IceGatheringState new_state) override;
     void OnIceConnectionChange(
-        webrtc::PeerConnectionInterface::IceConnectionState new_state) final override;
-    void OnIceCandidate(const webrtc::IceCandidateInterface *ice_candidate) final override;
-    void OnIceCandidatesRemoved(const std::vector<cricket::Candidate> &candidates) final override;
-    void OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) final override;
+        webrtc::PeerConnectionInterface::IceConnectionState new_state) override;
+    void OnIceCandidate(const webrtc::IceCandidateInterface *ice_candidate) override;
+    void OnIceCandidatesRemoved(const std::vector<cricket::Candidate> &candidates) override;
+    void OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) override;
+    void OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override;
 
     // Methods for managed to register callbacks
     void SetRenegotiationNeededCallback(Callback<> &&callback) noexcept;
@@ -33,7 +35,8 @@ class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
     void SetIceConnectionChangeCallback(Callback<IceConnectionState> &&callback) noexcept;
     void SetIceCandidateCallback(Callback<IceCandidate> &&callback) noexcept;
     void SetIceCandidatesRemovedCallback(Callback<CandidateListPtr> &&callback) noexcept;
-    void SetTrackAddedCallback(Callback<TransceiverPtr> &&callback) noexcept;
+    void SetRemoteTrackAddedCallback(Callback<RtpTransceiverInterfacePtr> &&callback) noexcept;
+    void SetRemoteTrackRemovedCallback(Callback<RtpReceiverInterfacePtr> &&callback) noexcept;
 
   private:
     Callback<> _renegotiation_needed_callback{};
@@ -41,6 +44,7 @@ class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
     Callback<IceConnectionState> _ice_connection_change_callback{};
     Callback<IceCandidate> _ice_candidate_callback{};
     Callback<CandidateListPtr> _ice_candidates_removed_callback{};
-    Callback<TransceiverPtr> _track_added_callback{};
+    Callback<RtpTransceiverInterfacePtr> _remote_track_added_callback{};
+    Callback<RtpReceiverInterfacePtr> _remote_track_removed_callback{};
 };
 } // namespace MediaServer

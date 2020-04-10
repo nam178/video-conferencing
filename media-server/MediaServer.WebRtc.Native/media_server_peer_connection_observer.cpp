@@ -27,10 +27,16 @@ void MediaServer::PeerConnectionObserver::SetIceCandidatesRemovedCallback(
     _ice_candidates_removed_callback = std::move(callback);
 }
 
-void MediaServer::PeerConnectionObserver::SetTrackAddedCallback(
-    Callback<TransceiverPtr> &&callback) noexcept
+void MediaServer::PeerConnectionObserver::SetRemoteTrackAddedCallback(
+    Callback<RtpTransceiverInterfacePtr> &&callback) noexcept
 {
-    _track_added_callback = std::move(callback);
+    _remote_track_added_callback = std::move(callback);
+}
+
+void MediaServer::PeerConnectionObserver::SetRemoteTrackRemovedCallback(
+    Callback<RtpReceiverInterfacePtr> &&callback) noexcept
+{
+    _remote_track_removed_callback = std::move(callback);
 }
 
 void MediaServer::PeerConnectionObserver::OnRenegotiationNeeded()
@@ -92,8 +98,17 @@ void MediaServer::PeerConnectionObserver::SetRenegotiationNeededCallback(
 void MediaServer::PeerConnectionObserver::OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver)
 {
-    if(_track_added_callback)
+    if(_remote_track_added_callback)
     {
-        _track_added_callback(transceiver.get());
+        _remote_track_added_callback(transceiver.get());
+    }
+}
+
+void MediaServer::PeerConnectionObserver::OnRemoveTrack(
+    rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver)
+{
+    if(_remote_track_removed_callback)
+    {
+        _remote_track_removed_callback(receiver.get());
     }
 }
