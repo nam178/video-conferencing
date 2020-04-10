@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using MediaServer.WebRtc.Managed;
 using Microsoft.MixedReality.WebRTC.Interop;
 using Microsoft.MixedReality.WebRTC.Tracing;
 using System;

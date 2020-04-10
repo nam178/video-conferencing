@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using MediaServer.WebRtc.Managed;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

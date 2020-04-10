@@ -13,11 +13,13 @@ namespace MediaServer
 // or before this observer is added into PeerConnection
 class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
 {
-    using CandidateListPtr = void *;
+    using CandidateListPtr = const void *;
     using RtpTransceiverInterfacePtr = void *;
     using RtpReceiverInterfacePtr = void *;
 
   public:
+    PeerConnectionObserver();
+
     // Override PeerConnectionObserver
     void OnRenegotiationNeeded() override;
     void OnIceGatheringChange(
@@ -28,11 +30,15 @@ class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
     void OnIceCandidatesRemoved(const std::vector<cricket::Candidate> &candidates) override;
     void OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) override;
     void OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override;
+    void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState new_state) override;
+    void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) override;
 
     // Methods for managed to register callbacks
     void SetRenegotiationNeededCallback(Callback<> &&callback) noexcept;
     void SetIceGatheringStateChangedCallback(Callback<IceGatheringState> &&callback) noexcept;
     void SetIceConnectionChangeCallback(Callback<IceConnectionState> &&callback) noexcept;
+    // if the name is confusing,
+    // this occurs when an ice candidate is added.
     void SetIceCandidateCallback(Callback<IceCandidate> &&callback) noexcept;
     void SetIceCandidatesRemovedCallback(Callback<CandidateListPtr> &&callback) noexcept;
     void SetRemoteTrackAddedCallback(Callback<RtpTransceiverInterfacePtr> &&callback) noexcept;

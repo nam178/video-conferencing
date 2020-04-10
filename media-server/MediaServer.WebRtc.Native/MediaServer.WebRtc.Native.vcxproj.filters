@@ -84,6 +84,7 @@
       <Filter>media_server</Filter>
     </ClCompile>
     <ClCompile Include="media_server_rtp_transceiver_interop.cpp" />
+    <ClCompile Include="media_server_peer_connection_observer_interop.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -215,6 +216,9 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="media_server_rtp_transceiver_interop.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_peer_connection_observer_interop.h">
       <Filter>media_server</Filter>
     </ClInclude>
   </ItemGroup>

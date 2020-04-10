@@ -110,6 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="media_server_peer_connection_observer_interop.h" />
     <ClInclude Include="media_server_rtp_transceiver_interop.h" />
     <ClInclude Include="media_server_call_back.h" />
     <ClInclude Include="media_server_ice_candidate.h" />
@@ -158,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="media_server_peer_connection_observer.cpp" />
+    <ClCompile Include="media_server_peer_connection_observer_interop.cpp" />
     <ClCompile Include="media_server_rtp_transceiver_interop.cpp" />
     <ClCompile Include="microsoft\audio_frame_observer.cpp" />
     <ClCompile Include="microsoft\data_channel.cpp" />

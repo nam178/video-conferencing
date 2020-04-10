@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.MixedReality.WebRTC
+namespace MediaServer.WebRtc.Managed
 {
     public sealed class PassiveVideoTrackSource : IDisposable
     {

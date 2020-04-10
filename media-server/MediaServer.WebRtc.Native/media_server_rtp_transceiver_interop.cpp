@@ -37,9 +37,13 @@ void CONVENTION RtpTransceiverInterfaceReceiverAddOrUpdateSink(void *rtp_transce
     }
     else if(track_kind == webrtc::MediaStreamTrackInterface::kVideoKind)
     {
+        rtc::VideoSinkWants sink_wants{};
+        sink_wants.rotation_applied = true; // no exposed API for caller to handle rotation
+
         static_cast<webrtc::VideoTrackInterface *>(track.get())
             ->AddOrUpdateSink(
-                static_cast<rtc::VideoSinkInterface<webrtc::VideoFrame> *>(audio_or_video_sink));
+                static_cast<rtc::VideoSinkInterface<webrtc::VideoFrame> *>(audio_or_video_sink),
+                sink_wants);
     }
     else
     {

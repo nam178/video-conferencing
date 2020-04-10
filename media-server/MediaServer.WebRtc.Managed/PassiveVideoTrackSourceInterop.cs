@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Microsoft.MixedReality.WebRTC
+namespace MediaServer.WebRtc.Managed
 {
     static class PassiveVideoTrackSourceInterop
     {

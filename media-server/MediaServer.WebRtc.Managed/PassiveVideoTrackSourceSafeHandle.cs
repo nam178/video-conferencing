@@ -1,11 +1,11 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Microsoft.MixedReality.WebRTC
+namespace MediaServer.WebRtc.Managed
 {
     sealed class PassiveVideoTrackSourceSafeHandle : SafeHandle
     {
-        public PassiveVideoTrackSourceSafeHandle() 
+        public PassiveVideoTrackSourceSafeHandle()
             : base(IntPtr.Zero, true)
         {
             SetHandle(PassiveVideoTrackSourceInterop.Create());
