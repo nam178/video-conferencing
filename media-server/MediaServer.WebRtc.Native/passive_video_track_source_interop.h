@@ -10,12 +10,12 @@ extern "C"
 {
     using PassiveVideoTrackSourceIntPtr = void *;
 
-    API_EXPORT PassiveVideoTrackSourceIntPtr API_DEF_CONVT PassiveVideoTrackSourceCreate() noexcept;
+    EXPORT PassiveVideoTrackSourceIntPtr CONVENTION PassiveVideoTrackSourceCreate() noexcept;
 
-    API_EXPORT void API_DEF_CONVT
+    EXPORT void CONVENTION
     PassiveVideoTrackSourceDestroy(PassiveVideoTrackSourceIntPtr &video_track_source_ref) noexcept;
 
-    API_EXPORT void API_DEF_CONVT
+    EXPORT void CONVENTION
     PassiveVideoTrackSourcePushVideoFrame(PassiveVideoTrackSourceIntPtr video_track_source,
                                           const VideoFrame &frame);
 }

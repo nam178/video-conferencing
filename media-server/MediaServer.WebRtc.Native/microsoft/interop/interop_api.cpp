@@ -130,27 +130,27 @@ inline rtc::Thread *GetWorkerThread()
     return GlobalFactory::InstancePtr()->GetWorkerThread();
 }
 
-uint32_t API_DEF_CONVT mrsReportLiveObjects() noexcept
+uint32_t CONVENTION mrsReportLiveObjects() noexcept
 {
     return GlobalFactory::StaticReportLiveObjects();
 }
 
-mrsShutdownOptions API_DEF_CONVT mrsGetShutdownOptions() noexcept
+mrsShutdownOptions CONVENTION mrsGetShutdownOptions() noexcept
 {
     return GlobalFactory::GetShutdownOptions();
 }
 
-void API_DEF_CONVT mrsSetShutdownOptions(mrsShutdownOptions options) noexcept
+void CONVENTION mrsSetShutdownOptions(mrsShutdownOptions options) noexcept
 {
     GlobalFactory::SetShutdownOptions(options);
 }
 
-void API_DEF_CONVT mrsForceShutdown() noexcept
+void CONVENTION mrsForceShutdown() noexcept
 {
     GlobalFactory::ForceShutdown();
 }
 
-void API_DEF_CONVT mrsCloseEnum(mrsEnumHandle *handleRef) noexcept
+void CONVENTION mrsCloseEnum(mrsEnumHandle *handleRef) noexcept
 {
     if(handleRef)
     {
@@ -163,7 +163,7 @@ void API_DEF_CONVT mrsCloseEnum(mrsEnumHandle *handleRef) noexcept
     }
 }
 
-mrsResult API_DEF_CONVT
+mrsResult CONVENTION
 mrsEnumVideoCaptureDevicesAsync(mrsVideoCaptureDeviceEnumCallback enumCallback,
                                 void *enumCallbackUserData,
                                 mrsVideoCaptureDeviceEnumCompletedCallback completedCallback,
@@ -230,7 +230,7 @@ mrsEnumVideoCaptureDevicesAsync(mrsVideoCaptureDeviceEnumCallback enumCallback,
 #endif
 }
 
-mrsResult API_DEF_CONVT
+mrsResult CONVENTION
 mrsEnumVideoCaptureFormatsAsync(const char *device_id,
                                 mrsVideoCaptureFormatEnumCallback enumCallback,
                                 void *enumCallbackUserData,
@@ -416,7 +416,7 @@ mrsEnumVideoCaptureFormatsAsync(const char *device_id,
     // Note that the enumeration is asynchronous, so not done yet.
     return Result::kSuccess;
 }
-mrsResult API_DEF_CONVT mrsPeerConnectionCreate(PeerConnectionConfiguration config,
+mrsResult CONVENTION mrsPeerConnectionCreate(PeerConnectionConfiguration config,
                                                 mrsPeerConnectionInteropHandle interop_handle,
                                                 PeerConnectionHandle *peerHandleOut) noexcept
 {
@@ -436,7 +436,7 @@ mrsResult API_DEF_CONVT mrsPeerConnectionCreate(PeerConnectionConfiguration conf
     return Result::kSuccess;
 }
 
-mrsResult API_DEF_CONVT
+mrsResult CONVENTION
 mrsPeerConnectionRegisterInteropCallbacks(PeerConnectionHandle peerHandle,
                                           mrsPeerConnectionInteropCallbacks *callbacks) noexcept
 {
@@ -451,7 +451,7 @@ mrsPeerConnectionRegisterInteropCallbacks(PeerConnectionHandle peerHandle,
     return Result::kInvalidNativeHandle;
 }
 
-void API_DEF_CONVT
+void CONVENTION
 mrsPeerConnectionRegisterConnectedCallback(PeerConnectionHandle peerHandle,
                                            PeerConnectionConnectedCallback callback,
                                            void *user_data) noexcept
@@ -462,7 +462,7 @@ mrsPeerConnectionRegisterConnectedCallback(PeerConnectionHandle peerHandle,
     }
 }
 
-void API_DEF_CONVT mrsPeerConnectionRegisterLocalSdpReadytoSendCallback(
+void CONVENTION mrsPeerConnectionRegisterLocalSdpReadytoSendCallback(
     PeerConnectionHandle peerHandle,
     PeerConnectionLocalSdpReadytoSendCallback callback,
     void *user_data) noexcept
@@ -474,7 +474,7 @@ void API_DEF_CONVT mrsPeerConnectionRegisterLocalSdpReadytoSendCallback(
     }
 }
 
-void API_DEF_CONVT mrsPeerConnectionRegisterIceCandidateReadytoSendCallback(
+void CONVENTION mrsPeerConnectionRegisterIceCandidateReadytoSendCallback(
     PeerConnectionHandle peerHandle,
     PeerConnectionIceCandidateReadytoSendCallback callback,
     void *user_data) noexcept
@@ -486,7 +486,7 @@ void API_DEF_CONVT mrsPeerConnectionRegisterIceCandidateReadytoSendCallback(
     }
 }
 
-void API_DEF_CONVT
+void CONVENTION
 mrsPeerConnectionRegisterIceStateChangedCallback(PeerConnectionHandle peerHandle,
                                                  PeerConnectionIceStateChangedCallback callback,
                                                  void *user_data) noexcept
@@ -497,7 +497,7 @@ mrsPeerConnectionRegisterIceStateChangedCallback(PeerConnectionHandle peerHandle
     }
 }
 
-void API_DEF_CONVT mrsPeerConnectionRegisterRenegotiationNeededCallback(
+void CONVENTION mrsPeerConnectionRegisterRenegotiationNeededCallback(
     PeerConnectionHandle peerHandle,
     PeerConnectionRenegotiationNeededCallback callback,
     void *user_data) noexcept
@@ -508,7 +508,7 @@ void API_DEF_CONVT mrsPeerConnectionRegisterRenegotiationNeededCallback(
     }
 }
 
-void API_DEF_CONVT
+void CONVENTION
 mrsPeerConnectionRegisterTrackAddedCallback(PeerConnectionHandle peerHandle,
                                             PeerConnectionTrackAddedCallback callback,
                                             void *user_data) noexcept
@@ -519,7 +519,7 @@ mrsPeerConnectionRegisterTrackAddedCallback(PeerConnectionHandle peerHandle,
     }
 }
 
-void API_DEF_CONVT
+void CONVENTION
 mrsPeerConnectionRegisterTrackRemovedCallback(PeerConnectionHandle peerHandle,
                                               PeerConnectionTrackRemovedCallback callback,
                                               void *user_data) noexcept
@@ -530,7 +530,7 @@ mrsPeerConnectionRegisterTrackRemovedCallback(PeerConnectionHandle peerHandle,
     }
 }
 
-void API_DEF_CONVT
+void CONVENTION
 mrsPeerConnectionRegisterDataChannelAddedCallback(PeerConnectionHandle peerHandle,
                                                   PeerConnectionDataChannelAddedCallback callback,
                                                   void *user_data) noexcept
@@ -542,7 +542,7 @@ mrsPeerConnectionRegisterDataChannelAddedCallback(PeerConnectionHandle peerHandl
     }
 }
 
-void API_DEF_CONVT mrsPeerConnectionRegisterDataChannelRemovedCallback(
+void CONVENTION mrsPeerConnectionRegisterDataChannelRemovedCallback(
     PeerConnectionHandle peerHandle,
     PeerConnectionDataChannelRemovedCallback callback,
     void *user_data) noexcept
@@ -554,7 +554,7 @@ void API_DEF_CONVT mrsPeerConnectionRegisterDataChannelRemovedCallback(
     }
 }
 
-void API_DEF_CONVT
+void CONVENTION
 mrsPeerConnectionRegisterRemoteVideoFrameCallback(PeerConnectionHandle peerHandle,
                                                   RemoteVideoFrameCallback callback,
                                                   void *user_data) noexcept
@@ -565,7 +565,7 @@ mrsPeerConnectionRegisterRemoteVideoFrameCallback(PeerConnectionHandle peerHandl
     }
 }
 
-void API_DEF_CONVT
+void CONVENTION
 mrsPeerConnectionRegisterLocalAudioFrameCallback(PeerConnectionHandle peerHandle,
                                                  PeerConnectionAudioFrameCallback callback,
                                                  void *user_data) noexcept
@@ -576,7 +576,7 @@ mrsPeerConnectionRegisterLocalAudioFrameCallback(PeerConnectionHandle peerHandle
     }
 }
 
-void API_DEF_CONVT
+void CONVENTION
 mrsPeerConnectionRegisterRemoteAudioFrameCallback(PeerConnectionHandle peerHandle,
                                                   PeerConnectionAudioFrameCallback callback,
                                                   void *user_data) noexcept
@@ -587,7 +587,7 @@ mrsPeerConnectionRegisterRemoteAudioFrameCallback(PeerConnectionHandle peerHandl
     }
 }
 
-mrsResult API_DEF_CONVT
+mrsResult CONVENTION
 mrsPeerConnectionAddLocalVideoTrack(PeerConnectionHandle peerHandle,
                                     const char *track_name,
                                     const LocalVideoTrackInitConfig *config,
@@ -596,7 +596,7 @@ mrsPeerConnectionAddLocalVideoTrack(PeerConnectionHandle peerHandle,
     throw new std::runtime_error("no longer supported");
 }
 
-void API_DEF_CONVT
+void CONVENTION
 mrsPeerConnectionAddPassiveVideoTrack(PeerConnectionHandle peerHandle,
                                       PassiveVideoTrackHandle passive_video_track_handle)
 {
@@ -607,7 +607,7 @@ mrsPeerConnectionAddPassiveVideoTrack(PeerConnectionHandle peerHandle,
     peer->AddLocalVideoTrack(std::move(passive_video_track->VideoTrack()));
 }
 
-mrsResult API_DEF_CONVT mrsPeerConnectionAddLocalVideoTrackFromExternalSource(
+mrsResult CONVENTION mrsPeerConnectionAddLocalVideoTrackFromExternalSource(
     PeerConnectionHandle peer_handle,
     const char *track_name,
     ExternalVideoTrackSourceHandle source_handle,
@@ -663,7 +663,7 @@ mrsResult API_DEF_CONVT mrsPeerConnectionAddLocalVideoTrackFromExternalSource(
     return Result::kUnknownError; //< TODO Convert from result.error()?
 }
 
-mrsResult API_DEF_CONVT mrsPeerConnectionRemoveLocalVideoTracksFromSource(
+mrsResult CONVENTION mrsPeerConnectionRemoveLocalVideoTracksFromSource(
     PeerConnectionHandle peer_handle,
     ExternalVideoTrackSourceHandle source_handle) noexcept
 {
@@ -681,7 +681,7 @@ mrsResult API_DEF_CONVT mrsPeerConnectionRemoveLocalVideoTracksFromSource(
     return Result::kSuccess;
 }
 
-mrsResult API_DEF_CONVT
+mrsResult CONVENTION
 mrsPeerConnectionAddLocalAudioTrack(PeerConnectionHandle peerHandle) noexcept
 {
     if(auto peer = static_cast<PeerConnection *>(peerHandle))
@@ -710,7 +710,7 @@ mrsPeerConnectionAddLocalAudioTrack(PeerConnectionHandle peerHandle) noexcept
     return Result::kUnknownError;
 }
 
-mrsResult API_DEF_CONVT
+mrsResult CONVENTION
 mrsPeerConnectionAddDataChannel(PeerConnectionHandle peerHandle,
                                 mrsDataChannelInteropHandle dataChannelInteropHandle,
                                 mrsDataChannelConfig config,
@@ -749,7 +749,7 @@ mrsPeerConnectionAddDataChannel(PeerConnectionHandle peerHandle,
     return data_channel.error().result();
 }
 
-mrsResult API_DEF_CONVT
+mrsResult CONVENTION
 mrsPeerConnectionRemoveLocalVideoTrack(PeerConnectionHandle peer_handle,
                                        LocalVideoTrackHandle track_handle) noexcept
 {
@@ -768,7 +768,7 @@ mrsPeerConnectionRemoveLocalVideoTrack(PeerConnectionHandle peer_handle,
     return res;
 }
 
-void API_DEF_CONVT mrsPeerConnectionRemoveLocalAudioTrack(PeerConnectionHandle peerHandle) noexcept
+void CONVENTION mrsPeerConnectionRemoveLocalAudioTrack(PeerConnectionHandle peerHandle) noexcept
 {
     if(auto peer = static_cast<PeerConnection *>(peerHandle))
     {
@@ -776,7 +776,7 @@ void API_DEF_CONVT mrsPeerConnectionRemoveLocalAudioTrack(PeerConnectionHandle p
     }
 }
 
-mrsResult API_DEF_CONVT
+mrsResult CONVENTION
 mrsPeerConnectionRemoveDataChannel(PeerConnectionHandle peerHandle,
                                    DataChannelHandle dataChannelHandle) noexcept
 {
@@ -794,7 +794,7 @@ mrsPeerConnectionRemoveDataChannel(PeerConnectionHandle peerHandle,
     return Result::kSuccess;
 }
 
-mrsResult API_DEF_CONVT mrsPeerConnectionSetLocalAudioTrackEnabled(PeerConnectionHandle peerHandle,
+mrsResult CONVENTION mrsPeerConnectionSetLocalAudioTrackEnabled(PeerConnectionHandle peerHandle,
                                                                    mrsBool enabled) noexcept
 {
     auto peer = static_cast<PeerConnection *>(peerHandle);
@@ -806,7 +806,7 @@ mrsResult API_DEF_CONVT mrsPeerConnectionSetLocalAudioTrackEnabled(PeerConnectio
     return Result::kSuccess;
 }
 
-mrsBool API_DEF_CONVT
+mrsBool CONVENTION
 mrsPeerConnectionIsLocalAudioTrackEnabled(PeerConnectionHandle peerHandle) noexcept
 {
     auto peer = static_cast<PeerConnection *>(peerHandle);
@@ -817,7 +817,7 @@ mrsPeerConnectionIsLocalAudioTrackEnabled(PeerConnectionHandle peerHandle) noexc
     return (peer->IsLocalAudioTrackEnabled() ? mrsBool::kTrue : mrsBool::kFalse);
 }
 
-mrsResult API_DEF_CONVT mrsDataChannelSendMessage(DataChannelHandle dataChannelHandle,
+mrsResult CONVENTION mrsDataChannelSendMessage(DataChannelHandle dataChannelHandle,
                                                   const void *data,
                                                   uint64_t size) noexcept
 {
@@ -829,7 +829,7 @@ mrsResult API_DEF_CONVT mrsDataChannelSendMessage(DataChannelHandle dataChannelH
     return (data_channel->Send(data, (size_t)size) ? Result::kSuccess : Result::kUnknownError);
 }
 
-mrsResult API_DEF_CONVT mrsPeerConnectionAddIceCandidate(PeerConnectionHandle peerHandle,
+mrsResult CONVENTION mrsPeerConnectionAddIceCandidate(PeerConnectionHandle peerHandle,
                                                          const char *sdp,
                                                          const int sdp_mline_index,
                                                          const char *sdp_mid) noexcept
@@ -842,7 +842,7 @@ mrsResult API_DEF_CONVT mrsPeerConnectionAddIceCandidate(PeerConnectionHandle pe
     return Result::kInvalidNativeHandle;
 }
 
-mrsResult API_DEF_CONVT mrsPeerConnectionCreateOffer(PeerConnectionHandle peerHandle) noexcept
+mrsResult CONVENTION mrsPeerConnectionCreateOffer(PeerConnectionHandle peerHandle) noexcept
 {
     if(auto peer = static_cast<PeerConnection *>(peerHandle))
     {
@@ -851,7 +851,7 @@ mrsResult API_DEF_CONVT mrsPeerConnectionCreateOffer(PeerConnectionHandle peerHa
     return Result::kInvalidNativeHandle;
 }
 
-mrsResult API_DEF_CONVT mrsPeerConnectionCreateAnswer(PeerConnectionHandle peerHandle) noexcept
+mrsResult CONVENTION mrsPeerConnectionCreateAnswer(PeerConnectionHandle peerHandle) noexcept
 {
     if(auto peer = static_cast<PeerConnection *>(peerHandle))
     {
@@ -860,7 +860,7 @@ mrsResult API_DEF_CONVT mrsPeerConnectionCreateAnswer(PeerConnectionHandle peerH
     return Result::kInvalidNativeHandle;
 }
 
-mrsResult API_DEF_CONVT mrsPeerConnectionSetBitrate(PeerConnectionHandle peer_handle,
+mrsResult CONVENTION mrsPeerConnectionSetBitrate(PeerConnectionHandle peer_handle,
                                                     int min_bitrate_bps,
                                                     int start_bitrate_bps,
                                                     int max_bitrate_bps) noexcept
@@ -885,7 +885,7 @@ mrsResult API_DEF_CONVT mrsPeerConnectionSetBitrate(PeerConnectionHandle peer_ha
     return Result::kInvalidNativeHandle;
 }
 
-mrsResult API_DEF_CONVT mrsPeerConnectionSetRemoteDescriptionAsync(PeerConnectionHandle peerHandle,
+mrsResult CONVENTION mrsPeerConnectionSetRemoteDescriptionAsync(PeerConnectionHandle peerHandle,
                                                                    const char *type,
                                                                    const char *sdp,
                                                                    ActionCallback callback,
@@ -900,7 +900,7 @@ mrsResult API_DEF_CONVT mrsPeerConnectionSetRemoteDescriptionAsync(PeerConnectio
     return Result::kInvalidNativeHandle;
 }
 
-mrsResult API_DEF_CONVT mrsPeerConnectionClose(PeerConnectionHandle peerHandle) noexcept
+mrsResult CONVENTION mrsPeerConnectionClose(PeerConnectionHandle peerHandle) noexcept
 {
     if(auto peer = static_cast<PeerConnection *>(peerHandle))
     {
@@ -910,7 +910,7 @@ mrsResult API_DEF_CONVT mrsPeerConnectionClose(PeerConnectionHandle peerHandle) 
     return Result::kInvalidNativeHandle;
 }
 
-mrsResult API_DEF_CONVT mrsSdpForceCodecs(const char *message,
+mrsResult CONVENTION mrsSdpForceCodecs(const char *message,
                                           SdpFilter audio_filter,
                                           SdpFilter video_filter,
                                           char *buffer,
@@ -958,22 +958,22 @@ mrsResult API_DEF_CONVT mrsSdpForceCodecs(const char *message,
     return Result::kSuccess;
 }
 
-mrsBool API_DEF_CONVT mrsSdpIsValidToken(const char *token) noexcept
+mrsBool CONVENTION mrsSdpIsValidToken(const char *token) noexcept
 {
     return ((token != nullptr) && SdpIsValidToken(token) ? mrsBool::kTrue : mrsBool::kFalse);
 }
 
-void API_DEF_CONVT mrsSetFrameHeightRoundMode(FrameHeightRoundMode value)
+void CONVENTION mrsSetFrameHeightRoundMode(FrameHeightRoundMode value)
 {
     PeerConnection::SetFrameHeightRoundMode((PeerConnection::FrameHeightRoundMode)value);
 }
 
-void API_DEF_CONVT mrsMemCpy(void *dst, const void *src, uint64_t size) noexcept
+void CONVENTION mrsMemCpy(void *dst, const void *src, uint64_t size) noexcept
 {
     memcpy(dst, src, static_cast<size_t>(size));
 }
 
-void API_DEF_CONVT mrsMemCpyStride(void *dst,
+void CONVENTION mrsMemCpyStride(void *dst,
                                    int32_t dst_stride,
                                    const void *src,
                                    int32_t src_stride,
@@ -1016,7 +1016,7 @@ template <class T> T &FindOrInsert(std::vector<std::pair<std::string, T>> &vec, 
 
 } // namespace
 
-mrsResult API_DEF_CONVT
+mrsResult CONVENTION
 mrsPeerConnectionGetSimpleStats(PeerConnectionHandle peerHandle,
                                 PeerConnectionGetSimpleStatsCallback callback,
                                 void *user_data)
@@ -1072,7 +1072,7 @@ template <class T> T GetValueIfDefined(const webrtc::RTCStatsMember<T> &member)
 
 } // namespace
 
-mrsResult API_DEF_CONVT mrsStatsReportGetObjects(mrsStatsReportHandle report_handle,
+mrsResult CONVENTION mrsStatsReportGetObjects(mrsStatsReportHandle report_handle,
                                                  const char *stats_type,
                                                  mrsStatsReportGetObjectCallback callback,
                                                  void *user_data)
@@ -1276,7 +1276,7 @@ mrsResult API_DEF_CONVT mrsStatsReportGetObjects(mrsStatsReportHandle report_han
     return Result::kSuccess;
 }
 
-mrsResult API_DEF_CONVT mrsStatsReportRemoveRef(mrsStatsReportHandle stats_report)
+mrsResult CONVENTION mrsStatsReportRemoveRef(mrsStatsReportHandle stats_report)
 {
     if(auto rep = static_cast<const webrtc::RTCStatsReport *>(stats_report))
     {

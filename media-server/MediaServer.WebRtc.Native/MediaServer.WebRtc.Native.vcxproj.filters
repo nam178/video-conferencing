@@ -77,9 +77,13 @@
     <ClCompile Include="passive_video_track_source_interop.cpp">
       <Filter>passive_video</Filter>
     </ClCompile>
-    <ClCompile Include="peer_connection_factory_manager.cpp">
+    <ClCompile Include="media_server_peer_connection_factory_manager.cpp">
       <Filter>media_server</Filter>
     </ClCompile>
+    <ClCompile Include="media_server_peer_connection_observer.cpp">
+      <Filter>media_server</Filter>
+    </ClCompile>
+    <ClCompile Include="media_server_rtp_transceiver_interop.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -93,9 +97,6 @@
       <Filter>microsoft</Filter>
     </ClInclude>
     <ClInclude Include="microsoft\data_channel.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\include\export.h">
       <Filter>microsoft</Filter>
     </ClInclude>
     <ClInclude Include="microsoft\media\external_video_track_source.h">
@@ -191,7 +192,29 @@
     <ClInclude Include="passive_video_track_source_interop.h">
       <Filter>passive_video</Filter>
     </ClInclude>
-    <ClInclude Include="peer_connection_factory_manager.h">
+    <ClInclude Include="export.h" />
+    <ClInclude Include="media_server_call_back.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_peer_connection_factory_manager.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_ice_gathering_state.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_peer_connection_observer.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_ice_connection_state.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_ice_candidate.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="utils_string_helper.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_rtp_transceiver_interop.h">
       <Filter>media_server</Filter>
     </ClInclude>
   </ItemGroup>
@@ -210,6 +233,9 @@
     </Filter>
     <Filter Include="media_server">
       <UniqueIdentifier>{834550d2-8830-48b9-bae4-5382e27a08c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{199f8c2d-c921-4c5a-bbf2-ed5a0f4e854c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

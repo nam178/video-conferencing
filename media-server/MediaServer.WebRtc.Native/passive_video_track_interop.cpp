@@ -8,7 +8,7 @@
 using namespace Microsoft::MixedReality::WebRTC;
 using namespace PassiveVideo;
 
-API_EXPORT PassiveVideoTrackIntPtr API_DEF_CONVT
+EXPORT PassiveVideoTrackIntPtr CONVENTION
 PassiveVideoTrackCreate(const char *video_track_name,
                         PassiveVideoTrackIntPtr passive_video_track_source)
 {
@@ -20,7 +20,7 @@ PassiveVideoTrackCreate(const char *video_track_name,
         std::move(global_factory));
 }
 
-API_EXPORT void PassiveVideoTrackDestroy(PassiveVideoTrackIntPtr &video_track_ref) noexcept
+EXPORT void PassiveVideoTrackDestroy(PassiveVideoTrackIntPtr &video_track_ref) noexcept
 {
     if(video_track_ref)
     {

@@ -12,23 +12,23 @@ extern "C" {
 //
 
 /// Add a reference to the native object associated with the given handle.
-API_EXPORT void API_DEF_CONVT
+EXPORT void CONVENTION
 mrsLocalVideoTrackAddRef(LocalVideoTrackHandle handle) noexcept;
 
 /// Remove a reference from the native object associated with the given handle.
-API_EXPORT void API_DEF_CONVT
+EXPORT void CONVENTION
 mrsLocalVideoTrackRemoveRef(LocalVideoTrackHandle handle) noexcept;
 
 /// Enable or disable a local video track. Enabled tracks output their media
 /// content as usual. Disabled track output some void media content (black video
 /// frames, silent audio frames). Enabling/disabling a track is a lightweight
 /// concept similar to "mute", which does not require an SDP renegotiation.
-API_EXPORT mrsResult API_DEF_CONVT
+EXPORT mrsResult CONVENTION
 mrsLocalVideoTrackSetEnabled(LocalVideoTrackHandle track_handle,
                              mrsBool enabled) noexcept;
 
 /// Query a local video track for its enabled status.
-API_EXPORT mrsBool API_DEF_CONVT
+EXPORT mrsBool CONVENTION
 mrsLocalVideoTrackIsEnabled(LocalVideoTrackHandle track_handle) noexcept;
 
 }  // extern "C"

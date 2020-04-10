@@ -10,7 +10,7 @@
 
 using namespace Microsoft::MixedReality::WebRTC;
 
-void API_DEF_CONVT mrsLocalVideoTrackAddRef(LocalVideoTrackHandle handle) noexcept {
+void CONVENTION mrsLocalVideoTrackAddRef(LocalVideoTrackHandle handle) noexcept {
   if (auto track = static_cast<LocalVideoTrack*>(handle)) {
     track->AddRef();
   } else {
@@ -19,7 +19,7 @@ void API_DEF_CONVT mrsLocalVideoTrackAddRef(LocalVideoTrackHandle handle) noexce
   }
 }
 
-void API_DEF_CONVT
+void CONVENTION
 mrsLocalVideoTrackRemoveRef(LocalVideoTrackHandle handle) noexcept {
   if (auto track = static_cast<LocalVideoTrack*>(handle)) {
     track->RemoveRef();
@@ -29,7 +29,7 @@ mrsLocalVideoTrackRemoveRef(LocalVideoTrackHandle handle) noexcept {
   }
 }
 
-mrsResult API_DEF_CONVT
+mrsResult CONVENTION
 mrsLocalVideoTrackSetEnabled(LocalVideoTrackHandle track_handle,
                              mrsBool enabled) noexcept {
   auto track = static_cast<LocalVideoTrack*>(track_handle);
@@ -40,7 +40,7 @@ mrsLocalVideoTrackSetEnabled(LocalVideoTrackHandle track_handle,
   return Result::kSuccess;
 }
 
-mrsBool API_DEF_CONVT
+mrsBool CONVENTION
 mrsLocalVideoTrackIsEnabled(LocalVideoTrackHandle track_handle) noexcept {
   auto track = static_cast<LocalVideoTrack*>(track_handle);
   if (!track) {

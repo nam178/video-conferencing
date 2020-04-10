@@ -12,19 +12,19 @@ extern "C" {
 //
 
 /// Add a reference to the native object associated with the given handle.
-API_EXPORT void API_DEF_CONVT
+EXPORT void CONVENTION
 mrsPeerConnectionAddRef(PeerConnectionHandle handle) noexcept;
 
 /// Remove a reference from the native object associated with the given handle.
-API_EXPORT void API_DEF_CONVT
+EXPORT void CONVENTION
 mrsPeerConnectionRemoveRef(PeerConnectionHandle handle) noexcept;
 
 /// Callback fired when the state of the ICE connection changed.
 using mrsPeerConnectionIceGatheringStateChangedCallback =
-    void(API_DEF_CONVT*)(void* user_data, IceGatheringState new_state);
+    void(CONVENTION*)(void* user_data, IceGatheringState new_state);
 
 /// Register a callback fired when the ICE connection state changes.
-API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterIceGatheringStateChangedCallback(
+EXPORT void CONVENTION mrsPeerConnectionRegisterIceGatheringStateChangedCallback(
     PeerConnectionHandle peer_handle,
     mrsPeerConnectionIceGatheringStateChangedCallback callback,
     void* user_data) noexcept;

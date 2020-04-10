@@ -11,7 +11,7 @@
 
 using namespace Microsoft::MixedReality::WebRTC;
 
-void API_DEF_CONVT mrsPeerConnectionAddRef(PeerConnectionHandle handle) noexcept {
+void CONVENTION mrsPeerConnectionAddRef(PeerConnectionHandle handle) noexcept {
   if (auto peer = static_cast<PeerConnection*>(handle)) {
     peer->AddRef();
   } else {
@@ -20,7 +20,7 @@ void API_DEF_CONVT mrsPeerConnectionAddRef(PeerConnectionHandle handle) noexcept
   }
 }
 
-void API_DEF_CONVT mrsPeerConnectionRemoveRef(PeerConnectionHandle handle) noexcept {
+void CONVENTION mrsPeerConnectionRemoveRef(PeerConnectionHandle handle) noexcept {
   if (auto peer = static_cast<PeerConnection*>(handle)) {
     peer->RemoveRef();
   } else {
@@ -29,7 +29,7 @@ void API_DEF_CONVT mrsPeerConnectionRemoveRef(PeerConnectionHandle handle) noexc
   }
 }
 
-void API_DEF_CONVT mrsPeerConnectionRegisterIceGatheringStateChangedCallback(
+void CONVENTION mrsPeerConnectionRegisterIceGatheringStateChangedCallback(
     PeerConnectionHandle peer_handle,
     mrsPeerConnectionIceGatheringStateChangedCallback callback,
     void* user_data) noexcept {

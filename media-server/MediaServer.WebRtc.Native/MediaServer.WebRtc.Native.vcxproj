@@ -110,10 +110,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="media_server_rtp_transceiver_interop.h" />
+    <ClInclude Include="media_server_call_back.h" />
+    <ClInclude Include="media_server_ice_candidate.h" />
+    <ClInclude Include="media_server_ice_connection_state.h" />
+    <ClInclude Include="media_server_ice_gathering_state.h" />
     <ClInclude Include="microsoft\include\audio_frame.h" />
     <ClInclude Include="microsoft\include\video_frame.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="microsoft\include\export.h" />
+    <ClInclude Include="export.h" />
     <ClInclude Include="microsoft\include\external_video_track_source_interop.h" />
     <ClInclude Include="microsoft\include\interop_api.h" />
     <ClInclude Include="microsoft\include\local_video_track_interop.h" />
@@ -147,9 +152,13 @@
     <ClInclude Include="passive_video_track_interop.h" />
     <ClInclude Include="passive_video_track_source.h" />
     <ClInclude Include="passive_video_track_source_interop.h" />
-    <ClInclude Include="peer_connection_factory_manager.h" />
+    <ClInclude Include="media_server_peer_connection_observer.h" />
+    <ClInclude Include="media_server_peer_connection_factory_manager.h" />
+    <ClInclude Include="utils_string_helper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="media_server_peer_connection_observer.cpp" />
+    <ClCompile Include="media_server_rtp_transceiver_interop.cpp" />
     <ClCompile Include="microsoft\audio_frame_observer.cpp" />
     <ClCompile Include="microsoft\data_channel.cpp" />
     <ClCompile Include="microsoft\interop\external_video_track_source_interop.cpp" />
@@ -179,7 +188,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="peer_connection_factory_manager.cpp" />
+    <ClCompile Include="media_server_peer_connection_factory_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

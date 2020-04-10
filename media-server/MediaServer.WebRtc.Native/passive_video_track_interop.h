@@ -10,10 +10,10 @@ extern "C"
     using PassiveVideoTrackSourceIntrPtr = void*;
 
     // Create new PassiveVideoTrack and return its pointer
-    API_EXPORT PassiveVideoTrackIntPtr API_DEF_CONVT
+    EXPORT PassiveVideoTrackIntPtr CONVENTION
     PassiveVideoTrackCreate(const char *video_track_name, PassiveVideoTrackIntPtr passive_video_track_source);
 
     // Destroy the PassiveVideoTrack and release the provided pointer
-    API_EXPORT void API_DEF_CONVT
+    EXPORT void CONVENTION
     PassiveVideoTrackDestroy(PassiveVideoTrackIntPtr &video_track_ref) noexcept;
 }

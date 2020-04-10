@@ -6,7 +6,8 @@
 
 #include "export.h"
 
-namespace Microsoft::MixedReality::WebRTC {
+namespace Microsoft::MixedReality::WebRTC
+{
 
 /// Wrapper for a static callback with user data.
 /// Usage:
@@ -15,59 +16,65 @@ namespace Microsoft::MixedReality::WebRTC {
 ///   cb(42); // -> func_ptr(user_data, 42)
 ///   Callback<float> cb2;
 ///   cb2(3.4f); // -> safe, does nothing
-template <typename... Args>
-struct Callback {
-  /// Type of the raw callback function.
-  /// The first parameter is the opaque user data pointer.
-  using callback_type = void(API_DEF_CONVT*)(void*, Args...);
+template <typename... Args> struct Callback
+{
+    /// Type of the raw callback function.
+    /// The first parameter is the opaque user data pointer.
+    using callback_type = void(CONVENTION *)(void *, Args...);
 
-  /// Pointer to the raw function to invoke.
-  callback_type callback_{};
+    /// Pointer to the raw function to invoke.
+    callback_type callback_{};
 
-  /// User-provided opaque pointer passed as first argument to the raw function.
-  void* user_data_{};
+    /// User-provided opaque pointer passed as first argument to the raw function.
+    void *user_data_{};
 
-  /// Check if the callback has a valid function pointer.
-  constexpr explicit operator bool() const noexcept {
-    return (callback_ != nullptr);
-  }
-
-  /// Invoke the callback with the given arguments |args|.
-  constexpr void operator()(Args... args) const noexcept {
-    if (callback_ != nullptr) {
-      (*callback_)(user_data_, std::forward<Args>(args)...);
+    /// Check if the callback has a valid function pointer.
+    constexpr explicit operator bool() const noexcept
+    {
+        return (callback_ != nullptr);
     }
-  }
+
+    /// Invoke the callback with the given arguments |args|.
+    constexpr void operator()(Args... args) const noexcept
+    {
+        if(callback_ != nullptr)
+        {
+            (*callback_)(user_data_, std::forward<Args>(args)...);
+        }
+    }
 };
 
 /// Same as |Callback|, with a return value.
-template <typename Ret, typename... Args>
-struct RetCallback {
-  /// Type of the return value.
-  using return_type = Ret;
+template <typename Ret, typename... Args> struct RetCallback
+{
+    /// Type of the return value.
+    using return_type = Ret;
 
-  /// Type of the raw callback function.
-  /// The first parameter is the opaque user data pointer.
-  using callback_type = return_type(API_DEF_CONVT*)(void*, Args...);
+    /// Type of the raw callback function.
+    /// The first parameter is the opaque user data pointer.
+    using callback_type = return_type(CONVENTION *)(void *, Args...);
 
-  /// Pointer to the raw function to invoke.
-  callback_type callback_{};
+    /// Pointer to the raw function to invoke.
+    callback_type callback_{};
 
-  /// User-provided opaque pointer passed as first argument to the raw function.
-  void* user_data_{};
+    /// User-provided opaque pointer passed as first argument to the raw function.
+    void *user_data_{};
 
-  /// Check if the callback has a valid function pointer.
-  constexpr explicit operator bool() const noexcept {
-    return (callback_ != nullptr);
-  }
-
-  /// Invoke the callback with the given arguments |args|.
-  constexpr return_type operator()(Args... args) const noexcept {
-    if (callback_ != nullptr) {
-      return (*callback_)(user_data_, std::forward<Args>(args)...);
+    /// Check if the callback has a valid function pointer.
+    constexpr explicit operator bool() const noexcept
+    {
+        return (callback_ != nullptr);
     }
-    return return_type{};
-  }
+
+    /// Invoke the callback with the given arguments |args|.
+    constexpr return_type operator()(Args... args) const noexcept
+    {
+        if(callback_ != nullptr)
+        {
+            return (*callback_)(user_data_, std::forward<Args>(args)...);
+        }
+        return return_type{};
+    }
 };
 
-}  // namespace Microsoft::MixedReality::WebRTC
+} // namespace Microsoft::MixedReality::WebRTC

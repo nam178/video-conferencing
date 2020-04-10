@@ -12,7 +12,7 @@
 
 using namespace Microsoft::MixedReality::WebRTC;
 
-void API_DEF_CONVT mrsExternalVideoTrackSourceAddRef(
+void CONVENTION mrsExternalVideoTrackSourceAddRef(
     ExternalVideoTrackSourceHandle handle) noexcept {
   if (auto track = static_cast<ExternalVideoTrackSource*>(handle)) {
     track->AddRef();
@@ -22,7 +22,7 @@ void API_DEF_CONVT mrsExternalVideoTrackSourceAddRef(
   }
 }
 
-void API_DEF_CONVT mrsExternalVideoTrackSourceRemoveRef(
+void CONVENTION mrsExternalVideoTrackSourceRemoveRef(
     ExternalVideoTrackSourceHandle handle) noexcept {
   if (auto track = static_cast<ExternalVideoTrackSource*>(handle)) {
     track->RemoveRef();
@@ -32,7 +32,7 @@ void API_DEF_CONVT mrsExternalVideoTrackSourceRemoveRef(
   }
 }
 
-mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCreateFromI420ACallback(
+mrsResult CONVENTION mrsExternalVideoTrackSourceCreateFromI420ACallback(
     mrsRequestExternalI420AVideoFrameCallback callback,
     void* user_data,
     ExternalVideoTrackSourceHandle* source_handle_out) noexcept {
@@ -50,7 +50,7 @@ mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCreateFromI420ACallback(
   return Result::kSuccess;
 }
 
-mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCreateFromArgb32Callback(
+mrsResult CONVENTION mrsExternalVideoTrackSourceCreateFromArgb32Callback(
     mrsRequestExternalArgb32VideoFrameCallback callback,
     void* user_data,
     ExternalVideoTrackSourceHandle* source_handle_out) noexcept {
@@ -68,14 +68,14 @@ mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCreateFromArgb32Callback(
   return Result::kSuccess;
 }
 
-void API_DEF_CONVT mrsExternalVideoTrackSourceFinishCreation(
+void CONVENTION mrsExternalVideoTrackSourceFinishCreation(
     ExternalVideoTrackSourceHandle source_handle) noexcept {
   if (auto source = static_cast<ExternalVideoTrackSource*>(source_handle)) {
     source->FinishCreation();
   }
 }
 
-mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCompleteI420AFrameRequest(
+mrsResult CONVENTION mrsExternalVideoTrackSourceCompleteI420AFrameRequest(
     ExternalVideoTrackSourceHandle handle,
     uint32_t request_id,
     int64_t timestamp_ms,
@@ -89,7 +89,7 @@ mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCompleteI420AFrameRequest(
   return mrsResult::kInvalidNativeHandle;
 }
 
-mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCompleteArgb32FrameRequest(
+mrsResult CONVENTION mrsExternalVideoTrackSourceCompleteArgb32FrameRequest(
     ExternalVideoTrackSourceHandle handle,
     uint32_t request_id,
     int64_t timestamp_ms,
@@ -103,7 +103,7 @@ mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCompleteArgb32FrameRequest(
   return mrsResult::kInvalidNativeHandle;
 }
 
-void API_DEF_CONVT mrsExternalVideoTrackSourceShutdown(
+void CONVENTION mrsExternalVideoTrackSourceShutdown(
     ExternalVideoTrackSourceHandle handle) noexcept {
   if (auto track = static_cast<ExternalVideoTrackSource*>(handle)) {
     track->Shutdown();

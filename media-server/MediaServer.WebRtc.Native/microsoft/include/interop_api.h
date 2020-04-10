@@ -23,7 +23,7 @@ extern "C"
     //
 
     /// Report live objects to debug output, and return the number of live objects.
-    API_EXPORT uint32_t API_DEF_CONVT mrsReportLiveObjects() noexcept;
+    EXPORT uint32_t CONVENTION mrsReportLiveObjects() noexcept;
 
     /// Global MixedReality-WebRTC library shutdown options.
     enum class mrsShutdownOptions : uint32_t
@@ -47,19 +47,19 @@ extern "C"
     /// This enables controlling the behavior of the library when it is shut down as
     /// a result of all tracked objects being released, or when the program
     /// terminates.
-    API_EXPORT mrsShutdownOptions API_DEF_CONVT mrsGetShutdownOptions() noexcept;
+    EXPORT mrsShutdownOptions CONVENTION mrsGetShutdownOptions() noexcept;
 
     /// Set options for the automatic shutdown of the MixedReality-WebRTC library.
     /// This enables controlling the behavior of the library when it is shut down as
     /// a result of all tracked objects being released, or when the program
     /// terminates.
-    API_EXPORT void API_DEF_CONVT mrsSetShutdownOptions(mrsShutdownOptions options) noexcept;
+    EXPORT void CONVENTION mrsSetShutdownOptions(mrsShutdownOptions options) noexcept;
 
     /// Forcefully shutdown the library and release all resources (as possible), and
     /// terminate the WebRTC threads to allow the shared module to be unloaded. This
     /// is a last-resort measure for exceptional situations like unit testing where
     /// loss of data is acceptable.
-    API_EXPORT void API_DEF_CONVT mrsForceShutdown() noexcept;
+    EXPORT void CONVENTION mrsForceShutdown() noexcept;
 
     /// Opaque enumerator type.
     struct mrsEnumerator;
@@ -69,7 +69,7 @@ extern "C"
     using mrsEnumHandle = mrsEnumerator *;
 
     /// Close an enumerator previously obtained from one of the EnumXxx() calls.
-    API_EXPORT void API_DEF_CONVT mrsCloseEnum(mrsEnumHandle *handleRef) noexcept;
+    EXPORT void CONVENTION mrsCloseEnum(mrsEnumHandle *handleRef) noexcept;
 
     //
     // Interop
@@ -88,7 +88,7 @@ extern "C"
     using mrsDataChannelInteropHandle = void *;
 
     /// Callback to create an interop wrapper for a data channel.
-    using mrsDataChannelCreateObjectCallback = mrsDataChannelInteropHandle(API_DEF_CONVT *)(
+    using mrsDataChannelCreateObjectCallback = mrsDataChannelInteropHandle(CONVENTION *)(
         mrsPeerConnectionInteropHandle parent, const mrsDataChannelConfig &config,
         mrsDataChannelCallbacks *callbacks);
 
@@ -97,11 +97,11 @@ extern "C"
     //
 
     /// Callback invoked for each enumerated video capture device.
-    using mrsVideoCaptureDeviceEnumCallback = void(API_DEF_CONVT *)(const char *id, const char *name,
+    using mrsVideoCaptureDeviceEnumCallback = void(CONVENTION *)(const char *id, const char *name,
                                                                void *user_data);
 
     /// Callback invoked on video capture device enumeration completed.
-    using mrsVideoCaptureDeviceEnumCompletedCallback = void(API_DEF_CONVT *)(void *user_data);
+    using mrsVideoCaptureDeviceEnumCompletedCallback = void(CONVENTION *)(void *user_data);
 
     /// Enumerate the video capture devices asynchronously.
     /// For each device found, invoke the mandatory |callback|.
@@ -109,18 +109,18 @@ extern "C"
     /// was provided (non-null).
     /// On UWP this must *not* be called from the main UI thread, otherwise a
     /// |mrsResult::kWrongThread| error might be returned.
-    API_EXPORT mrsResult API_DEF_CONVT mrsEnumVideoCaptureDevicesAsync(
+    EXPORT mrsResult CONVENTION mrsEnumVideoCaptureDevicesAsync(
         mrsVideoCaptureDeviceEnumCallback enumCallback, void *enumCallbackUserData,
         mrsVideoCaptureDeviceEnumCompletedCallback completedCallback,
         void *completedCallbackUserData) noexcept;
 
     /// Callback invoked for each enumerated video capture format.
-    using mrsVideoCaptureFormatEnumCallback = void(API_DEF_CONVT *)(uint32_t width, uint32_t height,
+    using mrsVideoCaptureFormatEnumCallback = void(CONVENTION *)(uint32_t width, uint32_t height,
                                                                double framerate, uint32_t encoding,
                                                                void *user_data);
 
     /// Callback invoked on video capture format enumeration completed.
-    using mrsVideoCaptureFormatEnumCompletedCallback = void(API_DEF_CONVT *)(mrsResult result,
+    using mrsVideoCaptureFormatEnumCompletedCallback = void(CONVENTION *)(mrsResult result,
                                                                         void *user_data);
 
     /// Enumerate the video capture formats asynchronously.
@@ -129,7 +129,7 @@ extern "C"
     /// was provided (non-null).
     /// On UWP this must *not* be called from the main UI thread, otherwise a
     /// |mrsResult::kWrongThread| error might be returned.
-    API_EXPORT mrsResult API_DEF_CONVT mrsEnumVideoCaptureFormatsAsync(
+    EXPORT mrsResult CONVENTION mrsEnumVideoCaptureFormatsAsync(
         const char *device_id, mrsVideoCaptureFormatEnumCallback enumCallback,
         void *enumCallbackUserData, mrsVideoCaptureFormatEnumCompletedCallback completedCallback,
         void *completedCallbackUserData) noexcept;
@@ -152,17 +152,17 @@ extern "C"
 
     /// Callback fired when the peer connection is connected, that is it finished
     /// the JSEP offer/answer exchange successfully.
-    using PeerConnectionConnectedCallback = void(API_DEF_CONVT *)(void *user_data);
+    using PeerConnectionConnectedCallback = void(CONVENTION *)(void *user_data);
 
     /// Callback fired when a local SDP message has been prepared and is ready to be
     /// sent by the user via the signaling service.
-    using PeerConnectionLocalSdpReadytoSendCallback = void(API_DEF_CONVT *)(void *user_data,
+    using PeerConnectionLocalSdpReadytoSendCallback = void(CONVENTION *)(void *user_data,
                                                                        const char *type,
                                                                        const char *sdp_data);
 
     /// Callback fired when an ICE candidate has been prepared and is ready to be
     /// sent by the user via the signaling service.
-    using PeerConnectionIceCandidateReadytoSendCallback = void(API_DEF_CONVT *)(void *user_data,
+    using PeerConnectionIceCandidateReadytoSendCallback = void(CONVENTION *)(void *user_data,
                                                                            const char *candidate,
                                                                            int sdpMlineindex,
                                                                            const char *sdpMid);
@@ -191,12 +191,12 @@ extern "C"
     };
 
     /// Callback fired when the state of the ICE connection changed.
-    using PeerConnectionIceStateChangedCallback = void(API_DEF_CONVT *)(void *user_data,
+    using PeerConnectionIceStateChangedCallback = void(CONVENTION *)(void *user_data,
                                                                    IceConnectionState new_state);
 
     /// Callback fired when a renegotiation of the current session needs to occur to
     /// account for new parameters (e.g. added or removed tracks).
-    using PeerConnectionRenegotiationNeededCallback = void(API_DEF_CONVT *)(void *user_data);
+    using PeerConnectionRenegotiationNeededCallback = void(CONVENTION *)(void *user_data);
 
     /// Kind of media track. Equivalent to
     /// webrtc::MediaStreamTrackInterface::kind().
@@ -209,22 +209,22 @@ extern "C"
     };
 
     /// Callback fired when a remote track is added to a connection.
-    using PeerConnectionTrackAddedCallback = void(API_DEF_CONVT *)(void *user_data,
+    using PeerConnectionTrackAddedCallback = void(CONVENTION *)(void *user_data,
                                                               TrackKind track_kind);
 
     /// Callback fired when a remote track is removed from a connection.
-    using PeerConnectionTrackRemovedCallback = void(API_DEF_CONVT *)(void *user_data,
+    using PeerConnectionTrackRemovedCallback = void(CONVENTION *)(void *user_data,
                                                                 TrackKind track_kind);
 
     /// Callback fired when a data channel is added to the peer connection after
     /// being negotiated with the remote peer.
     using PeerConnectionDataChannelAddedCallback =
-        void(API_DEF_CONVT *)(void *user_data, mrsDataChannelInteropHandle data_channel_wrapper,
+        void(CONVENTION *)(void *user_data, mrsDataChannelInteropHandle data_channel_wrapper,
                          DataChannelHandle data_channel);
 
     /// Callback fired when a data channel is remoted from the peer connection.
     using PeerConnectionDataChannelRemovedCallback =
-        void(API_DEF_CONVT *)(void *user_data, mrsDataChannelInteropHandle data_channel_wrapper,
+        void(CONVENTION *)(void *user_data, mrsDataChannelInteropHandle data_channel_wrapper,
                          DataChannelHandle data_channel);
 
     using mrsI420AVideoFrame = Microsoft::MixedReality::WebRTC::I420AVideoFrame;
@@ -232,7 +232,7 @@ extern "C"
     /// Callback fired when a local or remote (depending on use) video frame is
     /// available to be consumed by the caller, usually for display.
     /// The video frame is encoded in I420 triplanar format (NV12).
-    using mrsI420AVideoFrameCallback = void(API_DEF_CONVT *)(void *user_data,
+    using mrsI420AVideoFrameCallback = void(CONVENTION *)(void *user_data,
                                                         const mrsI420AVideoFrame &frame);
 
     using mrsArgb32VideoFrame = Microsoft::MixedReality::WebRTC::Argb32VideoFrame;
@@ -240,20 +240,20 @@ extern "C"
     /// Callback fired when a local or remote (depending on use) video frame is
     /// available to be consumed by the caller, usually for display.
     /// The video frame is encoded in ARGB 32-bit per pixel.
-    using mrsArgb32VideoFrameCallback = void(API_DEF_CONVT *)(void *user_data,
+    using mrsArgb32VideoFrameCallback = void(CONVENTION *)(void *user_data,
                                                          const mrsArgb32VideoFrame &frame);
 
-    using RemoteVideoFrameCallback = void(API_DEF_CONVT *)(void *, const webrtc::VideoFrame &);
+    using RemoteVideoFrameCallback = void(CONVENTION *)(void *, const webrtc::VideoFrame &);
 
     using mrsAudioFrame = Microsoft::MixedReality::WebRTC::AudioFrame;
 
     /// Callback fired when a local or remote (depending on use) audio frame is
     /// available to be consumed by the caller, usually for local output.
-    using PeerConnectionAudioFrameCallback = void(API_DEF_CONVT *)(void *user_data,
+    using PeerConnectionAudioFrameCallback = void(CONVENTION *)(void *user_data,
                                                               const mrsAudioFrame &frame);
 
     /// Callback fired when a message is received on a data channel.
-    using mrsDataChannelMessageCallback = void(API_DEF_CONVT *)(void *user_data, const void *data,
+    using mrsDataChannelMessageCallback = void(CONVENTION *)(void *user_data, const void *data,
                                                            const uint64_t size);
 
     /// Callback fired when a data channel buffering changes.
@@ -261,13 +261,13 @@ extern "C"
     /// buffering buffer. The |limit| is the capacity of the buffer.
     /// Note that when the buffer is full, any attempt to send data will result is
     /// an abrupt closing of the data channel. So monitoring this state is critical.
-    using mrsDataChannelBufferingCallback = void(API_DEF_CONVT *)(void *user_data,
+    using mrsDataChannelBufferingCallback = void(CONVENTION *)(void *user_data,
                                                              const uint64_t previous,
                                                              const uint64_t current,
                                                              const uint64_t limit);
 
     /// Callback fired when the state of a data channel changed.
-    using mrsDataChannelStateCallback = void(API_DEF_CONVT *)(void *user_data, int32_t state,
+    using mrsDataChannelStateCallback = void(CONVENTION *)(void *user_data, int32_t state,
                                                          int32_t id);
 
     /// ICE transport type. See webrtc::PeerConnectionInterface::IceTransportsType.
@@ -327,7 +327,7 @@ extern "C"
     /// be added with |mrsPeerConnectionAddRef| and removed with
     /// |mrsPeerConnectionRemoveRef|. When the last reference is removed, the native
     /// object is destroyed.
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionCreate(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionCreate(
         PeerConnectionConfiguration config, mrsPeerConnectionInteropHandle interop_handle,
         PeerConnectionHandle *peerHandleOut) noexcept;
 
@@ -337,63 +337,63 @@ extern "C"
         mrsDataChannelCreateObjectCallback data_channel_create_object{};
     };
 
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionRegisterInteropCallbacks(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionRegisterInteropCallbacks(
         PeerConnectionHandle peerHandle, mrsPeerConnectionInteropCallbacks *callbacks) noexcept;
 
     /// Register a callback fired once connected to a remote peer.
     /// To unregister, simply pass nullptr as the callback pointer.
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterConnectedCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterConnectedCallback(
         PeerConnectionHandle peerHandle, PeerConnectionConnectedCallback callback,
         void *user_data) noexcept;
 
     /// Register a callback fired when a local message is ready to be sent via the
     /// signaling service to a remote peer.
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterLocalSdpReadytoSendCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterLocalSdpReadytoSendCallback(
         PeerConnectionHandle peerHandle, PeerConnectionLocalSdpReadytoSendCallback callback,
         void *user_data) noexcept;
 
     /// Register a callback fired when an ICE candidate message is ready to be sent
     /// via the signaling service to a remote peer.
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterIceCandidateReadytoSendCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterIceCandidateReadytoSendCallback(
         PeerConnectionHandle peerHandle, PeerConnectionIceCandidateReadytoSendCallback callback,
         void *user_data) noexcept;
 
     /// Register a callback fired when the ICE connection state changes.
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterIceStateChangedCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterIceStateChangedCallback(
         PeerConnectionHandle peerHandle, PeerConnectionIceStateChangedCallback callback,
         void *user_data) noexcept;
 
     /// Register a callback fired when a renegotiation of the current session needs
     /// to occur to account for new parameters (e.g. added or removed tracks).
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterRenegotiationNeededCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterRenegotiationNeededCallback(
         PeerConnectionHandle peerHandle, PeerConnectionRenegotiationNeededCallback callback,
         void *user_data) noexcept;
 
     /// Register a callback fired when a remote media track is added to the current
     /// peer connection.
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterTrackAddedCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterTrackAddedCallback(
         PeerConnectionHandle peerHandle, PeerConnectionTrackAddedCallback callback,
         void *user_data) noexcept;
 
     /// Register a callback fired when a remote media track is removed from the
     /// current peer connection.
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterTrackRemovedCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterTrackRemovedCallback(
         PeerConnectionHandle peerHandle, PeerConnectionTrackRemovedCallback callback,
         void *user_data) noexcept;
 
     /// Register a callback fired when a remote data channel is removed from the
     /// current peer connection.
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterDataChannelAddedCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterDataChannelAddedCallback(
         PeerConnectionHandle peerHandle, PeerConnectionDataChannelAddedCallback callback,
         void *user_data) noexcept;
 
     /// Register a callback fired when a remote data channel is removed from the
     /// current peer connection.
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterDataChannelRemovedCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterDataChannelRemovedCallback(
         PeerConnectionHandle peerHandle, PeerConnectionDataChannelRemovedCallback callback,
         void *user_data) noexcept;
 
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterRemoteVideoFrameCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterRemoteVideoFrameCallback(
         PeerConnectionHandle peerHandle, RemoteVideoFrameCallback callback,
         void *user_data) noexcept;
 
@@ -420,13 +420,13 @@ extern "C"
     /// Currently this callback is never fired, because the internal audio capture
     /// device implementation ignores any registration and only delivers its audio
     /// data to the internal WebRTC engine for sending to the remote peer.
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterLocalAudioFrameCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterLocalAudioFrameCallback(
         PeerConnectionHandle peerHandle, PeerConnectionAudioFrameCallback callback,
         void *user_data) noexcept;
 
     /// Register a callback fired when an audio frame from an audio track was
     /// received from the remote peer.
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionRegisterRemoteAudioFrameCallback(
+    EXPORT void CONVENTION mrsPeerConnectionRegisterRemoteAudioFrameCallback(
         PeerConnectionHandle peerHandle, PeerConnectionAudioFrameCallback callback,
         void *user_data) noexcept;
 
@@ -491,23 +491,23 @@ extern "C"
     /// |enable_mrc| allows enabling Mixed Reality Capture on HoloLens devices, and
     /// is otherwise ignored for other video capture devices. On UWP this must be
     /// invoked from another thread than the main UI thread.
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionAddLocalVideoTrack(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionAddLocalVideoTrack(
         PeerConnectionHandle peerHandle, const char *track_name,
         const LocalVideoTrackInitConfig *config, LocalVideoTrackHandle *trackHandle) noexcept;
 
     // Nam added this for testing
     using PassiveVideoTrackHandle = void*;
-    API_EXPORT void API_DEF_CONVT mrsPeerConnectionAddPassiveVideoTrack(
+    EXPORT void CONVENTION mrsPeerConnectionAddPassiveVideoTrack(
         PeerConnectionHandle peerHandle,
         PassiveVideoTrackHandle passive_video_track_handle
         );
 
     using mrsRequestExternalI420AVideoFrameCallback =
-        mrsResult(API_DEF_CONVT *)(void *user_data, ExternalVideoTrackSourceHandle source_handle,
+        mrsResult(CONVENTION *)(void *user_data, ExternalVideoTrackSourceHandle source_handle,
                               uint32_t request_id, int64_t timestamp_ms);
 
     using mrsRequestExternalArgb32VideoFrameCallback =
-        mrsResult(API_DEF_CONVT *)(void *user_data, ExternalVideoTrackSourceHandle source_handle,
+        mrsResult(CONVENTION *)(void *user_data, ExternalVideoTrackSourceHandle source_handle,
                               uint32_t request_id, int64_t timestamp_ms);
 
     /// Configuration for creating a local video track from an external source.
@@ -525,7 +525,7 @@ extern "C"
     /// |mrsExternalVideoTrackSourceShutdown|.
     /// This returns a handle to a newly allocated object, which must be released
     /// once not used anymore with |mrsLocalVideoTrackRemoveRef()|.
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionAddLocalVideoTrackFromExternalSource(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionAddLocalVideoTrackFromExternalSource(
         PeerConnectionHandle peerHandle, const char *track_name,
         ExternalVideoTrackSourceHandle source_handle,
         const LocalVideoTrackFromExternalSourceInitConfig *config,
@@ -533,18 +533,18 @@ extern "C"
 
     /// Remove a local video track from the given peer connection and destroy it.
     /// After this call returned, the video track handle is invalid.
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionRemoveLocalVideoTrack(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionRemoveLocalVideoTrack(
         PeerConnectionHandle peer_handle, LocalVideoTrackHandle track_handle) noexcept;
 
     /// Remove all local video tracks backed by the given video track source from
     /// the given peer connection and destroy the video track source.
     /// After this call returned, the video track source handle is invalid.
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionRemoveLocalVideoTracksFromSource(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionRemoveLocalVideoTracksFromSource(
         PeerConnectionHandle peer_handle, ExternalVideoTrackSourceHandle source_handle) noexcept;
 
     /// Add a local audio track from a local audio capture device (microphone) to
     /// the collection of tracks to send to the remote peer.
-    API_EXPORT mrsResult API_DEF_CONVT
+    EXPORT mrsResult CONVENTION
     mrsPeerConnectionAddLocalAudioTrack(PeerConnectionHandle peerHandle) noexcept;
 
     enum class mrsDataChannelConfigFlags : uint32_t
@@ -590,31 +590,31 @@ extern "C"
     /// - If id >= 0, then it adds a new out-of-band negotiated channel with the
     /// given ID, and it is the responsibility of the app to create a channel with
     /// the same ID on the remote peer to be able to use the channel.
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionAddDataChannel(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionAddDataChannel(
         PeerConnectionHandle peerHandle, mrsDataChannelInteropHandle dataChannelInteropHandle,
         mrsDataChannelConfig config, mrsDataChannelCallbacks callbacks,
         DataChannelHandle *dataChannelHandleOut) noexcept;
 
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionRemoveLocalVideoTrack(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionRemoveLocalVideoTrack(
         PeerConnectionHandle peerHandle, LocalVideoTrackHandle trackHandle) noexcept;
 
-    API_EXPORT void API_DEF_CONVT
+    EXPORT void CONVENTION
     mrsPeerConnectionRemoveLocalAudioTrack(PeerConnectionHandle peerHandle) noexcept;
 
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionRemoveDataChannel(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionRemoveDataChannel(
         PeerConnectionHandle peerHandle, DataChannelHandle dataChannelHandle) noexcept;
 
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionSetLocalAudioTrackEnabled(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionSetLocalAudioTrackEnabled(
         PeerConnectionHandle peerHandle, mrsBool enabled) noexcept;
 
-    API_EXPORT mrsBool API_DEF_CONVT
+    EXPORT mrsBool CONVENTION
     mrsPeerConnectionIsLocalAudioTrackEnabled(PeerConnectionHandle peerHandle) noexcept;
 
-    API_EXPORT mrsResult API_DEF_CONVT mrsDataChannelSendMessage(DataChannelHandle dataChannelHandle,
+    EXPORT mrsResult CONVENTION mrsDataChannelSendMessage(DataChannelHandle dataChannelHandle,
                                                          const void *data, uint64_t size) noexcept;
 
     /// Add a new ICE candidate received from a signaling service.
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionAddIceCandidate(PeerConnectionHandle peerHandle,
+    EXPORT mrsResult CONVENTION mrsPeerConnectionAddIceCandidate(PeerConnectionHandle peerHandle,
                                                                 const char *sdp_mid,
                                                                 const int sdp_mline_index,
                                                                 const char *candidate) noexcept;
@@ -623,14 +623,14 @@ extern "C"
     /// This will generate a local offer message, then fire the
     /// "LocalSdpReadytoSendCallback" callback, which should send this message via
     /// the signaling service to a remote peer.
-    API_EXPORT mrsResult API_DEF_CONVT
+    EXPORT mrsResult CONVENTION
     mrsPeerConnectionCreateOffer(PeerConnectionHandle peerHandle) noexcept;
 
     /// Create a new JSEP answer to a received offer to try to establish a
     /// connection with a remote peer. This will generate a local answer message,
     /// then fire the "LocalSdpReadytoSendCallback" callback, which should send this
     /// message via the signaling service to a remote peer.
-    API_EXPORT mrsResult API_DEF_CONVT
+    EXPORT mrsResult CONVENTION
     mrsPeerConnectionCreateAnswer(PeerConnectionHandle peerHandle) noexcept;
 
     /// Set the bitrate allocated to all RTP streams sent by this connection.
@@ -642,19 +642,19 @@ extern "C"
     ///
     /// The values are in bits per second.
     /// If any of the arguments has a negative value, it will be ignored.
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionSetBitrate(PeerConnectionHandle peer_handle,
+    EXPORT mrsResult CONVENTION mrsPeerConnectionSetBitrate(PeerConnectionHandle peer_handle,
                                                            int min_bitrate_bps,
                                                            int start_bitrate_bps,
                                                            int max_bitrate_bps) noexcept;
 
     /// Parameter-less callback.
-    using ActionCallback = void(API_DEF_CONVT *)(void *user_data);
+    using ActionCallback = void(CONVENTION *)(void *user_data);
 
     /// Set a remote description received from a remote peer via the signaling
     /// service. Once the remote description is applied, the action callback is
     /// invoked to signal the caller it is safe to continue the negotiation, and in
     /// particular it is safe to call |CreateAnswer()|.
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionSetRemoteDescriptionAsync(
+    EXPORT mrsResult CONVENTION mrsPeerConnectionSetRemoteDescriptionAsync(
         PeerConnectionHandle peerHandle, const char *type, const char *sdp, ActionCallback callback,
         void *user_data) noexcept;
 
@@ -662,7 +662,7 @@ extern "C"
     /// remote peer currently connected. This does not invalidate the handle nor
     /// destroy the native peer connection object, but leaves it in a state where it
     /// can only be destroyed.
-    API_EXPORT mrsResult API_DEF_CONVT mrsPeerConnectionClose(PeerConnectionHandle peerHandle) noexcept;
+    EXPORT mrsResult CONVENTION mrsPeerConnectionClose(PeerConnectionHandle peerHandle) noexcept;
 
     //
     // SDP utilities
@@ -712,7 +712,7 @@ extern "C"
     /// terminator, so the size of the used part of the buffer, in bytes.
     /// Returns true on success or false if the buffer is not large enough to
     /// contain the new SDP message.
-    API_EXPORT mrsResult API_DEF_CONVT mrsSdpForceCodecs(const char *message, SdpFilter audio_filter,
+    EXPORT mrsResult CONVENTION mrsSdpForceCodecs(const char *message, SdpFilter audio_filter,
                                                  SdpFilter video_filter, char *buffer,
                                                  uint64_t *buffer_size) noexcept;
 
@@ -726,10 +726,10 @@ extern "C"
 
     /// Check if the given SDP token is valid according to the RFC 4566 standard.
     /// See https://tools.ietf.org/html/rfc4566#page-43 for details.
-    API_EXPORT mrsBool API_DEF_CONVT mrsSdpIsValidToken(const char *token) noexcept;
+    EXPORT mrsBool CONVENTION mrsSdpIsValidToken(const char *token) noexcept;
 
     /// See PeerConnection::SetFrameHeightRoundMode.
-    API_EXPORT void API_DEF_CONVT mrsSetFrameHeightRoundMode(FrameHeightRoundMode value);
+    EXPORT void CONVENTION mrsSetFrameHeightRoundMode(FrameHeightRoundMode value);
 
     //
     // Generic utilities
@@ -737,11 +737,11 @@ extern "C"
 
     /// Optimized helper to copy a contiguous block of memory.
     /// This is equivalent to the standard malloc() function.
-    API_EXPORT void API_DEF_CONVT mrsMemCpy(void *dst, const void *src, uint64_t size) noexcept;
+    EXPORT void CONVENTION mrsMemCpy(void *dst, const void *src, uint64_t size) noexcept;
 
     /// Optimized helper to copy a block of memory with source and destination
     /// stride.
-    API_EXPORT void API_DEF_CONVT mrsMemCpyStride(void *dst, int32_t dst_stride, const void *src,
+    EXPORT void CONVENTION mrsMemCpyStride(void *dst, int32_t dst_stride, const void *src,
                                           int32_t src_stride, int32_t elem_size,
                                           int32_t elem_count) noexcept;
     //
@@ -839,17 +839,17 @@ extern "C"
 
     /// Called by mrsPeerConnectionGetSimpleStats when a stats report is ready.
     using PeerConnectionGetSimpleStatsCallback =
-        void(API_DEF_CONVT *)(void *user_data, mrsStatsReportHandle stats_report);
+        void(CONVENTION *)(void *user_data, mrsStatsReportHandle stats_report);
 
     /// Called by mrsStatsReportGetObjects for every instance of the requested stats
     /// type.
-    using mrsStatsReportGetObjectCallback = void(API_DEF_CONVT *)(void *user_data,
+    using mrsStatsReportGetObjectCallback = void(CONVENTION *)(void *user_data,
                                                              const void *stats_object);
 
     /// Get a stats report for the connection.
     /// The report passed to the callback must be released when finished through
     /// mrsStatsReportRemoveRef.
-    API_EXPORT mrsResult API_DEF_CONVT
+    EXPORT mrsResult CONVENTION
     mrsPeerConnectionGetSimpleStats(PeerConnectionHandle peer_handle,
                                     PeerConnectionGetSimpleStatsCallback callback, void *user_data);
 
@@ -857,11 +857,11 @@ extern "C"
     /// The type must be one of "DataChannelStats", "AudioSenderStats",
     /// "AudioReceiverStats", "VideoSenderStats", "VideoReceiverStats",
     /// "TransportStats".
-    API_EXPORT mrsResult API_DEF_CONVT mrsStatsReportGetObjects(mrsStatsReportHandle report_handle,
+    EXPORT mrsResult CONVENTION mrsStatsReportGetObjects(mrsStatsReportHandle report_handle,
                                                         const char *stats_type,
                                                         mrsStatsReportGetObjectCallback callback,
                                                         void *user_data);
 
     /// Release a stats report.
-    API_EXPORT mrsResult API_DEF_CONVT mrsStatsReportRemoveRef(mrsStatsReportHandle stats_report);
+    EXPORT mrsResult CONVENTION mrsStatsReportRemoveRef(mrsStatsReportHandle stats_report);
 } // extern "C"

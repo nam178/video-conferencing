@@ -313,7 +313,7 @@ class PeerConnection : public TrackedObject
     ///
     /// Note: currently a single local audio track is supported per peer
     /// connection.
-    virtual void API_EXPORT SetLocalAudioTrackEnabled(bool enabled = true) noexcept = 0;
+    virtual void EXPORT SetLocalAudioTrackEnabled(bool enabled = true) noexcept = 0;
 
     /// Check if the local audio frame is enabled.
     ///
@@ -355,7 +355,7 @@ class PeerConnection : public TrackedObject
 
     /// Close a given data channel and remove it from the peer connection.
     /// This invokes the DataChannelRemoved callback.
-    virtual void API_EXPORT RemoveDataChannel(const DataChannel &data_channel) noexcept = 0;
+    virtual void EXPORT RemoveDataChannel(const DataChannel &data_channel) noexcept = 0;
 
     /// Close and remove from the peer connection all data channels at once.
     /// This invokes the DataChannelRemoved callback for each data channel.
@@ -364,7 +364,7 @@ class PeerConnection : public TrackedObject
     /// Notification from a non-negotiated DataChannel that it is open, so that
     /// the PeerConnection can fire a DataChannelAdded event. This is called
     /// automatically by non-negotiated data channels; do not call manually.
-    virtual void API_EXPORT OnDataChannelAdded(const DataChannel &data_channel) noexcept = 0;
+    virtual void EXPORT OnDataChannelAdded(const DataChannel &data_channel) noexcept = 0;
 
     /// Internal use.
     void GetStats(webrtc::RTCStatsCollectorCallback *callback);

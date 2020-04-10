@@ -7,11 +7,11 @@
 // does not understand the CallingConvention attribute and instead
 // unconditionally forces stdcall. So use stdcall in the API to be compatible.
 #if defined(MR_SHARING_WIN)
-#define API_EXPORT __declspec(dllexport)
-#define API_DEF_CONVT __stdcall
+#define EXPORT __declspec(dllexport)
+#define CONVENTION __stdcall
 #elif defined(MR_SHARING_ANDROID)
-#define API_EXPORT __attribute__((visibility("default")))
-#define API_DEF_CONVT
+#define EXPORT __attribute__((visibility("default")))
+#define CONVENTION
 #else
 #error Unknown platform, see export.h
 #endif

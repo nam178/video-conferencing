@@ -12,11 +12,11 @@ extern "C" {
 //
 
 /// Add a reference to the native object associated with the given handle.
-API_EXPORT void API_DEF_CONVT mrsExternalVideoTrackSourceAddRef(
+EXPORT void CONVENTION mrsExternalVideoTrackSourceAddRef(
     ExternalVideoTrackSourceHandle handle) noexcept;
 
 /// Remove a reference from the native object associated with the given handle.
-API_EXPORT void API_DEF_CONVT mrsExternalVideoTrackSourceRemoveRef(
+EXPORT void CONVENTION mrsExternalVideoTrackSourceRemoveRef(
     ExternalVideoTrackSourceHandle handle) noexcept;
 
 /// Create a custom video track source external to the implementation. This
@@ -25,7 +25,7 @@ API_EXPORT void API_DEF_CONVT mrsExternalVideoTrackSourceRemoveRef(
 /// callback as an I420-encoded buffer. This returns a handle to a newly
 /// allocated object, which must be released once not used anymore with
 /// |mrsExternalVideoTrackSourceRemoveRef()|.
-API_EXPORT mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCreateFromI420ACallback(
+EXPORT mrsResult CONVENTION mrsExternalVideoTrackSourceCreateFromI420ACallback(
     mrsRequestExternalI420AVideoFrameCallback callback,
     void* user_data,
     ExternalVideoTrackSourceHandle* source_handle_out) noexcept;
@@ -36,7 +36,7 @@ API_EXPORT mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCreateFromI420ACal
 /// callback as an ARGB32-encoded buffer. This returns a handle to a newly
 /// allocated object, which must be released once not used anymore with
 /// |mrsExternalVideoTrackSourceRemoveRef()|.
-API_EXPORT mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCreateFromArgb32Callback(
+EXPORT mrsResult CONVENTION mrsExternalVideoTrackSourceCreateFromArgb32Callback(
     mrsRequestExternalArgb32VideoFrameCallback callback,
     void* user_data,
     ExternalVideoTrackSourceHandle* source_handle_out) noexcept;
@@ -46,18 +46,18 @@ API_EXPORT mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCreateFromArgb32Ca
 /// to be called after |mrsExternalVideoTrackSourceCreateFromI420ACallback()| or
 /// |mrsExternalVideoTrackSourceCreateFromArgb32Callback()| to finish the
 /// creation of the video track source and allow it to start capturing.
-API_EXPORT void API_DEF_CONVT mrsExternalVideoTrackSourceFinishCreation(
+EXPORT void CONVENTION mrsExternalVideoTrackSourceFinishCreation(
     ExternalVideoTrackSourceHandle source_handle) noexcept;
 
 /// Complete a video frame request with a provided I420A video frame.
-API_EXPORT mrsResult API_DEF_CONVT mrsExternalVideoTrackSourceCompleteI420AFrameRequest(
+EXPORT mrsResult CONVENTION mrsExternalVideoTrackSourceCompleteI420AFrameRequest(
     ExternalVideoTrackSourceHandle handle,
     uint32_t request_id,
     int64_t timestamp_ms,
     const mrsI420AVideoFrame* frame_view) noexcept;
 
 /// Complete a video frame request with a provided ARGB32 video frame.
-API_EXPORT mrsResult API_DEF_CONVT
+EXPORT mrsResult CONVENTION
 mrsExternalVideoTrackSourceCompleteArgb32FrameRequest(
     ExternalVideoTrackSourceHandle handle,
     uint32_t request_id,
@@ -66,7 +66,7 @@ mrsExternalVideoTrackSourceCompleteArgb32FrameRequest(
 
 /// Irreversibly stop the video source frame production and shutdown the video
 /// source.
-API_EXPORT void API_DEF_CONVT mrsExternalVideoTrackSourceShutdown(
+EXPORT void CONVENTION mrsExternalVideoTrackSourceShutdown(
     ExternalVideoTrackSourceHandle handle) noexcept;
 
 }  // extern "C"
