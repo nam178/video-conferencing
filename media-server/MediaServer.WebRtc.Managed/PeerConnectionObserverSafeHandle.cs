@@ -8,7 +8,6 @@ namespace MediaServer.WebRtc.Managed
         public PeerConnectionObserverSafeHandle()
             : base(IntPtr.Zero, true)
         {
-            SetHandle(PeerConnectionObserverInterop.Create());
         }
 
         public override bool IsInvalid => handle != IntPtr.Zero;
