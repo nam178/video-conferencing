@@ -8,8 +8,7 @@ extern "C"
 {
     using PeerConnectionPtr = void *;
     using UserData = void *;
-    using Callback = void(CONVENTION *)(UserData,
-                                        MediaServer::CreateAnswerResult session_description);
+    using Callback = void(CONVENTION *)(UserData, MediaServer::CreateAnswerResult);
 
     EXPORT void CONVENTION PeerConnectionDestroy(PeerConnectionPtr peer_connection_ptr);
 
