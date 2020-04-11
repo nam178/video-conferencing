@@ -9,8 +9,19 @@ namespace MediaServer
 class PeerConnection final
 {
   public:
+    // Contruct the PeerConnection resource wrapper
+    // from a managed pointer.
+    // This PeerConnection then takes ownership of said pointer.
     PeerConnection(rtc::scoped_refptr<webrtc::PeerConnectionInterface> &&peer_connection_interface);
+
+    // Create answer to an sdp offer.
+    // the callback will be called on the signalling thread in theory.
+    void CreateAnswer(Callback<Result<webrtc::SessionDescriptionInterface *>> callback);
+
+    // get the raw pointer to the underlying native
+    // PeerConnectionInterface
     webrtc::PeerConnectionInterface *GetPeerConnectionInterface();
+
   private:
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> _peer_connection_interface;
 };

@@ -29,6 +29,7 @@ namespace MediaServer.WebRtc
             return Task.CompletedTask;
         }
 
+        PeerConnectionFactory _peerConnectionFactory;
         PeerConnection _peerConnection;
 
         async void Start()
@@ -41,7 +42,7 @@ namespace MediaServer.WebRtc
                     {
                         try
                         {
-                            await peerEventArgs.Target.Signaller.SendMessageAsync("Ready");
+                            await peerEventArgs.Payload.Signaller.SendMessageAsync("Ready");
                         }
                         catch(Exception ex)
                         {
@@ -52,20 +53,21 @@ namespace MediaServer.WebRtc
                 };
 
                 // Create a new peer connection automatically disposed at the end of the program
-                _peerConnection = new PeerConnection();
 
-                _peerConnection.IceCandidateReadytoSend += (string candidate, int sdpMlineindex, string sdpMid) =>
+                var observer = new PeerConnectionObserver();
+
+                void Observer_IceCandidateAdded(object? sender, EventArgs<Managed.IceCandidate> e)
                 {
                     _room.DispatchQueue.ExecuteAsync(async delegate
                     {
                         try
                         {
                             await WaitForPeers();
-                            await _room.Peers.First().Signaller.SendAsync("SetIceCandidate", new IceCandidate
+                            await _room.Peers.First().Signaller.SendAsync("SetIceCandidate", new Models.IceCandidate
                             {
-                                Candidate = candidate,
-                                SdpMid = sdpMid,
-                                SdpMLineIndex = sdpMlineindex
+                                Candidate = e.Payload.Sdp,
+                                SdpMid = e.Payload.SdpMid,
+                                SdpMLineIndex = e.Payload.MLineIndex
                             });
                         }
                         catch(Exception ex)
@@ -74,31 +76,45 @@ namespace MediaServer.WebRtc
                             throw new NotImplementedException("TODO: Handle fatal error - need to remove peer from the room");
                         }
                     });
-                };
+                }
 
-                _peerConnection.IceStateChanged += (IceConnectionState newState) =>
+                void Observer_IceConnectionStateChanged(object? sender, EventArgs<IceConnectionState> e)
                 {
-                    switch(newState)
+                    switch(e.Payload)
                     {
                         case IceConnectionState.New:
                         case IceConnectionState.Checking:
-                            _logger.Trace($"Ice state: {newState}");
+                            _logger.Trace($"Ice state: {e.Payload}");
                             break;
                         case IceConnectionState.Connected:
-                            _logger.Info($"Ice state: {newState}");
-                            break;
                         case IceConnectionState.Completed:
-                            _logger.Info($"Ice state: {newState}");
+                            _logger.Info($"Ice state: {e.Payload}");
                             break;
                         case IceConnectionState.Failed:
                         case IceConnectionState.Disconnected:
                         case IceConnectionState.Closed:
-                            _logger.Warn($"Ice state: {newState}");
+                        case IceConnectionState.Max:
+                            _logger.Warn($"Ice state: {e.Payload}");
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                };
+                }
+
+                observer.IceCandidateAdded += Observer_IceCandidateAdded;
+                observer.IceConnectionStateChanged += Observer_IceConnectionStateChanged;
+
+
+                _peerConnectionFactory = new PeerConnectionFactory();
+                _peerConnectionFactory.Initialize();
+                _peerConnection = _peerConnectionFactory.CreatePeerConnection(observer, new PeerConnectionConfig
+                {
+                    IceServers = {
+                        new PeerConnectionConfig.IceServerInfo {
+                            Urls = { "stun:stun.l.google.com:19302" }
+                        }
+                    }
+                });
 
                 _peerConnection.LocalSdpReadytoSend += (string type, string sdp) =>
                 {
@@ -125,7 +141,7 @@ namespace MediaServer.WebRtc
 
                 _room.PeerAdded += (object sender, EventArgs<Peer> peerEventArgs) =>
                 {
-                    peerEventArgs.Target.RemoteIceCandidateReceived += async (object sender, EventArgs<IceCandidate> e) =>
+                    peerEventArgs.Payload.RemoteIceCandidateReceived += async (object sender, EventArgs<IceCandidate> e) =>
                     {
                         // Wait for remote description to set first
                         while(true)
@@ -142,8 +158,8 @@ namespace MediaServer.WebRtc
                         {
                             try
                             {
-                                _peerConnection.AddIceCandidate(e.Target.SdpMid, e.Target.SdpMLineIndex, e.Target.Candidate);
-                                _logger.Info($"Added ice candidate {e.Target.Candidate}");
+                                _peerConnection.AddIceCandidate(e.Payload.SdpMid, e.Payload.SdpMLineIndex, e.Payload.Candidate);
+                                _logger.Info($"Added ice candidate {e.Payload.Candidate}");
                             }
                             catch(Exception ex)
                             {
@@ -152,14 +168,14 @@ namespace MediaServer.WebRtc
                             }
                         });
                     };
-                    peerEventArgs.Target.RemoteRtcSessionDescriptionUpdated += (object sender2, EventArgs<RtcSessionDescription> e2) =>
+                    peerEventArgs.Payload.RemoteRtcSessionDescriptionUpdated += (object sender2, EventArgs<RtcSessionDescription> e2) =>
                     {
                         _room.DispatchQueue.ExecuteAsync(async delegate
                         {
                             try
                             {
-                                await _peerConnection.SetRemoteDescriptionAsync(e2.Target.Type, e2.Target.Sdp);
-                                _logger.Info($"Remote description set from peer {peerEventArgs.Target}");
+                                await _peerConnection.SetRemoteDescriptionAsync(e2.Payload.Type, e2.Payload.Sdp);
+                                _logger.Info($"Remote description set from peer {peerEventArgs.Payload}");
                                 remoteDescriptionSetWaitHandler.Set();
 
                                 // Before creating answer,
@@ -200,7 +216,7 @@ namespace MediaServer.WebRtc
                 };
 
                 await _peerConnection.InitializeAsync(config);
-                
+
 
                 _logger.Info("PeerConnection initalised");
                 _room.IsInitialised = true;

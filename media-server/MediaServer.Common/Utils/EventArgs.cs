@@ -2,11 +2,11 @@ namespace MediaServer.Common.Utils
 {
     public sealed class EventArgs<T> : System.EventArgs
     {
-        public T Target { get; }
+        public T Payload { get; }
 
         public EventArgs(T payload)
         {
-            Target = payload;
+            Payload = payload;
         }
     }
 }

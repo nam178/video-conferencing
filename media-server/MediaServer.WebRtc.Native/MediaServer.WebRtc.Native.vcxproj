@@ -110,6 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="media_server_create_session_description_observer.h" />
     <ClInclude Include="media_server_peer_connection.h" />
     <ClInclude Include="media_server_peer_connection_factory_interop.h" />
     <ClInclude Include="media_server_peer_connection_interop.h" />
@@ -134,9 +135,11 @@
     <ClInclude Include="passive_video_track_source_interop.h" />
     <ClInclude Include="media_server_peer_connection_observer.h" />
     <ClInclude Include="media_server_peer_connection_factory.h" />
+    <ClInclude Include="result.h" />
     <ClInclude Include="utils_string_helper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="media_server_create_session_description_observer.cpp" />
     <ClCompile Include="media_server_peer_connection.cpp" />
     <ClCompile Include="media_server_peer_connection_factory_interop.cpp" />
     <ClCompile Include="media_server_peer_connection_interop.cpp" />

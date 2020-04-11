@@ -5,13 +5,13 @@
     /// </summary>
     public enum IceConnectionState
     {
-        IceConnectionNew = 0,
-        IceConnectionChecking = 1,
-        IceConnectionConnected = 2,
-        IceConnectionCompleted = 3,
-        IceConnectionFailed = 4,
-        IceConnectionDisconnected = 5,
-        IceConnectionClosed = 6,
-        IceConnectionMax = 7
+        New = 0,
+        Checking = 1,
+        Connected = 2,
+        Completed = 3,
+        Failed = 4,
+        Disconnected = 5,
+        Closed = 6,
+        Max = 7
     };
 }

@@ -6,7 +6,9 @@ namespace MediaServer.WebRtc.Managed
     {
         readonly PeerConnectionSafeHandle _handle;
 
-        public PeerConnection(IntPtr unmanagedPointer)
+        public PeerConnectionObserver Observer { get; }
+
+        internal PeerConnection(IntPtr unmanagedPointer)
         {
             _handle = new PeerConnectionSafeHandle(unmanagedPointer);
         }

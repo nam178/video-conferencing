@@ -14,6 +14,11 @@ namespace MediaServer.WebRtc.Managed
 
         public PeerConnection CreatePeerConnection(PeerConnectionObserver observer, PeerConnectionConfig config)
         {
+            if(observer is null)
+                throw new ArgumentNullException(nameof(observer));
+            if(config is null)
+                throw new ArgumentNullException(nameof(config));
+
             var interopIceServers = config.IceServers.Select(s => new PeerConnectionFactoryInterop.IceServerConfig
             {
                 Username = s.Username,
