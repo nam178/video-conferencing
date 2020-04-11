@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace MediaServer.Common.Utils
 {
-    static class CopyOnWrite
+    public static class CopyOnWrite
     {
         public static void Add<T>(ref IReadOnlyList<T> original, T newElement, object sync)
         {

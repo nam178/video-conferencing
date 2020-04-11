@@ -47,7 +47,12 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="NLog" Version="4.7.0" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\MediaServer.Common\MediaServer.Common.csproj" />
   </ItemGroup>
 
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />

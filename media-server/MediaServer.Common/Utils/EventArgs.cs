@@ -1,6 +1,6 @@
 namespace MediaServer.Common.Utils
 {
-    sealed class EventArgs<T> : System.EventArgs
+    public sealed class EventArgs<T> : System.EventArgs
     {
         public T Target { get; }
 

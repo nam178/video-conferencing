@@ -16,10 +16,11 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="NLog" Version="4.6.8" />
+    <PackageReference Include="NLog" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MediaServer.Common\MediaServer.Common.csproj" />
     <ProjectReference Include="..\MediaServer.WebRtc.Managed\MediaServer.WebRtc.Managed.csproj">
       <Private>true</Private>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>

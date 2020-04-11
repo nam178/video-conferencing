@@ -2,7 +2,6 @@ using MediaServer.Common.Utils;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using Microsoft.Extensions.Hosting;
-using Microsoft.MixedReality.WebRTC;
 using NLog;
 using System;
 using System.Collections.Generic;

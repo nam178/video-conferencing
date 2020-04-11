@@ -1,4 +1,3 @@
-using Autofac;
 using NLog;
 using System;
 using System.Collections.Concurrent;
