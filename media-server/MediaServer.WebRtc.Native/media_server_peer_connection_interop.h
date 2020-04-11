@@ -6,6 +6,6 @@ extern "C"
 {
     using PeerConnectionPtr = void *;
 
-    EXPORT PeerConnectionPtr CONVENTION
+    EXPORT void CONVENTION
     PeerConnectionDestroy(PeerConnectionPtr peer_connection_ptr);
 }

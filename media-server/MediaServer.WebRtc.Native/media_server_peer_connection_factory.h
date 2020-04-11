@@ -9,7 +9,7 @@ namespace MediaServer
 {
 // Responsible for the setup and tear down of the PeerConnectionFactory.
 // Designed to be used one per room.
-class PeerConnectionFactoryManager final
+class PeerConnectionFactory final
 {
   public:
     // The instance must be initialised before using.

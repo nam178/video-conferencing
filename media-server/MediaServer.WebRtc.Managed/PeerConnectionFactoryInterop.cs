@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace MediaServer.WebRtc.Managed
 {
-    static class PeerConnectionFactoryInterops
+    static class PeerConnectionFactoryInterop
     {
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         public struct IceServerConfig
@@ -27,10 +27,17 @@ namespace MediaServer.WebRtc.Managed
 
         [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryCreatePeerConnection")]
         public static extern IntPtr CreatePeerConnection(
-            PeerConnectionFactorySafeHandle peerConnectionFactoryManagerSafeHandle,
+            PeerConnectionFactorySafeHandle peerConnectionFactorySafeHandle,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IceServerConfig[] iceServerConfigs,
             int iceServerConfigLength,
             PeerConnectionObserverSafeHandle peerConnectionObserver
+            );
+
+        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryCreatePassiveVideoTrack")]
+        public static extern IntPtr CreatePassiveVideoTrac(
+            PeerConnectionFactorySafeHandle peerConnectionFactorySafeHandle,
+            PassiveVideoTrackSourceSafeHandle passiveVideoTrackSourceSafeHandle,
+            string trackname
             );
     }
 }

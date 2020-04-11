@@ -8,14 +8,9 @@ namespace MediaServer.WebRtc.Managed
 
         internal PassiveVideoTrackSafeHandle Native { get; }
 
-        public PassiveVideoTrack(string videoTrackName, PassiveVideoTrackSource source)
+        public PassiveVideoTrack(IntPtr native)
         {
-            if(videoTrackName is null)
-                throw new ArgumentNullException(nameof(videoTrackName));
-            if(source is null)
-                throw new ArgumentNullException(nameof(source));
-            Native = new PassiveVideoTrackSafeHandle(videoTrackName, source.Native);
-            _source = source;
+            Native = new PassiveVideoTrackSafeHandle(native);
             _source.AddedToVideoTrack(this);
         }
 

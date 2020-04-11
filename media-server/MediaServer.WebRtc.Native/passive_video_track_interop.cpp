@@ -1,24 +1,10 @@
 #include "pch.h"
 
-#include "interop/global_factory.h"
 #include "passive_video_track.h"
 #include "passive_video_track_interop.h"
 #include "passive_video_track_source.h"
 
-using namespace Microsoft::MixedReality::WebRTC;
 using namespace PassiveVideo;
-
-EXPORT PassiveVideoTrackIntPtr CONVENTION
-PassiveVideoTrackCreate(const char *video_track_name,
-                        PassiveVideoTrackIntPtr passive_video_track_source)
-{
-    RefPtr<GlobalFactory> global_factory(GlobalFactory::InstancePtr());
-
-    return new PassiveVideo::PassiveVideoTrack(
-        video_track_name,
-        static_cast<PassiveVideoTrackSource *>(passive_video_track_source),
-        std::move(global_factory));
-}
 
 EXPORT void PassiveVideoTrackDestroy(PassiveVideoTrackIntPtr &video_track_ref) noexcept
 {

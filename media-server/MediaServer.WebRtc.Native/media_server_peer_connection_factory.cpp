@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "media_server_peer_connection_factory_manager.h"
+#include "media_server_peer_connection_factory.h"
 #include "noop_video_decoder_factory.h"
 #include "noop_video_encoder_factory.h"
 
@@ -18,7 +18,7 @@ std::unique_ptr<rtc::Thread> CreateThread(const std::string &name,
     return tmp;
 }
 
-void MediaServer::PeerConnectionFactoryManager::Initialize()
+void MediaServer::PeerConnectionFactory::Initialize()
 {
     // Initialization guard
     uint8_t _expected{INIT_STATE_NONE};
@@ -47,7 +47,7 @@ void MediaServer::PeerConnectionFactoryManager::Initialize()
         nullptr);
 }
 
-void MediaServer::PeerConnectionFactoryManager::TearDown()
+void MediaServer::PeerConnectionFactory::TearDown()
 {
     uint8_t _expected{INIT_STATE_INITIALISED};
     if(_initialized_state.compare_exchange_strong(_expected, INIT_STATE_TORN_DOWN))
@@ -60,7 +60,7 @@ void MediaServer::PeerConnectionFactoryManager::TearDown()
     }
 }
 
-PeerConnectionFactoryInterface *MediaServer::PeerConnectionFactoryManager::
+PeerConnectionFactoryInterface *MediaServer::PeerConnectionFactory::
     GetPeerConnectionFactory()
 {
     if(_initialized_state.load() != INIT_STATE_INITIALISED)

@@ -18,7 +18,7 @@
 
 #if defined(MR_SHARING_WIN)
 
-#include "microsoft/targetver.h"
+// #include "microsoft/targetver.h"
 
 #define WEBRTC_WIN 1
 

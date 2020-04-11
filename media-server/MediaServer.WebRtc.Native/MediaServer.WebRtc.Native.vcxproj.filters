@@ -2,51 +2,6 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="microsoft\audio_frame_observer.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\data_channel.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\media\external_video_track_source.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\interop\external_video_track_source_interop.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\interop\global_factory.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\interop\interop_api.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\media\local_video_track.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\interop\local_video_track_interop.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\mrs_errors.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\peer_connection.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\interop\peer_connection_interop.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\sdp_utils.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\str.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\tracked_object.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="microsoft\video_frame_observer.cpp">
-      <Filter>microsoft</Filter>
-    </ClCompile>
     <ClCompile Include="noop_video_decoder.cpp">
       <Filter>noop_video</Filter>
     </ClCompile>
@@ -101,78 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="microsoft\include\audio_frame.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\audio_frame_observer.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\callback.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\data_channel.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\media\external_video_track_source.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\media\external_video_track_source_impl.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\include\external_video_track_source_interop.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\interop\global_factory.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\include\interop_api.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\media\local_video_track.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\include\local_video_track_interop.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\mrs_errors.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\peer_connection.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\include\peer_connection_interop.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\ref_counted_base.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\refptr.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\include\result.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\sdp_utils.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\str.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\targetver.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\tracked_object.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\utils.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\include\video_frame.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="microsoft\video_frame_observer.h">
-      <Filter>microsoft</Filter>
-    </ClInclude>
     <ClInclude Include="noop_video_decoder.h">
       <Filter>noop_video</Filter>
     </ClInclude>
@@ -248,9 +131,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="microsoft">
-      <UniqueIdentifier>{d617ed66-c61c-4c13-b457-908339419610}</UniqueIdentifier>
-    </Filter>
     <Filter Include="noop_video">
       <UniqueIdentifier>{bf41696d-43c2-4860-9db1-5ba5a699c25a}</UniqueIdentifier>
     </Filter>

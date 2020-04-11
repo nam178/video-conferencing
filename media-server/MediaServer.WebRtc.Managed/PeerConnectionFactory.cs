@@ -14,13 +14,13 @@ namespace MediaServer.WebRtc.Managed
 
         public PeerConnection CreatePeerConnection(PeerConnectionObserver observer, PeerConnectionConfig config)
         {
-            var interopIceServers = config.IceServers.Select(s => new PeerConnectionFactoryInterops.IceServerConfig
+            var interopIceServers = config.IceServers.Select(s => new PeerConnectionFactoryInterop.IceServerConfig
             {
                 Username = s.Username,
                 Password = s.Password,
                 CommaSeperatedUrls = string.Join(';', config.IceServers)
             }).ToArray();
-            return new PeerConnection(PeerConnectionFactoryInterops.CreatePeerConnection(
+            return new PeerConnection(PeerConnectionFactoryInterop.CreatePeerConnection(
                 Native,
                 interopIceServers,
                 interopIceServers.Count(),
@@ -28,9 +28,17 @@ namespace MediaServer.WebRtc.Managed
                 ));
         }
 
-        public void Initialize() => PeerConnectionFactoryInterops.Initialize(Native);
+        public PassiveVideoTrack CreatePassiveVideoTrack(string videoTrackName, PassiveVideoTrackSource source)
+        {
+            return new PassiveVideoTrack(
+                PeerConnectionFactoryInterop.CreatePassiveVideoTrac(Native, source.Native, videoTrackName)
 
-        public void TearDown() => PeerConnectionFactoryInterops.TearDown(Native);
+                );
+        }
+
+        public void Initialize() => PeerConnectionFactoryInterop.Initialize(Native);
+
+        public void TearDown() => PeerConnectionFactoryInterop.TearDown(Native);
 
         public void Dispose() => Native.Dispose();
     }

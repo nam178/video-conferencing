@@ -7,6 +7,8 @@ extern "C"
     using PeerConnectionFactoryPtr = void *;
     using PeerConnectionRawPointer = void *;
     using PeerConnectionObserverRawPointer = void *;
+    using PassiveVideoTrackPtr = void *;
+    using PassiveVideoTrackSourcePtr = void *;
 
     struct IceServerConfig
     {
@@ -15,20 +17,20 @@ extern "C"
         const char *_password{};
     };
 
-    // Create new isntance of PeerConnectionFactoryManager
+    // Create new isntance of PeerConnectionFactory
     EXPORT PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryManagerCreate();
 
-    // Call Initialize() on an instance of PeerConnectionFactoryManager
-    EXPORT PeerConnectionFactoryPtr CONVENTION
+    // Call Initialize() on an instance of PeerConnectionFactory
+    EXPORT void CONVENTION
     PeerConnectionFactoryManagerInitialize(PeerConnectionFactoryPtr instance);
 
-    // Call TearDown() on an instance of PeerConnectionFactoryManager
-    EXPORT PeerConnectionFactoryPtr CONVENTION
+    // Call TearDown() on an instance of PeerConnectionFactory
+    EXPORT void CONVENTION
     PeerConnectionFactoryManagerTearDown(PeerConnectionFactoryPtr instance);
 
-    // Release/delete the memory occupied by an instance of PeerConnectionFactoryManager
+    // Release/delete the memory occupied by an instance of PeerConnectionFactory
     // Make sure you call TearDown() first
-    EXPORT PeerConnectionFactoryPtr CONVENTION
+    EXPORT void CONVENTION
     PeerConnectionFactoryManagerDestroy(PeerConnectionFactoryPtr instance);
 
     EXPORT PeerConnectionRawPointer CONVENTION PeerConnectionFactoryCreatePeerConnection(
@@ -36,4 +38,9 @@ extern "C"
         IceServerConfig *ice_servers,
         int32_t ice_server_length,
         PeerConnectionObserverRawPointer peer_connection_observer);
+
+    EXPORT PassiveVideoTrackPtr CONVENTION PeerConnectionFactoryCreatePassiveVideoTrack(
+        PeerConnectionFactoryPtr peer_connection_factory,
+        PassiveVideoTrackSourcePtr passive_video_track_souce_ptr,
+        const char *track_name);
 }

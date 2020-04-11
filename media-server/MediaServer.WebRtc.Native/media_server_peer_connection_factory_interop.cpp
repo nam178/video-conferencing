@@ -4,36 +4,36 @@
 #include "media_server_peer_connection_factory.h"
 #include "media_server_peer_connection_factory_interop.h"
 #include "media_server_peer_connection_interop.h"
+#include "passive_video_track.h"
+#include "passive_video_track_source.h"
 
-MediaServer::PeerConnectionFactoryManager *Cast(void *opaque_ptr)
+MediaServer::PeerConnectionFactory *Cast(void *opaque_ptr)
 {
-    auto tmp = static_cast<MediaServer::PeerConnectionFactoryManager *>(opaque_ptr);
+    auto tmp = static_cast<MediaServer::PeerConnectionFactory *>(opaque_ptr);
     if(!tmp)
     {
-        RTC_LOG(LS_ERROR, "PeerConnectionFactoryManager null ptr");
-        throw new std::runtime_error("PeerConnectionFactoryManager is null");
+        RTC_LOG(LS_ERROR, "PeerConnectionFactory null ptr");
+        throw new std::runtime_error("PeerConnectionFactory is null");
     }
     return tmp;
 }
 
 PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryManagerCreate()
 {
-    return new MediaServer::PeerConnectionFactoryManager();
+    return new MediaServer::PeerConnectionFactory();
 }
 
-PeerConnectionFactoryPtr CONVENTION
-PeerConnectionFactoryManagerInitialize(PeerConnectionFactoryPtr instance)
+void CONVENTION PeerConnectionFactoryManagerInitialize(PeerConnectionFactoryPtr instance)
 {
     Cast(instance)->Initialize();
 }
 
-PeerConnectionFactoryPtr CONVENTION
-PeerConnectionFactoryManagerTearDown(PeerConnectionFactoryPtr instance)
+void CONVENTION PeerConnectionFactoryManagerTearDown(PeerConnectionFactoryPtr instance)
 {
     Cast(instance)->TearDown();
 }
 
-PeerConnectionFactoryPtr CONVENTION
+void CONVENTION
 PeerConnectionFactoryManagerDestroy(PeerConnectionFactoryPtr instance)
 {
     if(instance)
@@ -95,7 +95,7 @@ PeerConnectionFactoryCreatePeerConnection(PeerConnectionFactoryPtr peer_connecti
     }
 
     auto factory_manager =
-        static_cast<MediaServer::PeerConnectionFactoryManager *>(peer_connection_factory);
+        static_cast<MediaServer::PeerConnectionFactory *>(peer_connection_factory);
     if(!factory_manager)
     {
         RTC_LOG(LS_ERROR, "peer_connection_observer is null");
@@ -108,4 +108,27 @@ PeerConnectionFactoryCreatePeerConnection(PeerConnectionFactoryPtr peer_connecti
         rtc_config, std::move(dependencies));
 
     return new MediaServer::PeerConnection(std::move(peer_connection));
+}
+
+PassiveVideoTrackPtr CONVENTION PeerConnectionFactoryCreatePassiveVideoTrack(
+    PeerConnectionFactoryPtr peer_connection_factory,
+    PassiveVideoTrackSourcePtr passive_video_track_souce_ptr,
+    const char *track_name)
+{
+    auto factory = Cast(peer_connection_factory)->GetPeerConnectionFactory();
+    if(!factory)
+    {
+        RTC_LOG(LS_ERROR, "peer_connection_factory is null");
+        throw new std::runtime_error("peer_connection_factory is null ");
+    }
+    auto passive_video_track_source =
+        static_cast<PassiveVideo::PassiveVideoTrackSource *>(passive_video_track_souce_ptr);
+    if(!passive_video_track_source)
+    {
+        RTC_LOG(LS_ERROR, "passive_video_track_souce_ptr is null");
+        throw new std::runtime_error("passive_video_track_souce_ptr factory is null ");
+    }
+
+    return new PassiveVideo::PassiveVideoTrack(
+        factory->CreateVideoTrack(track_name, passive_video_track_source));
 }
