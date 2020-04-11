@@ -40,9 +40,9 @@ namespace Microsoft.MixedReality.WebRTC.Interop
     internal static class Utils
     {
 #if MR_SHARING_WIN
-        internal const string dllPath = "Microsoft.MixedReality.WebRTC.Native.dll";
+        internal const string dllPath = "MediaServer.WebRtc.Native.dll";
 #elif MR_SHARING_ANDROID
-        internal const string dllPath = "Microsoft.MixedReality.WebRTC.Native.so";
+        internal const string dllPath = "MediaServer.WebRtc.Native.so";
 #endif
 
         // Error codes returned by the interop API -- see mrs_errors.h

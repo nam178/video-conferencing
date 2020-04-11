@@ -110,6 +110,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="media_server_peer_connection.h" />
+    <ClInclude Include="media_server_peer_connection_factory_interop.h" />
+    <ClInclude Include="media_server_peer_connection_interop.h" />
     <ClInclude Include="media_server_peer_connection_observer_interop.h" />
     <ClInclude Include="media_server_rtp_transceiver_interop.h" />
     <ClInclude Include="media_server_call_back.h" />
@@ -154,10 +157,13 @@
     <ClInclude Include="passive_video_track_source.h" />
     <ClInclude Include="passive_video_track_source_interop.h" />
     <ClInclude Include="media_server_peer_connection_observer.h" />
-    <ClInclude Include="media_server_peer_connection_factory_manager.h" />
+    <ClInclude Include="media_server_peer_connection_factory.h" />
     <ClInclude Include="utils_string_helper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="media_server_peer_connection.cpp" />
+    <ClCompile Include="media_server_peer_connection_factory_interop.cpp" />
+    <ClCompile Include="media_server_peer_connection_interop.cpp" />
     <ClCompile Include="media_server_peer_connection_observer.cpp" />
     <ClCompile Include="media_server_peer_connection_observer_interop.cpp" />
     <ClCompile Include="media_server_rtp_transceiver_interop.cpp" />
@@ -190,7 +196,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="media_server_peer_connection_factory_manager.cpp" />
+    <ClCompile Include="media_server_peer_connection_factory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

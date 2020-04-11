@@ -24,9 +24,11 @@
       <Private>true</Private>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\MediaServer.WebRtc.Native\MediaServer.WebRtc.Native.vcxproj" />
+    <ProjectReference Include="..\MediaServer.WebRtc.Native\MediaServer.WebRtc.Native.vcxproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
-  <!-- copy here -->
+  <!-- copy here 
   <ItemGroup>
     <ContentWithTargetPath Include="..\bin\Win32\x64\$(Configuration)\MediaServer.WebRtc.Native.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -37,9 +39,18 @@
       <TargetPath>MediaServer.WebRtc.Native.pdb</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
-
+-->
   
   <ItemGroup>
+    <None Include="..\bin\Win32\x64\$(Configuration)\MediaServer.WebRtc.Native.dll">
+      <Link>MediaServer.WebRtc.Native.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\Win32\x64\$(Configuration)\MediaServer.WebRtc.Native.pdb">
+      <Link>MediaServer.WebRtc.Native.pdb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
     <None Update="nlog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

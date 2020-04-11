@@ -5,9 +5,9 @@ using static MediaServer.WebRtc.Managed.PeerConnectionObserverInterop;
 
 namespace MediaServer.WebRtc.Managed
 {
-    sealed class PeerConnectionObserver : IDisposable
+    public sealed class PeerConnectionObserver : IDisposable
     {
-        PeerConnectionObserverSafeHandle Native { get; }
+        internal PeerConnectionObserverSafeHandle Native { get; }
 
         readonly GCHandle _handle;
         readonly RenegotiationNeededCallback _renegotiationNeededCallback = RenegotiationNeededCallback;

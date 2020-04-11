@@ -77,14 +77,27 @@
     <ClCompile Include="passive_video_track_source_interop.cpp">
       <Filter>passive_video</Filter>
     </ClCompile>
-    <ClCompile Include="media_server_peer_connection_factory_manager.cpp">
-      <Filter>media_server</Filter>
-    </ClCompile>
     <ClCompile Include="media_server_peer_connection_observer.cpp">
       <Filter>media_server</Filter>
     </ClCompile>
-    <ClCompile Include="media_server_rtp_transceiver_interop.cpp" />
-    <ClCompile Include="media_server_peer_connection_observer_interop.cpp" />
+    <ClCompile Include="media_server_rtp_transceiver_interop.cpp">
+      <Filter>media_server</Filter>
+    </ClCompile>
+    <ClCompile Include="media_server_peer_connection_interop.cpp">
+      <Filter>media_server</Filter>
+    </ClCompile>
+    <ClCompile Include="media_server_peer_connection_observer_interop.cpp">
+      <Filter>media_server</Filter>
+    </ClCompile>
+    <ClCompile Include="media_server_peer_connection.cpp">
+      <Filter>media_server</Filter>
+    </ClCompile>
+    <ClCompile Include="media_server_peer_connection_factory.cpp">
+      <Filter>media_server</Filter>
+    </ClCompile>
+    <ClCompile Include="media_server_peer_connection_factory_interop.cpp">
+      <Filter>media_server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -197,9 +210,6 @@
     <ClInclude Include="media_server_call_back.h">
       <Filter>media_server</Filter>
     </ClInclude>
-    <ClInclude Include="media_server_peer_connection_factory_manager.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
     <ClInclude Include="media_server_ice_gathering_state.h">
       <Filter>media_server</Filter>
     </ClInclude>
@@ -219,6 +229,18 @@
       <Filter>media_server</Filter>
     </ClInclude>
     <ClInclude Include="media_server_peer_connection_observer_interop.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_peer_connection_interop.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_peer_connection.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_peer_connection_factory.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="media_server_peer_connection_factory_interop.h">
       <Filter>media_server</Filter>
     </ClInclude>
   </ItemGroup>
