@@ -139,6 +139,8 @@ void MediaServer::PeerConnectionObserver::OnIceCandidate(
         Utils::StringHelper::EnsureNullTerminatedCString(sdp_mid);
 
         // Invoke the callback
+        // Notes that the char* will be deleted by the parent
+        // string above
         _ice_candidate_callback(MediaServer::IceCandidate{
             sdp.c_str(), sdp_mid.c_str(), ice_candidate->sdp_mline_index()});
     }

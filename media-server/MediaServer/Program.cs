@@ -20,30 +20,6 @@ namespace MediaServerConsole
     {
         static async Task Main(string[] args)
         {
-            var iceServerConfig = new PeerConnectionInterop2.IceServerConfig[]
-            {
-                new PeerConnectionInterop2.IceServerConfig {
-                    CommaSeperatedUrls = "BarBoo1;BarBoo2",
-                    Username = "boo",
-                    Password = "bar"
-                },
-                new PeerConnectionInterop2.IceServerConfig {
-                    Username = null,
-                    Password = "bar"
-                },
-            };
-
-            try
-            {
-                Console.WriteLine(PeerConnectionInterop2.Create(iceServerConfig, iceServerConfig.Length));
-            }
-            catch(Exception ex)
-            {
-                Console.Error.WriteLine(ex.ToString());
-            }
-            
-            return;
-
             LogManager.LoadConfiguration(Path.Combine(Assembly.GetEntryAssembly().Location, "..", "nlog.config"));
             LogManager.GetCurrentClassLogger().Info("Welcome");
             try

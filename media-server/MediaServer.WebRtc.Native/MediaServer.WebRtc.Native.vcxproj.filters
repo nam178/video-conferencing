@@ -133,6 +133,9 @@
     <ClInclude Include="media_server_create_session_description_observer.h">
       <Filter>media_server</Filter>
     </ClInclude>
+    <ClInclude Include="media_server_create_answer_result.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

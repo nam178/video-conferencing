@@ -120,6 +120,7 @@
     <ClInclude Include="media_server_ice_candidate.h" />
     <ClInclude Include="media_server_ice_connection_state.h" />
     <ClInclude Include="media_server_ice_gathering_state.h" />
+    <ClInclude Include="media_server_create_answer_result.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="export.h" />
     <ClInclude Include="noop_video_decoder.h" />
