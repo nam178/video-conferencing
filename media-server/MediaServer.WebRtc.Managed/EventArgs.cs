@@ -2,7 +2,7 @@
 
 namespace MediaServer.WebRtc.Managed
 {
-    sealed class EventArgs<T> : EventArgs
+    public sealed class EventArgs<T> : EventArgs
     {
         public T Value { get; }
 

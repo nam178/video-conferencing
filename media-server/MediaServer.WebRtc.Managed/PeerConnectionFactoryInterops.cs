@@ -1,5 +1,4 @@
-﻿using Microsoft.MixedReality.WebRTC.Interop;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace MediaServer.WebRtc.Managed
@@ -14,19 +13,19 @@ namespace MediaServer.WebRtc.Managed
             public string Password;
         }
 
-        [DllImport(Utils.dllPath, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerCreate")]
+        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerCreate")]
         public static extern IntPtr Create();
 
-        [DllImport(Utils.dllPath, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerInitialize")]
+        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerInitialize")]
         public static extern void Initialize(PeerConnectionFactorySafeHandle hanle);
 
-        [DllImport(Utils.dllPath, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerTearDown")]
+        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerTearDown")]
         public static extern void TearDown(PeerConnectionFactorySafeHandle hanle);
 
-        [DllImport(Utils.dllPath, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerDestroy")]
+        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerDestroy")]
         public static extern void Destroy(IntPtr hanle);
 
-        [DllImport(Utils.dllPath, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryCreatePeerConnection")]
+        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryCreatePeerConnection")]
         public static extern IntPtr CreatePeerConnection(
             PeerConnectionFactorySafeHandle peerConnectionFactoryManagerSafeHandle,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IceServerConfig[] iceServerConfigs,

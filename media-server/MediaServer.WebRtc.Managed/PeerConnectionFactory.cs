@@ -12,7 +12,7 @@ namespace MediaServer.WebRtc.Managed
             Native = new PeerConnectionFactorySafeHandle();
         }
 
-        public PeerConnection2 CreatePeerConnection(PeerConnectionObserver observer, PeerConnectionConfig config)
+        public PeerConnection CreatePeerConnection(PeerConnectionObserver observer, PeerConnectionConfig config)
         {
             var interopIceServers = config.IceServers.Select(s => new PeerConnectionFactoryInterops.IceServerConfig
             {
@@ -20,7 +20,7 @@ namespace MediaServer.WebRtc.Managed
                 Password = s.Password,
                 CommaSeperatedUrls = string.Join(';', config.IceServers)
             }).ToArray();
-            return new PeerConnection2(PeerConnectionFactoryInterops.CreatePeerConnection(
+            return new PeerConnection(PeerConnectionFactoryInterops.CreatePeerConnection(
                 Native,
                 interopIceServers,
                 interopIceServers.Count(),

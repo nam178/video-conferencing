@@ -34,8 +34,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Microsoft\**" />
     <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="Microsoft\**" />
     <EmbeddedResource Remove="obj\**" />
+    <None Remove="Microsoft\**" />
     <None Remove="obj\**" />
   </ItemGroup>
   
