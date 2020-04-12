@@ -351,3 +351,4 @@ MigrationBackup/
 *.mp4
 *.webp
 *.mov
+media-client/dist/
