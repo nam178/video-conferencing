@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using MediaServer.Signalling.CommandHandlers;
 using MediaServer.Signalling.Handlers;
 using MediaServer.Signalling.Net;
 
@@ -12,10 +13,7 @@ namespace MediaServer.Signalling.IoC
 
             builder.RegisterType<WebSocketServer>().AsImplementedInterfaces();
             builder.RegisterType<StringCommandHandler>().AsImplementedInterfaces();
-            builder.RegisterType<HeartBeatCommandHandler>().AsSelf().SingleInstance();
-            builder.RegisterType<RegisterCommandHandler>().AsSelf().SingleInstance();
-            builder.RegisterType<SetOfferCommandHandler>().AsSelf().SingleInstance();
-            builder.RegisterType<AddIceCandidateHandler>().AsSelf().SingleInstance();
+            builder.RegisterType<CreateRoomCommandHandler>().AsSelf();
         }
     }
 }

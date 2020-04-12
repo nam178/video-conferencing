@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MediaServer.Common\MediaServer.Common.csproj" />
+    <ProjectReference Include="..\MediaServer.Core\MediaServer.Core.csproj" />
   </ItemGroup>
 
 </Project>

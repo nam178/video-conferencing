@@ -1,5 +1,9 @@
 ﻿using Autofac;
-using MediaServer.Models;
+using MediaServer.Common.Threading;
+using MediaServer.Core.Repositories;
+using MediaServer.Core.Services;
+using MediaServer.Core.Services.RoomManagement;
+using Microsoft.Extensions.Hosting;
 
 namespace MediaServer.Core.IoC
 {
@@ -9,7 +13,19 @@ namespace MediaServer.Core.IoC
         {
             base.Load(builder);
 
-            builder.RegisterType<Room>().AsSelf().SingleInstance();
+            // A global dispatch queue:
+            // used for dispatching
+            // tasks that operates the room management, as it's not thread safe.
+            builder.RegisterType<ThreadPoolDispatchQueue>().As<IDispatchQueue>().SingleInstance();
+
+            // Repositories
+            builder.RegisterType<RoomRepository>().As<IRoomRepository>().SingleInstance();
+
+            // Handlers
+            builder.RegisterType<NewRoomRequestHandler>().AsImplementedInterfaces();
+
+            // HostedServices
+            builder.RegisterType<GlobalDispatchQueueStarter>().As<IHostedService>();
         }
     }
 }

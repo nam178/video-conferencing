@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Signalling.Handlers
 {
-    sealed class StringCommandHandler : ICommandHandler<WebSocketClient, string>
+    sealed class StringCommandHandler : ICommandHandler<WebSocketClientRemoteDevice, string>
     {
         readonly Type[] _possibleCommandTypes;
         readonly ILifetimeScope _scope;
@@ -31,7 +31,7 @@ namespace MediaServer.Signalling.Handlers
                 ?? throw new ArgumentNullException(nameof(scope));
         }
 
-        public Task HandleAsync(WebSocketClient webSocketClient, string commandArgs)
+        public Task HandleAsync(WebSocketClientRemoteDevice webSocketClient, string commandArgs)
         {
             var commandFormat = JsonConvert.DeserializeObject<CommandFormat>(commandArgs);
 

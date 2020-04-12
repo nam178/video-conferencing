@@ -6,4 +6,9 @@ namespace MediaServer.Common.Commands
     {
         Task HandleAsync(TArg1 arg1, TArg2 arg2);
     }
+
+    public interface ICommandHandlerWithResponse<TArg1, TArg2, TResult>
+    {
+        Task<TResult> HandleAsync(TArg1 arg1, TArg2 arg2);
+    }
 }

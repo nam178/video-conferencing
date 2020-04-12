@@ -27,7 +27,7 @@ namespace MediaServer.Signalling.Handlers
 
                 try
                 {
-                    var peer = new Peer(arg1.ToString(), new WebSocketSignaller(arg1));
+                    var peer = new Peer(arg1.ToString(), new WebSocketClientRemoteDevice(arg1));
 
                     _room.AddPeer(peer);
                 }

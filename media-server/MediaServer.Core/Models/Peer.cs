@@ -26,11 +26,11 @@ namespace MediaServer.Models
             }
         }
 
-        public ISignaller Signaller { get; }
+        public IRemoteDevice Signaller { get; }
 
         public string Name { get; }
 
-        public Peer(string name, ISignaller peerMessenger)
+        public Peer(string name, IRemoteDevice peerMessenger)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Signaller = peerMessenger ?? throw new ArgumentNullException(nameof(peerMessenger));
