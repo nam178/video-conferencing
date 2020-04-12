@@ -14,7 +14,7 @@ namespace MediaServer.Signalling.CommandHandlers
         {
             _handler = handler
                 ?? throw new System.ArgumentNullException(nameof(handler));
-        }
+        }                                                                                                                                                        
 
         public async Task HandleAsync(WebSocketClientRemoteDevice remoteDevice, CommandArgs.CreateRoom args)
         {
