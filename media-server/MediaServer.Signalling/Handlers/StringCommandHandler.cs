@@ -1,5 +1,7 @@
 ﻿using Autofac;
 using MediaServer.Common.Commands;
+using MediaServer.Signalling.Net;
+using MediaServer.WebSocket;
 using Newtonsoft.Json;
 using NLog;
 using System;
@@ -8,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace MediaServer.WebSocket.CommandHandlers
+namespace MediaServer.Signalling.Handlers
 {
     sealed class StringCommandHandler : ICommandHandler<WebSocketClient, string>
     {
@@ -20,11 +22,12 @@ namespace MediaServer.WebSocket.CommandHandlers
         {
             _possibleCommandTypes = Assembly.GetExecutingAssembly()
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(f => {
-                    return f.IsGenericType &&  f.GetGenericTypeDefinition() == typeof(ICommandHandler<,>);
+                .Where(t => t.GetInterfaces().Any(f =>
+                {
+                    return f.IsGenericType && f.GetGenericTypeDefinition() == typeof(ICommandHandler<,>);
                 }))
                 .ToArray();
-            _scope = scope 
+            _scope = scope
                 ?? throw new ArgumentNullException(nameof(scope));
         }
 

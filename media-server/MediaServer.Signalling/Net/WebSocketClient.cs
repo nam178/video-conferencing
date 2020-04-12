@@ -3,7 +3,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediaServer.WebSocket
+namespace MediaServer.Signalling.Net
 {
     sealed class WebSocketClient
     {
@@ -12,16 +12,16 @@ namespace MediaServer.WebSocket
 
         public WebSocketClient(HttpListenerContext httpContext, HttpListenerWebSocketContext context)
         {
-            _httpContext = httpContext 
+            _httpContext = httpContext
                 ?? throw new System.ArgumentNullException(nameof(httpContext));
-            _context = context 
+            _context = context
                 ?? throw new System.ArgumentNullException(nameof(context));
         }
 
         public Task SendAsync(string message)
         {
             return _context.WebSocket.SendAsync(
-                new System.ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(message)), 
+                new System.ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(message)),
                 WebSocketMessageType.Text,
                 true,
                 CancellationToken.None

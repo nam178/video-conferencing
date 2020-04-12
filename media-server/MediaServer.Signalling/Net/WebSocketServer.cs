@@ -3,19 +3,18 @@ using Microsoft.Extensions.Hosting;
 using NLog;
 using System;
 using System.Net;
-using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediaServer.WebSocket
+namespace MediaServer.Signalling.Net
 {
     sealed class WebSocketServer : IHostedService
     {
         readonly HttpListener _httpListener;
         readonly ICommandHandler<WebSocketClient, string> _commandHandler;
-        readonly static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
-        private TcpListener t;
+        readonly static ILogger _logger = LogManager.GetCurrentClassLogger();
 
 #if DEBUG
         const int BUFFER_SIZE = 16;
@@ -27,7 +26,7 @@ namespace MediaServer.WebSocket
         {
             _httpListener = new HttpListener();
             _httpListener.Prefixes.Add("http://localhost:8080/");
-            _commandHandler = commandHandler 
+            _commandHandler = commandHandler
                 ?? throw new ArgumentNullException(nameof(commandHandler));
         }
 
@@ -44,7 +43,7 @@ namespace MediaServer.WebSocket
         {
             while(true)
             {
-                var context = await  _httpListener.GetContextAsync();
+                var context = await _httpListener.GetContextAsync();
                 BeginHandling(context);
             }
         }
@@ -64,45 +63,50 @@ namespace MediaServer.WebSocket
 
                     using(webSocketContext.WebSocket)
                     {
-                        // Keep reading messages forever
-                        while(true)
-                        {
-                            // Read chunks of a message
-                            while(true)
-                            {
-                                var t = await webSocketContext.WebSocket.ReceiveAsync(buff, CancellationToken.None);
-
-                                if(t.MessageType != System.Net.WebSockets.WebSocketMessageType.Text)
-                                {
-                                    throw new NotSupportedException();
-                                }
-                                if(t.Count > 0 && t.MessageType == System.Net.WebSockets.WebSocketMessageType.Text)
-                                {
-                                    messageBuilder.Append(Encoding.UTF8.GetString(buff.Array, 0, t.Count));
-                                }
-                                if(t.EndOfMessage)
-                                {
-                                    break;
-                                }
-                            }
-
-                            // At this point, fully got the message;
-                            // Just pass it to the handler
-                            try
-                            {
-                                await _commandHandler.HandleAsync(client, messageBuilder.ToString());
-                            }
-                            finally
-                            {
-                                messageBuilder.Clear();
-                            }
-                        }
+                        await MessageLoopAsync(webSocketContext, buff, messageBuilder, client);
                     }
                 }
             }
             catch(Exception ex)
             {
                 _logger.Error(ex);
+            }
+        }
+
+        async Task MessageLoopAsync(
+            HttpListenerWebSocketContext webSocketContext,
+            ArraySegment<byte> buff,
+            StringBuilder messageBuilder,
+            WebSocketClient client)
+        {
+            // Keep reading messages forever
+            while(true)
+            {
+                // Read chunks of a message
+                while(true)
+                {
+                    var tmp = await webSocketContext.WebSocket.ReceiveAsync(buff, CancellationToken.None);
+
+                    if(tmp.MessageType != System.Net.WebSockets.WebSocketMessageType.Text)
+                        throw new NotSupportedException();
+                    if(tmp.Count > 0 && tmp.MessageType == System.Net.WebSockets.WebSocketMessageType.Text)
+                        messageBuilder.Append(Encoding.UTF8.GetString(buff.Array, 0, tmp.Count));
+                    if(tmp.EndOfMessage)
+                    {
+                        break;
+                    }
+                }
+
+                // At this point, fully got the message;
+                // Just pass it to the handler
+                try
+                {
+                    await _commandHandler.HandleAsync(client, messageBuilder.ToString());
+                }
+                finally
+                {
+                    messageBuilder.Clear();
+                }
             }
         }
 

@@ -1,16 +1,18 @@
 using MediaServer.Common.Commands;
 using MediaServer.Models;
+using MediaServer.Signalling.CommandArgs;
+using MediaServer.Signalling.Net;
 using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.WebSocket.CommandHandlers
+namespace MediaServer.Signalling.Handlers
 {
     sealed class AddIceCandidateHandler : ICommandHandler<WebSocketClient, AddIceCandidate>
     {
         readonly Room _room;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public AddIceCandidateHandler(Room channel)
         {

@@ -1,10 +1,5 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using MediaServer.Models;
-using MediaServer.WebRtc;
-using MediaServer.WebRtc.Managed;
-using MediaServer.WebSocket;
-using MediaServer.WebSocket.CommandHandlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -37,14 +32,8 @@ namespace MediaServerConsole
                     })
                     .ConfigureContainer<ContainerBuilder>(builder =>
                     {
-                        builder.RegisterType<WebSocketServer>().AsImplementedInterfaces();
-                        builder.RegisterType<StringCommandHandler>().AsImplementedInterfaces();
-                        builder.RegisterType<HeartBeatCommandHandler>().AsSelf().SingleInstance();
-                        builder.RegisterType<RegisterCommandHandler>().AsSelf().SingleInstance();
-                        builder.RegisterType<SetOfferCommandHandler>().AsSelf().SingleInstance();
-                        builder.RegisterType<AddIceCandidateHandler>().AsSelf().SingleInstance();
-
-                        builder.RegisterType<Room>().AsSelf().SingleInstance();
+                        builder.RegisterModule<global::MediaServer.Signalling.IoC.SignallingModule>();
+                        builder.RegisterModule<global::MediaServer.Core.IoC.CoreModule>();
                     })
                     .RunConsoleAsync();
             }

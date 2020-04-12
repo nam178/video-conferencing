@@ -2,7 +2,7 @@
 
 namespace MediaServer.Models
 {
-    interface ISignaller
+    public interface ISignaller
     {
         Task SendAsync(string command, object args);
     }

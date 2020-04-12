@@ -1,21 +1,22 @@
 using MediaServer.Common.Commands;
 using MediaServer.Models;
+using MediaServer.Signalling.Net;
 using NLog;
 using System;
 using System.Threading.Tasks;
 
-namespace MediaServer.WebSocket.CommandHandlers
+namespace MediaServer.Signalling.Handlers
 {
     sealed class Register { }
 
     sealed class RegisterCommandHandler : ICommandHandler<WebSocketClient, Register>
     {
         readonly Room _room;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public RegisterCommandHandler(Room room)
         {
-            _room = room ?? throw new System.ArgumentNullException(nameof(room));
+            _room = room ?? throw new ArgumentNullException(nameof(room));
         }
 
         public async Task HandleAsync(WebSocketClient arg1, Register arg2)

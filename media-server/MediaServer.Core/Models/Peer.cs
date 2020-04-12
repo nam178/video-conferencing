@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace MediaServer.Models
 {
-    sealed class Peer
+    public sealed class Peer
     {
         RTCSessionDescription _remoteSessionDescription;
         IReadOnlyList<RTCIceCandidate> _remoteIceCandidates = new List<RTCIceCandidate>();

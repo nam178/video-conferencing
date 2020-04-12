@@ -1,10 +1,11 @@
 ﻿using MediaServer.Models;
+using MediaServer.WebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NLog;
 using System.Threading.Tasks;
 
-namespace MediaServer.WebSocket
+namespace MediaServer.Signalling.Net
 {
     sealed class WebSocketSignaller : ISignaller
     {
@@ -16,7 +17,8 @@ namespace MediaServer.WebSocket
             _client = client ?? throw new System.ArgumentNullException(nameof(client));
         }
 
-        public Task SendAsync(string command, object args) {
+        public Task SendAsync(string command, object args)
+        {
             var serializerSettings = new JsonSerializerSettings();
             serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             var message = JsonConvert.SerializeObject(new CommandFormat

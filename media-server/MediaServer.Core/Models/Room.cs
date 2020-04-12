@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Models
 {
-    sealed class Room
+    public sealed class Room
     {
         IReadOnlyList<Peer> _peers = new List<Peer>();
         readonly ManualResetEvent _evt = new ManualResetEvent(false);

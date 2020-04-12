@@ -1,4 +1,4 @@
-﻿namespace MediaServer.WebSocket.CommandArgs
+﻿namespace MediaServer.Signalling.CommandArgs
 {
     public class HeartBeat
     {
