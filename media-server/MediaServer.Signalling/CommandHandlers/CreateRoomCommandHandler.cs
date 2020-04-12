@@ -1,32 +1,40 @@
 ﻿using MediaServer.Common.Commands;
 using MediaServer.Core.Common;
-using MediaServer.Core.Services.RoomManagement;
+using MediaServer.Core.Services.ServerManager;
 using MediaServer.Signalling.Net;
+using System;
 using System.Threading.Tasks;
 
 namespace MediaServer.Signalling.CommandHandlers
 {
     sealed class CreateRoomCommandHandler : ICommandHandler<WebSocketClientRemoteDevice, CommandArgs.CreateRoom>
     {
-        readonly IRemoteDeviceRequestHandler<NewRoomRequest, NewRoomResponse> _handler;
+        readonly IRemoteDeviceRequestHandler<NewRoomRequest, NewRoomResponse> _coreHandler;
 
-        public CreateRoomCommandHandler(IRemoteDeviceRequestHandler<NewRoomRequest, NewRoomResponse> handler)
+        public CreateRoomCommandHandler(IRemoteDeviceRequestHandler<NewRoomRequest, NewRoomResponse> coreHandler)
         {
-            _handler = handler
-                ?? throw new System.ArgumentNullException(nameof(handler));
+            _coreHandler = coreHandler
+                ?? throw new System.ArgumentNullException(nameof(coreHandler));
         }                                                                                                                                                        
 
         public async Task HandleAsync(WebSocketClientRemoteDevice remoteDevice, CommandArgs.CreateRoom args)
         {
-            var result = await _handler.HandleAsync(remoteDevice, new NewRoomRequest
+            try
             {
-                NewRoomName = args.NewRoomName
-            });
+                var result = await _coreHandler.HandleAsync(remoteDevice, new NewRoomRequest
+                {
+                    NewRoomName = args.NewRoomName
+                });
 
-            if(result.Success)
-                await remoteDevice.SendAsync("RoomCreated", result.CreatedRoomId);
-            else
-                await remoteDevice.SendAsync("RoomCreationFailed", args.NewRoomName);
+                if(result.Success)
+                    await remoteDevice.SendAsync("RoomCreated", result.CreatedRoomId);
+                else
+                    await remoteDevice.SendAsync("RoomCreationFailed", result.ErrorMessage);
+            }
+            catch(Exception ex)
+            {
+                await remoteDevice.SendAsync("RoomCreationFailed", ex.Message);
+            }
         }
     }
 }

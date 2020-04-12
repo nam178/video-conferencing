@@ -1,6 +1,7 @@
-﻿using MediaServer.Core.Models;
+﻿using MediaServer.Core.Common;
+using MediaServer.Core.Models;
 
-namespace MediaServer.Core.Services.RoomManagement
+namespace MediaServer.Core.Services.ServerManager
 {
     public sealed class NewRoomResponse : GenericResponse
     {

@@ -2,7 +2,8 @@
 using MediaServer.Common.Threading;
 using MediaServer.Core.Repositories;
 using MediaServer.Core.Services;
-using MediaServer.Core.Services.RoomManagement;
+using MediaServer.Core.Services.RoomManager;
+using MediaServer.Core.Services.ServerManager;
 using Microsoft.Extensions.Hosting;
 
 namespace MediaServer.Core.IoC
@@ -13,7 +14,7 @@ namespace MediaServer.Core.IoC
         {
             base.Load(builder);
 
-            // A global dispatch queue:
+            // A central dispatch queue:
             // used for dispatching
             // tasks that operates the room management, as it's not thread safe.
             builder.RegisterType<ThreadPoolDispatchQueue>().As<IDispatchQueue>().SingleInstance();
@@ -23,9 +24,10 @@ namespace MediaServer.Core.IoC
 
             // Handlers
             builder.RegisterType<NewRoomRequestHandler>().AsImplementedInterfaces();
+            builder.RegisterType<JoinRoomRequestHandler>().AsImplementedInterfaces();
 
             // HostedServices
-            builder.RegisterType<GlobalDispatchQueueStarter>().As<IHostedService>();
+            builder.RegisterType<CentralDispatchQueueStarter>().As<IHostedService>();
         }
     }
 }

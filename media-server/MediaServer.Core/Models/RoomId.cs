@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace MediaServer.Core.Models
 {
-    public sealed class RoomId
+    public struct RoomId
     {
         readonly string _roomId;
 
@@ -33,8 +33,8 @@ namespace MediaServer.Core.Models
 
         public override bool Equals(object obj) => (obj is RoomId) && ((RoomId)obj)._roomId == _roomId;
 
-        public override int GetHashCode() => _roomId.GetHashCode();
+        public override int GetHashCode() => _roomId?.GetHashCode() ?? 0;
 
-        public override string ToString() => _roomId;
+        public override string ToString() => _roomId ?? "<empty>";
     }
 }

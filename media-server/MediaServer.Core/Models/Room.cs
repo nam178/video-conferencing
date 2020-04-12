@@ -1,9 +1,14 @@
 using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
+using MediaServer.Core.Repositories;
 
 namespace MediaServer.Models
 {
-    public sealed class Room
+    /// <summary>
+    /// The room model.
+    /// </summary>
+    /// <remarks>Not thread safe. Make sure modifications to the model are made using the dispatch queue associated with this room</remarks>
+    sealed class Room
     {
         /// <summary>
         /// Each room has its own dispatch queue, used to update models, handling signals, etc..
@@ -15,6 +20,11 @@ namespace MediaServer.Models
         /// The room id
         /// </summary>
         public RoomId Id { get; set; }
+
+        /// <summary>
+        /// The users that belongs to this room
+        /// </summary>
+        public IUserProfileCollection UserProfiles { get; } = new UserProfileCollection();
 
         public Room()
         {

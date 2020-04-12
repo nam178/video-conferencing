@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services
 {
-    sealed class GlobalDispatchQueueStarter : IHostedService
+    sealed class CentralDispatchQueueStarter : IHostedService
     {
         public ThreadPoolDispatchQueue DispatchQueue { get; }
 
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public GlobalDispatchQueueStarter(ThreadPoolDispatchQueue globalThreadPoolDispatchQueue)
+        public CentralDispatchQueueStarter(ThreadPoolDispatchQueue centralDispatchQueue)
         {
-            DispatchQueue = globalThreadPoolDispatchQueue 
-                ?? throw new System.ArgumentNullException(nameof(globalThreadPoolDispatchQueue));
+            DispatchQueue = centralDispatchQueue 
+                ?? throw new System.ArgumentNullException(nameof(centralDispatchQueue));
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

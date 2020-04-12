@@ -6,17 +6,17 @@ using MediaServer.Models;
 using System;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.RoomManagement
+namespace MediaServer.Core.Services.ServerManager
 {
     sealed class NewRoomRequestHandler : IRemoteDeviceRequestHandler<NewRoomRequest, NewRoomResponse>
     {
-        readonly IDispatchQueue _globalDispatchQueue;
+        readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;
 
-        public NewRoomRequestHandler(IDispatchQueue globalDispatchQueue, IRoomRepository roomRepository)
+        public NewRoomRequestHandler(IDispatchQueue centralDispatchQueue, IRoomRepository roomRepository)
         {
-            _globalDispatchQueue = globalDispatchQueue
-                ?? throw new ArgumentNullException(nameof(globalDispatchQueue));
+            _centralDispatchQueue = centralDispatchQueue
+                ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
             _roomRepository = roomRepository
                 ?? throw new ArgumentNullException(nameof(roomRepository));
         }
@@ -26,7 +26,7 @@ namespace MediaServer.Core.Services.RoomManagement
             // Currently anyone can create rooms,
             // TODO: add some security here
 
-            return _globalDispatchQueue.ExecuteAsync(delegate
+            return _centralDispatchQueue.ExecuteAsync(delegate
             {
                 try
                 {

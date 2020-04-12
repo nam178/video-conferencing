@@ -1,4 +1,4 @@
-﻿namespace MediaServer.Core.Services.RoomManagement
+﻿namespace MediaServer.Core.Services.ServerManager
 {
     public sealed class NewRoomRequest
     {
