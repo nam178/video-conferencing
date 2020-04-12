@@ -1,9 +1,10 @@
 ﻿using MediaServer.Models;
+using MediaServer.WebRtc.Managed;
 
 namespace MediaServer.WebSocket.CommandHandlers
 {
     sealed class AddIceCandidate
     {
-        public IceCandidate Candidate { get; set; }
+        public RTCIceCandidate Candidate { get; set; }
     }
 }

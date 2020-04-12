@@ -45,8 +45,6 @@ namespace MediaServerConsole
                         builder.RegisterType<AddIceCandidateHandler>().AsSelf().SingleInstance();
 
                         builder.RegisterType<Room>().AsSelf().SingleInstance();
-
-                        builder.RegisterType<PeerManager>().As<IHostedService>();
                     })
                     .RunConsoleAsync();
             }

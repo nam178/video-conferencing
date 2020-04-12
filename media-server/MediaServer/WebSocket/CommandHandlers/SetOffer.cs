@@ -1,9 +1,10 @@
 ﻿using MediaServer.Models;
+using MediaServer.WebRtc.Managed;
 
 namespace MediaServer.WebSocket.CommandHandlers
 {
     sealed class SetOffer
     {
-        public RtcSessionDescription Offer { get; set; }
+        public RTCSessionDescription Offer { get; set; }
     }
 }

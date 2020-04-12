@@ -1,9 +1,9 @@
 ﻿namespace MediaServer.WebRtc.Managed
 {
     /// <summary>
-    /// Also used for interops, don't modify
+    /// See https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/iceConnectionState
     /// </summary>
-    public enum IceConnectionState
+    public enum RTCIceConnectionState
     {
         New = 0,
         Checking = 1,

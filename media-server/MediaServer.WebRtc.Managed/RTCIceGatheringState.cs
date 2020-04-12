@@ -1,9 +1,9 @@
 ﻿namespace MediaServer.WebRtc.Managed
 {
     /// <summary>
-    /// Also used for interop, don't modify
+    /// See https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/iceGatheringState
     /// </summary>
-    public enum IceGatheringState
+    public enum RTCIceGatheringState
     {
         New = 0,
         Gathering = 1,

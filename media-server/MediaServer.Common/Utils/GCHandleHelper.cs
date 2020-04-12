@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace MediaServer.WebRtc.Managed
+namespace MediaServer.Common.Utils
 {
-    static class GCHandleHelper
+    public static class GCHandleHelper
     {
         public static IntPtr ToIntPtr(object target) => GCHandle.ToIntPtr(GCHandle.Alloc(target, GCHandleType.Normal));
 

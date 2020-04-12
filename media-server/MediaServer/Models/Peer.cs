@@ -1,4 +1,5 @@
 using MediaServer.Common.Utils;
+using MediaServer.WebRtc.Managed;
 using System;
 using System.Collections.Generic;
 
@@ -6,22 +7,22 @@ namespace MediaServer.Models
 {
     sealed class Peer
     {
-        RtcSessionDescription _remoteSessionDescription;
-        IReadOnlyList<IceCandidate> _remoteIceCandidates = new List<IceCandidate>();
+        RTCSessionDescription _remoteSessionDescription;
+        IReadOnlyList<RTCIceCandidate> _remoteIceCandidates = new List<RTCIceCandidate>();
         readonly object _syncRoot = new object();
 
-        public event EventHandler<EventArgs<IceCandidate>> RemoteIceCandidateReceived;
-        public event EventHandler<EventArgs<RtcSessionDescription>> RemoteRtcSessionDescriptionUpdated;
+        public event EventHandler<EventArgs<RTCIceCandidate>> RemoteIceCandidateReceived;
+        public event EventHandler<EventArgs<RTCSessionDescription>> RemoteRtcSessionDescriptionUpdated;
 
-        public IReadOnlyList<IceCandidate> RemoteIceCandidates => _remoteIceCandidates;
+        public IReadOnlyList<RTCIceCandidate> RemoteIceCandidates => _remoteIceCandidates;
 
-        public RtcSessionDescription RemoteRtcSessionDescription
+        public RTCSessionDescription RemoteRtcSessionDescription
         {
             get => _remoteSessionDescription;
             set
             {
                 _remoteSessionDescription = value;
-                RemoteRtcSessionDescriptionUpdated?.Invoke(this, new EventArgs<RtcSessionDescription>(value));
+                RemoteRtcSessionDescriptionUpdated?.Invoke(this, new EventArgs<RTCSessionDescription>(value));
             }
         }
 
@@ -35,10 +36,10 @@ namespace MediaServer.Models
             Signaller = peerMessenger ?? throw new ArgumentNullException(nameof(peerMessenger));
         }
 
-        public void ReceiveRemoteCandidate(IceCandidate iceCandidate)
+        public void ReceiveRemoteCandidate(RTCIceCandidate iceCandidate)
         {
             CopyOnWrite.Add(ref _remoteIceCandidates, iceCandidate, _syncRoot);
-            RemoteIceCandidateReceived?.Invoke(this, new EventArgs<IceCandidate>(iceCandidate));
+            RemoteIceCandidateReceived?.Invoke(this, new EventArgs<RTCIceCandidate>(iceCandidate));
         }
 
         public override string ToString() => $"[Peer {Name}]";

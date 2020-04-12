@@ -13,19 +13,19 @@ namespace MediaServer.WebRtc.Managed
             public string Password;
         }
 
-        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerCreate")]
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerCreate")]
         public static extern IntPtr Create();
 
-        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerInitialize")]
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerInitialize")]
         public static extern void Initialize(PeerConnectionFactorySafeHandle hanle);
 
-        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerTearDown")]
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerTearDown")]
         public static extern void TearDown(PeerConnectionFactorySafeHandle hanle);
 
-        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerDestroy")]
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryManagerDestroy")]
         public static extern void Destroy(IntPtr hanle);
 
-        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryCreatePeerConnection")]
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryCreatePeerConnection")]
         public static extern IntPtr CreatePeerConnection(
             PeerConnectionFactorySafeHandle peerConnectionFactorySafeHandle,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IceServerConfig[] iceServerConfigs,
@@ -33,7 +33,7 @@ namespace MediaServer.WebRtc.Managed
             PeerConnectionObserverSafeHandle peerConnectionObserver
             );
 
-        [DllImport(Utils.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryCreatePassiveVideoTrack")]
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryCreatePassiveVideoTrack")]
         public static extern IntPtr CreatePassiveVideoTrac(
             PeerConnectionFactorySafeHandle peerConnectionFactorySafeHandle,
             PassiveVideoTrackSourceSafeHandle passiveVideoTrackSourceSafeHandle,

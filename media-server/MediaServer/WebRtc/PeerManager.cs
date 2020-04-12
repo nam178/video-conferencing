@@ -1,3 +1,4 @@
+# if false
 using MediaServer.Common.Utils;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
@@ -245,3 +246,4 @@ namespace MediaServer.WebRtc
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }
+#endif

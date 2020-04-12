@@ -19,9 +19,9 @@ namespace MediaServer.WebRtc.Managed
         readonly RemoteTrackAddedCallback _remoteTrackAddedCallback = RemoteTrackAddedCallback;
         readonly RemoteTrackRemovedCallback _remoteTrackRemovedCallback = RemoteTrackRemovedCallback;
 
-        public event EventHandler<EventArgs<IceCandidate>> IceCandidateAdded;
-        public event EventHandler<EventArgs<IceConnectionState>> IceConnectionStateChanged;
-        public event EventHandler<EventArgs<IceGatheringState>> IceGatheringStateChanged;
+        public event EventHandler<EventArgs<RTCIceCandidate>> IceCandidateAdded;
+        public event EventHandler<EventArgs<RTCIceConnectionState>> IceConnectionStateChanged;
+        public event EventHandler<EventArgs<RTCIceGatheringState>> IceGatheringStateChanged;
         public event EventHandler<EventArgs> RenegotiationNeeded;
         public event EventHandler<EventArgs<IntPtr>> RemoteTrackRemoved;
         public event EventHandler<EventArgs<IntPtr>> RemoteTrackAdded;
@@ -48,19 +48,21 @@ namespace MediaServer.WebRtc.Managed
         static void IceCandidateCallback(IntPtr userData, IceCandidate iceCandidate)
         {
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.IceCandidateAdded(source, new EventArgs<IceCandidate>(iceCandidate));
+            source?.IceCandidateAdded(
+                source, 
+                new EventArgs<RTCIceCandidate>(new RTCIceCandidate(iceCandidate)));
         }
 
-        static void IceConnectionChangeCallback(IntPtr userData, IceConnectionState state)
+        static void IceConnectionChangeCallback(IntPtr userData, RTCIceConnectionState state)
         {
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.IceConnectionStateChanged(source, new EventArgs<IceConnectionState>(state));
+            source?.IceConnectionStateChanged(source, new EventArgs<RTCIceConnectionState>(state));
         }
 
-        static void IceGatheringStateChangedCallback(IntPtr userData, IceGatheringState state)
+        static void IceGatheringStateChangedCallback(IntPtr userData, RTCIceGatheringState state)
         {
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.IceGatheringStateChanged(source, new EventArgs<IceGatheringState>(state));
+            source?.IceGatheringStateChanged(source, new EventArgs<RTCIceGatheringState>(state));
         }
 
         static void RenegotiationNeededCallback(IntPtr userData)
