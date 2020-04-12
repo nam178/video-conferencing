@@ -6,89 +6,28 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Common.Threading
 {
-    public sealed class DispatchQueue : IDispatchQueue, IDisposable
+    public sealed class ThreadPoolDispatchQueue : IDispatchQueue, IDisposable
     {
         const int MaxPendingTasks = 16;
         const int MaxPendingNotifications = 16;
 
-        readonly BlockingCollection<RegisteredTask> _pendingTasks = new BlockingCollection<RegisteredTask>(MaxPendingTasks);
+        const int STATE_NOT_STARTED = 0;
+        const int STATE_STARTED = 1;
+        const int STATE_DISPOSED = 2;
+
+        int _state = STATE_NOT_STARTED;
+
+        readonly BlockingCollection<ThreadPoolDispatchQueueTask> _pendingTasks = new BlockingCollection<ThreadPoolDispatchQueueTask>(MaxPendingTasks);
         readonly BlockingCollection<Action> _completedTasks = new BlockingCollection<Action>(MaxPendingNotifications);
 
         readonly static ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly static AsyncLocal<bool> _workerThreadContext = new AsyncLocal<bool>();
 
-        abstract class RegisteredTask
+        public void RequireState(int expectedState)
         {
-            public abstract Task ExecuteAsync();
-        }
-
-        sealed class RegisteredAction : RegisteredTask
-        {
-            readonly TaskCompletionSource<bool> _src;
-            readonly Action _action;
-
-            public RegisteredAction(
-                TaskCompletionSource<bool> src,
-                Action action)
+            if(Interlocked.CompareExchange(ref _state, expectedState, expectedState) != expectedState)
             {
-                _src = src;
-                _action = action;
-            }
-
-            public override Task ExecuteAsync()
-            {
-                try
-                {
-                    _action();
-                }
-                catch(Exception ex)
-                {
-                    _logger.Error(ex);
-                    _src.SetException(ex);
-                    return Task.CompletedTask;
-                }
-
-                _src.SetResult(true);
-                return Task.CompletedTask;
-            }
-        }
-
-        sealed class RegisteredTask<TResult> : RegisteredTask
-        {
-            readonly BlockingCollection<Action> _completedTasks;
-            readonly TaskCompletionSource<TResult> _src;
-            readonly Func<Task<TResult>> _taskFactory;
-
-            public RegisteredTask(
-                BlockingCollection<Action> completedTasks,
-                TaskCompletionSource<TResult> src,
-                Func<Task<TResult>> taskFactory)
-            {
-                _completedTasks = completedTasks;
-                _src = src;
-                _taskFactory = taskFactory;
-            }
-
-            public override async Task ExecuteAsync()
-            {
-                TResult result;
-                try
-                {
-                    result = await _taskFactory();
-                }
-                catch(Exception ex)
-                {
-                    _completedTasks.Add(delegate
-                    {
-                        _src.SetException(ex);
-                    });
-                    return;
-                }
-
-                _completedTasks.Add(delegate
-                {
-                    _src.SetResult(result);
-                });
+                throw new InvalidOperationException();
             }
         }
 
@@ -96,6 +35,7 @@ namespace MediaServer.Common.Threading
         {
             if(task == null)
                 throw new ArgumentNullException(nameof(task));
+            RequireState(STATE_STARTED);
 
             // If we are in the context of worker thread,
             // Just execute the task immediately, no need to dispatch
@@ -107,7 +47,7 @@ namespace MediaServer.Common.Threading
 
             // Queue this action to be executed in a later time
             var taskCompletionSource = new TaskCompletionSource<bool>();
-            _pendingTasks.Add(new RegisteredAction(taskCompletionSource, task));
+            _pendingTasks.Add(new ThreadPoolDispatchQueueAction(taskCompletionSource, task));
             return taskCompletionSource.Task;
         }
 
@@ -115,6 +55,7 @@ namespace MediaServer.Common.Threading
         {
             if(asyncTask == null)
                 throw new ArgumentNullException(nameof(asyncTask));
+            RequireState(STATE_STARTED);
 
             // If we are in the context of worker thread,
             // Just execute the task immediately, no need to dispatch
@@ -137,6 +78,7 @@ namespace MediaServer.Common.Threading
         {
             if(asyncTaskWithResult == null)
                 throw new ArgumentNullException(nameof(asyncTaskWithResult));
+            RequireState(STATE_STARTED);
 
             // If we are in the context of worker thread,
             // Just execute the task immediately, no need to dispatch
@@ -155,6 +97,7 @@ namespace MediaServer.Common.Threading
         {
             if(actionWithResult == null)
                 throw new ArgumentNullException(nameof(actionWithResult));
+            RequireState(STATE_STARTED);
 
             // If we are in the context of worker thread,
             // Just execute the task immediately, no need to dispatch
@@ -175,6 +118,7 @@ namespace MediaServer.Common.Threading
 
         public void Dispose()
         {
+            Interlocked.Exchange(ref _state, STATE_DISPOSED);
             try
             {
                 _pendingTasks.Dispose();
@@ -189,6 +133,11 @@ namespace MediaServer.Common.Threading
 
         public void Start()
         {
+            if(Interlocked.CompareExchange(ref _state, STATE_STARTED, STATE_NOT_STARTED) != STATE_NOT_STARTED)
+            {
+                throw new InvalidOperationException();
+            }
+
             Task.Run(TaskExecutionThread);
             Task.Run(TaskCompletionNotificationThread);
         }
@@ -220,7 +169,5 @@ namespace MediaServer.Common.Threading
 
             }
         }
-
-        public static DispatchQueue CentralDispatchQueue { get; } = new DispatchQueue();
     }
 }
