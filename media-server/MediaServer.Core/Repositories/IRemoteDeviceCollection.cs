@@ -6,5 +6,7 @@ namespace MediaServer.Core.Repositories
     public interface IRemoteDeviceCollection : IEnumerable<IRemoteDevice>
     {
         void Add(IRemoteDevice device);
+
+        void Remove(IRemoteDevice device);
     }
 }

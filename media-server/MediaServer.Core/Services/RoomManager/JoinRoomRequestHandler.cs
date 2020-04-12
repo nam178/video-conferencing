@@ -1,4 +1,5 @@
-﻿using MediaServer.Common.Threading;
+﻿using MediaServer.Common.Mediator;
+using MediaServer.Common.Threading;
 using MediaServer.Core.Common;
 using MediaServer.Core.Errors;
 using MediaServer.Core.Models;
@@ -7,7 +8,6 @@ using MediaServer.Models;
 using NLog;
 using System;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.RoomManager
@@ -17,12 +17,14 @@ namespace MediaServer.Core.Services.RoomManager
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;
         readonly IRemoteDeviceUserProfileMappings _remoteDeviceData;
+        readonly IHandler<SendStatusUpdateRequest> _statusUpdateSender;
         readonly static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public JoinRoomRequestHandler(
             IDispatchQueue centralDispatchQueue,
             IRoomRepository roomRepository,
-            IRemoteDeviceUserProfileMappings remoteDeviceData)
+            IRemoteDeviceUserProfileMappings remoteDeviceData,
+            IHandler<SendStatusUpdateRequest> statusUpdateSender)
         {
             _centralDispatchQueue = centralDispatchQueue
                 ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
@@ -30,6 +32,8 @@ namespace MediaServer.Core.Services.RoomManager
                 ?? throw new ArgumentNullException(nameof(roomRepository));
             _remoteDeviceData = remoteDeviceData
                 ?? throw new ArgumentNullException(nameof(remoteDeviceData));
+            _statusUpdateSender = statusUpdateSender 
+                ?? throw new ArgumentNullException(nameof(statusUpdateSender));
         }
 
         public async Task<GenericResponse> HandleAsync(IRemoteDevice remoteDevice, JoinRoomRequest request)
@@ -37,16 +41,21 @@ namespace MediaServer.Core.Services.RoomManager
             if(string.IsNullOrWhiteSpace(request.Username))
                 GenericResponse.ErrorResponse($"Invalid username");
 
+            // Get the room and user
             var room = await GetAndValidateRoom(remoteDevice, request);
             if(null == room)
                 return GenericResponse.ErrorResponse($"Room not found by id {request.RoomId}");
-
             var user = await GetOrCreateUserProfile(remoteDevice, request, room);
 
-            // Finally associate the device with the user
+            // Associate the device with room/user
             await _centralDispatchQueue.ExecuteAsync(() => _remoteDeviceData.SetMappingForDevice(remoteDevice, room, user));
-
             _logger.Info($"Device {remoteDevice} now associated with room {room} and user {user}");
+
+            // Broadcast the status update
+            await _statusUpdateSender.HandleAsync(new SendStatusUpdateRequest
+            {
+                Room = room
+            });
             return GenericResponse.SuccessResponse();
         }
 

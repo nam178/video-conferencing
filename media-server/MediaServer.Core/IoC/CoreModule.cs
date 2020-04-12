@@ -17,7 +17,22 @@ namespace MediaServer.Core.IoC
             // A central dispatch queue:
             // used for dispatching
             // tasks that operates the room management, as it's not thread safe.
-            builder.RegisterType<ThreadPoolDispatchQueue>().As<IDispatchQueue>().SingleInstance();
+            builder
+                .RegisterType<ThreadPoolDispatchQueue>().As<IDispatchQueue>().SingleInstance()
+                .OnActivated(e =>
+                {
+                    e.Instance.Start();
+                    NLog.LogManager.GetCurrentClassLogger().Info($"Central dispatch/serial queue started;");
+                });
+
+            // A central parallel queue
+            builder
+                .RegisterType<ParallelQueue>().As<IParallelQueue>().SingleInstance()
+                .OnActivated(e =>
+                {
+                    e.Instance.Start();
+                    NLog.LogManager.GetCurrentClassLogger().Info($"Central parallel queue started;");
+                });
 
             // Repositories
             builder.RegisterType<RoomRepository>().As<IRoomRepository>().SingleInstance();
@@ -27,9 +42,7 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<NewRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<JoinRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<DeviceDisconnectionRequestHandler>().AsImplementedInterfaces();
-
-            // HostedServices
-            builder.RegisterType<CentralDispatchQueueStarter>().As<IHostedService>();
+            builder.RegisterType<SendStatusUpdateRequestHandler>().AsImplementedInterfaces();
         }
     }
 }

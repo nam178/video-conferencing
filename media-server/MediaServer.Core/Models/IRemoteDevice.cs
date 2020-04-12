@@ -10,19 +10,17 @@ namespace MediaServer.Models
     public interface IRemoteDevice
     {
         /// <summary>
-        /// Send a message to this device
+        /// Send an user-update message to this device
         /// </summary>
-        /// <param name="command">Name of the command to invoke on the device</param>
-        /// <param name="args">Argument object passed to that command</param>
+        /// <param name="message"></param>
+        /// <exception cref="System.Exception">When network error or things like that occurs</exception>
         /// <returns></returns>
-        Task SendAsync(string command, object args);
-    }
+        Task SendUserUpdateAsync(RemoteDeviceUserUpdateMessage message);
 
-    static class ISignallerExtensions
-    {
-        public static Task SendMessageAsync(this IRemoteDevice peerMessenger, string command)
-        {
-            return peerMessenger.SendAsync(command, null);
-        }
+        /// <summary>
+        /// Terminate the connection with this device.
+        /// Implementation must not throw exception.
+        /// </summary>
+        void Teminate();
     }
 }

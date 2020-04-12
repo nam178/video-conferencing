@@ -1,5 +1,6 @@
 ﻿using MediaServer.Core.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,5 +25,9 @@ namespace MediaServer.Core.Repositories
         }
 
         public UserProfile GetUserByName(string username) => _users.FirstOrDefault(u => CompareUsername(username, u.Username));
+
+        public IEnumerator<UserProfile> GetEnumerator() => _users.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => _users.GetEnumerator();
     }
 }

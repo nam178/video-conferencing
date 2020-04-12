@@ -8,6 +8,7 @@ namespace MediaServer.Signalling.Net
     sealed class WebSocketClient
     {
         readonly HttpListenerContext _httpContext;
+        readonly string _name;
 
         internal HttpListenerWebSocketContext WebSocketContext { get; }
 
@@ -15,6 +16,7 @@ namespace MediaServer.Signalling.Net
         {
             _httpContext = httpContext
                 ?? throw new System.ArgumentNullException(nameof(httpContext));
+            _name = $"{_httpContext.Request.RemoteEndPoint.Address}:{_httpContext.Request.RemoteEndPoint.Port}";
             WebSocketContext = webSocketContext
                 ?? throw new System.ArgumentNullException(nameof(webSocketContext));
         }
@@ -29,6 +31,6 @@ namespace MediaServer.Signalling.Net
                 );
         }
 
-        public override string ToString() => $"[WebSocketClient {_httpContext.Request.RemoteEndPoint.Address}:{_httpContext.Request.RemoteEndPoint.Port}]";
+        public override string ToString() => $"[WebSocketClient {_name}]";
     }
 }
