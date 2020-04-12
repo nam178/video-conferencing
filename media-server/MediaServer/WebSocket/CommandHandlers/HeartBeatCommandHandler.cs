@@ -1,4 +1,4 @@
-﻿using MediaServer.Mediators;
+﻿using MediaServer.Common.Commands;
 using MediaServer.WebSocket.CommandArgs;
 using NLog;
 using System.Threading.Tasks;

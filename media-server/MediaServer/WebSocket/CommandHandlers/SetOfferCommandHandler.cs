@@ -1,4 +1,4 @@
-using MediaServer.Mediators;
+using MediaServer.Common.Commands;
 using MediaServer.Models;
 using NLog;
 using System;

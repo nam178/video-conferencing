@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace MediaServer.Mediators
+namespace MediaServer.Common.Commands
 {
-    interface ICommandHandler<TArg1, TArg2>
+    public interface ICommandHandler<TArg1, TArg2>
     {
         Task HandleAsync(TArg1 arg1, TArg2 arg2);
     }

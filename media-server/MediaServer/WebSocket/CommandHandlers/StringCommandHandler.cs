@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using MediaServer.Mediators;
+using MediaServer.Common.Commands;
 using Newtonsoft.Json;
 using NLog;
 using System;

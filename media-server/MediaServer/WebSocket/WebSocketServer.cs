@@ -1,5 +1,4 @@
-﻿using Autofac;
-using MediaServer.Mediators;
+﻿using MediaServer.Common.Commands;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using System;
