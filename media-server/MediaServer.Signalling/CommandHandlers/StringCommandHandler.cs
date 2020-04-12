@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using MediaServer.Common.Commands;
+using MediaServer.Common.Mediator;
 using MediaServer.Signalling.Net;
 using MediaServer.WebSocket;
 using Newtonsoft.Json;
@@ -10,9 +10,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace MediaServer.Signalling.Handlers
+namespace MediaServer.Signalling.CommandHandlers
 {
-    sealed class StringCommandHandler : ICommandHandler<WebSocketClientRemoteDevice, string>
+    sealed class StringCommandHandler : IHandler<RemoteDeviceWebSocketBased, string>
     {
         readonly Type[] _possibleCommandTypes;
         readonly ILifetimeScope _scope;
@@ -24,14 +24,14 @@ namespace MediaServer.Signalling.Handlers
                 .GetTypes()
                 .Where(t => t.GetInterfaces().Any(f =>
                 {
-                    return f.IsGenericType && f.GetGenericTypeDefinition() == typeof(ICommandHandler<,>);
+                    return f.IsGenericType && f.GetGenericTypeDefinition() == typeof(IHandler<,>);
                 }))
                 .ToArray();
             _scope = scope
                 ?? throw new ArgumentNullException(nameof(scope));
         }
 
-        public Task HandleAsync(WebSocketClientRemoteDevice webSocketClient, string commandArgs)
+        public Task HandleAsync(RemoteDeviceWebSocketBased webSocketClient, string commandArgs)
         {
             var commandFormat = JsonConvert.DeserializeObject<CommandFormat>(commandArgs);
 

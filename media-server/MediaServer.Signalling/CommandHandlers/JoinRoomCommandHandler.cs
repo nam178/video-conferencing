@@ -1,4 +1,4 @@
-﻿using MediaServer.Common.Commands;
+﻿using MediaServer.Common.Mediator;
 using MediaServer.Core.Common;
 using MediaServer.Core.Models;
 using MediaServer.Core.Services.RoomManager;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Signalling.CommandHandlers
 {
-    sealed class JoinRoomCommandHandler : ICommandHandler<WebSocketClientRemoteDevice, CommandArgs.JoinRoom>
+    sealed class JoinRoomCommandHandler : IHandler<RemoteDeviceWebSocketBased, CommandArgs.JoinRoom>
     {
         readonly IRemoteDeviceRequestHandler<JoinRoomRequest, GenericResponse> _coreHandler;
 
@@ -20,7 +20,7 @@ namespace MediaServer.Signalling.CommandHandlers
                 ?? throw new ArgumentNullException(nameof(coreHandler));
         }
 
-        public async Task HandleAsync(WebSocketClientRemoteDevice remoteDevice, JoinRoom args)
+        public async Task HandleAsync(RemoteDeviceWebSocketBased remoteDevice, JoinRoom args)
         {
             try
             {

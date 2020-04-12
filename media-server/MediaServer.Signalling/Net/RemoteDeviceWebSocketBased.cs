@@ -7,14 +7,19 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Signalling.Net
 {
-    sealed class WebSocketClientRemoteDevice : IRemoteDevice
+    /// <summary>
+    /// Implementation of a "remote device" based on web socket connections.
+    /// That is, each web socket connection is considered a remote device
+    /// </summary>
+    sealed class RemoteDeviceWebSocketBased : IRemoteDevice
     {
-        readonly WebSocketClient _client;
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public WebSocketClientRemoteDevice(WebSocketClient client)
+        internal WebSocketClient WebSocketClient { get; }
+
+        public RemoteDeviceWebSocketBased(WebSocketClient client)
         {
-            _client = client ?? throw new System.ArgumentNullException(nameof(client));
+            WebSocketClient = client ?? throw new System.ArgumentNullException(nameof(client));
         }
 
         public Task SendAsync(string command, object args)
@@ -26,13 +31,13 @@ namespace MediaServer.Signalling.Net
                 Command = command,
                 Args = args
             }, serializerSettings);
-            _logger.Debug($"Sending message to {_client}, {message}");
-            return _client.SendAsync(message);
+            _logger.Debug($"Sending message to {WebSocketClient}, {message}");
+            return WebSocketClient.SendAsync(message);
         }
 
         public override string ToString()
         {
-            return $"[WebSocketClientRemoteDevice {_client}]";
+            return $"[WebSocketClientRemoteDevice {WebSocketClient}]";
         }
     }
 }

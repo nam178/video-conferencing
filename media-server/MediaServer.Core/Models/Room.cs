@@ -32,5 +32,7 @@ namespace MediaServer.Models
             DispatchQueue = new ThreadPoolDispatchQueue();
             ((ThreadPoolDispatchQueue)DispatchQueue).Start();
         }
+
+        public override string ToString() => $"[Room Id={Id}]";
     }
 }

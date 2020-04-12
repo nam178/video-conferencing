@@ -21,10 +21,12 @@ namespace MediaServer.Core.IoC
 
             // Repositories
             builder.RegisterType<RoomRepository>().As<IRoomRepository>().SingleInstance();
+            builder.RegisterType<RemoteDeviceUserProfileMapping>().As<IRemoteDeviceUserProfileMappings>().SingleInstance();
 
             // Handlers
             builder.RegisterType<NewRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<JoinRoomRequestHandler>().AsImplementedInterfaces();
+            builder.RegisterType<DeviceDisconnectionRequestHandler>().AsImplementedInterfaces();
 
             // HostedServices
             builder.RegisterType<CentralDispatchQueueStarter>().As<IHostedService>();

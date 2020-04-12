@@ -9,6 +9,12 @@ namespace MediaServer.Models
     /// </summary>
     public interface IRemoteDevice
     {
+        /// <summary>
+        /// Send a message to this device
+        /// </summary>
+        /// <param name="command">Name of the command to invoke on the device</param>
+        /// <param name="args">Argument object passed to that command</param>
+        /// <returns></returns>
         Task SendAsync(string command, object args);
     }
 

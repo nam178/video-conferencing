@@ -8,19 +8,20 @@ namespace MediaServer.Signalling.Net
     sealed class WebSocketClient
     {
         readonly HttpListenerContext _httpContext;
-        readonly HttpListenerWebSocketContext _context;
 
-        public WebSocketClient(HttpListenerContext httpContext, HttpListenerWebSocketContext context)
+        internal HttpListenerWebSocketContext WebSocketContext { get; }
+
+        public WebSocketClient(HttpListenerContext httpContext, HttpListenerWebSocketContext webSocketContext)
         {
             _httpContext = httpContext
                 ?? throw new System.ArgumentNullException(nameof(httpContext));
-            _context = context
-                ?? throw new System.ArgumentNullException(nameof(context));
+            WebSocketContext = webSocketContext
+                ?? throw new System.ArgumentNullException(nameof(webSocketContext));
         }
 
         public Task SendAsync(string message)
         {
-            return _context.WebSocket.SendAsync(
+            return WebSocketContext.WebSocket.SendAsync(
                 new System.ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(message)),
                 WebSocketMessageType.Text,
                 true,

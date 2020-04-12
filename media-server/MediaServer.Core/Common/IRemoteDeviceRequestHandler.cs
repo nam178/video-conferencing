@@ -1,10 +1,16 @@
-﻿using MediaServer.Common.Commands;
+﻿using MediaServer.Common.Mediator;
 using MediaServer.Models;
 
 namespace MediaServer.Core.Common
 {
+    public interface IRemoteDeviceRequestHandler<TCommandArgs>
+        : IHandler<IRemoteDevice, TCommandArgs>
+    {
+
+    }
+
     public interface IRemoteDeviceRequestHandler<TCommandArgs, TResponse> 
-        : ICommandHandlerWithResponse<IRemoteDevice, TCommandArgs, TResponse>
+        : IMapper<IRemoteDevice, TCommandArgs, TResponse>
     {
 
     }
