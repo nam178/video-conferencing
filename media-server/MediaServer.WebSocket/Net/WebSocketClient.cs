@@ -66,8 +66,11 @@ namespace MediaServer.WebSocket.Net
 
         public void Dispose()
         {
-            _messageQueue.CompleteAdding();
-
+            try
+            {
+                _messageQueue.CompleteAdding();
+            }
+            catch { }
             using(WebSocketContext.WebSocket)
             {
                 try

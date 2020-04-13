@@ -2,7 +2,6 @@
 using MediaServer.Common.Threading;
 using MediaServer.Models;
 using NLog;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,16 +12,7 @@ namespace MediaServer.Core.Services.RoomManager
     /// </summary>
     sealed class SendStatusUpdateRequestHandler : IHandler<SendStatusUpdateRequest>
     {
-        readonly IParallelQueue _centralParallelQueue;
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        const int MAX_WAIT_TIMEOUT_SECONDS = 5;
-
-        public SendStatusUpdateRequestHandler(IParallelQueue centralParallelQueue)
-        {
-            _centralParallelQueue = centralParallelQueue
-                ?? throw new System.ArgumentNullException(nameof(centralParallelQueue));
-        }
 
         public async Task HandleAsync(SendStatusUpdateRequest request)
         {
@@ -39,31 +29,31 @@ namespace MediaServer.Core.Services.RoomManager
                 return request.Room.UserProfiles.SelectMany(user => user.Devices).ToList();
             });
 
-            // Then use the central parallel queue to send the update
-            _logger.Trace($"Sending user update to {devices.Count()} devices..");
+            // Each device has it own message queue, 
+            // so it's OK for dumping the messages to the devices all together
             foreach(var device in devices)
             {
-                _centralParallelQueue.Enqueue(device, d =>
+                Send(device, updateMessage);
+            }
+        }
+
+        void Send(IRemoteDevice device, RemoteDeviceUserUpdateMessage message)
+        {
+            device
+                .SendUserUpdateAsync(message)
+                .ContinueWith(task =>
                 {
-                    var tmp = (IRemoteDevice)d;
-                    try
+                    if(task.Exception != null)
                     {
-                        _logger.Trace($"Sending user update to {device}..");
-                        if(false == tmp
-                            .SendUserUpdateAsync(updateMessage)
-                            .Wait(TimeSpan.FromSeconds(MAX_WAIT_TIMEOUT_SECONDS)))
-                        {
-                            throw new TimeoutException();
-                        }
+                        _logger.Warn(task.Exception, $"Failed sending notification to device {device}, terminating");
+                        device.Teminate();
+                    }
+                    else
+                    {
                         _logger.Trace($"User update sent to {device}");
                     }
-                    catch(Exception ex)
-                    {
-                        _logger.Warn(ex, $"Failed sending notification to device {device}, terminating");
-                        tmp.Teminate();
-                    }
-                });
-            }
+                })
+                .Forget();
         }
     }
 }

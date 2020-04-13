@@ -148,7 +148,6 @@ namespace MediaServer.Common.Threading
 
             foreach(var task in _pendingTasks.GetConsumingEnumerable())
             {
-
                 try
                 {
                     await task.ExecuteAsync();

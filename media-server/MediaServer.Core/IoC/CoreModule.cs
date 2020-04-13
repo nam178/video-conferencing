@@ -25,15 +25,6 @@ namespace MediaServer.Core.IoC
                     NLog.LogManager.GetCurrentClassLogger().Info($"Central dispatch/serial queue started;");
                 });
 
-            // A central parallel queue
-            builder
-                .RegisterType<ParallelQueue>().As<IParallelQueue>().SingleInstance()
-                .OnActivated(e =>
-                {
-                    e.Instance.Start();
-                    NLog.LogManager.GetCurrentClassLogger().Info($"Central parallel queue started;");
-                });
-
             // Repositories
             builder.RegisterType<RoomRepository>().As<IRoomRepository>().SingleInstance();
             builder.RegisterType<RemoteDeviceUserProfileMapping>().As<IRemoteDeviceUserProfileMappings>().SingleInstance();
