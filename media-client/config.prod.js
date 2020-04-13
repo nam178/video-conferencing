@@ -1,0 +1,2 @@
+CONF_SERVER_HOST='www.google.com'
+CONF_SERVER_PORT='8080'
