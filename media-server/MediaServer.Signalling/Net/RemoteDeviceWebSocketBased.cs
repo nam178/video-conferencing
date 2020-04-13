@@ -13,7 +13,7 @@ namespace MediaServer.Signalling.Net
     /// Implementation of a "remote device" based on web socket connections.
     /// That is, each web socket connection is considered a remote device
     /// </summary>
-    sealed class RemoteDeviceWebSocketBased : IRemoteDevice
+    sealed class RemoteDeviceWebSocketBased : IRemoteDevice, IDisposable
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
@@ -60,5 +60,7 @@ namespace MediaServer.Signalling.Net
                 _logger.Warn(ex, "Exception occured when closing WebSocket");
             }
         }
+
+        void IDisposable.Dispose() => Teminate();
     }
 }

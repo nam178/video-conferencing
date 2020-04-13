@@ -31,7 +31,7 @@ namespace MediaServer.Signalling.CommandHandlers
                 ?? throw new ArgumentNullException(nameof(scope));
         }
 
-        public Task HandleAsync(RemoteDeviceWebSocketBased webSocketClient, string commandArgs)
+        public Task HandleAsync(RemoteDeviceWebSocketBased device, string commandArgs)
         {
             var commandFormat = JsonConvert.DeserializeObject<CommandFormat>(commandArgs);
 
@@ -50,7 +50,7 @@ namespace MediaServer.Signalling.CommandHandlers
 
             return (Task)GetHandleAsyncMethod(commandHandlerType)
                 .Invoke(commandHandler, new[] {
-                    webSocketClient,
+                    device,
                     JsonConvert.DeserializeObject(
                         JsonConvert.SerializeObject(commandFormat.Args),
                         GetHandleAsyncParameterType(commandHandlerType))

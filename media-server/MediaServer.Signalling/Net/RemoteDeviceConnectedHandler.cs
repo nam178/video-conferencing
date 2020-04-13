@@ -1,4 +1,5 @@
 ﻿using MediaServer.Common.Mediator;
+using MediaServer.Common.Utils;
 using System;
 using System.Text;
 using System.Threading;
@@ -12,24 +13,34 @@ namespace MediaServer.Signalling.Net
     sealed class RemoteDeviceConnectedHandler : IHandler<RemoteDeviceWebSocketBased>
     {
         readonly IHandler<RemoteDeviceWebSocketBased, string> _commandHandler;
+        readonly IWatchDog _watchDog;
 
         // should be large enough to read network stream fast enough
         const int BUFFER_SIZE = 8 * 1024;
 
-        public RemoteDeviceConnectedHandler(IHandler<RemoteDeviceWebSocketBased, string> commandHandler)
+        public RemoteDeviceConnectedHandler(
+            IHandler<RemoteDeviceWebSocketBased, string> commandHandler, 
+            IWatchDog watchDog)
         {
             _commandHandler = commandHandler
                 ?? throw new ArgumentNullException(nameof(commandHandler));
+            _watchDog = watchDog 
+                ?? throw new ArgumentNullException(nameof(watchDog));
         }
 
         public async Task HandleAsync(RemoteDeviceWebSocketBased device)
         {
             var buff = new ArraySegment<byte>(new byte[BUFFER_SIZE]);
             var messageBuilder = new StringBuilder();
+            using var watcher = _watchDog.Watch(device);
 
             // Keep reading messages forever
             while(true)
             {
+                // For each message received, we'll 
+                // update the watchdog so it won't stall.
+                watcher.Refresh();
+
                 // Read chunks of a message
                 while(true)
                 {

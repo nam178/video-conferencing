@@ -5,7 +5,6 @@ using MediaServer.Core.Services.RoomManager;
 using MediaServer.Signalling.CommandArgs;
 using MediaServer.Signalling.Net;
 using System;
-using System.Net.Security;
 using System.Threading.Tasks;
 
 namespace MediaServer.Signalling.CommandHandlers
