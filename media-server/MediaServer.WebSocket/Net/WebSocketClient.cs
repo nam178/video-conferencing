@@ -18,7 +18,7 @@ namespace MediaServer.WebSocket.Net
         // to send out notifications,
         // Also, the underlying WebSocket library doesn't support sending
         // multiple message at once.
-        readonly ThreadPoolDispatchQueue _dispatchQueue = new ThreadPoolDispatchQueue();
+        readonly ThreadPoolDispatchQueue _outboundMessageQueue = new ThreadPoolDispatchQueue();
 
         internal HttpListenerWebSocketContext WebSocketContext { get; }
 
@@ -27,14 +27,14 @@ namespace MediaServer.WebSocket.Net
             _httpContext = httpContext
                 ?? throw new ArgumentNullException(nameof(httpContext));
             _name = $"{_httpContext.Request.RemoteEndPoint.Address}:{_httpContext.Request.RemoteEndPoint.Port}";
-            _dispatchQueue.Start();
+            _outboundMessageQueue.Start();
             WebSocketContext = webSocketContext
                 ?? throw new ArgumentNullException(nameof(webSocketContext));
         }
 
         public Task SendAsync(string message)
         {
-            return _dispatchQueue.ExecuteAsync(async delegate {
+            return _outboundMessageQueue.ExecuteAsync(async delegate {
                 await WebSocketContext.WebSocket.SendAsync(
                     new System.ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(message)),
                     WebSocketMessageType.Text,
@@ -49,7 +49,7 @@ namespace MediaServer.WebSocket.Net
         {
             try
             {
-                _dispatchQueue.Dispose();
+                _outboundMessageQueue.Dispose();
             }
             catch { }
             using(WebSocketContext.WebSocket)
