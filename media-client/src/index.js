@@ -1,10 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import RoomView  from './room-view.jsx';
+import RoomView  from './components/room-view.jsx';
 import {
     BrowserRouter as Router,
     Route
 } from 'react-router-dom'
+import './index.css';
 
 class App extends React.Component
 {
@@ -13,8 +14,7 @@ class App extends React.Component
     {
         return <div>
             <Router>
-                <Route path="/rooms/:id" component={RoomView}>
-                </Route>
+                <Route path="/rooms/:id" component={RoomView} />
             </Router>
         </div>
     }

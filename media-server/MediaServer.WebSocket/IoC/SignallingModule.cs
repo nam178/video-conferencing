@@ -27,6 +27,7 @@ namespace MediaServer.WebSocket.IoC
             builder.RegisterType<StringCommandHandler>().AsImplementedInterfaces();
             builder.RegisterType<JoinRoomCommandHandler>().AsSelf();
             builder.RegisterType<CreateRoomCommandHandler>().AsSelf();
+            builder.RegisterType<HeartBeatCommandHandler>().AsSelf();
         }
     }
 }

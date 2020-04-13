@@ -1,4 +1,5 @@
 ﻿using MediaServer.Common.Time;
+using NLog;
 using System;
 using System.Threading;
 
@@ -9,6 +10,7 @@ namespace MediaServer.Common.Utils
 		readonly Action<WatchDogSession> _disposer;
 		readonly IClock _clock;
 		readonly IDisposable _target;
+		readonly static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
 		double _lastActivityUnixTimestamp;
 		public double LastActivityUnixTimestamp
@@ -50,6 +52,7 @@ namespace MediaServer.Common.Utils
 		{
 			if(Interlocked.CompareExchange(ref _purgeStatus, 1, 0) == 0)
 			{
+				_logger.Warn($"Disposing {_target} due to inactivity..");
 				_target.Dispose();
 			}
 		}
