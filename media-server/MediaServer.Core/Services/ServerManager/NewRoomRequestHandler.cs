@@ -24,24 +24,28 @@ namespace MediaServer.Core.Services.ServerManager
         {
             // Currently anyone can create rooms,
             // TODO: add some security here
-
+            var roomId = RoomId.FromString(request.NewRoomName);
             return _centralDispatchQueue.ExecuteAsync(delegate
             {
                 try
                 {
-                    var room = _roomRepository.CreateRoom(RoomId.FromString(request.NewRoomName));
-                    return new NewRoomResponse
+                    var room = _roomRepository.CreateRoom(roomId);
+                    return new NewRoomResponse // room created the first time
                     {
                         Success = true,
                         CreatedRoomId = room.Id
                     };
                 }
-                catch(Exception ex)
+                catch(InvalidOperationException) // room already created
+                {
+                    return new NewRoomResponse { Success = true, CreatedRoomId = roomId };
+                }
+                catch(Exception ex) // unexpected failure
                 {
                     return new NewRoomResponse
                     {
                         Success = false,
-                        ErrorMessage = ex.ToString()
+                        ErrorMessage = ex.Message
                     };
                 }
             });

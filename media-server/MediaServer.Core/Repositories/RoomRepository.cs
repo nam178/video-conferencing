@@ -16,7 +16,7 @@ namespace MediaServer.Core.Repositories
             {
                 throw new InvalidOperationException($"Room by id {id} already exist");
             }
-            var room = new Room();
+            var room = new Room { Id = id };
             _roomIndexById[id] = room;
             _rooms.Add(room);
             return _roomIndexById[id];

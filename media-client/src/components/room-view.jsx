@@ -5,7 +5,7 @@ import {
     useParams
 } from 'react-router-dom'
 import WebSocketClient from '../net/websocket-client.js';
-import ConferenceSettings from '../models/converence-settings.js';
+import ConferenceSettings from '../models/conference-settings.js';
 import Lobby from './lobby.jsx';
 import './room-view.css';
 
@@ -25,7 +25,8 @@ export default class RoomView extends React.Component
         this.state = {
             isLoading: false,
             isUsernameInvalid: false,
-            username: localStorage.getItem('room_view_username') ?? ''
+            username: localStorage.getItem('room_view_username') ?? '',
+            fatalErrorMessage: null
         };
     }
 
@@ -56,24 +57,47 @@ export default class RoomView extends React.Component
         this.setState({ isUsernameInvalid: !newUsername });
     }
 
-    startWebSocketConnection()
+    async startWebSocketConnection()
     {
+        // Init the webSocketClient with username and roomId
         var settings = new ConferenceSettings();
         settings.username = this.state.username;
         settings.roomId = this.props.match.params.id;
-        console.log(settings);
-        this.webSocketClient.initialize(settings);
+
+        try
+        {
+            await this.webSocketClient.initializeAsync(settings);
+        }
+        catch(e) {
+            this.setState({ fatalErrorMessage: e });
+        }
+
+        // Pass this point, initialization successed
     }
 
     render()
     {
         return <div className="room-view">
-            <Lobby username={this.state.username} 
-                disabled={this.state.isLoading}
-                isInvalid={this.state.isUsernameInvalid}
-                roomId={this.props.match.params.id} 
-                onClick={this.handleJoinRoomClick}
-                onUsernameChange={this.handleUsernameChange} />
+            { this.state.fatalErrorMessage 
+                ? <div>
+                    <div className="alert alert-danger m-3" role="alert">
+                        <div>
+                            <h5 className="mt-0">
+                                Fatal Error
+                            </h5>
+                        </div>
+                        <div className="mt-3 ml-3"><i className="fas fa-times"></i> {this.state.fatalErrorMessage}</div>
+                    </div>
+                  </div> 
+                : <div>
+                    <Lobby username={this.state.username} 
+                        disabled={this.state.isLoading}
+                        isInvalid={this.state.isUsernameInvalid}
+                        roomId={this.props.match.params.id} 
+                        onClick={this.handleJoinRoomClick}
+                        onUsernameChange={this.handleUsernameChange} />
+                </div> }
+            
         </div>
     }
 }

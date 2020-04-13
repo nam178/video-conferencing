@@ -27,7 +27,7 @@ namespace MediaServer.WebSocket.CommandHandlers
                 });
 
                 if(result.Success)
-                    await remoteDevice.SendAsync("RoomCreated", result.CreatedRoomId);
+                    await remoteDevice.SendAsync("RoomCreated", result.CreatedRoomId.ToString());
                 else
                     await remoteDevice.SendAsync("RoomCreationFailed", result.ErrorMessage);
             }

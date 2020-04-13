@@ -1,1 +1,2 @@
 .room-view { height: 100%; }
+.room-view > div { height: 100%; }

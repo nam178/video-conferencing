@@ -1,5 +1,5 @@
 import Logger from '../logging/logger.js'
-import ConferenceSettings from '../models/converence-settings.js';
+import ConferenceSettings from '../models/conference-settings.js';
 
 export default class WebSocketClient
 {
@@ -30,14 +30,21 @@ export default class WebSocketClient
     /**
      * @param {ConferenceSettings} conferenceSettings 
      */
-    initialize(conferenceSettings)
+    async initializeAsync(conferenceSettings)
     {
         this._logger = new Logger('WebSocketClient');
+        this._logger.log(`Initializing WebSocket with settings=${JSON.stringify(conferenceSettings)}`)
         this._conferenceSettings = conferenceSettings;
         this._restart();
 
         // Start sending heartbeats
         setTimeout(this._sendHeartBeat, 5 * 1000);
+
+        // Promise
+        return new Promise((resolve, reject) => {
+            this._initializeAsyncResolve = resolve;
+            this._initializeAsyncReject = reject;
+        });
     }
 
     _restart()
@@ -54,20 +61,60 @@ export default class WebSocketClient
         var webSocketEndpoint = `ws://${CONF_SERVER_HOST}:${CONF_SERVER_PORT}`;
         this.logger.log(`Connecting to ${webSocketEndpoint}..`)
         this.webSocket = new WebSocket(webSocketEndpoint);
+        // Error
         this.webSocket.addEventListener('error', () => {
             this.logger.error('Error', arguments);
         });
+        // Close
         this.webSocket.addEventListener('close', () => {
             this.logger.warn('Close', arguments);
             this.logger.warn('Restaring WebSocket because the connection is closed.');
             setTimeout(() => this._restart(), 1000);
         });
-        this.webSocket.addEventListener('message', () => {
-            this.logger.log('Message', arguments);
+        // Message
+        this.webSocket.addEventListener('message', (e) => {
+            var response = JSON.parse(e.data);
+            this.logger.log('Message', response);
+            var commandName = `_on${response.command}`;
+            console.warn('commandName', commandName);
+            this[commandName](response.args);
         });
+        // Open
         this.webSocket.addEventListener('open', () => {
             this.logger.info(`Connected to ${webSocketEndpoint}`)
+            this._tryCreateRoom();
         });
+    }
+
+    _tryCreateRoom() {
+        // Send a command to the server to create (if the room doesn't exist)
+        this._send('CreateRoom', {
+            newRoomName: this.conferenceSettings.roomId
+        });
+    }
+
+    _onRoomCreated(roomId) {
+        this.logger.info(`Room created ${roomId}`);
+        this._send('JoinRoom', {
+            roomId: roomId,
+            username: this.conferenceSettings.username
+        });
+    }
+
+    _onJoinRoomSuccess() {
+        this._initializeAsyncResolve();
+    }
+
+    _onJoinRoomFailed(errorMessage) {
+        failFast(errorMessage);
+    }
+
+    _onRoomCreationFailed(errorMessage) {
+        failFast(errorMessage);
+    }
+
+    _failFast(errorMessage) {
+        this._initializeAsyncReject(errorMessage);
     }
 
     _sendHeartBeat() 
@@ -85,6 +132,6 @@ export default class WebSocketClient
             command: command,
             args: args
         }));         
-        console.log('WebSocket command sent', command, args);
+        this.logger.log('WebSocket command sent', command, args);
     }
 }
