@@ -14,7 +14,7 @@ namespace MediaServer.Common.Utils
 		readonly IClock _clock;
 
 		const int CheckIntervalSeconds = 3;
-		const int DefaultMaxSessionDuration = 60;
+		const int DefaultMaxSessionDuration = 15;
 
 		public TimeSpan MaxSessionDuration
 		{ get; set; } = TimeSpan.FromSeconds(DefaultMaxSessionDuration);

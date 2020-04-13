@@ -2,6 +2,7 @@
 using MediaServer.Common.Time;
 using MediaServer.Common.Utils;
 using NLog;
+using System;
 
 namespace MediaServer.Common.IoC
 {
