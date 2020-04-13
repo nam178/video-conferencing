@@ -9,7 +9,6 @@ namespace MediaServer.Common.Threading
     public sealed class ThreadPoolDispatchQueue : IDispatchQueue, IDisposable
     {
         const int MaxPendingTasks = 16;
-        const int MaxPendingNotifications = 16;
 
         const int STATE_NOT_STARTED = 0;
         const int STATE_STARTED = 1;
@@ -18,8 +17,7 @@ namespace MediaServer.Common.Threading
         int _state = STATE_NOT_STARTED;
 
         readonly BlockingCollection<ThreadPoolDispatchQueueTask> _pendingTasks = new BlockingCollection<ThreadPoolDispatchQueueTask>(MaxPendingTasks);
-        readonly BlockingCollection<Action> _completedTasks = new BlockingCollection<Action>(MaxPendingNotifications);
-
+        readonly CancellationTokenSource _cancelSource = new CancellationTokenSource();
         readonly static ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly static AsyncLocal<bool> _workerThreadContext = new AsyncLocal<bool>();
 
@@ -66,7 +64,7 @@ namespace MediaServer.Common.Threading
 
             // Queue this task to be executed at a later time
             var src = new TaskCompletionSource<bool>();
-            _pendingTasks.Add(new RegisteredTask<bool>(_completedTasks, src, async delegate
+            _pendingTasks.Add(new ThreadPoolDispatchQueueRegisteredTask<bool>(src, async delegate
             {
                 await asyncTask();
                 return true;
@@ -89,7 +87,7 @@ namespace MediaServer.Common.Threading
 
             // Queue this task to be executed at a later time
             var src = new TaskCompletionSource<TResult>();
-            _pendingTasks.Add(new RegisteredTask<TResult>(_completedTasks, src, asyncTaskWithResult));
+            _pendingTasks.Add(new ThreadPoolDispatchQueueRegisteredTask<TResult>(src, asyncTaskWithResult));
             return src.Task;
         }
 
@@ -109,8 +107,7 @@ namespace MediaServer.Common.Threading
             // Queue this task to be executed at a later time
             var src = new TaskCompletionSource<TResult>();
             _pendingTasks.Add(
-                new RegisteredTask<TResult>(
-                    _completedTasks,
+                new ThreadPoolDispatchQueueRegisteredTask<TResult>(
                     src,
                     () => Task.FromResult(actionWithResult())));
             return src.Task;
@@ -121,12 +118,12 @@ namespace MediaServer.Common.Threading
             Interlocked.Exchange(ref _state, STATE_DISPOSED);
             try
             {
-                _pendingTasks.Dispose();
+                _cancelSource.Cancel();
             }
             catch { }
             try
             {
-                _completedTasks.Dispose();
+                _pendingTasks.CompleteAdding();
             }
             catch { }
         }
@@ -137,34 +134,24 @@ namespace MediaServer.Common.Threading
             {
                 throw new InvalidOperationException();
             }
-
-            Task.Run(TaskExecutionThread);
-            Task.Run(TaskCompletionNotificationThread);
+            Task.Run(TaskExecutionThread).Mute<OperationCanceledException>().Forget();
         }
 
         async Task TaskExecutionThread()
         {
             _workerThreadContext.Value = true;
 
-            foreach(var task in _pendingTasks.GetConsumingEnumerable())
+            using(_pendingTasks)
+            using(_cancelSource)
             {
-                try
+                foreach(var task in _pendingTasks.GetConsumingEnumerable(_cancelSource.Token))
                 {
-                    await task.ExecuteAsync();
+                    try
+                    {
+                        await task.ExecuteAsync();
+                    }
+                    catch(Exception ex) { _logger.Error(ex); }
                 }
-                catch(Exception ex) { _logger.Error(ex); }
-            }
-        }
-
-        void TaskCompletionNotificationThread()
-        {
-            foreach(var completedTask in _completedTasks.GetConsumingEnumerable())
-            {
-                try
-                {
-                    completedTask();
-                }
-                catch(Exception ex) { _logger.Error(ex); }
             }
         }
     }
