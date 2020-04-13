@@ -8,12 +8,12 @@ namespace MediaServer.WebSocket.Net
     sealed class HttpClientDispatcher : IDispatcher<HttpListenerContext>
     {
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
-        readonly IHandler<IRemoteDeviceInternal> _remoteDeviceConnectedHandler;
-        readonly IHandler<IRemoteDeviceInternal> _remoteDeviceDisconenctedHandler;
+        readonly IHandler<IWebSocketRemoteDevice> _remoteDeviceConnectedHandler;
+        readonly IHandler<IWebSocketRemoteDevice> _remoteDeviceDisconenctedHandler;
 
         public HttpClientDispatcher(
-            IHandler<IRemoteDeviceInternal> remoteDeviceConnectedHandler,
-            IHandler<IRemoteDeviceInternal> remoteDeviceDisconenctedHandler)
+            IHandler<IWebSocketRemoteDevice> remoteDeviceConnectedHandler,
+            IHandler<IWebSocketRemoteDevice> remoteDeviceDisconenctedHandler)
         {
             _remoteDeviceConnectedHandler = remoteDeviceConnectedHandler 
                 ?? throw new ArgumentNullException(nameof(remoteDeviceConnectedHandler));
@@ -23,7 +23,7 @@ namespace MediaServer.WebSocket.Net
 
         public async void Dispatch(HttpListenerContext httpListenerContext)
         {
-            RemoteDeviceWebSocketBased remoteDevice = default;
+            WebSocketRemoteDevice remoteDevice = default;
             try
             {
                 _logger.Trace($"{httpListenerContext.Request.RemoteEndPoint.Address}:{httpListenerContext.Request.RemoteEndPoint.Port} connected.");
@@ -31,7 +31,7 @@ namespace MediaServer.WebSocket.Net
                 using(httpListenerContext.Response)
                 {
                     var webSocketContext = await httpListenerContext.AcceptWebSocketAsync(null);
-                    remoteDevice = new RemoteDeviceWebSocketBased(new WebSocketClient(httpListenerContext, webSocketContext));
+                    remoteDevice = new WebSocketRemoteDevice(new WebSocketClient(httpListenerContext, webSocketContext));
                     _logger.Trace($"{remoteDevice} Http -> WebSocket upgraded OK.");
 
                     using(webSocketContext.WebSocket)
@@ -50,6 +50,7 @@ namespace MediaServer.WebSocket.Net
                 // must trigger the DeviceDisconenctedHandler
                 if(remoteDevice != null)
                 {
+                    _logger.Warn($"Device {remoteDevice} disconnected.");
                     await _remoteDeviceDisconenctedHandler
                         .HandleAsync(remoteDevice)
                         .ContinueWith(task =>

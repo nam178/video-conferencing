@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using MediaServer.Common.Mediator;
 using MediaServer.WebSocket.CommandHandlers;
 using MediaServer.WebSocket.Net;
 
@@ -13,16 +12,16 @@ namespace MediaServer.WebSocket.IoC
 
             // Networking stuff
             builder.RegisterType<WebSocketServer>().AsImplementedInterfaces();
-            builder.RegisterType<RemoteDeviceConnectedHandler>().AsSelf();
-            builder.RegisterType<RemoteDeviceDisconnectedHandler>().AsSelf();
+            builder.RegisterType<WebSocketDeviceConnectedHandler>().AsSelf();
+            builder.RegisterType<WebSocketDeviceDisconnectedHandler>().AsSelf();
             builder.RegisterType<HttpClientDispatcher>()
                 .AsImplementedInterfaces()
                 .WithParameter(
                     (p, x) => p.Name == "remoteDeviceDisconenctedHandler",
-                    (p, x) => x.Resolve<RemoteDeviceDisconnectedHandler>())
+                    (p, x) => x.Resolve<WebSocketDeviceDisconnectedHandler>())
                 .WithParameter(
                     (p, x) => p.Name == "remoteDeviceConnectedHandler",
-                    (p, x) => x.Resolve<RemoteDeviceConnectedHandler>());
+                    (p, x) => x.Resolve<WebSocketDeviceConnectedHandler>());
 
             // Command handlers
             builder.RegisterType<StringCommandHandler>().AsImplementedInterfaces();

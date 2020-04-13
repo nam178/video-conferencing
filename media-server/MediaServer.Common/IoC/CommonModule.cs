@@ -2,7 +2,6 @@
 using MediaServer.Common.Time;
 using MediaServer.Common.Utils;
 using NLog;
-using System;
 
 namespace MediaServer.Common.IoC
 {
@@ -12,12 +11,17 @@ namespace MediaServer.Common.IoC
         {
             base.Load(builder);
 
-            builder.RegisterType<TimerFactory>().AsImplementedInterfaces();
+            // singletons
             builder.RegisterType<WatchDog>().As<IWatchDog>().SingleInstance()
                 .OnActivated(args =>
                 {
                     LogManager.GetCurrentClassLogger().Info($"WatchDog created.");
                 });
+
+
+            // Transient
+            builder.RegisterType<Clock>().AsImplementedInterfaces();
+            builder.RegisterType<TimerFactory>().AsImplementedInterfaces();
         }
     }
 }

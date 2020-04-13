@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.WebSocket.CommandHandlers
 {
-    sealed class StringCommandHandler : IHandler<IRemoteDeviceInternal, string>
+    sealed class StringCommandHandler : IHandler<IWebSocketRemoteDevice, string>
     {
         readonly Type[] _possibleCommandTypes;
         readonly ILifetimeScope _scope;
@@ -31,7 +31,7 @@ namespace MediaServer.WebSocket.CommandHandlers
                 ?? throw new ArgumentNullException(nameof(scope));
         }
 
-        public Task HandleAsync(IRemoteDeviceInternal device, string commandArgs)
+        public Task HandleAsync(IWebSocketRemoteDevice device, string commandArgs)
         {
             var commandFormat = JsonConvert.DeserializeObject<CommandFormat>(commandArgs);
 

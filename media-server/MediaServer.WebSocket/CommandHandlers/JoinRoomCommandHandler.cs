@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.WebSocket.CommandHandlers
 {
-    sealed class JoinRoomCommandHandler : IHandler<IRemoteDeviceInternal, CommandArgs.JoinRoom>
+    sealed class JoinRoomCommandHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.JoinRoom>
     {
         readonly IRemoteDeviceRequestHandler<JoinRoomRequest, GenericResponse> _coreHandler;
 
@@ -20,7 +20,7 @@ namespace MediaServer.WebSocket.CommandHandlers
                 ?? throw new ArgumentNullException(nameof(coreHandler));
         }
 
-        public async Task HandleAsync(IRemoteDeviceInternal remoteDevice, JoinRoom args)
+        public async Task HandleAsync(IWebSocketRemoteDevice remoteDevice, JoinRoom args)
         {
             try
             {

@@ -13,13 +13,13 @@ namespace MediaServer.WebSocket.Net
     /// Implementation of a "remote device" based on web socket connections.
     /// That is, each web socket connection is considered a remote device
     /// </summary>
-    sealed class RemoteDeviceWebSocketBased : IRemoteDeviceInternal
+    sealed class WebSocketRemoteDevice : IWebSocketRemoteDevice
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public WebSocketClient WebSocketClient { get; }
 
-        public RemoteDeviceWebSocketBased(WebSocketClient client)
+        public WebSocketRemoteDevice(WebSocketClient client)
         {
             WebSocketClient = client ?? throw new System.ArgumentNullException(nameof(client));
         }

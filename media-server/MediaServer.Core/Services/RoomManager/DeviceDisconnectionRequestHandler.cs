@@ -30,8 +30,6 @@ namespace MediaServer.Core.Services.RoomManager
 
         public async Task HandleAsync(IRemoteDevice remoteDevice, DeviceDisconnectionRequest request)
         {
-            _logger.Info($"Device {remoteDevice} disconnected.");
-
             // First, jump into the central queue and disconnect the device with the room
             var previousMappings = await _centralDispatchQueue.ExecuteAsync(delegate
             {

@@ -14,14 +14,11 @@ namespace MediaServer.WebSocket.Net
         readonly IDispatcher<HttpListenerContext> _httpClientDispatcher;
         readonly static ILogger _logger = LogManager.GetCurrentClassLogger();
 
-
-        public WebSocketServer(
-            
-            IDispatcher<HttpListenerContext> httpClientDispatcher)
+        public WebSocketServer(IDispatcher<HttpListenerContext> httpClientDispatcher)
         {
             _httpListener = new HttpListener();
-            _httpListener.Prefixes.Add("http://*:8080/");
-            _httpClientDispatcher = httpClientDispatcher 
+            _httpListener.Prefixes.Add(Environment.GetEnvironmentVariable("HTTP_LISTENER_PREFIX"));
+            _httpClientDispatcher = httpClientDispatcher
                 ?? throw new ArgumentNullException(nameof(httpClientDispatcher));
         }
 

@@ -11,16 +11,16 @@ namespace MediaServer.WebSocket.Net
     /// <summary>
     /// This handles the event where an HTTP client accepted and ugpraded to web socket
     /// </summary>
-    sealed class RemoteDeviceConnectedHandler : IHandler<IRemoteDeviceInternal>
+    sealed class WebSocketDeviceConnectedHandler : IHandler<IWebSocketRemoteDevice>
     {
-        readonly IHandler<IRemoteDeviceInternal, string> _commandHandler;
+        readonly IHandler<IWebSocketRemoteDevice, string> _commandHandler;
         readonly IWatchDog _watchDog;
 
         // should be large enough to read network stream fast enough
         const int BUFFER_SIZE = 8 * 1024;
 
-        public RemoteDeviceConnectedHandler(
-            IHandler<IRemoteDeviceInternal, string> commandHandler, 
+        public WebSocketDeviceConnectedHandler(
+            IHandler<IWebSocketRemoteDevice, string> commandHandler, 
             IWatchDog watchDog)
         {
             _commandHandler = commandHandler
@@ -29,7 +29,7 @@ namespace MediaServer.WebSocket.Net
                 ?? throw new ArgumentNullException(nameof(watchDog));
         }
 
-        public async Task HandleAsync(IRemoteDeviceInternal device)
+        public async Task HandleAsync(IWebSocketRemoteDevice device)
         {
             var buff = new ArraySegment<byte>(new byte[BUFFER_SIZE]);
             var messageBuilder = new StringBuilder();
@@ -47,14 +47,14 @@ namespace MediaServer.WebSocket.Net
                 {
                     var tmp = await device.WebSocketClient.WebSocketContext.WebSocket.ReceiveAsync(buff, CancellationToken.None);
 
+                    if(tmp.MessageType == System.Net.WebSockets.WebSocketMessageType.Close)
+                        return;
                     if(tmp.MessageType != System.Net.WebSockets.WebSocketMessageType.Text)
                         throw new NotSupportedException();
                     if(tmp.Count > 0 && tmp.MessageType == System.Net.WebSockets.WebSocketMessageType.Text)
                         messageBuilder.Append(Encoding.UTF8.GetString(buff.Array, 0, tmp.Count));
                     if(tmp.EndOfMessage)
-                    {
                         break;
-                    }
                 }
 
                 // At this point, fully got the message;

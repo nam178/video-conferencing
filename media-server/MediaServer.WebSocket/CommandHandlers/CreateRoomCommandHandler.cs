@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.WebSocket.CommandHandlers
 {
-    sealed class CreateRoomCommandHandler : IHandler<IRemoteDeviceInternal, CommandArgs.CreateRoom>
+    sealed class CreateRoomCommandHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.CreateRoom>
     {
         readonly IRemoteDeviceRequestHandler<NewRoomRequest, NewRoomResponse> _coreHandler;
 
@@ -17,7 +17,7 @@ namespace MediaServer.WebSocket.CommandHandlers
                 ?? throw new System.ArgumentNullException(nameof(coreHandler));
         }                                                                                                                                                        
 
-        public async Task HandleAsync(IRemoteDeviceInternal remoteDevice, CommandArgs.CreateRoom args)
+        public async Task HandleAsync(IWebSocketRemoteDevice remoteDevice, CommandArgs.CreateRoom args)
         {
             try
             {

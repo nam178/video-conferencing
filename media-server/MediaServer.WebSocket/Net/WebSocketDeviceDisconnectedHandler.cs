@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace MediaServer.WebSocket.Net
 {
-    sealed class RemoteDeviceDisconnectedHandler : IHandler<IRemoteDeviceInternal>
+    sealed class WebSocketDeviceDisconnectedHandler : IHandler<IWebSocketRemoteDevice>
     {
         readonly IRemoteDeviceRequestHandler<DeviceDisconnectionRequest> _coreHandler;
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public RemoteDeviceDisconnectedHandler(IRemoteDeviceRequestHandler<DeviceDisconnectionRequest> coreHandler)
+        public WebSocketDeviceDisconnectedHandler(IRemoteDeviceRequestHandler<DeviceDisconnectionRequest> coreHandler)
         {
             _coreHandler = coreHandler 
                 ?? throw new System.ArgumentNullException(nameof(coreHandler));
         }
 
-        public Task HandleAsync(IRemoteDeviceInternal device)
+        public Task HandleAsync(IWebSocketRemoteDevice device)
         {
             // When a device disconnect,
             // we'll report that to the core. 

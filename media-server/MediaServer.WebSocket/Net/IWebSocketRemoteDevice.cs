@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.WebSocket.Net
 {
-    interface IRemoteDeviceInternal : IRemoteDevice, IDisposable
+    interface IWebSocketRemoteDevice : IRemoteDevice, IDisposable
     {
         /// <summary>
         /// Expose the underlying websocket for internal use

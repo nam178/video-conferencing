@@ -11,9 +11,8 @@ export default class RoomView extends React.Component
 
     componentDidMount()
     {
-        WebSocketClient.blah();
         // console.log(this.props.match.params.id);
-        //console.log(env);
+        // console.log(env);
     }
 
     render()

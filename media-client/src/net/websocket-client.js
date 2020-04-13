@@ -1,8 +1,18 @@
 export default class WebSocketClient
 {
-    static blah()
+    static get webSocket() {
+        return this._webSocket;
+    }
+
+    static set webSocket(value) {
+        console.log('setter')
+        this._webSocket = value;
+    }
+
+    static initialize()
     {
-        console.log(CONF_SERVER_HOST);
-        // var webSocket = new WebSocket('ws://localhost:8080');
+        this.webSocket = new WebSocket(`ws://${CONF_SERVER_HOST}:${CONF_SERVER_PORT}`);
     }
 }
+
+WebSocketClient.initialize();
