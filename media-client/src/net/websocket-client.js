@@ -1,7 +1,8 @@
 import Logger from '../logging/logger.js'
 import ConferenceSettings from '../models/conference-settings.js';
+import UserProfile from '../models/user-profile.js';
 
-export default class WebSocketClient
+export default class WebSocketClient extends EventTarget
 {
     /**
      * @returns {Logger}
@@ -14,7 +15,6 @@ export default class WebSocketClient
      * @returns {WebSocket}
      */
     get webSocket() { return this._webSocket; }
-    set webSocket(value) { this._webSocket = value; }
 
     /**
      * @returns {ConferenceSettings}
@@ -23,8 +23,15 @@ export default class WebSocketClient
         return this._conferenceSettings;
     }
 
+    /**
+     * @return {UserProfile[]}
+     */
+    get users() { return this._users; }
+
     constructor() {
+        super();
         this._sendHeartBeat = this._sendHeartBeat.bind(this);
+        this._users = [];
     }
 
     /**
@@ -60,7 +67,7 @@ export default class WebSocketClient
         // Start a new one
         var webSocketEndpoint = `ws://${CONF_SERVER_HOST}:${CONF_SERVER_PORT}`;
         this.logger.log(`Connecting to ${webSocketEndpoint}..`)
-        this.webSocket = new WebSocket(webSocketEndpoint);
+        this._webSocket = new WebSocket(webSocketEndpoint);
         // Error
         this.webSocket.addEventListener('error', () => {
             this.logger.error('Error', arguments);
@@ -76,8 +83,11 @@ export default class WebSocketClient
             var response = JSON.parse(e.data);
             this.logger.log('Message', response);
             var commandName = `_on${response.command}`;
-            console.warn('commandName', commandName);
-            this[commandName](response.args);
+            
+            if(typeof this[commandName] == 'undefined')
+                this.logger.error(`${commandName} handler was not implemented`);
+            else
+                this[commandName](response.args);
         });
         // Open
         this.webSocket.addEventListener('open', () => {
@@ -113,6 +123,19 @@ export default class WebSocketClient
         failFast(errorMessage);
     }
 
+    _onUpdateUsers(users) {
+        var tmp = [];
+        for(var i in users.users)
+        {
+            tmp.push(new UserProfile(users.users[i]));
+        }
+        this._users = tmp;
+        this._logger.info('Users updated', this.users);
+        this.dispatchEvent(new CustomEvent('users', {
+            detail: this.users
+        }));
+    }
+
     _failFast(errorMessage) {
         this._initializeAsyncReject(errorMessage);
     }
@@ -132,6 +155,7 @@ export default class WebSocketClient
             command: command,
             args: args
         }));         
-        this.logger.log('WebSocket command sent', command, args);
+        if(command != 'HeartBeat')
+            this.logger.log('WebSocket command sent', command, args);
     }
 }

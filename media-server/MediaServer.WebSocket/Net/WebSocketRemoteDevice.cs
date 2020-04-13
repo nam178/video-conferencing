@@ -1,10 +1,8 @@
 ﻿using MediaServer.Models;
-using MediaServer.WebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NLog;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaServer.WebSocket.Net
@@ -15,16 +13,30 @@ namespace MediaServer.WebSocket.Net
     /// </summary>
     sealed class WebSocketRemoteDevice : IWebSocketRemoteDevice
     {
-        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        static readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public WebSocketClient WebSocketClient { get; }
 
         public WebSocketRemoteDevice(WebSocketClient client)
         {
-            WebSocketClient = client ?? throw new System.ArgumentNullException(nameof(client));
+            WebSocketClient = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        public Task SendAsync(string command, object args)
+        public async Task SendAsync(string command, object args)
+        {
+            await WebSocketClient.SendAsync(Serialize(command, args));
+            _logger.Debug($"Command {command}, Args={JsonConvert.SerializeObject(args)} sent to device {this}");
+        }
+
+        public override string ToString() => $"[WebSocketClientRemoteDevice {WebSocketClient}]";
+
+        public Task SendUserUpdateAsync(RemoteDeviceUserUpdateMessage message) => SendAsync("UpdateUsers", message);
+
+        public void Teminate() => WebSocketClient.Dispose();
+
+        void IDisposable.Dispose() => Teminate();
+
+        static string Serialize(string command, object args)
         {
             var serializerSettings = new JsonSerializerSettings();
             serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -33,34 +45,7 @@ namespace MediaServer.WebSocket.Net
                 Command = command,
                 Args = args
             }, serializerSettings);
-            _logger.Debug($"Sending message to {WebSocketClient}, {message}");
-            return WebSocketClient.SendAsync(message);
+            return message;
         }
-
-        public override string ToString()
-        {
-            return $"[WebSocketClientRemoteDevice {WebSocketClient}]";
-        }
-
-        public Task SendUserUpdateAsync(RemoteDeviceUserUpdateMessage message) => SendAsync("UpdateUsers", message);
-
-        public void Teminate()
-        {
-            try
-            {
-                using(WebSocketClient.WebSocketContext.WebSocket)
-                {
-                    WebSocketClient.WebSocketContext.WebSocket
-                        .CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, "Server deliberately close the connection", CancellationToken.None)
-                        .Wait(TimeSpan.FromSeconds(5));
-                }
-            }
-            catch(Exception ex)
-            {
-                _logger.Warn(ex, "Exception occured when closing WebSocket");
-            }
-        }
-
-        void IDisposable.Dispose() => Teminate();
     }
 }

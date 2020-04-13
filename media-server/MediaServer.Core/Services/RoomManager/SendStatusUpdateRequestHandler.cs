@@ -40,6 +40,7 @@ namespace MediaServer.Core.Services.RoomManager
             });
 
             // Then use the central parallel queue to send the update
+            _logger.Trace($"Sending user update to {devices.Count()} devices..");
             foreach(var device in devices)
             {
                 _centralParallelQueue.Enqueue(device, d =>
@@ -47,6 +48,7 @@ namespace MediaServer.Core.Services.RoomManager
                     var tmp = (IRemoteDevice)d;
                     try
                     {
+                        _logger.Trace($"Sending user update to {device}..");
                         if(false == tmp
                             .SendUserUpdateAsync(updateMessage)
                             .Wait(TimeSpan.FromSeconds(MAX_WAIT_TIMEOUT_SECONDS)))
@@ -59,7 +61,6 @@ namespace MediaServer.Core.Services.RoomManager
                     {
                         _logger.Warn(ex, $"Failed sending notification to device {device}, terminating");
                         tmp.Teminate();
-                        throw;
                     }
                 });
             }

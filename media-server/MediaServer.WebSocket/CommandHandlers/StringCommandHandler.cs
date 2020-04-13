@@ -45,9 +45,13 @@ namespace MediaServer.WebSocket.CommandHandlers
                 throw new InvalidDataException($"Invalid command {commandFormat.Command}");
 
             var commandHandler = _scope.Resolve(commandHandlerType);
-
-            _logger.Trace($"Executing command {commandFormat.Command}, Args={commandFormat.Args}");
-
+            // HACK
+            // don't log heartbeats.. annoying.
+            if(commandHandlerType.Name != "HeartBeatCommandHandler")
+            {
+                _logger.Trace($"Executing command {commandFormat.Command}, Args={commandFormat.Args}");
+            }
+            
             return (Task)GetHandleAsyncMethod(commandHandlerType)
                 .Invoke(commandHandler, new[] {
                     device,

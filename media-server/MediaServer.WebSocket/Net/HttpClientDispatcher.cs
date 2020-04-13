@@ -50,16 +50,19 @@ namespace MediaServer.WebSocket.Net
                 // must trigger the DeviceDisconenctedHandler
                 if(remoteDevice != null)
                 {
-                    _logger.Warn($"Device {remoteDevice} disconnected.");
-                    await _remoteDeviceDisconenctedHandler
-                        .HandleAsync(remoteDevice)
-                        .ContinueWith(task =>
-                        {
-                            if(task.Exception != null)
+                    using(remoteDevice)
+                    {
+                        _logger.Warn($"Device {remoteDevice} disconnected.");
+                        await _remoteDeviceDisconenctedHandler
+                            .HandleAsync(remoteDevice)
+                            .ContinueWith(task =>
                             {
-                                _logger.Error("remoteDeviceDisconenctedHandler throws exception", task.Exception);
-                            }
-                        });
+                                if(task.Exception != null)
+                                {
+                                    _logger.Error("remoteDeviceDisconenctedHandler throws exception", task.Exception);
+                                }
+                            });
+                    }
                 }
             }
         }

@@ -12,10 +12,14 @@ namespace MediaServer.Common.Threading
 
         public void Start()
         {
-            Parallel.ForEach(_worKItems, new ParallelOptions
+            Task.Factory.StartNew(delegate
             {
-                MaxDegreeOfParallelism = Environment.ProcessorCount
-            }, ProcessWorkItem);
+                Parallel.ForEach(_worKItems.GetConsumingEnumerable(), new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
+                }, ProcessWorkItem);
+            }, 
+            TaskCreationOptions.LongRunning);
         }
 
         void ProcessWorkItem((object Target, Action<object> Processor) workItem) => workItem.Processor.Invoke(workItem.Target);

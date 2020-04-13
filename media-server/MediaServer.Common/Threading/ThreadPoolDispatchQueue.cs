@@ -166,7 +166,6 @@ namespace MediaServer.Common.Threading
                     completedTask();
                 }
                 catch(Exception ex) { _logger.Error(ex); }
-
             }
         }
     }

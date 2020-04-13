@@ -12,7 +12,7 @@ namespace MediaServer.WebSocket.CommandHandlers
 
         public Task HandleAsync(IWebSocketRemoteDevice device, CommandArgs.HeartBeat arg2)
         {
-            _logger.Trace($"{device} heart beat received, client timestamp={UnixTimestamp.ToDateTime(arg2.Timestamp)}");
+            // _logger.Trace($"{device} heart beat received, client timestamp={UnixTimestamp.ToDateTime(arg2.Timestamp)}");
             return Task.CompletedTask;
         }
     }
