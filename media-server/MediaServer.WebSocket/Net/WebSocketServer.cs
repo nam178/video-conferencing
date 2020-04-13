@@ -6,7 +6,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediaServer.Signalling.Net
+namespace MediaServer.WebSocket.Net
 {
     sealed class WebSocketServer : IHostedService
     {

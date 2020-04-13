@@ -3,17 +3,17 @@ using NLog;
 using System;
 using System.Net;
 
-namespace MediaServer.Signalling.Net
+namespace MediaServer.WebSocket.Net
 {
     sealed class HttpClientDispatcher : IDispatcher<HttpListenerContext>
     {
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
-        readonly IHandler<RemoteDeviceWebSocketBased> _remoteDeviceConnectedHandler;
-        readonly IHandler<RemoteDeviceWebSocketBased> _remoteDeviceDisconenctedHandler;
+        readonly IHandler<IRemoteDeviceInternal> _remoteDeviceConnectedHandler;
+        readonly IHandler<IRemoteDeviceInternal> _remoteDeviceDisconenctedHandler;
 
         public HttpClientDispatcher(
-            IHandler<RemoteDeviceWebSocketBased> remoteDeviceConnectedHandler,
-            IHandler<RemoteDeviceWebSocketBased> remoteDeviceDisconenctedHandler)
+            IHandler<IRemoteDeviceInternal> remoteDeviceConnectedHandler,
+            IHandler<IRemoteDeviceInternal> remoteDeviceDisconenctedHandler)
         {
             _remoteDeviceConnectedHandler = remoteDeviceConnectedHandler 
                 ?? throw new ArgumentNullException(nameof(remoteDeviceConnectedHandler));

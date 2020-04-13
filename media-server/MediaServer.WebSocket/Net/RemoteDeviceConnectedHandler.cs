@@ -1,25 +1,26 @@
 ﻿using MediaServer.Common.Mediator;
 using MediaServer.Common.Utils;
+using MediaServer.Models;
 using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediaServer.Signalling.Net
+namespace MediaServer.WebSocket.Net
 {
     /// <summary>
     /// This handles the event where an HTTP client accepted and ugpraded to web socket
     /// </summary>
-    sealed class RemoteDeviceConnectedHandler : IHandler<RemoteDeviceWebSocketBased>
+    sealed class RemoteDeviceConnectedHandler : IHandler<IRemoteDeviceInternal>
     {
-        readonly IHandler<RemoteDeviceWebSocketBased, string> _commandHandler;
+        readonly IHandler<IRemoteDeviceInternal, string> _commandHandler;
         readonly IWatchDog _watchDog;
 
         // should be large enough to read network stream fast enough
         const int BUFFER_SIZE = 8 * 1024;
 
         public RemoteDeviceConnectedHandler(
-            IHandler<RemoteDeviceWebSocketBased, string> commandHandler, 
+            IHandler<IRemoteDeviceInternal, string> commandHandler, 
             IWatchDog watchDog)
         {
             _commandHandler = commandHandler
@@ -28,7 +29,7 @@ namespace MediaServer.Signalling.Net
                 ?? throw new ArgumentNullException(nameof(watchDog));
         }
 
-        public async Task HandleAsync(RemoteDeviceWebSocketBased device)
+        public async Task HandleAsync(IRemoteDeviceInternal device)
         {
             var buff = new ArraySegment<byte>(new byte[BUFFER_SIZE]);
             var messageBuilder = new StringBuilder();

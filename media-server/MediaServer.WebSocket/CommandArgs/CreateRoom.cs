@@ -1,4 +1,4 @@
-﻿namespace MediaServer.Signalling.CommandArgs
+﻿namespace MediaServer.WebSocket.CommandArgs
 {
     public sealed class CreateRoom
     {

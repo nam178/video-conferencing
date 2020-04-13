@@ -1,6 +1,5 @@
 ﻿using MediaServer.Common.Mediator;
 using MediaServer.Common.Threading;
-using MediaServer.Core.Common;
 using MediaServer.Core.Repositories;
 using MediaServer.Models;
 using NLog;

@@ -1,9 +1,9 @@
 ﻿using Autofac;
 using MediaServer.Common.Mediator;
-using MediaServer.Signalling.CommandHandlers;
-using MediaServer.Signalling.Net;
+using MediaServer.WebSocket.CommandHandlers;
+using MediaServer.WebSocket.Net;
 
-namespace MediaServer.Signalling.IoC
+namespace MediaServer.WebSocket.IoC
 {
     public sealed class SignallingModule : Autofac.Module
     {

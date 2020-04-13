@@ -3,7 +3,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediaServer.Signalling.Net
+namespace MediaServer.WebSocket.Net
 {
     sealed class WebSocketClient
     {

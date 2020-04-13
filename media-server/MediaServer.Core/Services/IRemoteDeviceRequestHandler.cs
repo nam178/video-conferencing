@@ -1,7 +1,7 @@
 ﻿using MediaServer.Common.Mediator;
 using MediaServer.Models;
 
-namespace MediaServer.Core.Common
+namespace MediaServer.Core.Services
 {
     public interface IRemoteDeviceRequestHandler<TCommandArgs>
         : IHandler<IRemoteDevice, TCommandArgs>
@@ -9,7 +9,7 @@ namespace MediaServer.Core.Common
 
     }
 
-    public interface IRemoteDeviceRequestHandler<TCommandArgs, TResponse> 
+    public interface IRemoteDeviceRequestHandler<TCommandArgs, TResponse>
         : IMapper<IRemoteDevice, TCommandArgs, TResponse>
     {
 

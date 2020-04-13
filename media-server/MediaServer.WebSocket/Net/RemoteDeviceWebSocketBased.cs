@@ -7,17 +7,17 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediaServer.Signalling.Net
+namespace MediaServer.WebSocket.Net
 {
     /// <summary>
     /// Implementation of a "remote device" based on web socket connections.
     /// That is, each web socket connection is considered a remote device
     /// </summary>
-    sealed class RemoteDeviceWebSocketBased : IRemoteDevice, IDisposable
+    sealed class RemoteDeviceWebSocketBased : IRemoteDeviceInternal
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        internal WebSocketClient WebSocketClient { get; }
+        public WebSocketClient WebSocketClient { get; }
 
         public RemoteDeviceWebSocketBased(WebSocketClient client)
         {

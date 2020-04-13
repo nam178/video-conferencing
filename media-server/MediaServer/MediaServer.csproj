@@ -22,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MediaServer.Common\MediaServer.Common.csproj" />
     <ProjectReference Include="..\MediaServer.Core\MediaServer.Core.csproj" />
-    <ProjectReference Include="..\MediaServer.Signalling\MediaServer.Signalling.csproj" />
     <ProjectReference Include="..\MediaServer.WebRtc.Managed\MediaServer.WebRtc.Managed.csproj">
       <Private>true</Private>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
@@ -30,6 +29,7 @@
     <ProjectReference Include="..\MediaServer.WebRtc.Native\MediaServer.WebRtc.Native.vcxproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\MediaServer.WebSocket\MediaServer.WebSocket.csproj" />
   </ItemGroup>
   <!-- copy here 
   <ItemGroup>
