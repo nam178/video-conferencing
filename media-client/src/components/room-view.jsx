@@ -30,8 +30,11 @@ export default class RoomView extends React.Component
     }
 
     componentDidMount() {
-        // for testing, immediately join the room as 'Nam'
-        this.joinRoomAsync('Nam');
+        // Immediately join the room if previously joined
+        if(localStorage.getItem('room_view_username'))
+        {
+            this.joinRoomAsync(localStorage.getItem('room_view_username'));
+        }
 
         // Watch for users changes
         this.webSocketClient.addEventListener('users', this.handleUsersChanged);

@@ -1,0 +1,81 @@
+/**
+ * Heading
+ */
+
+ .conference-list-view .heading {
+    height: 100px;
+    text-align: center;
+}
+
+.conference-list-view .heading {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/**
+ * List
+ */
+.conference-list-view .margin-fix {
+    overflow: hidden;
+}
+
+.conference-list-view .body {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: -15px;
+}
+
+/**
+ * Cells
+ */
+.conference-list-cell {
+    background: lightblue;
+    width: 420px;
+    min-width: 420px;
+    height: 320px;
+    margin: 15px;
+    overflow: hidden;
+    border-radius: 3px;
+}
+
+.conference-list-cell.offline { opacity: 0.5; }
+
+.conference-list-cell .split-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: lightcoral;
+    align-items: stretch;
+}
+
+.conference-list-cell .username {
+    background-color: lightcyan;
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    opacity: 0.5;
+    height: 50px;
+}
+
+.conference-list-cell .video-view-port {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.conference-list-cell .video-view-port .fas {
+    color: white;
+    opacity: 0.5;
+    font-size: 120px;
+}
+
+/**
+ * Bottom 
+ */
+.conference-list-view .bottom-bar {
+    height: 50px;
+}
