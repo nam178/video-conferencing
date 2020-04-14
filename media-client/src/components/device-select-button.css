@@ -19,7 +19,7 @@
     justify-content: center;
 }
 
-.device-select-button .clickable:hover {
+.device-select-button .clickable:hover, .device-select-button.options-show .clickable {
     background-color: rgb(240, 154, 154);
 }
 
@@ -32,4 +32,74 @@
 .device-select-button .clickable i.fas {
     color: white;
     font-size: 32px;
+}
+
+.device-select-button .select-box {
+    background-color: lightcoral;
+    color: white;
+    position: absolute;
+    width: 300px;
+    border-radius: 3px;
+}
+
+.device-select-button .select-box>div.select-box-title {
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(240, 154, 154);
+    border-bottom: 1px solid rgb(247, 178, 178);
+    border-radius: 3px 3px 0 0;
+}
+
+.device-select-button .select-box>div.select-box-body>div {
+    height: 45px;
+    line-height: 45px;
+    padding-left: 15px;
+    position: relative;
+    z-index: 2;
+    text-overflow: ellipsis;
+    overflow: hidden; 
+    white-space: nowrap;
+  }
+
+.device-select-button .select-box>div.select-box-body>div:hover {
+    cursor: pointer;
+    background-color: rgb(240, 154, 154);
+}
+
+/**
+ * Triangle */
+
+.triangle {
+    position: absolute;
+    left: 145px;
+    bottom: -5px;
+    background-color: lightcoral;
+    text-align: left;
+    z-index: -1;
+}
+
+.triangle:before, .triangle:after {
+    content: '';
+    position: absolute;
+    background-color: inherit;
+}
+
+.triangle, .triangle:before, .triangle:after {
+    width: 10px;
+    height: 10px;
+    border-top-right-radius: 30%;
+}
+
+.triangle {
+    transform: rotate(0deg) skewX(-30deg) scale(1, .866);
+}
+
+.triangle:before {
+    transform: rotate(-135deg) skewX(-45deg) scale(1.414, .707) translate(0, -50%);
+}
+
+.triangle:after {
+    transform: rotate(135deg) skewY(-45deg) scale(.707, 1.414) translate(50%);
 }

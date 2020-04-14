@@ -30,8 +30,26 @@ export default class ConferenceListView extends React.Component {
             return;
         }
         // Successed, we can show the device bar
-        this.setState({ mediaDevices: this.inputDevices.mediaDevices });
-        console.log(this.inputDevices.mediaDevices);
+        this.setState({ 
+            mediaDevices: this.inputDevices.mediaDevices,
+            microphoneDevices: ConferenceListView.filter(this.inputDevices.mediaDevices, 'audioinput'),
+            cameraDevices: ConferenceListView.filter(this.inputDevices.mediaDevices, 'videoinput'),
+            audioDevices: ConferenceListView.filter(this.inputDevices.mediaDevices, 'audiooutput'),
+        });
+    }
+
+    static filter(devices, kind) {
+        var result = [];
+        for(var k in devices) {
+            if(devices[k].kind == kind) {
+                result.push({
+                    id: devices[k].deviceId,
+                    name: devices[k].label,
+                })
+            }
+        }
+        result.push({id: '_disable', name: 'Don\'t Use'});
+        return result;
     }
 
     static getDerivedStateFromProps(props) {
@@ -66,9 +84,9 @@ export default class ConferenceListView extends React.Component {
             <div className="padding"></div>
             { this.state.mediaDevices ? 
             <div className="bottom-bar">
-                <DeviceSelectButton icon="microphone" />
-                <DeviceSelectButton icon="camera" />
-                <DeviceSelectButton icon="volume-up" />
+                <DeviceSelectButton icon="microphone" selectItems={this.state.microphoneDevices} title="Which Microphone?" />
+                <DeviceSelectButton icon="camera"     selectItems={this.state.cameraDevices}   title="Which Camera?" />
+                <DeviceSelectButton icon="volume-up"  selectItems={this.state.audioDevices}   title="Which Speaker?"/>
             </div>
             : null }
         </div>
