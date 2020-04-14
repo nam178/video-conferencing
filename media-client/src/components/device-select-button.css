@@ -1,0 +1,35 @@
+.device-select-button {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    margin: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.device-select-button .clickable {
+    width: 80px;
+    height: 80px;
+    background-color: lightcoral;
+    border-radius: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.device-select-button .clickable:hover {
+    background-color: rgb(240, 154, 154);
+}
+
+.device-select-button .clickable:active {
+    width: 78px;
+    height: 78px;
+    border-radius: 39px;
+}
+
+.device-select-button .clickable i.fas {
+    color: white;
+    font-size: 32px;
+}

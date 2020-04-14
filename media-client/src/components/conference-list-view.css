@@ -76,6 +76,15 @@
 /**
  * Bottom 
  */
+.conference-list-view .padding {
+    height: 150px;
+}
 .conference-list-view .bottom-bar {
-    height: 50px;
+    height: 100px;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
 }

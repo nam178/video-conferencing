@@ -34,6 +34,7 @@ export default class RoomView extends React.Component
         if(localStorage.getItem('room_view_username'))
         {
             this.joinRoomAsync(localStorage.getItem('room_view_username'));
+            this.setState({ isLoading: true });
         }
 
         // Watch for users changes
