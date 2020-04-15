@@ -1,7 +1,6 @@
 import Logger from '../logging/logger.js';
 
-export default class InputDevices
-{
+export default class InputDevices {
     /**
      * @return {MediaStream}
      */
@@ -14,11 +13,19 @@ export default class InputDevices
         return this._currentAudioInputDeviceId;
     }
 
+    set currentAudioInputDeviceId(value) {
+        this._currentAudioInputDeviceId = value;
+    }
+
     /**
      * @returns {String}
      */
     get currentVideoInputDeviceId() {
         return this._currentVideoInputDeviceId;
+    }
+
+    set currentVideoInputDeviceId(value) {
+        this._currentVideoInputDeviceId = value;
     }
 
     /**
@@ -32,22 +39,48 @@ export default class InputDevices
         this._currentVideoInputDeviceId = null;
     }
 
-    initializeAsync()
-    {
+    static NotSelectedDeviceId() { return -1; }
+
+    // Designed so can be called multiple items to re-initialise
+    initializeAsync() {
+        // Stop any running track
+        if(this.stream)
+        {
+            this.stream.getTracks().forEach(track => track.stop());
+        }
+        
+        // Query devices with callback
+        var constraints = {};
+
+        if (this.currentAudioInputDeviceId != InputDevices.NotSelectedDeviceId()) {
+            constraints.audio = {
+                deviceId: this._currentAudioInputDeviceId ? { ideal: this._currentAudioInputDeviceId } : undefined
+            };
+        }
+
+        if (this.currentVideoInputDeviceId != InputDevices.NotSelectedDeviceId()) {
+            constraints.video = {
+                deviceId: this._currentVideoInputDeviceId ? { ideal: this._currentVideoInputDeviceId } : undefined,
+                width: { ideal:1280 },
+                height: { ideal: 720 },
+            }
+        }
+
+        console.log(constraints);
+
         return new Promise((resolve, reject) => {
-            navigator.mediaDevices.getUserMedia({
-                    audio: true,
-                    video: true
-                })
+            navigator.mediaDevices
+                .getUserMedia(constraints)
                 .then((stream) => {
                     this._stream = stream;
                     this._logger.info('Media stream accquired', stream);
                     // Set the current device ids
                     stream.getTracks().forEach(track => {
-                        if(track.kind == 'audio')
+                        if (track.kind == 'audio')
                             this._currentAudioInputDeviceId = track.getSettings().deviceId;
-                        if(track.kind == 'video')
+                        if (track.kind == 'video')
                             this._currentVideoInputDeviceId = track.getSettings().deviceId;
+                        this._logger.info('Found track', track);
                     });
                     // Got the perms, but we'll still querying available devices
                     // so that we can let the user select

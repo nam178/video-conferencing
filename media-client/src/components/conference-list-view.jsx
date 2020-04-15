@@ -12,34 +12,59 @@ export default class ConferenceListView extends React.Component {
         super();
         this.state = { 
             users: null,
-            mediaDevices: null
         };
         this._inputDevices = new InputDevices();
+        this.handleMicrophoneChange = this.handleMicrophoneChange.bind(this);
+        this.handleCameraChange = this.handleCameraChange.bind(this);
+        this.handleSpeakerChange = this.handleSpeakerChange.bind(this);
     }
 
     async componentDidMount() {
-        // Query devices
+       await this.reInitializeDevices();
+    }
+
+    async componentWillUnmount() {
+        this._closed = true;
+    }
+
+    async reInitializeDevices() {
         try
         {
             await this.inputDevices.initializeAsync();
-
-            this.inputDevices.stream.getTracks().forEach(track => {
-                console.info(track, track.getSettings());
-            });
         }
-        catch(fatalError)
+        catch(errorMessage)
         {
-            // TODO
-            window.alert('fatal error: ' + fatalError);
+            // TODO display better alert
+            if(!this._closed)
+            {
+                window.alert('Warning: ' + errorMessage);
+            }
             return;
         }
-        // Successed, we can show the device bar
-        this.setState({ 
-            mediaDevices: this.inputDevices.mediaDevices,
-            microphoneDevices: this.generateDropDownItem('audioinput'),
-            cameraDevices: this.generateDropDownItem('videoinput'),
-            audioDevices: this.generateDropDownItem('audiooutput'),
-        });
+        if(!this._closed)
+        {
+            // Successed, we can show the device bar
+            this.setState({ 
+                microphoneDevices: this.generateDropDownItem('audioinput'),
+                cameraDevices: this.generateDropDownItem('videoinput'),
+                audioDevices: this.generateDropDownItem('audiooutput'),
+            });
+        }
+    }
+
+    async handleMicrophoneChange(item) {
+        this.inputDevices.currentAudioInputDeviceId = item.id;
+        await this.reInitializeDevices();
+    }
+
+    async handleCameraChange(item) {
+        this.inputDevices.currentVideoInputDeviceId = item.id;
+        await this.reInitializeDevices();
+    }
+
+    handleSpeakerChange(item) {
+        // TODO
+        console.log(item);
     }
 
     generateDropDownItem(kind) {
@@ -61,7 +86,11 @@ export default class ConferenceListView extends React.Component {
                 number++;
             }
         });
-        result.push({id: '_disable', name: 'Don\'t Use'});
+        result.push({
+            id: InputDevices.NotSelectedDeviceId(), 
+            name: 'Don\'t Use', 
+            selected: selectedDeviceId == InputDevices.NotSelectedDeviceId()
+        });
         return result;
     }
 
@@ -106,13 +135,11 @@ export default class ConferenceListView extends React.Component {
                 </div>
             </div>
             <div className="padding"></div>
-            { this.state.mediaDevices ? 
             <div className="bottom-bar">
-                <DeviceSelectButton icon="microphone" selectItems={this.state.microphoneDevices} title="Which Microphone?" />
-                <DeviceSelectButton icon="camera"     selectItems={this.state.cameraDevices}     title="Which Camera?" />
-                <DeviceSelectButton icon="volume-up"  selectItems={this.state.audioDevices}      title="Which Speaker?"/>
+                { this.state.microphoneDevices ? <DeviceSelectButton icon="microphone" selectItems={this.state.microphoneDevices} title="Which Microphone?" onItemClick={this.handleMicrophoneChange} /> : null }
+                { this.state.cameraDevices     ? <DeviceSelectButton icon="camera"     selectItems={this.state.cameraDevices}     title="Which Camera?" onItemClick={this.handleCameraChange} /> : null }
+                { this.state.audioDevices      ? <DeviceSelectButton icon="volume-up"  selectItems={this.state.audioDevices}      title="Which Microphone?" onItemClick={this.handleSpeakerChange} /> : null }
             </div>
-            : null }
         </div>
     }
 }

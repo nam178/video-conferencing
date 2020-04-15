@@ -42,6 +42,7 @@ export default class DeviceSelectButton extends React.Component
         if(this.props.onItemClick)
         {
             this.props.onItemClick(item);
+            this.setState({ isOptionsShow: false });
         }
     }
 
