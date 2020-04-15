@@ -47,6 +47,7 @@ export default class InputDevices {
         if(this.stream)
         {
             this.stream.getTracks().forEach(track => track.stop());
+            this._stream = null;
         }
         
         // Query devices with callback
@@ -66,7 +67,15 @@ export default class InputDevices {
             }
         }
 
-        console.log(constraints);
+        // Not requesting anything?
+        if(this.currentAudioInputDeviceId == InputDevices.NotSelectedDeviceId()
+            && this.currentVideoInputDeviceId == InputDevices.NotSelectedDeviceId())
+        {
+            this._mediaDevices = [];
+            return;
+        }
+
+        this._logger.info('Requesting devices..', constraints);
 
         return new Promise((resolve, reject) => {
             navigator.mediaDevices

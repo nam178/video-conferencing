@@ -28,7 +28,15 @@ export default class DeviceSelectButton extends React.Component
     }
 
     handleClick() {
-        this.setState({ isOptionsShow: !this.state.isOptionsShow }, () => {
+        if(this.props.onClick && !this.props.onClick(this)) {
+            return;
+        }
+        this.setOptionsVisibility(!this.state.isOptionsShow);
+    }
+
+    setOptionsVisibility(value) {
+        console.log('setOptionsVisibility', value);
+        this.setState({ isOptionsShow: value }, () => {
             // Need to notify the popup manager when we show a popup,
             // so that other popups will disappear
             if(this.state.isOptionsShow)
@@ -39,15 +47,14 @@ export default class DeviceSelectButton extends React.Component
     }
 
     handleItemClick(item) {
-        if(this.props.onItemClick)
-        {
+        if(this.props.onItemClick) {
             this.props.onItemClick(item);
             this.setState({ isOptionsShow: false });
         }
     }
 
     render() {
-        return <div className={`device-select-button ${this.state.isOptionsShow ? 'options-show' : ''}`}>
+        return <div className={`device-select-button ${this.props.gray ? 'gray' : ''} ${this.state.isOptionsShow ? 'options-show' : ''}`}>
             { (this.props.selectItems && this.state.isOptionsShow) ? 
             <div className="select-box" style={{top: `-${(this.props.selectItems.length+1) * 45 + 15}px`}}>
                 <div className="select-box-title"><span>{this.props.title}</span></div>
@@ -62,7 +69,12 @@ export default class DeviceSelectButton extends React.Component
             </div>
             : null }
             <div className="clickable" onClick={this.handleClick}>
-                <i className={`fas fa-${this.props.icon}`}></i>
+                { this.props.isLoading ? 
+                <div className="spinner-border text-light" role="status">
+                    <span className="sr-only">Loading...</span>
+                </div>
+                : 
+                <i className={`fas fa-${this.props.icon}`}></i> }
             </div>
         </div>
     }

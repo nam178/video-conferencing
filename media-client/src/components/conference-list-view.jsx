@@ -12,22 +12,18 @@ export default class ConferenceListView extends React.Component {
         super();
         this.state = { 
             users: null,
+            microphoneDevices: null,
+            cameraDevices: null, 
+            audioDevices: null
         };
         this._inputDevices = new InputDevices();
         this.handleMicrophoneChange = this.handleMicrophoneChange.bind(this);
         this.handleCameraChange = this.handleCameraChange.bind(this);
         this.handleSpeakerChange = this.handleSpeakerChange.bind(this);
+        this.handleDeviceClick = this.handleDeviceClick.bind(this);
     }
 
     async componentDidMount() {
-       await this.reInitializeDevices();
-    }
-
-    async componentWillUnmount() {
-        this._closed = true;
-    }
-
-    async reInitializeDevices() {
         // Restore previous preferences
         var lastAudioDeviceId = localStorage.getItem('conference_list_view_audio_device_id');
         var lastVideoDeviceId = localStorage.getItem('conference_list_view_video_device_id');
@@ -35,9 +31,18 @@ export default class ConferenceListView extends React.Component {
             this.inputDevices.currentAudioInputDeviceId = lastAudioDeviceId;
         if(lastVideoDeviceId)
             this.inputDevices.currentVideoInputDeviceId = lastVideoDeviceId;
+        // Then initialise
+       await this.reInitializeDevicesAsync();
+    }
+
+    async componentWillUnmount() {
+        this._closed = true;
+    }
+
+    async reInitializeDevicesAsync() {
         try
         {
-            
+            this._isInitialisingDevices = true;
             await this.inputDevices.initializeAsync();
         }
         catch(errorMessage)
@@ -49,29 +54,61 @@ export default class ConferenceListView extends React.Component {
             }
             return;
         }
+        finally
+        {
+            this._isInitialisingDevices = false;
+        }
         if(!this._closed)
         {
-            // Successed, we can show the device bar
+            // Successed, update devices
             this.setState({ 
+                isVideoLoading: false,
+                isAudioLoading: false,
                 microphoneDevices: this.generateDropDownItem('audioinput'),
                 cameraDevices: this.generateDropDownItem('videoinput'),
-                audioDevices: this.generateDropDownItem('audiooutput'),
+                audioDevices: this.generateDropDownItem('audiooutput')
             });
         }
     }
 
     async handleMicrophoneChange(item) {
         this.inputDevices.currentAudioInputDeviceId = item.id;
-        await this.reInitializeDevices();
-        // remember this choice
-        localStorage.setItem('conference_list_view_audio_device_id', item.id);
+        this.rememberAudioChoice();
+        await this.reInitializeDevicesAsync();
     }
 
     async handleCameraChange(item) {
         this.inputDevices.currentVideoInputDeviceId = item.id;
-        await this.reInitializeDevices();
-        // remember this choice
-        localStorage.setItem('conference_list_view_video_device_id', item.id);
+        this.rememberVideoChoice();
+        await this.reInitializeDevicesAsync();
+    }
+
+    handleDeviceClick(sender) {
+        // Devices are initialising, prevent showing the device selector
+        if(this._isInitialisingDevices) {
+            return false;
+        }
+        // When the the devices disabled, clicking the device button won't show
+        // any device to select, therefore we'll re-initialise the devices first
+        if(sender == this._audioSelectButton 
+            && this.inputDevices.currentAudioInputDeviceId == InputDevices.NotSelectedDeviceId())
+        {
+            this.inputDevices.currentAudioInputDeviceId = null;
+            this.rememberAudioChoice();
+            this.setState({isAudioLoading: true});
+            this.reInitializeDevicesAsync(); // fire and forget
+            return false;
+        }
+        if(sender == this._videoSelectButton
+            && this.inputDevices.currentVideoInputDeviceId == InputDevices.NotSelectedDeviceId())
+        {
+            this.inputDevices.currentVideoInputDeviceId = null;
+            this.rememberVideoChoice();
+            this.setState({isVideoLoading: true});
+            this.reInitializeDevicesAsync(); // fire and forget
+            return false;
+        }
+        return true;
     }
 
     handleSpeakerChange(item) {
@@ -104,6 +141,18 @@ export default class ConferenceListView extends React.Component {
             selected: selectedDeviceId == InputDevices.NotSelectedDeviceId()
         });
         return result;
+    }
+
+    rememberAudioChoice() {
+        localStorage.setItem(
+            'conference_list_view_audio_device_id', 
+            this.inputDevices.currentAudioInputDeviceId);
+    }
+
+    rememberVideoChoice() {
+        localStorage.setItem(
+            'conference_list_view_video_device_id', 
+            this.inputDevices.currentVideoInputDeviceId);
     }
 
     static getDefaultName(number, kind) {
@@ -148,9 +197,29 @@ export default class ConferenceListView extends React.Component {
             </div>
             <div className="padding"></div>
             <div className="bottom-bar">
-                { this.state.microphoneDevices ? <DeviceSelectButton icon="microphone" selectItems={this.state.microphoneDevices} title="Which Microphone?" onItemClick={this.handleMicrophoneChange} /> : null }
-                { this.state.cameraDevices     ? <DeviceSelectButton icon="camera"     selectItems={this.state.cameraDevices}     title="Which Camera?" onItemClick={this.handleCameraChange} /> : null }
-                { this.state.audioDevices      ? <DeviceSelectButton icon="volume-up"  selectItems={this.state.audioDevices}      title="Which Microphone?" onItemClick={this.handleSpeakerChange} /> : null }
+                { this.state.microphoneDevices ? <DeviceSelectButton ref={t => this._audioSelectButton = t}
+                    onClick={this.handleDeviceClick} 
+                    isLoading={this.state.isAudioLoading}
+                    icon={this.inputDevices.currentAudioInputDeviceId == InputDevices.NotSelectedDeviceId() ? 'microphone-slash' : 'microphone'}
+                    gray={this.inputDevices.currentAudioInputDeviceId == InputDevices.NotSelectedDeviceId()}
+                    selectItems={this.state.microphoneDevices} 
+                    title="Which Microphone?" 
+                    onItemClick={this.handleMicrophoneChange} /> : null }
+                { this.state.cameraDevices     ? <DeviceSelectButton ref={t => this._videoSelectButton = t}   
+                    onClick={this.handleDeviceClick} 
+                    isLoading={this.state.isVideoLoading}
+                    icon={this.inputDevices.currentVideoInputDeviceId == InputDevices.NotSelectedDeviceId() ? 'camera' : 'camera'}
+                    gray={this.inputDevices.currentVideoInputDeviceId == InputDevices.NotSelectedDeviceId()}
+                    selectItems={this.state.cameraDevices}     
+                    title="Which Camera?"     
+                    onItemClick={this.handleCameraChange} /> : null }
+                { this.state.audioDevices      ? <DeviceSelectButton ref={t => this._speakerSelectButton = t} 
+                    onClick={this.handleDeviceClick} 
+                    isLoading={this.state.isSpeakerLoading}
+                    icon="volume-up"  
+                    selectItems={this.state.audioDevices}      
+                    title="Which Microphone?" 
+                    onItemClick={this.handleSpeakerChange} /> : null }
             </div>
         </div>
     }
