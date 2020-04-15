@@ -22,6 +22,10 @@ export default class ConferenceListView extends React.Component {
         try
         {
             await this.inputDevices.initializeAsync();
+
+            this.inputDevices.stream.getTracks().forEach(track => {
+                console.info(track, track.getSettings());
+            });
         }
         catch(fatalError)
         {
@@ -32,24 +36,44 @@ export default class ConferenceListView extends React.Component {
         // Successed, we can show the device bar
         this.setState({ 
             mediaDevices: this.inputDevices.mediaDevices,
-            microphoneDevices: ConferenceListView.filter(this.inputDevices.mediaDevices, 'audioinput'),
-            cameraDevices: ConferenceListView.filter(this.inputDevices.mediaDevices, 'videoinput'),
-            audioDevices: ConferenceListView.filter(this.inputDevices.mediaDevices, 'audiooutput'),
+            microphoneDevices: this.generateDropDownItem('audioinput'),
+            cameraDevices: this.generateDropDownItem('videoinput'),
+            audioDevices: this.generateDropDownItem('audiooutput'),
         });
     }
 
-    static filter(devices, kind) {
+    generateDropDownItem(kind) {
         var result = [];
-        for(var k in devices) {
-            if(devices[k].kind == kind) {
+        var number = 1;
+        var selectedDeviceId = null;
+        if(kind == 'audioinput')
+            selectedDeviceId = this.inputDevices.currentAudioInputDeviceId;
+        if(kind == 'videoinput')
+            selectedDeviceId = this.inputDevices.currentVideoInputDeviceId;
+
+        this.inputDevices.mediaDevices.forEach(device => {
+            if(device.kind == kind) {
                 result.push({
-                    id: devices[k].deviceId,
-                    name: devices[k].label,
+                    id: device.deviceId,
+                    name: device.label || ConferenceListView.getDefaultName(number, kind),
+                    selected: device.deviceId == selectedDeviceId
                 })
+                number++;
             }
-        }
+        });
         result.push({id: '_disable', name: 'Don\'t Use'});
         return result;
+    }
+
+    static getDefaultName(number, kind) {
+        switch(kind) {
+            case 'audioinput':
+                return `Microphone ${number}`;
+            case 'videoinput':
+                return `Camera ${number}`;
+            case 'audiooutput':
+                return `Speaker ${number}`;
+        }
     }
 
     static getDerivedStateFromProps(props) {
