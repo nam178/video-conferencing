@@ -28,8 +28,16 @@ export default class ConferenceListView extends React.Component {
     }
 
     async reInitializeDevices() {
+        // Restore previous preferences
+        var lastAudioDeviceId = localStorage.getItem('conference_list_view_audio_device_id');
+        var lastVideoDeviceId = localStorage.getItem('conference_list_view_video_device_id');
+        if(lastAudioDeviceId)
+            this.inputDevices.currentAudioInputDeviceId = lastAudioDeviceId;
+        if(lastVideoDeviceId)
+            this.inputDevices.currentVideoInputDeviceId = lastVideoDeviceId;
         try
         {
+            
             await this.inputDevices.initializeAsync();
         }
         catch(errorMessage)
@@ -55,11 +63,15 @@ export default class ConferenceListView extends React.Component {
     async handleMicrophoneChange(item) {
         this.inputDevices.currentAudioInputDeviceId = item.id;
         await this.reInitializeDevices();
+        // remember this choice
+        localStorage.setItem('conference_list_view_audio_device_id', item.id);
     }
 
     async handleCameraChange(item) {
         this.inputDevices.currentVideoInputDeviceId = item.id;
         await this.reInitializeDevices();
+        // remember this choice
+        localStorage.setItem('conference_list_view_video_device_id', item.id);
     }
 
     handleSpeakerChange(item) {
