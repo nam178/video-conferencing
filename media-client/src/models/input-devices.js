@@ -29,6 +29,17 @@ export default class InputDevices {
     }
 
     /**
+     * @return {String}
+     */
+    get currentOutAudioSinkId() {
+        return this._currentOutAudioSinkId;
+    }
+
+    set currentOutAudioSinkId(value) {
+        this._currentOutAudioSinkId = value; 
+    }
+
+    /**
      * @return {MediaDeviceInfo[]}
      */
     get mediaDevices() { return this._mediaDevices; }
@@ -37,6 +48,7 @@ export default class InputDevices {
         this._logger = new Logger('InputDevices');
         this._currentAudioInputDeviceId = null;
         this._currentVideoInputDeviceId = null;
+        this._currentOutAudioSinkId = null; 
     }
 
     static NotSelectedDeviceId() { return -1; }
@@ -71,8 +83,11 @@ export default class InputDevices {
         if(this.currentAudioInputDeviceId == InputDevices.NotSelectedDeviceId()
             && this.currentVideoInputDeviceId == InputDevices.NotSelectedDeviceId())
         {
-            this._mediaDevices = [];
-            return;
+            // Just refresh the device only, 
+            // Note that the device list is best-effort based
+            return new Promise((resolve, reject) => {
+                this._refreshDevicesAsync().then(() => resolve()).catch(err => reject(err));
+            });
         }
 
         this._logger.info('Requesting devices..', constraints);
@@ -91,22 +106,37 @@ export default class InputDevices {
                             this._currentVideoInputDeviceId = track.getSettings().deviceId;
                         this._logger.info('Found track', track);
                     });
-                    // Got the perms, but we'll still querying available devices
-                    // so that we can let the user select
-                    navigator.mediaDevices.enumerateDevices()
-                        .then(devices => {
-                            this._logger.info('Devices accquired', devices);
-                            this._mediaDevices = devices;
-                            resolve();
-                        })
-                        .catch((err) => {
-                            this._logger.error('Failed accessing media device: ' + err);
-                            reject('Failed querying devices: ' + err);
-                        });
+                    // Then refresh the devices
+                    this._refreshDevicesAsync().then(() => resolve()).catch(err => reject(err));
                 })
                 .catch((err) => {
                     this._logger.error('Failed accessing media device: ' + err);
                     reject('Failed accessing your camera/microphone, please give permission.');
+                });
+        });
+    }
+
+    _refreshDevicesAsync() {
+        return new Promise((resolve, reject) => {
+            // Got the perms, but we'll still querying available devices
+            // so that we can let the user select
+            navigator.mediaDevices.enumerateDevices()
+                .then(devices => {
+                    this._logger.info('Devices accquired', devices);
+                    this._mediaDevices = devices;
+                    // Now, if the selected sink doesn't match any if the device, reset to null
+                    if(!this._mediaDevices.find(device => device.kind == 'audiooutput' 
+                        && device.deviceId == this._currentOutAudioSinkId
+                        && this._currentOutAudioSinkId))
+                    {
+                        this._logger.warn(`Could not find sink ${this._currentOutAudioSinkId}, using the default sink`);
+                        this._currentOutAudioSinkId = null;
+                    }
+                    resolve();
+                })
+                .catch((err) => {
+                    this._logger.error('Failed accessing media device: ' + err);
+                    reject('Failed querying devices: ' + err);
                 });
         });
     }

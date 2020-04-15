@@ -35,7 +35,6 @@ export default class DeviceSelectButton extends React.Component
     }
 
     setOptionsVisibility(value) {
-        console.log('setOptionsVisibility', value);
         this.setState({ isOptionsShow: value }, () => {
             // Need to notify the popup manager when we show a popup,
             // so that other popups will disappear
