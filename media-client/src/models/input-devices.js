@@ -74,8 +74,8 @@ export default class InputDevices {
         if (this.currentVideoInputDeviceId != InputDevices.NotSelectedDeviceId()) {
             constraints.video = {
                 deviceId: this._currentVideoInputDeviceId ? { ideal: this._currentVideoInputDeviceId } : undefined,
-                width: { ideal:1280 },
-                height: { ideal: 720 },
+                width:  { ideal: 720 },
+                height: { ideal: 480 },
             }
         }
 

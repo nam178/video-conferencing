@@ -14,7 +14,8 @@ export default class ConferenceListView extends React.Component {
             users: null,
             microphoneDevices: null,
             cameraDevices: null,
-            speakerDevices: null
+            speakerDevices: null,
+            streams: { }
         };
         this._inputDevices = new InputDevices();
         this.handleMicrophoneChange = this.handleMicrophoneChange.bind(this);
@@ -59,12 +60,21 @@ export default class ConferenceListView extends React.Component {
         }
         if (!this._closed) {
             // Successed, update devices
+            // Update my stream
+            var streamsCopy = {};
+            for(var k in this.state.streams) {
+                streamsCopy[k] = this.state.streams[k];
+            }
+            if(this.inputDevices.stream) {
+                streamsCopy[this.state.me.id] = this.inputDevices.stream;
+            }
             this.setState({
                 isVideoLoading: false,
                 isAudioLoading: false,
                 microphoneDevices: this.generateDropDownItem('audioinput'),
                 cameraDevices: this.generateDropDownItem('videoinput'),
-                speakerDevices: this.generateDropDownItem('audiooutput')
+                speakerDevices: this.generateDropDownItem('audiooutput'),
+                streams: streamsCopy
             });
         }
     }
@@ -208,7 +218,8 @@ export default class ConferenceListView extends React.Component {
                     return -1;
                 // The rest sort by username
                 return x.username.localeCompare(y.username);
-            })
+            }),
+            me: props.users.find(u => u.username == props.conferenceSettings.username)
         };
     }
 
@@ -219,7 +230,11 @@ export default class ConferenceListView extends React.Component {
             </div>
             <div className="margin-fix">
                 <div className="body">
-                    {this.state.users.map(user => <ConferenceListCell key={user.id} user={user} self={user.username == this.props.conferenceSettings.username} />)}
+                    {this.state.users.map(user => <ConferenceListCell 
+                        stream={typeof(this.state.streams[user.id]) != 'undefined' ? this.state.streams[user.id] : null}
+                        key={user.id} 
+                        user={user} 
+                        self={user.username == this.props.conferenceSettings.username} /> )}
                 </div>
             </div>
             <div className="padding"></div>

@@ -35,9 +35,9 @@
  */
 .conference-list-cell {
     background: lightblue;
-    width: 420px;
-    min-width: 420px;
-    height: 320px;
+    width: 360px;
+    min-width: 360px;
+    height: 360px;
     margin: 15px;
     overflow: hidden;
     border-radius: 3px;
@@ -73,6 +73,10 @@
     color: white;
     opacity: 0.5;
     font-size: 120px;
+}
+
+.conference-list-cell video {
+    pointer-events: none;
 }
 
 /**
