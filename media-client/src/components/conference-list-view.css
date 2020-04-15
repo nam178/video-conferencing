@@ -5,6 +5,8 @@
  .conference-list-view .heading {
     height: 100px;
     text-align: center;
+    font-size: 32px;
+    color: lightcoral;
 }
 
 .conference-list-view .heading {

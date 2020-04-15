@@ -85,8 +85,8 @@ export default class ConferenceListView extends React.Component {
             { this.state.mediaDevices ? 
             <div className="bottom-bar">
                 <DeviceSelectButton icon="microphone" selectItems={this.state.microphoneDevices} title="Which Microphone?" />
-                <DeviceSelectButton icon="camera"     selectItems={this.state.cameraDevices}   title="Which Camera?" />
-                <DeviceSelectButton icon="volume-up"  selectItems={this.state.audioDevices}   title="Which Speaker?"/>
+                <DeviceSelectButton icon="camera"     selectItems={this.state.cameraDevices}     title="Which Camera?" />
+                <DeviceSelectButton icon="volume-up"  selectItems={this.state.audioDevices}      title="Which Speaker?"/>
             </div>
             : null }
         </div>

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import popupManager from '../models/popup-manager.js';
 import './device-select-button.css';
 
 export default class DeviceSelectButton extends React.Component
@@ -8,11 +9,33 @@ export default class DeviceSelectButton extends React.Component
         super();
         this.handleClick = this.handleClick.bind(this);
         this.handleItemClick = this.handleItemClick.bind(this);
+        this.handleOtherPopups = this.handleOtherPopups.bind(this);
         this.state = { isOptionsShow: false };
     }
 
+    componentDidMount() {
+        popupManager.addEventListener('popup', this.handleOtherPopups);
+    }
+
+    componentWillUnmount() {
+        popupManager.removeEventListener('popup', this.handleOtherPopups);
+    }
+
+    handleOtherPopups(e) {
+        if(e.detail != this) {
+            this.setState({ isOptionsShow: false });
+        }
+    }
+
     handleClick() {
-        this.setState({ isOptionsShow: !this.state.isOptionsShow });
+        this.setState({ isOptionsShow: !this.state.isOptionsShow }, () => {
+            // Need to notify the popup manager when we show a popup,
+            // so that other popups will disappear
+            if(this.state.isOptionsShow)
+            {
+                popupManager.notifyPopup(this);
+            }
+        });
     }
 
     handleItemClick(item) {
