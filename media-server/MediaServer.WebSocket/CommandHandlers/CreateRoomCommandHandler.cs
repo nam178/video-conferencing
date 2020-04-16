@@ -9,9 +9,9 @@ namespace MediaServer.WebSocket.CommandHandlers
 {
     sealed class CreateRoomCommandHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.CreateRoom>
     {
-        readonly IRemoteDeviceRequestHandler<NewRoomRequest, NewRoomResponse> _coreHandler;
+        readonly ICoreService<NewRoomRequest, NewRoomResponse> _coreHandler;
 
-        public CreateRoomCommandHandler(IRemoteDeviceRequestHandler<NewRoomRequest, NewRoomResponse> coreHandler)
+        public CreateRoomCommandHandler(ICoreService<NewRoomRequest, NewRoomResponse> coreHandler)
         {
             _coreHandler = coreHandler
                 ?? throw new System.ArgumentNullException(nameof(coreHandler));

@@ -3,13 +3,13 @@ using MediaServer.Models;
 
 namespace MediaServer.Core.Services
 {
-    public interface IRemoteDeviceRequestHandler<TCommandArgs>
+    public interface ICoreService<TCommandArgs>
         : IHandler<IRemoteDevice, TCommandArgs>
     {
 
     }
 
-    public interface IRemoteDeviceRequestHandler<TCommandArgs, TResponse>
+    public interface ICoreService<TCommandArgs, TResponse>
         : IMapper<IRemoteDevice, TCommandArgs, TResponse>
     {
 

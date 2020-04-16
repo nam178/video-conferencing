@@ -8,10 +8,10 @@ namespace MediaServer.WebSocket.Net
 {
     sealed class WebSocketDeviceDisconnectedHandler : IHandler<IWebSocketRemoteDevice>
     {
-        readonly IRemoteDeviceRequestHandler<DeviceDisconnectionRequest> _coreHandler;
+        readonly ICoreService<DeviceDisconnectionRequest> _coreHandler;
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public WebSocketDeviceDisconnectedHandler(IRemoteDeviceRequestHandler<DeviceDisconnectionRequest> coreHandler)
+        public WebSocketDeviceDisconnectedHandler(ICoreService<DeviceDisconnectionRequest> coreHandler)
         {
             _coreHandler = coreHandler 
                 ?? throw new System.ArgumentNullException(nameof(coreHandler));
