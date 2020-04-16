@@ -6,7 +6,7 @@ namespace MediaServer.Core.Repositories
     /// <summary>
     /// Designed to have one user repository for each room
     /// </summary>
-    interface IUserProfileCollection : IEnumerable<UserProfile>
+    public interface IUserProfileCollection : IEnumerable<UserProfile>
     {
         /// <summary>
         /// Add specified user into the repo

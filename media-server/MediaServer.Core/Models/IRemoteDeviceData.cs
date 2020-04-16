@@ -2,7 +2,7 @@
 
 namespace MediaServer.Core.Models
 {
-    interface IRemoteDeviceData
+    public interface IRemoteDeviceData
     {
         /// <summary>
         /// The room in which the device belongs to

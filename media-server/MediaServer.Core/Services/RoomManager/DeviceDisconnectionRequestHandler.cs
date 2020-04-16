@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.RoomManager
 {
-    sealed class DeviceDisconnectionRequestHandler : ICoreService<DeviceDisconnectionRequest>
+    sealed class DeviceDisconnectionRequestHandler : IRemoteDeviceService<DeviceDisconnectionRequest>
     {
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRemoteDeviceDataRepository _remoteDeviceDataRepository;

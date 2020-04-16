@@ -8,7 +8,7 @@ namespace MediaServer.Models
     /// The room model.
     /// </summary>
     /// <remarks>Not thread safe. Make sure modifications to the model are made using the dispatch queue associated with this room</remarks>
-    sealed class Room
+    public sealed class Room
     {
         /// <summary>
         /// Each room has its own dispatch queue, used to update models, handling signals, etc..

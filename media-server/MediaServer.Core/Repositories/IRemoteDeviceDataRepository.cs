@@ -11,7 +11,7 @@ namespace MediaServer.Core.Repositories
     /// Not thread safe. 
     /// Must be used from the central dispathc queue.
     /// </remarks>
-    interface IRemoteDeviceDataRepository
+    public interface IRemoteDeviceDataRepository
     {
         IRemoteDeviceData GetForDevice(IRemoteDevice device);
 

@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using MediaServer.Core.Services;
+using MediaServer.Core.Services.RoomManager;
+using MediaServer.Rtc.Decorators;
 
 namespace MediaServer.Rtc.IoC
 {
@@ -7,6 +10,8 @@ namespace MediaServer.Rtc.IoC
         protected override void Load(ContainerBuilder builder)
         {
             base.Load(builder);
+
+            builder.RegisterDecorator<DeviceDisconnectionRequestHandlerDecorator, IRemoteDeviceService<DeviceDisconnectionRequest>>();
         }
     }
 }

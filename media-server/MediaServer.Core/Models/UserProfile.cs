@@ -1,4 +1,5 @@
 ﻿using MediaServer.Core.Repositories;
+using MediaServer.Models;
 using System;
 
 namespace MediaServer.Core.Models
@@ -19,6 +20,16 @@ namespace MediaServer.Core.Models
         /// The devices associated with this user
         /// </summary>
         public IRemoteDeviceCollection Devices { get; } = new RemoteDeviceCollection();
+
+        /// <summary>
+        /// The room in which this user belongs to
+        /// </summary>
+        public Room Room { get; }
+
+        public UserProfile(Room room)
+        {
+            Room = room ?? throw new ArgumentNullException(nameof(room));
+        }
 
         public override string ToString() => $"[UserProfile {Username}, Id={Id}]";
     }

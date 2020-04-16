@@ -17,6 +17,8 @@ namespace MediaServer.WebSocket.Net
 
         public WebSocketClient WebSocketClient { get; }
 
+        public Guid Id { get; } = Guid.NewGuid();
+
         public WebSocketRemoteDevice(WebSocketClient client)
         {
             WebSocketClient = client ?? throw new ArgumentNullException(nameof(client));

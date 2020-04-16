@@ -93,7 +93,7 @@ namespace MediaServer.Core.Services.RoomManager
                 var user = room.UserProfiles.GetUserByName(request.Username);
                 if(user == null)
                 {
-                    user = new Models.UserProfile
+                    user = new UserProfile(room)
                     {
                         Id = Guid.NewGuid(),
                         Username = request.Username,
