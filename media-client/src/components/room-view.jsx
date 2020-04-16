@@ -114,7 +114,7 @@ export default class RoomView extends React.Component
         // can display the conference list view from here.
         if(this.state.users != null)
         {
-            return <ConferenceListView users={this.state.users} conferenceSettings={this.webSocketClient.conferenceSettings} />
+            return <ConferenceListView users={this.state.users} webSocketClient={this.webSocketClient} />
         }
 
         // Otherwise, by default we're not in a room,

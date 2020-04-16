@@ -1,6 +1,6 @@
 import Logger from '../logging/logger.js';
 
-export default class InputDevices {
+export default class InputDeviceManager {
     /**
      * @return {MediaStream}
      */
@@ -45,7 +45,7 @@ export default class InputDevices {
     get mediaDevices() { return this._mediaDevices; }
 
     constructor() {
-        this._logger = new Logger('InputDevices');
+        this._logger = new Logger('InputDeviceManager');
         this._currentAudioInputDeviceId = null;
         this._currentVideoInputDeviceId = null;
         this._currentOutAudioSinkId = null; 
@@ -53,7 +53,10 @@ export default class InputDevices {
 
     static NotSelectedDeviceId() { return -1; }
 
-    // Designed so can be called multiple items to re-initialise
+    /**
+     * Designed so can be called multiple items to re-initialise;
+     * Must be called at least once before using;
+     */
     initializeAsync() {
         // Stop any running track
         if(this.stream)
@@ -65,13 +68,13 @@ export default class InputDevices {
         // Query devices with callback
         var constraints = {};
 
-        if (this.currentAudioInputDeviceId != InputDevices.NotSelectedDeviceId()) {
+        if (this.currentAudioInputDeviceId != InputDeviceManager.NotSelectedDeviceId()) {
             constraints.audio = {
                 deviceId: this._currentAudioInputDeviceId ? { ideal: this._currentAudioInputDeviceId } : undefined
             };
         }
 
-        if (this.currentVideoInputDeviceId != InputDevices.NotSelectedDeviceId()) {
+        if (this.currentVideoInputDeviceId != InputDeviceManager.NotSelectedDeviceId()) {
             constraints.video = {
                 deviceId: this._currentVideoInputDeviceId ? { ideal: this._currentVideoInputDeviceId } : undefined,
                 width:  { ideal: 720 },
@@ -80,8 +83,8 @@ export default class InputDevices {
         }
 
         // Not requesting anything?
-        if(this.currentAudioInputDeviceId == InputDevices.NotSelectedDeviceId()
-            && this.currentVideoInputDeviceId == InputDevices.NotSelectedDeviceId())
+        if(this.currentAudioInputDeviceId == InputDeviceManager.NotSelectedDeviceId()
+            && this.currentVideoInputDeviceId == InputDeviceManager.NotSelectedDeviceId())
         {
             // Just refresh the device only, 
             // Note that the device list is best-effort based

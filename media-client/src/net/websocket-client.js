@@ -32,6 +32,7 @@ export default class WebSocketClient extends EventTarget
         super();
         this._sendHeartBeat = this._sendHeartBeat.bind(this);
         this._users = [];
+        this._messageQueue = [];
     }
 
     /**
@@ -43,6 +44,7 @@ export default class WebSocketClient extends EventTarget
         this._logger.log(`Initializing WebSocket with settings=${JSON.stringify(conferenceSettings)}`)
         this._conferenceSettings = conferenceSettings;
         this._restart();
+        this._tryCreateRoom();
 
         // Start sending heartbeats
         setTimeout(this._sendHeartBeat, 5 * 1000);
@@ -52,6 +54,14 @@ export default class WebSocketClient extends EventTarget
             this._initializeAsyncResolve = resolve;
             this._initializeAsyncReject = reject;
         });
+    }
+
+    queueMessageForSending(command, args) {
+        this._messageQueue.push({
+            command: command,
+            args: args
+        });
+        this._tryFlueshQueue();
     }
 
     _restart()
@@ -83,29 +93,37 @@ export default class WebSocketClient extends EventTarget
             var response = JSON.parse(e.data);
             this.logger.log('Message', response);
             var commandName = `_on${response.command}`;
-            
+            // Do we have a handler? If so, invoke the handler,
+            // otherwise trigger an event for externals
             if(typeof this[commandName] == 'undefined')
-                this.logger.error(`${commandName} handler was not implemented`);
+            {
+                this.dispatchEvent(new CustomEvent('message', {
+                    detail: {
+                        command: commandName,
+                        args: response.args
+                    }
+                }));
+            }
             else
                 this[commandName](response.args);
         });
         // Open
         this.webSocket.addEventListener('open', () => {
-            this.logger.info(`Connected to ${webSocketEndpoint}`)
-            this._tryCreateRoom();
+            this.logger.info(`Connected to ${webSocketEndpoint}`);
+            this._tryFlueshQueue();
         });
     }
 
     _tryCreateRoom() {
         // Send a command to the server to create (if the room doesn't exist)
-        this._send('CreateRoom', {
+        this.queueMessageForSending('CreateRoom', {
             newRoomName: this.conferenceSettings.roomId
         });
     }
 
     _onRoomCreated(roomId) {
         this.logger.info(`Room created ${roomId}`);
-        this._send('JoinRoom', {
+        this.queueMessageForSending('JoinRoom', {
             roomId: roomId,
             username: this.conferenceSettings.username
         });
@@ -116,11 +134,11 @@ export default class WebSocketClient extends EventTarget
     }
 
     _onJoinRoomFailed(errorMessage) {
-        failFast(errorMessage);
+        this._failFast(errorMessage);
     }
 
     _onRoomCreationFailed(errorMessage) {
-        failFast(errorMessage);
+        this._failFast(errorMessage);
     }
 
     _onUpdateUsers(users) {
@@ -140,13 +158,23 @@ export default class WebSocketClient extends EventTarget
         this._initializeAsyncReject(errorMessage);
     }
 
-    _sendHeartBeat() 
-    {
+    _sendHeartBeat() {
         if(this.webSocket.readyState == WebSocket.OPEN)
         {
             this._send('HeartBeat', { timestamp: new Date().getTime()/1000 });
         }
         setTimeout(this._sendHeartBeat, 5 * 1000);
+    }
+
+    _tryFlueshQueue() {
+        // Dump all the messages as long as the WS is open
+        while(this.webSocket.readyState == WebSocket.OPEN
+            && this._messageQueue.length > 0)
+        {
+            var message = this._messageQueue[0];
+            this._messageQueue = this._messageQueue.splice(1);
+            this._send(message.command, message.args);
+        }
     }
 
     _send(command, args)

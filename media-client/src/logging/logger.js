@@ -1,39 +1,32 @@
-export default class Logger
-{
-    constructor(name)
-    {
+export default class Logger {
+    constructor(name) {
         this._name = name;
     }
 
-    log()
-    {
-        if(arguments.length > 1)
-            console.log(`[${this._name}]`, arguments);
-        else
-            console.log(`[${this._name}] ${arguments[0]}`);
+    debug() { // alias for log
+        this.write('log', arguments, 'gray');
     }
 
-    warn()
-    {
-        if(arguments.length > 1)
-            console.warn(`[${this._name}]`, arguments);
-        else
-            console.warn(`[${this._name}] ${arguments[0]}`);
-    }
-    
-    error()
-    {
-        if(arguments.length > 1)
-            console.error(`[${this._name}]`, arguments);
-        else
-            console.error(`[${this._name}] ${arguments[0]}`);
+    log() {
+        this.write('log', arguments, 'gray');
     }
 
-    info()
-    {
-        if(arguments.length > 1)
-            console.info(`[${this._name}]`, arguments);
+    warn() {
+        this.write('warn', arguments, 'purple');
+    }
+
+    error() {
+        this.write('error', arguments, 'red');
+    }
+
+    info() {
+        this.write('info', arguments, 'blue');
+    }
+
+    write(method, args, color) {
+        if (arguments.length > 1)
+            console[method](`%c[${this._name}] ${args[0]}`, `color:${color};`, args[1]);
         else
-            console.info(`[${this._name}] ${arguments[0]}`);
+            console[method](`%c[${this._name}] ${args[0]}`, `color:${color};`);
     }
 }
