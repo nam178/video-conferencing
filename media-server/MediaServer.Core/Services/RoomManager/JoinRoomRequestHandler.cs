@@ -16,22 +16,22 @@ namespace MediaServer.Core.Services.RoomManager
     {
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;
-        readonly IRemoteDeviceUserProfileMappings _remoteDeviceData;
+        readonly IRemoteDeviceDataRepository _remoteDeviceDataRepository;
         readonly IHandler<SendStatusUpdateRequest> _statusUpdateSender;
         readonly static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public JoinRoomRequestHandler(
             IDispatchQueue centralDispatchQueue,
             IRoomRepository roomRepository,
-            IRemoteDeviceUserProfileMappings remoteDeviceData,
+            IRemoteDeviceDataRepository remoteDeviceDataRepository,
             IHandler<SendStatusUpdateRequest> statusUpdateSender)
         {
             _centralDispatchQueue = centralDispatchQueue
                 ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
             _roomRepository = roomRepository
                 ?? throw new ArgumentNullException(nameof(roomRepository));
-            _remoteDeviceData = remoteDeviceData
-                ?? throw new ArgumentNullException(nameof(remoteDeviceData));
+            _remoteDeviceDataRepository = remoteDeviceDataRepository
+                ?? throw new ArgumentNullException(nameof(remoteDeviceDataRepository));
             _statusUpdateSender = statusUpdateSender 
                 ?? throw new ArgumentNullException(nameof(statusUpdateSender));
         }
@@ -48,7 +48,10 @@ namespace MediaServer.Core.Services.RoomManager
             var user = await GetOrCreateUserProfile(remoteDevice, request, room);
 
             // Associate the device with room/user
-            await _centralDispatchQueue.ExecuteAsync(() => _remoteDeviceData.SetMappingForDevice(remoteDevice, room, user));
+            await _centralDispatchQueue.ExecuteAsync(() 
+                => _remoteDeviceDataRepository.SetForDevice(
+                    remoteDevice, 
+                    g => g.User = user));
             _logger.Info($"Device {remoteDevice} now associated with room {room} and user {user}");
 
             // Broadcast the status update
@@ -65,8 +68,8 @@ namespace MediaServer.Core.Services.RoomManager
             return await _centralDispatchQueue.ExecuteAsync(delegate
             {
                 // First of all, one device can only be in one room at any time:
-                var data = _remoteDeviceData.GetMappingForDevice(remoteDevice);
-                if(data.Room != null)
+                var data = _remoteDeviceDataRepository.GetForDevice(remoteDevice);
+                if(data?.Room != null)
                 {
                     // Impossible! Not allowed
                     throw new OperationForbiddenException(
@@ -76,7 +79,7 @@ namespace MediaServer.Core.Services.RoomManager
 
                 // Then, get the room requested and associate it with this device
                 var room = _roomRepository.GetRoomById(request.RoomId);
-                _remoteDeviceData.SetMappingForDevice(remoteDevice, room, data.UserProfile);
+                _remoteDeviceDataRepository.SetForDevice(remoteDevice, t => t.Room = room);
                 return room;
             });
         }

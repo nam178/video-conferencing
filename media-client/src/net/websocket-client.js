@@ -44,7 +44,6 @@ export default class WebSocketClient extends EventTarget
         this._logger.log(`Initializing WebSocket with settings=${JSON.stringify(conferenceSettings)}`)
         this._conferenceSettings = conferenceSettings;
         this._restart();
-        this._tryCreateRoom();
 
         // Start sending heartbeats
         setTimeout(this._sendHeartBeat, 5 * 1000);
@@ -110,7 +109,7 @@ export default class WebSocketClient extends EventTarget
         // Open
         this.webSocket.addEventListener('open', () => {
             this.logger.info(`Connected to ${webSocketEndpoint}`);
-            this._tryFlueshQueue();
+            this._tryCreateRoom();
         });
     }
 

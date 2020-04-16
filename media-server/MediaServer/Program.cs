@@ -35,6 +35,7 @@ namespace MediaServerConsole
                         builder.RegisterModule<global::MediaServer.WebSocket.IoC.SignallingModule>();
                         builder.RegisterModule<global::MediaServer.Core.IoC.CoreModule>();
                         builder.RegisterModule<global::MediaServer.Common.IoC.CommonModule>();
+                        builder.RegisterModule<global::MediaServer.Rtc.IoC.RtcModule>();
                     })
                     .RunConsoleAsync();
             }
