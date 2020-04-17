@@ -19,7 +19,7 @@ namespace Tests.Core
         readonly Mock<IPeerConnectionRepository> _peerConnectionRepository = new Mock<IPeerConnectionRepository>();
         readonly Mock<IPeerConnectionFactory> _peerConnectionFactory = new Mock<IPeerConnectionFactory>();
         readonly Mock<IRemoteDeviceDataRepository> _remoteDeviceDataRepository = new Mock<IRemoteDeviceDataRepository>();
-        readonly Mock<IRemoteDevice> _remoteDevice = new Mock<IRemoteDevice>();
+        readonly Mock<IRemoteDevice> _mockRemoteDevice = new Mock<IRemoteDevice>();
         readonly ThreadPoolDispatchQueue _centralDispatchQueue = new ThreadPoolDispatchQueue();
         readonly PeerConnectionRequestHandler _handler;
 
@@ -39,12 +39,12 @@ namespace Tests.Core
         public void HandleAsync_NotSignedIn_ThrowsUnauthorizedAccessException(IRemoteDeviceData remoteDeviceData)
         {
             _remoteDeviceDataRepository
-                .Setup(x => x.GetForDevice(_remoteDevice.Object))
+                .Setup(x => x.GetForDevice(_mockRemoteDevice.Object))
                 .Returns(remoteDeviceData);
 
             Assert.ThrowsAsync<UnauthorizedAccessException>(async delegate
             {
-                await _handler.HandleAsync(_remoteDevice.Object, new PeerConnectionRequest
+                await _handler.HandleAsync(_mockRemoteDevice.Object, new PeerConnectionRequest
                 {
                     OfferedSessionDescription = new RTCSessionDescription()
                 });
@@ -58,6 +58,33 @@ namespace Tests.Core
         }
 
         [Fact]
+        public async Task HandleAsync_NoPeerConnectionYet_NewOneWillBeCreated()
+        {
+            var mockUser = new UserProfile(new Room());
+            var mockPeerConnection = new Mock<IPeerConnection>();
+            _remoteDeviceDataRepository
+                .Setup(x => x.GetForDevice(_mockRemoteDevice.Object))
+                .Returns(new RemoteDeviceData { User = mockUser });
+            _peerConnectionRepository
+                .Setup(x => x.Find(_mockRemoteDevice.Object))
+                .Returns(new List<IPeerConnection>());
+            _peerConnectionFactory
+                .Setup(x => x.Create())
+                .Returns(mockPeerConnection.Object);
+
+            var request = new PeerConnectionRequest
+            {
+                OfferedSessionDescription = new RTCSessionDescription()
+            };
+            await _handler.HandleAsync(_mockRemoteDevice.Object, request);
+
+            _peerConnectionRepository
+                .Verify(x => x.Add(It.IsAny<UserProfile>(), It.IsAny<IRemoteDevice>(), It.IsAny<IPeerConnection>()), Times.Once);
+            mockPeerConnection
+                .VerifySet(p => p.RemoteSessionDescription = request.OfferedSessionDescription, Times.Once);
+        }
+
+        [Fact]
         public async Task HandleAsync_PeerConnectionCreatedTwice_LaterOneIsRejected()
         {
             var mockUser = new UserProfile(new Room());
@@ -65,11 +92,11 @@ namespace Tests.Core
             var peerConnection1 = new Mock<IPeerConnection>();
 
             _remoteDeviceDataRepository
-                .Setup(x => x.GetForDevice(_remoteDevice.Object))
+                .Setup(x => x.GetForDevice(_mockRemoteDevice.Object))
                 .Returns(new RemoteDeviceData { User = mockUser });
 
             _peerConnectionRepository
-                .Setup(x => x.Find(_remoteDevice.Object))
+                .Setup(x => x.Find(_mockRemoteDevice.Object))
                 .Returns(currentPeerConnections);
 
             // Simulate that when peerConnection1 is created,
@@ -84,7 +111,7 @@ namespace Tests.Core
 
             await Assert.ThrowsAsync<OperationCanceledException>(async delegate
             {
-                await _handler.HandleAsync(_remoteDevice.Object, new PeerConnectionRequest
+                await _handler.HandleAsync(_mockRemoteDevice.Object, new PeerConnectionRequest
                 {
                     OfferedSessionDescription = new RTCSessionDescription()
                 });

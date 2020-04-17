@@ -62,7 +62,8 @@ namespace MediaServer.Core.Rtc.Services
                 {
                     // Double-check:
                     // We don't allow multiple PeerConnection per device yet
-                    if(null != _peerConnectionRepository.Find(remoteDevice))
+                    var existingPeerConnections = _peerConnectionRepository.Find(remoteDevice);
+                    if(existingPeerConnections != null && existingPeerConnections.Any())
                     {
                         pc.Dispose();
                         throw new OperationCanceledException();
