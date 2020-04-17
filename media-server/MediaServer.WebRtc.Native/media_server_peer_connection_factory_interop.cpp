@@ -18,23 +18,23 @@ MediaServer::PeerConnectionFactory *Cast(void *opaque_ptr)
     return tmp;
 }
 
-PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryManagerCreate()
+PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryCreate()
 {
     return new MediaServer::PeerConnectionFactory();
 }
 
-void CONVENTION PeerConnectionFactoryManagerInitialize(PeerConnectionFactoryPtr instance)
+void CONVENTION PeerConnectionFactoryInitialize(PeerConnectionFactoryPtr instance)
 {
     Cast(instance)->Initialize();
 }
 
-void CONVENTION PeerConnectionFactoryManagerTearDown(PeerConnectionFactoryPtr instance)
+void CONVENTION PeerConnectionFactoryTearDown(PeerConnectionFactoryPtr instance)
 {
     Cast(instance)->TearDown();
 }
 
 void CONVENTION
-PeerConnectionFactoryManagerDestroy(PeerConnectionFactoryPtr instance)
+PeerConnectionFactoryDestroy(PeerConnectionFactoryPtr instance)
 {
     if(instance)
     {
