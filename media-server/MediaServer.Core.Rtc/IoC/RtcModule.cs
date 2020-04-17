@@ -1,7 +1,5 @@
 ﻿using Autofac;
-using MediaServer.Core.Services;
-using MediaServer.Core.Services.RoomManager;
-using MediaServer.Rtc.Decorators;
+using MediaServer.Rtc.Repositories;
 
 namespace MediaServer.Rtc.IoC
 {
@@ -11,7 +9,7 @@ namespace MediaServer.Rtc.IoC
         {
             base.Load(builder);
 
-            builder.RegisterDecorator<DeviceDisconnectionRequestHandlerDecorator, IRemoteDeviceService<DeviceDisconnectionRequest>>();
+            builder.RegisterType<PeerConnectionRepository>().AsImplementedInterfaces().SingleInstance();
         }
     }
 }

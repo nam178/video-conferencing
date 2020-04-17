@@ -5,6 +5,15 @@ namespace MediaServer.Rtc.Models
 {
     interface IPeerConnection : IDisposable
     {
-        public RTCSessionDescription RemoteSessionDescription { get; set; }
+        /// <summary>
+        /// Unique id of this PeerConnection, set by the client.
+        /// </summary>
+        Guid Id { get; }
+
+        /// <summary>
+        /// Updating the RTCSessionDescription
+        /// </summary>
+        /// <remarks>Implementation must not throw exception</remarks>
+        RTCSessionDescription RemoteSessionDescription { get; set; }
     }
 }

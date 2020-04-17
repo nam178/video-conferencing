@@ -1,5 +1,5 @@
-﻿using MediaServer.Core.Models;
-using MediaServer.Models;
+﻿using MediaServer.Common.Utils;
+using MediaServer.Core.Models;
 using MediaServer.Rtc.Models;
 using System;
 using System.Collections.Generic;
@@ -8,22 +8,40 @@ namespace MediaServer.Rtc.Repositories
 {
     sealed class PeerConnectionRepository : IPeerConnectionRepository
     {
-        // Keeping records of user/devie -> peer connections
-        readonly Dictionary<UserProfile, (IRemoteDevice, IPeerConnection)> _records = new Dictionary<UserProfile, (IRemoteDevice, IPeerConnection)>();
+        readonly Dictionary<UserProfile, List<IPeerConnection>> _records = new Dictionary<UserProfile, List<IPeerConnection>>();
 
-        public void Add(UserProfile user, IRemoteDevice remoteDevice, IPeerConnection peerConnection)
+        public void Add(UserProfile user, IPeerConnection peerConnection)
         {
-            throw new System.NotImplementedException();
+            Require.NotNull(peerConnection);
+
+            if(!_records.ContainsKey(user))
+            {
+                _records[user] = new List<IPeerConnection>
+                {
+                    peerConnection
+                };
+            }
+            else
+            {
+                if(_records[user].Contains(peerConnection))
+                {
+                    throw new InvalidOperationException("Provided PeerConnection already exist");
+                }
+                _records[user].Add(peerConnection);
+            }
         }
 
-        public IReadOnlyList<IPeerConnection> Find(IRemoteDevice remoteDevice)
+        public IReadOnlyList<IPeerConnection> Find(UserProfile user)
         {
-            throw new System.NotImplementedException();
+            Require.NotNull(user);
+
+            if(_records.ContainsKey(user))
+            {
+                return _records[user];
+            }
+            return _empty;
         }
 
-        public void Remove(IPeerConnection peerConnection)
-        {
-            throw new NotImplementedException();
-        }
+        static readonly IReadOnlyList<IPeerConnection> _empty = new List<IPeerConnection>();
     }
 }

@@ -23,6 +23,7 @@ namespace MediaServer.WebSocket.CommandHandlers
             // This command has no response, just pass that to RTC handler
             return _rtcHandler.HandleAsync(remoteDevice, new PeerConnectionRequest
             {
+                PeerConnectionId = args.PeerConnectionId,
                 OfferedSessionDescription = args.Sdp
             });
         }
