@@ -1,5 +1,6 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
+using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Core.Services;
 using MediaServer.Models;
@@ -38,24 +39,35 @@ namespace MediaServer.Rtc.Services
         {
             Require.NotEmpty(request.OfferedSessionDescription);
 
-            // First, try to get existing peer connection for this device
-            // TODO support multi PC per peer
-            var pc = await _centralDispatchQueue.ExecuteAsync(delegate
+            // Get user and current IPeerConnection for this device
+            var user = (UserProfile)null;
+            var pc = (IPeerConnection)null;
+            await _centralDispatchQueue.ExecuteAsync(delegate
             {
-                return _peerConnectionRepository.Find(remoteDevice)?.FirstOrDefault();
+                var data = _remoteDeviceDataRepository.GetForDevice(remoteDevice);
+                if(data?.User == null)
+                    throw new UnauthorizedAccessException();
+                user = data.User;
+                pc = _peerConnectionRepository.Find(remoteDevice)?.FirstOrDefault();
             });
 
             // If no PeerConnection for this device, create one
             if(null == pc)
             {
+                // Create PeerConnection outside of the main thread, because it's slow.
                 pc = _peerConnectionFactory.Create();
-                // Jump back to the main queue to register the newly created PeerConnection
+
+                // Jump back to the main thread to register it.
                 await _centralDispatchQueue.ExecuteAsync(delegate
                 {
-                    var data = _remoteDeviceDataRepository.GetForDevice(remoteDevice);
-                    if(data?.User == null)
-                        throw new UnauthorizedAccessException();
-                    _peerConnectionRepository.Add(data.User, remoteDevice, pc);
+                    // Double-check:
+                    // We don't allow multiple PeerConnection per device yet
+                    if(null != _peerConnectionRepository.Find(remoteDevice))
+                    {
+                        pc.Dispose();
+                        throw new OperationCanceledException();
+                    }
+                    _peerConnectionRepository.Add(user, remoteDevice, pc);
                 });
             }
 
