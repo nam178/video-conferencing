@@ -1,4 +1,4 @@
-﻿namespace MediaServer.Core.Rtc.Models
+﻿namespace MediaServer.Core.Models
 {
     interface IPeerConnectionFactory
     {

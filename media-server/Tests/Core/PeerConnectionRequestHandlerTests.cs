@@ -1,9 +1,7 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
-using MediaServer.Core.Rtc.Models;
-using MediaServer.Core.Rtc.Repositories;
-using MediaServer.Core.Rtc.Services;
+using MediaServer.Core.Services.PeerConnection;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using Moq;

@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using MediaServer.Common.Threading;
+using MediaServer.Core.Decorators;
 using MediaServer.Core.Repositories;
 using MediaServer.Core.Services;
 using MediaServer.Core.Services.RoomManager;
@@ -28,12 +29,20 @@ namespace MediaServer.Core.IoC
             // Repositories
             builder.RegisterType<RoomRepository>().As<IRoomRepository>().SingleInstance();
             builder.RegisterType<RemoteDeviceDataRepository>().As<IRemoteDeviceDataRepository>().SingleInstance();
+            builder
+                .RegisterType<PeerConnectionRepository>()
+                .AsImplementedInterfaces()
+                .SingleInstance();
 
             // Handlers
             builder.RegisterType<NewRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<JoinRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<DeviceDisconnectionRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<SendStatusUpdateRequestHandler>().AsImplementedInterfaces();
+
+
+            // Decorators
+            builder.RegisterDecorator<DeviceDisconnectionRequestHandlerDecorator, IRemoteDeviceService<DeviceDisconnectionRequest>>();
         }
     }
 }

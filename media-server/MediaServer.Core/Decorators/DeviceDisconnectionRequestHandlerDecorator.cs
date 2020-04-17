@@ -1,12 +1,12 @@
 ﻿using MediaServer.Common.Threading;
-using MediaServer.Core.Rtc.Repositories;
+using MediaServer.Core.Repositories;
 using MediaServer.Core.Services;
 using MediaServer.Core.Services.RoomManager;
 using MediaServer.Models;
 using NLog;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Rtc.Decorators
+namespace MediaServer.Core.Decorators
 {
     /// <summary>
     /// This decorator is to ensure we clean up our shit when a device disconnect
