@@ -1,10 +1,10 @@
 ﻿using Autofac;
+using MediaServer.Core.Rtc.Decorators;
+using MediaServer.Core.Rtc.Repositories;
 using MediaServer.Core.Services;
 using MediaServer.Core.Services.RoomManager;
-using MediaServer.Rtc.Decorators;
-using MediaServer.Rtc.Repositories;
 
-namespace MediaServer.Rtc.IoC
+namespace MediaServer.Core.Rtc.IoC
 {
     public sealed class RtcModule : Module
     {

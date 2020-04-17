@@ -1,10 +1,10 @@
 ﻿using MediaServer.Core.Models;
+using MediaServer.Core.Rtc.Models;
 using MediaServer.Models;
-using MediaServer.Rtc.Models;
 using System;
 using System.Collections.Generic;
 
-namespace MediaServer.Rtc.Repositories
+namespace MediaServer.Core.Rtc.Repositories
 {
     sealed class PeerConnectionRepository : IPeerConnectionRepository
     {
@@ -13,12 +13,12 @@ namespace MediaServer.Rtc.Repositories
 
         public void Add(UserProfile user, IRemoteDevice remoteDevice, IPeerConnection peerConnection)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public IReadOnlyList<IPeerConnection> Find(IRemoteDevice remoteDevice)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Remove(IPeerConnection peerConnection)

@@ -1,9 +1,9 @@
 ﻿using MediaServer.Core.Models;
+using MediaServer.Core.Rtc.Models;
 using MediaServer.Models;
-using MediaServer.Rtc.Models;
 using System.Collections.Generic;
 
-namespace MediaServer.Rtc.Repositories
+namespace MediaServer.Core.Rtc.Repositories
 {
     /// <summary>
     /// Keeping record of created peer connections

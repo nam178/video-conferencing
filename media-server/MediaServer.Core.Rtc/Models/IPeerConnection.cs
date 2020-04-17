@@ -1,7 +1,7 @@
 ﻿using MediaServer.WebRtc.Managed;
 using System;
 
-namespace MediaServer.Rtc.Models
+namespace MediaServer.Core.Rtc.Models
 {
     interface IPeerConnection : IDisposable
     {

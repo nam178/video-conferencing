@@ -1,12 +1,12 @@
 ﻿using MediaServer.Common.Threading;
+using MediaServer.Core.Rtc.Repositories;
 using MediaServer.Core.Services;
 using MediaServer.Core.Services.RoomManager;
 using MediaServer.Models;
-using MediaServer.Rtc.Repositories;
 using NLog;
 using System.Threading.Tasks;
 
-namespace MediaServer.Rtc.Decorators
+namespace MediaServer.Core.Rtc.Decorators
 {
     /// <summary>
     /// This decorator is to ensure we clean up our shit when a device disconnect
@@ -16,18 +16,18 @@ namespace MediaServer.Rtc.Decorators
         readonly IRemoteDeviceService<DeviceDisconnectionRequest> _original;
         readonly IPeerConnectionRepository _peerConnectionRepository;
         readonly IDispatchQueue _dispatchQueue;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public DeviceDisconnectionRequestHandlerDecorator(
             IRemoteDeviceService<DeviceDisconnectionRequest> original,
             IPeerConnectionRepository peerConnectionRepository,
             IDispatchQueue dispatchQueue)
         {
-            _original = original 
+            _original = original
                 ?? throw new System.ArgumentNullException(nameof(original));
-            _peerConnectionRepository = peerConnectionRepository 
+            _peerConnectionRepository = peerConnectionRepository
                 ?? throw new System.ArgumentNullException(nameof(peerConnectionRepository));
-            _dispatchQueue = dispatchQueue 
+            _dispatchQueue = dispatchQueue
                 ?? throw new System.ArgumentNullException(nameof(dispatchQueue));
         }
 

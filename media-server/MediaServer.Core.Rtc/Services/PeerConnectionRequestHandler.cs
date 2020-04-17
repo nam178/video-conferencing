@@ -2,15 +2,15 @@
 using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
+using MediaServer.Core.Rtc.Models;
+using MediaServer.Core.Rtc.Repositories;
 using MediaServer.Core.Services;
 using MediaServer.Models;
-using MediaServer.Rtc.Models;
-using MediaServer.Rtc.Repositories;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.Rtc.Services
+namespace MediaServer.Core.Rtc.Services
 {
     sealed class PeerConnectionRequestHandler : IRemoteDeviceService<PeerConnectionRequest>
     {
