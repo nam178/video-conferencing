@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace MediaServer.Rtc.Models
+﻿namespace MediaServer.Rtc.Models
 {
     interface IPeerConnectionFactory
     {
-        IPeerConnection Create(Guid id);
+        IPeerConnection Create();
     }
 }

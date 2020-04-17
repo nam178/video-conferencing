@@ -1,5 +1,5 @@
-﻿using MediaServer.Common.Utils;
-using MediaServer.Core.Models;
+﻿using MediaServer.Core.Models;
+using MediaServer.Models;
 using MediaServer.Rtc.Models;
 using System;
 using System.Collections.Generic;
@@ -8,40 +8,22 @@ namespace MediaServer.Rtc.Repositories
 {
     sealed class PeerConnectionRepository : IPeerConnectionRepository
     {
-        readonly Dictionary<UserProfile, List<IPeerConnection>> _records = new Dictionary<UserProfile, List<IPeerConnection>>();
+        // Keeping records of user/devie -> peer connections
+        readonly Dictionary<UserProfile, (IRemoteDevice, IPeerConnection)> _records = new Dictionary<UserProfile, (IRemoteDevice, IPeerConnection)>();
 
-        public void Add(UserProfile user, IPeerConnection peerConnection)
+        public void Add(UserProfile user, IRemoteDevice remoteDevice, IPeerConnection peerConnection)
         {
-            Require.NotNull(peerConnection);
-
-            if(!_records.ContainsKey(user))
-            {
-                _records[user] = new List<IPeerConnection>
-                {
-                    peerConnection
-                };
-            }
-            else
-            {
-                if(_records[user].Contains(peerConnection))
-                {
-                    throw new InvalidOperationException("Provided PeerConnection already exist");
-                }
-                _records[user].Add(peerConnection);
-            }
+            throw new System.NotImplementedException();
         }
 
-        public IReadOnlyList<IPeerConnection> Find(UserProfile user)
+        public IReadOnlyList<IPeerConnection> Find(IRemoteDevice remoteDevice)
         {
-            Require.NotNull(user);
-
-            if(_records.ContainsKey(user))
-            {
-                return _records[user];
-            }
-            return _empty;
+            throw new System.NotImplementedException();
         }
 
-        static readonly IReadOnlyList<IPeerConnection> _empty = new List<IPeerConnection>();
+        public void Remove(IPeerConnection peerConnection)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

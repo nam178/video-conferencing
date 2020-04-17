@@ -1,4 +1,5 @@
 ﻿using MediaServer.Core.Models;
+using MediaServer.Models;
 using MediaServer.Rtc.Models;
 using System.Collections.Generic;
 
@@ -16,14 +17,22 @@ namespace MediaServer.Rtc.Repositories
         /// Register a PeerConnection that associate with the specified user and remote device
         /// </summary>
         /// <param name="user"></param>
+        /// <param name="remoteDevice"></param>
         /// <param name="peerConnection"></param>
-        void Add(UserProfile user, IPeerConnection peerConnection);
+        void Add(UserProfile user, IRemoteDevice remoteDevice, IPeerConnection peerConnection);
 
         /// <summary>
-        /// Find the registered PeerConnection that associated with the user
+        /// Find the registered PeerConnection that associated with remote device
         /// </summary>
         /// <param name="user"></param>
+        /// <param name="remoteDevice"></param>
         /// <returns></returns>
-        IReadOnlyList<IPeerConnection> Find(UserProfile user);
+        IReadOnlyList<IPeerConnection> Find(IRemoteDevice remoteDevice);
+
+        /// <summary>
+        /// Remove the specified peer connection
+        /// </summary>
+        /// <param name="peerConnection"></param>
+        void Remove(IPeerConnection peerConnection);
     }
 }

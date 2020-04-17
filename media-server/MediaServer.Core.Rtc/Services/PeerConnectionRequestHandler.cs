@@ -1,12 +1,10 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
-using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Core.Services;
 using MediaServer.Models;
 using MediaServer.Rtc.Models;
 using MediaServer.Rtc.Repositories;
-using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,7 +17,6 @@ namespace MediaServer.Rtc.Services
         readonly IPeerConnectionFactory _peerConnectionFactory;
         readonly IRemoteDeviceDataRepository _remoteDeviceDataRepository;
         readonly IDispatchQueue _centralDispatchQueue;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public PeerConnectionRequestHandler(
             IPeerConnectionRepository peerConnectionRepository,
@@ -40,45 +37,30 @@ namespace MediaServer.Rtc.Services
         public async Task HandleAsync(IRemoteDevice remoteDevice, PeerConnectionRequest request)
         {
             Require.NotEmpty(request.OfferedSessionDescription);
-            Require.NotEmpty(request.PeerConnectionId);
 
-            UserProfile currentUser = default;
-            IPeerConnection peerConnection = default;
-
-            // Jump to the central queue and find if we have a PeerConnection for
-            // the current user, with the specified PeerConnection id
-            await _centralDispatchQueue.ExecuteAsync(delegate
+            // First, try to get existing peer connection for this device
+            // TODO support multi PC per peer
+            var pc = await _centralDispatchQueue.ExecuteAsync(delegate
             {
-                var remoteDeviceData = _remoteDeviceDataRepository.GetForDevice(remoteDevice);
-                if(remoteDeviceData?.User is null)
-                    throw new UnauthorizedAccessException($"Device {remoteDevice} has not signed in");
-                currentUser = remoteDeviceData.User;
-                peerConnection = _peerConnectionRepository
-                    .Find(remoteDeviceData.User)
-                    .FirstOrDefault(peer => peer.Id == request.PeerConnectionId);
+                return _peerConnectionRepository.Find(remoteDevice)?.FirstOrDefault();
             });
 
-            // If we don't yet have a PeerConnection with the id above,
-            // create one. 
-            // Note that don't do this in the main thread because creating one is slow.
-            if(peerConnection is null)
+            // If no PeerConnection for this device, create one
+            if(null == pc)
             {
-                peerConnection = _peerConnectionFactory.Create(request.PeerConnectionId);
-                // Don't forget to register it
-                try
+                pc = _peerConnectionFactory.Create();
+                // Jump back to the main queue to register the newly created PeerConnection
+                await _centralDispatchQueue.ExecuteAsync(delegate
                 {
-                    await _centralDispatchQueue.ExecuteAsync(() => _peerConnectionRepository.Add(currentUser, peerConnection));
-                }
-                catch(Exception)
-                {
-                    // On errors, ensure we dispose the peerConnection
-                    peerConnection.Dispose();
-                    throw;
-                }
-                _logger.Info($"New PeerConnection created {request.PeerConnectionId}");
+                    var data = _remoteDeviceDataRepository.GetForDevice(remoteDevice);
+                    if(data?.User == null)
+                        throw new UnauthorizedAccessException();
+                    _peerConnectionRepository.Add(data.User, remoteDevice, pc);
+                });
             }
 
-            peerConnection.RemoteSessionDescription = request.OfferedSessionDescription;
+            // Update SDP 
+            pc.RemoteSessionDescription = request.OfferedSessionDescription;
         }
     }
 }
