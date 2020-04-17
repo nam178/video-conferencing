@@ -18,20 +18,20 @@ extern "C"
     };
 
     // Create new isntance of PeerConnectionFactory
-    EXPORT PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryManagerCreate();
+    EXPORT PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryCreate();
 
     // Call Initialize() on an instance of PeerConnectionFactory
     EXPORT void CONVENTION
-    PeerConnectionFactoryManagerInitialize(PeerConnectionFactoryPtr instance);
+    PeerConnectionFactoryInitialize(PeerConnectionFactoryPtr instance);
 
     // Call TearDown() on an instance of PeerConnectionFactory
     EXPORT void CONVENTION
-    PeerConnectionFactoryManagerTearDown(PeerConnectionFactoryPtr instance);
+    PeerConnectionFactoryTearDown(PeerConnectionFactoryPtr instance);
 
     // Release/delete the memory occupied by an instance of PeerConnectionFactory
     // Make sure you call TearDown() first
     EXPORT void CONVENTION
-    PeerConnectionFactoryManagerDestroy(PeerConnectionFactoryPtr instance);
+    PeerConnectionFactoryDestroy(PeerConnectionFactoryPtr instance);
 
     EXPORT PeerConnectionRawPointer CONVENTION PeerConnectionFactoryCreatePeerConnection(
         PeerConnectionFactoryPtr peer_connection_factory,
