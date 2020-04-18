@@ -1,22 +1,11 @@
 #include "pch.h"
 
+#include "passive_video_track.h"
+#include "passive_video_track_source.h"
 #include "peer_connection.h"
 #include "peer_connection_factory.h"
 #include "peer_connection_factory_interop.h"
 #include "peer_connection_interop.h"
-#include "passive_video_track.h"
-#include "passive_video_track_source.h"
-
-Wrappers::PeerConnectionFactory *Cast(void *opaque_ptr)
-{
-    auto tmp = static_cast<Wrappers::PeerConnectionFactory *>(opaque_ptr);
-    if(!tmp)
-    {
-        RTC_LOG(LS_ERROR, "PeerConnectionFactory null ptr");
-        throw new std::runtime_error("PeerConnectionFactory is null");
-    }
-    return tmp;
-}
 
 PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryCreate()
 {
@@ -25,20 +14,19 @@ PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryCreate()
 
 void CONVENTION PeerConnectionFactoryInitialize(PeerConnectionFactoryPtr instance)
 {
-    Cast(instance)->Initialize();
+    StaticCastOrThrow<Wrappers::PeerConnectionFactory>(instance)->Initialize();
 }
 
 void CONVENTION PeerConnectionFactoryTearDown(PeerConnectionFactoryPtr instance)
 {
-    Cast(instance)->TearDown();
+    StaticCastOrThrow<Wrappers::PeerConnectionFactory>(instance)->TearDown();
 }
 
-void CONVENTION
-PeerConnectionFactoryDestroy(PeerConnectionFactoryPtr instance)
+void CONVENTION PeerConnectionFactoryDestroy(PeerConnectionFactoryPtr instance)
 {
     if(instance)
     {
-        delete Cast(instance);
+        delete static_cast<Wrappers::PeerConnectionFactory *>(instance);
     }
 }
 
@@ -87,25 +75,14 @@ PeerConnectionFactoryCreatePeerConnection(PeerConnectionFactoryPtr peer_connecti
         webrtc::PeerConnectionInterface::BundlePolicy::kBundlePolicyMaxCompat;
     rtc_config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
 
-    auto observer = static_cast<webrtc::PeerConnectionObserver *>(peer_connection_observer);
-    if(!observer)
-    {
-        RTC_LOG(LS_ERROR, "peer_connection_observer is null");
-        throw new std::runtime_error("peer_connection_observer is null");
-    }
-
-    auto factory_manager =
-        static_cast<Wrappers::PeerConnectionFactory *>(peer_connection_factory);
-    if(!factory_manager)
-    {
-        RTC_LOG(LS_ERROR, "peer_connection_observer is null");
-        throw new std::runtime_error("peer_connection_observer is null");
-    }
+    auto observer = StaticCastOrThrow<webrtc::PeerConnectionObserver>(peer_connection_observer);
 
     webrtc::PeerConnectionDependencies dependencies(observer);
 
-    auto peer_connection = factory_manager->GetPeerConnectionFactory()->CreatePeerConnection(
-        rtc_config, std::move(dependencies));
+    auto peer_connection =
+        StaticCastOrThrow<Wrappers::PeerConnectionFactory>(peer_connection_factory)
+            ->GetPeerConnectionFactory()
+            ->CreatePeerConnection(rtc_config, std::move(dependencies));
 
     return new Wrappers::PeerConnection(std::move(peer_connection));
 }
@@ -115,19 +92,15 @@ PassiveVideoTrackPtr CONVENTION PeerConnectionFactoryCreatePassiveVideoTrack(
     PassiveVideoTrackSourcePtr passive_video_track_souce_ptr,
     const char *track_name)
 {
-    auto factory = Cast(peer_connection_factory)->GetPeerConnectionFactory();
+    auto factory = StaticCastOrThrow<Wrappers::PeerConnectionFactory>(peer_connection_factory)
+                       ->GetPeerConnectionFactory();
     if(!factory)
     {
         RTC_LOG(LS_ERROR, "peer_connection_factory is null");
         throw new std::runtime_error("peer_connection_factory is null ");
     }
     auto passive_video_track_source =
-        static_cast<PassiveVideo::PassiveVideoTrackSource *>(passive_video_track_souce_ptr);
-    if(!passive_video_track_source)
-    {
-        RTC_LOG(LS_ERROR, "passive_video_track_souce_ptr is null");
-        throw new std::runtime_error("passive_video_track_souce_ptr factory is null ");
-    }
+        StaticCastOrThrow<PassiveVideo::PassiveVideoTrackSource>(passive_video_track_souce_ptr);
 
     return new PassiveVideo::PassiveVideoTrack(
         factory->CreateVideoTrack(track_name, passive_video_track_source));

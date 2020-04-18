@@ -10,27 +10,15 @@ void CONVENTION PeerConnectionDestroy(PeerConnectionPtr peer_connection_ptr)
 
 void CONVENTION PeerConnectionClose(PeerConnectionPtr peer_connection_ptr)
 {
-    auto tmp = static_cast<Wrappers::PeerConnection *>(peer_connection_ptr);
-    if(!tmp)
-    {
-        throw new std::runtime_error("peer_connection_ptr is NULL");
-    }
-    tmp->Close();
+    StaticCastOrThrow<Wrappers::PeerConnection>(peer_connection_ptr)->Close();
 }
 
 void CONVENTION PeerConnectionCreateAnswer(PeerConnectionPtr peer_connection_ptr,
                                            CreateAnswerCallback callback,
                                            UserData user_data)
 {
-    auto peer_connection = static_cast<Wrappers::PeerConnection *>(peer_connection_ptr);
-    if(!peer_connection)
-    {
-        RTC_LOG(LS_ERROR, "peer_connection_ptr null pointer");
-        throw new std::runtime_error("peer_connection_ptr null pointer");
-    }
-
-    peer_connection->CreateAnswer(
-        Wrappers::Callback<Wrappers::CreateAnswerResult>{callback, user_data});
+    StaticCastOrThrow<Wrappers::PeerConnection>(peer_connection_ptr)
+        ->CreateAnswer(Wrappers::Callback<Wrappers::CreateAnswerResult>{callback, user_data});
 }
 
 void CONVENTION
@@ -40,12 +28,24 @@ PeerConnectionSetRemoteSessionDescription(PeerConnectionPtr peer_connection_ptr,
                                           SetRemoteSessionDescriptionCallback callback,
                                           UserData user_data)
 {
-    auto peer_connection = static_cast<Wrappers::PeerConnection *>(peer_connection_ptr);
-    if(!peer_connection)
+    StaticCastOrThrow<Wrappers::PeerConnection>(peer_connection_ptr)
+        ->RemoteSessionDescription(
+            sdp_type, sdp, Wrappers::Callback<Success, ErrorMessage>{callback, user_data});
+}
+
+bool CONVENTION PeerConnectionAddIceCandidate(PeerConnectionPtr peer_connection_ptr,
+                                              const char *sdp_mid,
+                                              uint32_t sdp_mline_index,
+                                              const char *sdp,
+                                              const char *error_message)
+{
+    std::string out_error{};
+    auto result = StaticCastOrThrow<Wrappers::PeerConnection>(peer_connection_ptr)
+                      ->AddIceCandiate(sdp_mid, sdp_mline_index, sdp, out_error);
+    if(!result)
     {
-        RTC_LOG(LS_ERROR, "peer_connection is NULL");
-        throw new std::runtime_error("peer_connection is NULL");
+        Utils::StringHelper::EnsureNullTerminatedCString(out_error);
+        error_message = out_error.c_str();
     }
-    peer_connection->RemoteSessionDescription(
-        sdp_type, sdp, Wrappers::Callback<Success, ErrorMessage>{callback, user_data});
+    return result;
 }

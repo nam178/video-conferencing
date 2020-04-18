@@ -140,6 +140,9 @@
     <ClInclude Include="set_remote_session_description_observer.h">
       <Filter>wrappers\observers</Filter>
     </ClInclude>
+    <ClInclude Include="pointer_helper.h">
+      <Filter>misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

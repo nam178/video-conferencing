@@ -115,6 +115,7 @@
     <ClInclude Include="peer_connection_factory_interop.h" />
     <ClInclude Include="peer_connection_interop.h" />
     <ClInclude Include="peer_connection_observer_interop.h" />
+    <ClInclude Include="pointer_helper.h" />
     <ClInclude Include="rtp_transceiver_interop.h" />
     <ClInclude Include="call_back.h" />
     <ClInclude Include="ice_candidate.h" />
