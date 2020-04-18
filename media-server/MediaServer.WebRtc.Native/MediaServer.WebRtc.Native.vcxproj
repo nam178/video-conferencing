@@ -110,17 +110,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="media_server_create_session_description_observer.h" />
-    <ClInclude Include="media_server_peer_connection.h" />
-    <ClInclude Include="media_server_peer_connection_factory_interop.h" />
-    <ClInclude Include="media_server_peer_connection_interop.h" />
-    <ClInclude Include="media_server_peer_connection_observer_interop.h" />
-    <ClInclude Include="media_server_rtp_transceiver_interop.h" />
-    <ClInclude Include="media_server_call_back.h" />
-    <ClInclude Include="media_server_ice_candidate.h" />
-    <ClInclude Include="media_server_ice_connection_state.h" />
-    <ClInclude Include="media_server_ice_gathering_state.h" />
-    <ClInclude Include="media_server_create_answer_result.h" />
+    <ClInclude Include="create_session_description_observer.h" />
+    <ClInclude Include="peer_connection.h" />
+    <ClInclude Include="peer_connection_factory_interop.h" />
+    <ClInclude Include="peer_connection_interop.h" />
+    <ClInclude Include="peer_connection_observer_interop.h" />
+    <ClInclude Include="rtp_transceiver_interop.h" />
+    <ClInclude Include="call_back.h" />
+    <ClInclude Include="ice_candidate.h" />
+    <ClInclude Include="ice_connection_state.h" />
+    <ClInclude Include="ice_gathering_state.h" />
+    <ClInclude Include="create_answer_result.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="export.h" />
     <ClInclude Include="noop_video_decoder.h" />
@@ -128,31 +128,31 @@
     <ClInclude Include="noop_video_encoder.h" />
     <ClInclude Include="noop_video_encoder_factory.h" />
     <ClInclude Include="noop_video_frame_buffer.h" />
-    <ClInclude Include="noop_video_helper.h" />
+    <ClInclude Include="create_h264_format.h" />
     <ClInclude Include="not_supported_exception.h" />
     <ClInclude Include="passive_video_track.h" />
     <ClInclude Include="passive_video_track_interop.h" />
     <ClInclude Include="passive_video_track_source.h" />
     <ClInclude Include="passive_video_track_source_interop.h" />
-    <ClInclude Include="media_server_peer_connection_observer.h" />
-    <ClInclude Include="media_server_peer_connection_factory.h" />
+    <ClInclude Include="peer_connection_observer.h" />
+    <ClInclude Include="peer_connection_factory.h" />
     <ClInclude Include="result.h" />
-    <ClInclude Include="utils_string_helper.h" />
+    <ClInclude Include="string_helper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="media_server_create_session_description_observer.cpp" />
-    <ClCompile Include="media_server_peer_connection.cpp" />
-    <ClCompile Include="media_server_peer_connection_factory_interop.cpp" />
-    <ClCompile Include="media_server_peer_connection_interop.cpp" />
-    <ClCompile Include="media_server_peer_connection_observer.cpp" />
-    <ClCompile Include="media_server_peer_connection_observer_interop.cpp" />
-    <ClCompile Include="media_server_rtp_transceiver_interop.cpp" />
+    <ClCompile Include="create_session_description_observer.cpp" />
+    <ClCompile Include="peer_connection.cpp" />
+    <ClCompile Include="peer_connection_factory_interop.cpp" />
+    <ClCompile Include="peer_connection_interop.cpp" />
+    <ClCompile Include="peer_connection_observer.cpp" />
+    <ClCompile Include="peer_connection_observer_interop.cpp" />
+    <ClCompile Include="rtp_transceiver_interop.cpp" />
     <ClCompile Include="noop_video_decoder.cpp" />
     <ClCompile Include="noop_video_decoder_factory.cpp" />
     <ClCompile Include="noop_video_encoder.cpp" />
     <ClCompile Include="noop_video_encoder_factory.cpp" />
     <ClCompile Include="noop_video_frame_buffer.cpp" />
-    <ClCompile Include="noop_video_helper.cpp" />
+    <ClCompile Include="create_h264_format.cpp" />
     <ClCompile Include="passive_video_track.cpp" />
     <ClCompile Include="passive_video_track_interop.cpp" />
     <ClCompile Include="passive_video_track_source.cpp" />
@@ -161,7 +161,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="media_server_peer_connection_factory.cpp" />
+    <ClCompile Include="peer_connection_factory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

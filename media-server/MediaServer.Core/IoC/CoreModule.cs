@@ -45,9 +45,6 @@ namespace MediaServer.Core.IoC
             // Factories
             builder.RegisterType<RoomFactory>().AsImplementedInterfaces();
             builder.RegisterType<PeerConnectionFactory>().AsImplementedInterfaces();
-
-            // Decorators
-            builder.RegisterDecorator<DeviceDisconnectionRequestHandlerDecorator, IRemoteDeviceService<DeviceDisconnectionRequest>>();
         }
     }
 }

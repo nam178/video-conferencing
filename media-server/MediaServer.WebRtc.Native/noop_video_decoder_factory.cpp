@@ -3,7 +3,7 @@
 #include "modules/video_coding/codecs/h264/include/h264.h"
 #include "noop_video_decoder.h"
 #include "noop_video_decoder_factory.h"
-#include "noop_video_helper.h"
+#include "create_h264_format.h"
 
 using namespace webrtc;
 

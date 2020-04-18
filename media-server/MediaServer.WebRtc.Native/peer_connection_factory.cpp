@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "media_server_peer_connection_factory.h"
+#include "peer_connection_factory.h"
 #include "noop_video_decoder_factory.h"
 #include "noop_video_encoder_factory.h"
 

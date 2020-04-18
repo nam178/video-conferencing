@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "media_server_create_session_description_observer.h"
-#include "media_server_peer_connection.h"
-#include "utils_string_helper.h"
+#include "create_session_description_observer.h"
+#include "peer_connection.h"
+#include "string_helper.h"
 
 MediaServer::PeerConnection::PeerConnection(
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> &&peer_connection_interface)
@@ -14,10 +14,14 @@ void MediaServer::PeerConnection::CreateAnswer(Callback<MediaServer::CreateAnswe
 {
     const webrtc::PeerConnectionInterface::RTCOfferAnswerOptions opts{};
 
+    // Notes
+    // By looking at the source,
+    // PeerConnectionInterface takes owner ship of CreateSessionDescriptionObserver
+    // see struct CreateSessionDescriptionRequest in the source.
     _peer_connection_interface->CreateAnswer(
         new MediaServer::CreateSessionDescriptionObserver(
             [callback](Result<webrtc::SessionDescriptionInterface *> result) {
-                if(result._success) 
+                if(result._success)
                 {
                     // Get sdp_type
                     auto sdp_type_str_ptr = webrtc::SdpTypeToString(result._result->GetType());
@@ -37,7 +41,7 @@ void MediaServer::PeerConnection::CreateAnswer(Callback<MediaServer::CreateAnswe
                     }
                     Utils::StringHelper::EnsureNullTerminatedCString(sdp_str);
 
-                     // Callback
+                    // Callback
                     callback({true, nullptr, sdp_type_str.c_str(), sdp_str.c_str()});
                 }
                 else
@@ -56,6 +60,22 @@ void MediaServer::PeerConnection::CreateAnswer(Callback<MediaServer::CreateAnswe
 void MediaServer::PeerConnection::Close()
 {
     _peer_connection_interface->Close();
+}
+
+void MediaServer::PeerConnection::RemoteSessionDescription(const char *sdp_type, const char *sdp)
+{
+    rtc::scoped_refptr<webrtc::SetRemoteDescriptionObserverInterface> observer;
+
+    auto sdp_type_enum = webrtc::SdpTypeFromString(sdp_type);
+    if(!sdp_type_enum.has_value())
+    {
+        // TODO callback with error
+        return;
+    }
+
+    auto session_description = webrtc::CreateSessionDescription(sdp_type_enum.value(), sdp);
+
+    _peer_connection_interface->SetRemoteDescription(std::move(session_description), observer);
 }
 
 webrtc::PeerConnectionInterface *MediaServer::PeerConnection::GetPeerConnectionInterface()

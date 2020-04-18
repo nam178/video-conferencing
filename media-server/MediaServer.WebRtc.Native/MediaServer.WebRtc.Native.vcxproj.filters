@@ -2,24 +2,6 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="noop_video_decoder.cpp">
-      <Filter>noop_video</Filter>
-    </ClCompile>
-    <ClCompile Include="noop_video_decoder_factory.cpp">
-      <Filter>noop_video</Filter>
-    </ClCompile>
-    <ClCompile Include="noop_video_encoder.cpp">
-      <Filter>noop_video</Filter>
-    </ClCompile>
-    <ClCompile Include="noop_video_encoder_factory.cpp">
-      <Filter>noop_video</Filter>
-    </ClCompile>
-    <ClCompile Include="noop_video_frame_buffer.cpp">
-      <Filter>noop_video</Filter>
-    </ClCompile>
-    <ClCompile Include="noop_video_helper.cpp">
-      <Filter>noop_video</Filter>
-    </ClCompile>
     <ClCompile Include="passive_video_track.cpp">
       <Filter>passive_video</Filter>
     </ClCompile>
@@ -32,54 +14,51 @@
     <ClCompile Include="passive_video_track_source_interop.cpp">
       <Filter>passive_video</Filter>
     </ClCompile>
-    <ClCompile Include="media_server_peer_connection_observer.cpp">
+    <ClCompile Include="create_session_description_observer.cpp">
       <Filter>media_server</Filter>
     </ClCompile>
-    <ClCompile Include="media_server_rtp_transceiver_interop.cpp">
+    <ClCompile Include="peer_connection.cpp">
       <Filter>media_server</Filter>
     </ClCompile>
-    <ClCompile Include="media_server_peer_connection_interop.cpp">
+    <ClCompile Include="peer_connection_factory.cpp">
       <Filter>media_server</Filter>
     </ClCompile>
-    <ClCompile Include="media_server_peer_connection_observer_interop.cpp">
+    <ClCompile Include="peer_connection_factory_interop.cpp">
       <Filter>media_server</Filter>
     </ClCompile>
-    <ClCompile Include="media_server_peer_connection.cpp">
+    <ClCompile Include="peer_connection_interop.cpp">
       <Filter>media_server</Filter>
     </ClCompile>
-    <ClCompile Include="media_server_peer_connection_factory.cpp">
+    <ClCompile Include="peer_connection_observer.cpp">
       <Filter>media_server</Filter>
     </ClCompile>
-    <ClCompile Include="media_server_peer_connection_factory_interop.cpp">
+    <ClCompile Include="peer_connection_observer_interop.cpp">
       <Filter>media_server</Filter>
     </ClCompile>
-    <ClCompile Include="media_server_create_session_description_observer.cpp">
+    <ClCompile Include="rtp_transceiver_interop.cpp">
       <Filter>media_server</Filter>
+    </ClCompile>
+    <ClCompile Include="noop_video_decoder_factory.cpp">
+      <Filter>noop_video</Filter>
+    </ClCompile>
+    <ClCompile Include="noop_video_decoder.cpp">
+      <Filter>noop_video</Filter>
+    </ClCompile>
+    <ClCompile Include="noop_video_encoder.cpp">
+      <Filter>noop_video</Filter>
+    </ClCompile>
+    <ClCompile Include="noop_video_encoder_factory.cpp">
+      <Filter>noop_video</Filter>
+    </ClCompile>
+    <ClCompile Include="noop_video_frame_buffer.cpp">
+      <Filter>noop_video</Filter>
+    </ClCompile>
+    <ClCompile Include="create_h264_format.cpp">
+      <Filter>noop_video</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="noop_video_decoder.h">
-      <Filter>noop_video</Filter>
-    </ClInclude>
-    <ClInclude Include="noop_video_decoder_factory.h">
-      <Filter>noop_video</Filter>
-    </ClInclude>
-    <ClInclude Include="noop_video_encoder.h">
-      <Filter>noop_video</Filter>
-    </ClInclude>
-    <ClInclude Include="noop_video_encoder_factory.h">
-      <Filter>noop_video</Filter>
-    </ClInclude>
-    <ClInclude Include="noop_video_frame_buffer.h">
-      <Filter>noop_video</Filter>
-    </ClInclude>
-    <ClInclude Include="noop_video_helper.h">
-      <Filter>noop_video</Filter>
-    </ClInclude>
-    <ClInclude Include="not_supported_exception.h">
-      <Filter>noop_video</Filter>
-    </ClInclude>
     <ClInclude Include="passive_video_track.h">
       <Filter>passive_video</Filter>
     </ClInclude>
@@ -93,48 +72,69 @@
       <Filter>passive_video</Filter>
     </ClInclude>
     <ClInclude Include="export.h" />
-    <ClInclude Include="media_server_call_back.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="media_server_ice_gathering_state.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="media_server_peer_connection_observer.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="media_server_ice_connection_state.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="media_server_ice_candidate.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="utils_string_helper.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="media_server_rtp_transceiver_interop.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="media_server_peer_connection_observer_interop.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="media_server_peer_connection_interop.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="media_server_peer_connection.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="media_server_peer_connection_factory.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="media_server_peer_connection_factory_interop.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
     <ClInclude Include="result.h" />
-    <ClInclude Include="media_server_create_session_description_observer.h">
+    <ClInclude Include="call_back.h">
       <Filter>media_server</Filter>
     </ClInclude>
-    <ClInclude Include="media_server_create_answer_result.h">
+    <ClInclude Include="create_answer_result.h">
       <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="create_session_description_observer.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="ice_candidate.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="ice_connection_state.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="ice_gathering_state.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection_factory.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection_factory_interop.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection_interop.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection_observer.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection_observer_interop.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="rtp_transceiver_interop.h">
+      <Filter>media_server</Filter>
+    </ClInclude>
+    <ClInclude Include="not_supported_exception.h">
+      <Filter>noop_video</Filter>
+    </ClInclude>
+    <ClInclude Include="string_helper.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="noop_video_decoder_factory.h">
+      <Filter>noop_video</Filter>
+    </ClInclude>
+    <ClInclude Include="noop_video_decoder.h">
+      <Filter>noop_video</Filter>
+    </ClInclude>
+    <ClInclude Include="noop_video_encoder.h">
+      <Filter>noop_video</Filter>
+    </ClInclude>
+    <ClInclude Include="noop_video_encoder_factory.h">
+      <Filter>noop_video</Filter>
+    </ClInclude>
+    <ClInclude Include="noop_video_frame_buffer.h">
+      <Filter>noop_video</Filter>
+    </ClInclude>
+    <ClInclude Include="create_h264_format.h">
+      <Filter>noop_video</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -150,7 +150,7 @@
     <Filter Include="media_server">
       <UniqueIdentifier>{834550d2-8830-48b9-bae4-5382e27a08c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="utils">
+    <Filter Include="misc">
       <UniqueIdentifier>{199f8c2d-c921-4c5a-bbf2-ed5a0f4e854c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

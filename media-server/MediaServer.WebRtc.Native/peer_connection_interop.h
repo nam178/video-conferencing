@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "media_server_create_answer_result.h"
+#include "create_answer_result.h"
 
 extern "C"
 {
@@ -17,4 +17,9 @@ extern "C"
     EXPORT void CONVENTION PeerConnectionCreateAnswer(PeerConnectionPtr peer_connection_ptr,
                                                       Callback callback,
                                                       UserData user_data);
+
+    EXPORT void CONVENTION
+    PeerConnectionSetRemoteSessionDescription(PeerConnectionPtr peer_connection_ptr,
+                                              const char *sdp_type,
+                                              const char *sdp);
 }

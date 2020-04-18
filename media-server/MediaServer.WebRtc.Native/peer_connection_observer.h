@@ -2,9 +2,9 @@
 
 #include "pch.h"
 
-#include "media_server_ice_candidate.h"
-#include "media_server_ice_connection_state.h"
-#include "media_server_ice_gathering_state.h"
+#include "ice_candidate.h"
+#include "ice_connection_state.h"
+#include "ice_gathering_state.h"
 
 namespace MediaServer
 {

@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "media_server_ice_gathering_state.h"
+#include "ice_gathering_state.h"
 
 using namespace MediaServer;
 

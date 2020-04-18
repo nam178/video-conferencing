@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "media_server_peer_connection_observer.h"
-#include "media_server_peer_connection_observer_interop.h"
+#include "peer_connection_observer.h"
+#include "peer_connection_observer_interop.h"
 
 PeerConnectionObserverIntPtr CONVENTION PeerConnectionObserverCreate()
 {

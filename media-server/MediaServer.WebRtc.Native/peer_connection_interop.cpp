@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "media_server_peer_connection.h"
-#include "media_server_peer_connection_interop.h"
+#include "peer_connection.h"
+#include "peer_connection_interop.h"
 
 void CONVENTION PeerConnectionDestroy(PeerConnectionPtr peer_connection_ptr)
 {
@@ -31,4 +31,17 @@ void CONVENTION PeerConnectionCreateAnswer(PeerConnectionPtr peer_connection_ptr
 
     peer_connection->CreateAnswer(
         MediaServer::Callback<MediaServer::CreateAnswerResult>{callback, user_data});
+}
+
+void CONVENTION PeerConnectionSetRemoteSessionDescription(PeerConnectionPtr peer_connection_ptr,
+                                                          const char *sdp_type,
+                                                          const char *sdp)
+{
+    auto peer_connection = static_cast<MediaServer::PeerConnection *>(peer_connection_ptr);
+    if(!peer_connection)
+    {
+        RTC_LOG(LS_ERROR, "peer_connection is NULL");
+        throw new std::runtime_error("peer_connection is NULL");
+    }
+    peer_connection->RemoteSessionDescription(sdp_type, sdp);
 }

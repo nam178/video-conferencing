@@ -42,6 +42,11 @@ namespace MediaServer.WebRtc.Managed
             return taskCompletionSource.Task;
         }
 
+        public void SetRemoteSessionDescription(string type, string sdp)
+        {
+            PeerConnectionInterop.SetRemoteSessionDescription(_handle, type, sdp);
+        }
+
         /// <summary>
         /// Close the native PeerConnection, 
         /// note that pending async operations such as the CreateAnswer() 

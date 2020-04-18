@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "api/video/video_sink_interface.h"
-#include "media_server_rtp_transceiver_interop.h"
+#include "rtp_transceiver_interop.h"
 
 void CONVENTION RtpTransceiverInterfaceReceiverAddOrUpdateSink(void *rtp_transceiver_interface,
                                                                void *audio_or_video_sink)

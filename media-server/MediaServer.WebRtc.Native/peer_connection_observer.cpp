@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "media_server_peer_connection_observer.h"
-#include "utils_string_helper.h"
+#include "peer_connection_observer.h"
+#include "string_helper.h"
 
 using namespace MediaServer;
 

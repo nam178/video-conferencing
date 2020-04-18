@@ -1,9 +1,9 @@
 #include "pch.h"
 
-#include "media_server_peer_connection.h"
-#include "media_server_peer_connection_factory.h"
-#include "media_server_peer_connection_factory_interop.h"
-#include "media_server_peer_connection_interop.h"
+#include "peer_connection.h"
+#include "peer_connection_factory.h"
+#include "peer_connection_factory_interop.h"
+#include "peer_connection_interop.h"
 #include "passive_video_track.h"
 #include "passive_video_track_source.h"
 

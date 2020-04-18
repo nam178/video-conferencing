@@ -26,5 +26,8 @@ namespace MediaServer.WebRtc.Managed
         
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionDestroy")]
         public static extern void Destroy(IntPtr native);
+
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionSetRemoteSessionDescription")]
+        public static extern void SetRemoteSessionDescription(PeerConnectionSafeHandle handle, string type, string sdp);
     }
 }

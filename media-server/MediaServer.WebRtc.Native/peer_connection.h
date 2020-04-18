@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "media_server_create_answer_result.h"
+#include "create_answer_result.h"
 
 namespace MediaServer
 {
@@ -19,10 +19,13 @@ class PeerConnection final
     // Create answer to an sdp offer.
     // the callback will be called on the signalling thread in theory.
     // The callback owns the SessionDescriptionInterface*
-    void CreateAnswer(Callback<MediaServer::CreateAnswerResult>&& callback);
+    void CreateAnswer(Callback<MediaServer::CreateAnswerResult> &&callback);
 
     // Completely kill this, implementation maps to native PeerConnection Close()
     void Close();
+
+    // Set remote session description
+    void RemoteSessionDescription(const char *sdp_type, const char *sdp);
 
     // get the raw pointer to the underlying native
     // PeerConnectionInterface

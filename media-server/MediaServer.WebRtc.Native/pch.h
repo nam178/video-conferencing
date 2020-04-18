@@ -14,7 +14,7 @@
 #include <memory>
 
 // media server common stuff
-#include "media_server_call_back.h"
+#include "call_back.h"
 
 #include "result.h"
 

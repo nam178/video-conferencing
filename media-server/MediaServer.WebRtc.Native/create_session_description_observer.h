@@ -12,14 +12,15 @@ class CreateSessionDescriptionObserver final
   public:
     // Constructor from a callback
     CreateSessionDescriptionObserver(
-        std::function<void (Result<webrtc::SessionDescriptionInterface *>)>&&
-            callback_lambda);
+        std::function<void(Result<webrtc::SessionDescriptionInterface *>)> &&callback_lambda);
+
+    ~CreateSessionDescriptionObserver();
 
     // Inherited via RefCountedObject
     void OnSuccess(webrtc::SessionDescriptionInterface *desc) override;
     void OnFailure(webrtc::RTCError error) override;
 
   private:
-    std::function<void (Result<webrtc::SessionDescriptionInterface *>)> _callback_lambda;
+    std::function<void(Result<webrtc::SessionDescriptionInterface *>)> _callback_lambda;
 };
 } // namespace MediaServer
