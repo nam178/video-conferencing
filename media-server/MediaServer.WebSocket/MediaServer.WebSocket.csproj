@@ -5,24 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="POC\AddIceCandidate.cs" />
-    <Compile Remove="POC\AddIceCandidateHandler.cs" />
-    <Compile Remove="POC\HeartBeat.cs" />
-    <Compile Remove="POC\HeartBeatCommandHandler.cs" />
-    <Compile Remove="POC\RegisterCommandHandler.cs" />
-    <Compile Remove="POC\SetOffer.cs" />
-    <Compile Remove="POC\SetOfferCommandHandler.cs" />
-    <Compile Remove="POC\StringCommandHandler.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="POC\AddIceCandidate.cs" />
-    <None Include="POC\AddIceCandidateHandler.cs" />
-    <None Include="POC\HeartBeat.cs" />
-    <None Include="POC\HeartBeatCommandHandler.cs" />
-    <None Include="POC\RegisterCommandHandler.cs" />
-    <None Include="POC\SetOffer.cs" />
-    <None Include="POC\SetOfferCommandHandler.cs" />
+    <None Include="CommandArgs\AddIceCandidate.cs" />
+    <None Include="CommandHandlers\AddIceCandidateHandler.cs" />
     <None Include="CommandHandlers\StringCommandHandler.cs" />
   </ItemGroup>
 

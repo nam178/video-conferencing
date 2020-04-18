@@ -4,6 +4,7 @@ using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Core.Services;
 using MediaServer.Models;
+using MediaServer.WebRtc.Managed;
 using NLog;
 using NLog.LayoutRenderers;
 using System;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
-    sealed class PeerConnectionRequestHandler : IRemoteDeviceService<PeerConnectionRequest>
+    sealed class RTCSessionDescriptionHandler : IRemoteDeviceService<RTCSessionDescription>
     {
         readonly IPeerConnectionRepository _peerConnectionRepository;
         readonly IPeerConnectionFactory _peerConnectionFactory;
@@ -20,7 +21,7 @@ namespace MediaServer.Core.Services.PeerConnection
         readonly IDispatchQueue _centralDispatchQueue;
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public PeerConnectionRequestHandler(
+        public RTCSessionDescriptionHandler(
             IPeerConnectionRepository peerConnectionRepository,
             IPeerConnectionFactory peerConnectionFactory,
             IRemoteDeviceDataRepository remoteDeviceDataRepository,
@@ -36,9 +37,9 @@ namespace MediaServer.Core.Services.PeerConnection
                 ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
         }
 
-        public async Task HandleAsync(IRemoteDevice remoteDevice, PeerConnectionRequest request)
+        public async Task HandleAsync(IRemoteDevice remoteDevice, RTCSessionDescription request)
         {
-            Require.NotEmpty(request.OfferedSessionDescription);
+            Require.NotEmpty(request);
 
             // Get user and current IPeerConnection for this device
             var user = (UserProfile)null;
@@ -76,7 +77,7 @@ namespace MediaServer.Core.Services.PeerConnection
             }
 
             // Update SDP 
-            await pc.SetRemoteSessionDescriptionAsync(request.OfferedSessionDescription);
+            await pc.SetRemoteSessionDescriptionAsync(request);
         }
     }
 }

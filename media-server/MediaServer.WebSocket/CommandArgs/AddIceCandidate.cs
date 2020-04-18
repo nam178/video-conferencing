@@ -1,6 +1,6 @@
 ﻿using MediaServer.WebRtc.Managed;
 
-namespace MediaServer.Signalling.CommandArgs
+namespace MediaServer.WebSocket.CommandArgs
 {
     sealed class AddIceCandidate
     {

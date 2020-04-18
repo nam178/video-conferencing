@@ -12,19 +12,19 @@ using Xunit;
 
 namespace Tests.Core
 {
-    public class PeerConnectionRequestHandlerTests
+    public class RTCSessionDescriptionHandlerTests
     {
         readonly Mock<IPeerConnectionRepository> _peerConnectionRepository = new Mock<IPeerConnectionRepository>();
         readonly Mock<IPeerConnectionFactory> _peerConnectionFactory = new Mock<IPeerConnectionFactory>();
         readonly Mock<IRemoteDeviceDataRepository> _remoteDeviceDataRepository = new Mock<IRemoteDeviceDataRepository>();
         readonly Mock<IRemoteDevice> _mockRemoteDevice = new Mock<IRemoteDevice>();
         readonly ThreadPoolDispatchQueue _centralDispatchQueue = new ThreadPoolDispatchQueue();
-        readonly PeerConnectionRequestHandler _handler;
+        readonly RTCSessionDescriptionHandler _handler;
 
-        public PeerConnectionRequestHandlerTests()
+        public RTCSessionDescriptionHandlerTests()
         {
             _centralDispatchQueue.Start();
-            _handler = new PeerConnectionRequestHandler(
+            _handler = new RTCSessionDescriptionHandler(
                 _peerConnectionRepository.Object,
                 _peerConnectionFactory.Object,
                 _remoteDeviceDataRepository.Object,
@@ -42,10 +42,7 @@ namespace Tests.Core
 
             Assert.ThrowsAsync<UnauthorizedAccessException>(async delegate
             {
-                await _handler.HandleAsync(_mockRemoteDevice.Object, new PeerConnectionRequest
-                {
-                    OfferedSessionDescription = new RTCSessionDescription()
-                });
+                await _handler.HandleAsync(_mockRemoteDevice.Object, new RTCSessionDescription());
             });
         }
 
@@ -70,10 +67,7 @@ namespace Tests.Core
                 .Setup(x => x.Create())
                 .Returns(mockPeerConnection.Object);
 
-            var request = new PeerConnectionRequest
-            {
-                OfferedSessionDescription = new RTCSessionDescription()
-            };
+            var request = new RTCSessionDescription();
             await _handler.HandleAsync(_mockRemoteDevice.Object, request);
 
             _peerConnectionRepository
@@ -109,10 +103,7 @@ namespace Tests.Core
 
             await Assert.ThrowsAsync<OperationCanceledException>(async delegate
             {
-                await _handler.HandleAsync(_mockRemoteDevice.Object, new PeerConnectionRequest
-                {
-                    OfferedSessionDescription = new RTCSessionDescription()
-                });
+                await _handler.HandleAsync(_mockRemoteDevice.Object, new RTCSessionDescription());
             });
             _peerConnectionRepository
                 .Verify(x => x.Add(It.IsAny<UserProfile>(), It.IsAny<IRemoteDevice>(), It.IsAny<IPeerConnection>()), Times.Never);
