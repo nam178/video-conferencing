@@ -1,4 +1,5 @@
 ﻿using MediaServer.WebRtc.Managed;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace MediaServer.Core.Models
     {
         readonly PeerConnectionObserver _nativeObserver;
         readonly WebRtc.Managed.PeerConnection _nativePeerConnection;
+        readonly Guid _id = Guid.NewGuid();
 
         public PeerConnectionAdapter(
             WebRtc.Managed.PeerConnectionFactory webRtcPeerConnectionFactory,
@@ -52,5 +54,7 @@ namespace MediaServer.Core.Models
                 _nativeObserver.Dispose();
             }
         }
+
+        public override string ToString() => $"[PeerConnectionAdapter Id={_id.ToString().Substring(0, 8)}]";
     }
 }

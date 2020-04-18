@@ -17,5 +17,7 @@
             SdpMid = other.SdpMid;
             SdpMLineIndex = other.MLineIndex;
         }
+
+        public override string ToString() => $"[RTCIceCandidate length={Candidate?.Length}B]";
     }
 }
