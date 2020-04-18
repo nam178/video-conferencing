@@ -1,6 +1,6 @@
 #pragma once
 
-namespace MediaServer
+namespace Wrappers
 {
 struct CreateAnswerResult
 {
@@ -16,4 +16,4 @@ struct CreateAnswerResult
     const char *_sdp_type = nullptr;
     const char *_sdp = nullptr;
 };
-} // namespace MediaServer
+} // namespace Wrappers

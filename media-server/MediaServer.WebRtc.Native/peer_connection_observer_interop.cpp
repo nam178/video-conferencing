@@ -5,13 +5,13 @@
 
 PeerConnectionObserverIntPtr CONVENTION PeerConnectionObserverCreate()
 {
-    return new MediaServer::PeerConnectionObserver();
+    return new Wrappers::PeerConnectionObserver();
 }
 
 void CONVENTION
 PeerConnectionObserverDestroy(PeerConnectionObserverIntPtr peer_connection_observer_ptr)
 {
-    delete static_cast<MediaServer::PeerConnectionObserver *>(peer_connection_observer_ptr);
+    delete static_cast<Wrappers::PeerConnectionObserver *>(peer_connection_observer_ptr);
 }
 
 void CONVENTION
@@ -20,7 +20,7 @@ PeerConnectionObserverSetCallbacks(PeerConnectionObserverIntPtr peer_connection_
                                    void *user_data)
 {
     auto observer =
-        static_cast<MediaServer::PeerConnectionObserver *>(peer_connection_observer_ptr);
+        static_cast<Wrappers::PeerConnectionObserver *>(peer_connection_observer_ptr);
     if(!observer)
     {
         throw new std::runtime_error("peer_connection_observer_ptr is null pointer");

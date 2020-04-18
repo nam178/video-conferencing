@@ -14,30 +14,6 @@
     <ClCompile Include="passive_video_track_source_interop.cpp">
       <Filter>passive_video</Filter>
     </ClCompile>
-    <ClCompile Include="create_session_description_observer.cpp">
-      <Filter>media_server</Filter>
-    </ClCompile>
-    <ClCompile Include="peer_connection.cpp">
-      <Filter>media_server</Filter>
-    </ClCompile>
-    <ClCompile Include="peer_connection_factory.cpp">
-      <Filter>media_server</Filter>
-    </ClCompile>
-    <ClCompile Include="peer_connection_factory_interop.cpp">
-      <Filter>media_server</Filter>
-    </ClCompile>
-    <ClCompile Include="peer_connection_interop.cpp">
-      <Filter>media_server</Filter>
-    </ClCompile>
-    <ClCompile Include="peer_connection_observer.cpp">
-      <Filter>media_server</Filter>
-    </ClCompile>
-    <ClCompile Include="peer_connection_observer_interop.cpp">
-      <Filter>media_server</Filter>
-    </ClCompile>
-    <ClCompile Include="rtp_transceiver_interop.cpp">
-      <Filter>media_server</Filter>
-    </ClCompile>
     <ClCompile Include="noop_video_decoder_factory.cpp">
       <Filter>noop_video</Filter>
     </ClCompile>
@@ -56,6 +32,31 @@
     <ClCompile Include="create_h264_format.cpp">
       <Filter>noop_video</Filter>
     </ClCompile>
+    <ClCompile Include="peer_connection_factory_interop.cpp">
+      <Filter>interops</Filter>
+    </ClCompile>
+    <ClCompile Include="peer_connection_observer_interop.cpp">
+      <Filter>interops</Filter>
+    </ClCompile>
+    <ClCompile Include="peer_connection_interop.cpp">
+      <Filter>interops</Filter>
+    </ClCompile>
+    <ClCompile Include="rtp_transceiver_interop.cpp">
+      <Filter>interops</Filter>
+    </ClCompile>
+    <ClCompile Include="create_session_description_observer.cpp">
+      <Filter>wrappers\observers</Filter>
+    </ClCompile>
+    <ClCompile Include="peer_connection_observer.cpp">
+      <Filter>wrappers\observers</Filter>
+    </ClCompile>
+    <ClCompile Include="peer_connection.cpp">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClCompile>
+    <ClCompile Include="peer_connection_factory.cpp">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClCompile>
+    <ClCompile Include="set_remote_session_description_observer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -74,43 +75,19 @@
     <ClInclude Include="export.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="call_back.h">
-      <Filter>media_server</Filter>
+      <Filter>wrappers</Filter>
     </ClInclude>
     <ClInclude Include="create_answer_result.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="create_session_description_observer.h">
-      <Filter>media_server</Filter>
+      <Filter>wrappers</Filter>
     </ClInclude>
     <ClInclude Include="ice_candidate.h">
-      <Filter>media_server</Filter>
+      <Filter>wrappers</Filter>
     </ClInclude>
     <ClInclude Include="ice_connection_state.h">
-      <Filter>media_server</Filter>
+      <Filter>wrappers</Filter>
     </ClInclude>
     <ClInclude Include="ice_gathering_state.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="peer_connection.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="peer_connection_factory.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="peer_connection_factory_interop.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="peer_connection_interop.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="peer_connection_observer.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="peer_connection_observer_interop.h">
-      <Filter>media_server</Filter>
-    </ClInclude>
-    <ClInclude Include="rtp_transceiver_interop.h">
-      <Filter>media_server</Filter>
+      <Filter>wrappers</Filter>
     </ClInclude>
     <ClInclude Include="not_supported_exception.h">
       <Filter>noop_video</Filter>
@@ -136,6 +113,33 @@
     <ClInclude Include="create_h264_format.h">
       <Filter>noop_video</Filter>
     </ClInclude>
+    <ClInclude Include="peer_connection_observer_interop.h">
+      <Filter>interops</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection_factory_interop.h">
+      <Filter>interops</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection_interop.h">
+      <Filter>interops</Filter>
+    </ClInclude>
+    <ClInclude Include="rtp_transceiver_interop.h">
+      <Filter>interops</Filter>
+    </ClInclude>
+    <ClInclude Include="create_session_description_observer.h">
+      <Filter>wrappers\observers</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection_observer.h">
+      <Filter>wrappers\observers</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection.h">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClInclude>
+    <ClInclude Include="peer_connection_factory.h">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClInclude>
+    <ClInclude Include="set_remote_session_description_observer.h">
+      <Filter>wrappers\observers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -147,11 +151,20 @@
     <Filter Include="passive_video">
       <UniqueIdentifier>{cb7cbb6b-1fc6-468d-90ef-daae27c47907}</UniqueIdentifier>
     </Filter>
-    <Filter Include="media_server">
-      <UniqueIdentifier>{834550d2-8830-48b9-bae4-5382e27a08c6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="misc">
       <UniqueIdentifier>{199f8c2d-c921-4c5a-bbf2-ed5a0f4e854c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wrappers">
+      <UniqueIdentifier>{834550d2-8830-48b9-bae4-5382e27a08c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interops">
+      <UniqueIdentifier>{839919e9-cc17-4d81-b000-dfec8e93c925}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wrappers\observers">
+      <UniqueIdentifier>{d8211f08-75a7-4bba-aa61-6e76970885fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wrappers\peer_connection">
+      <UniqueIdentifier>{2ada02e8-c6dc-4d50-89da-fa498673670f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

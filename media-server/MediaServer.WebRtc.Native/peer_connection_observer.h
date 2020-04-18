@@ -6,7 +6,7 @@
 #include "ice_connection_state.h"
 #include "ice_gathering_state.h"
 
-namespace MediaServer
+namespace Wrappers
 {
 // Not thread safe,
 // Designed so all methods must be called on signalling thread,

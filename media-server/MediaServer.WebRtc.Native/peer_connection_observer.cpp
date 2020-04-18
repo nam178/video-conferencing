@@ -3,7 +3,7 @@
 #include "peer_connection_observer.h"
 #include "string_helper.h"
 
-using namespace MediaServer;
+using namespace Wrappers;
 
 IceGatheringState IceGatheringStateFrom(
     webrtc::PeerConnectionInterface::IceGatheringState ice_gathering_state)
@@ -42,59 +42,59 @@ IceConnectionState IceConnectionStateFrom(
     return (IceConnectionState)ice_connection_state;
 }
 
-void MediaServer::PeerConnectionObserver::SetIceGatheringStateChangedCallback(
+void Wrappers::PeerConnectionObserver::SetIceGatheringStateChangedCallback(
     Callback<IceGatheringState> &&callback) noexcept
 {
     _ice_gathering_state_changed_callback = std::move(callback);
 }
 
-void MediaServer::PeerConnectionObserver::SetIceConnectionChangeCallback(
+void Wrappers::PeerConnectionObserver::SetIceConnectionChangeCallback(
     Callback<IceConnectionState> &&callback) noexcept
 {
     _ice_connection_change_callback = std::move(callback);
 }
 
-void MediaServer::PeerConnectionObserver::SetIceCandidateCallback(
+void Wrappers::PeerConnectionObserver::SetIceCandidateCallback(
     Callback<IceCandidate> &&callback) noexcept
 {
     _ice_candidate_callback = std::move(callback);
 }
 
-void MediaServer::PeerConnectionObserver::SetIceCandidatesRemovedCallback(
+void Wrappers::PeerConnectionObserver::SetIceCandidatesRemovedCallback(
     Callback<CandidateListPtr> &&callback) noexcept
 {
     _ice_candidates_removed_callback = std::move(callback);
 }
 
-void MediaServer::PeerConnectionObserver::SetRemoteTrackAddedCallback(
+void Wrappers::PeerConnectionObserver::SetRemoteTrackAddedCallback(
     Callback<RtpTransceiverInterfacePtr> &&callback) noexcept
 {
     _remote_track_added_callback = std::move(callback);
 }
 
-void MediaServer::PeerConnectionObserver::SetRemoteTrackRemovedCallback(
+void Wrappers::PeerConnectionObserver::SetRemoteTrackRemovedCallback(
     Callback<RtpReceiverInterfacePtr> &&callback) noexcept
 {
     _remote_track_removed_callback = std::move(callback);
 }
 
-void MediaServer::PeerConnectionObserver::OnSignalingChange(
+void Wrappers::PeerConnectionObserver::OnSignalingChange(
     webrtc::PeerConnectionInterface::SignalingState new_state)
 {
     RTC_LOG(LS_INFO, "signaling state changed: SignalingState(" + new_state + ")");
 }
 
-void MediaServer::PeerConnectionObserver::OnDataChannel(
+void Wrappers::PeerConnectionObserver::OnDataChannel(
     rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel)
 {
     RTC_LOG(LS_INFO, "data channel created");
 }
 
-MediaServer::PeerConnectionObserver::PeerConnectionObserver()
+Wrappers::PeerConnectionObserver::PeerConnectionObserver()
 {
 }
 
-void MediaServer::PeerConnectionObserver::OnRenegotiationNeeded()
+void Wrappers::PeerConnectionObserver::OnRenegotiationNeeded()
 {
     if(_renegotiation_needed_callback)
     {
@@ -102,7 +102,7 @@ void MediaServer::PeerConnectionObserver::OnRenegotiationNeeded()
     }
 }
 
-void MediaServer::PeerConnectionObserver::OnIceGatheringChange(
+void Wrappers::PeerConnectionObserver::OnIceGatheringChange(
     webrtc::PeerConnectionInterface::IceGatheringState new_state)
 {
     if(_ice_gathering_state_changed_callback)
@@ -111,7 +111,7 @@ void MediaServer::PeerConnectionObserver::OnIceGatheringChange(
     }
 }
 
-void MediaServer::PeerConnectionObserver::OnIceConnectionChange(
+void Wrappers::PeerConnectionObserver::OnIceConnectionChange(
     webrtc::PeerConnectionInterface::IceConnectionState new_state)
 {
     if(_ice_connection_change_callback)
@@ -120,7 +120,7 @@ void MediaServer::PeerConnectionObserver::OnIceConnectionChange(
     }
 }
 
-void MediaServer::PeerConnectionObserver::OnIceCandidate(
+void Wrappers::PeerConnectionObserver::OnIceCandidate(
     const webrtc::IceCandidateInterface *ice_candidate)
 {
     if(_ice_candidate_callback)
@@ -141,18 +141,18 @@ void MediaServer::PeerConnectionObserver::OnIceCandidate(
         // Invoke the callback
         // Notes that the char* will be deleted by the parent
         // string above
-        _ice_candidate_callback(MediaServer::IceCandidate{
+        _ice_candidate_callback(Wrappers::IceCandidate{
             sdp.c_str(), sdp_mid.c_str(), ice_candidate->sdp_mline_index()});
     }
 }
 
-void MediaServer::PeerConnectionObserver::SetRenegotiationNeededCallback(
+void Wrappers::PeerConnectionObserver::SetRenegotiationNeededCallback(
     Callback<> &&callback) noexcept
 {
     _renegotiation_needed_callback = std::move(callback);
 }
 
-void MediaServer::PeerConnectionObserver::OnTrack(
+void Wrappers::PeerConnectionObserver::OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver)
 {
     if(_remote_track_added_callback)
@@ -161,7 +161,7 @@ void MediaServer::PeerConnectionObserver::OnTrack(
     }
 }
 
-void MediaServer::PeerConnectionObserver::OnRemoveTrack(
+void Wrappers::PeerConnectionObserver::OnRemoveTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver)
 {
     if(_remote_track_removed_callback)
@@ -170,7 +170,7 @@ void MediaServer::PeerConnectionObserver::OnRemoveTrack(
     }
 }
 
-void MediaServer::PeerConnectionObserver::OnIceCandidatesRemoved(
+void Wrappers::PeerConnectionObserver::OnIceCandidatesRemoved(
     const std::vector<cricket::Candidate> &candidates)
 {
     if(_ice_candidates_removed_callback)

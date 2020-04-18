@@ -18,7 +18,7 @@ std::unique_ptr<rtc::Thread> CreateThread(const std::string &name,
     return tmp;
 }
 
-void MediaServer::PeerConnectionFactory::Initialize()
+void Wrappers::PeerConnectionFactory::Initialize()
 {
     // Initialization guard
     uint8_t _expected{INIT_STATE_NONE};
@@ -47,7 +47,7 @@ void MediaServer::PeerConnectionFactory::Initialize()
         nullptr);
 }
 
-void MediaServer::PeerConnectionFactory::TearDown()
+void Wrappers::PeerConnectionFactory::TearDown()
 {
     uint8_t _expected{INIT_STATE_INITIALISED};
     if(_initialized_state.compare_exchange_strong(_expected, INIT_STATE_TORN_DOWN))
@@ -60,7 +60,7 @@ void MediaServer::PeerConnectionFactory::TearDown()
     }
 }
 
-PeerConnectionFactoryInterface *MediaServer::PeerConnectionFactory::
+PeerConnectionFactoryInterface *Wrappers::PeerConnectionFactory::
     GetPeerConnectionFactory()
 {
     if(_initialized_state.load() != INIT_STATE_INITIALISED)

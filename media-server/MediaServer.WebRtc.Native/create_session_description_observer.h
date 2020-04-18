@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace MediaServer
+namespace Wrappers
 {
 // Generic observer, allows you to supply a callback.
 // Designed so it owns it self, self-delete after the callback is called
@@ -23,4 +23,4 @@ class CreateSessionDescriptionObserver final
   private:
     std::function<void(Result<webrtc::SessionDescriptionInterface *>)> _callback_lambda;
 };
-} // namespace MediaServer
+} // namespace Wrappers

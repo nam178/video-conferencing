@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace MediaServer
+namespace Wrappers
 {
 enum class IceConnectionState : int32_t
 {
@@ -15,4 +15,4 @@ enum class IceConnectionState : int32_t
     IceConnectionClosed = 6,
     IceConnectionMax = 7
 };
-} // namespace MediaServer
+} // namespace Wrappers

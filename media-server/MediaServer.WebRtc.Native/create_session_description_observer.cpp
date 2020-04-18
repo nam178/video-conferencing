@@ -2,13 +2,13 @@
 
 #include "create_session_description_observer.h"
 
-MediaServer::CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
+Wrappers::CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
     std::function<void (Result<webrtc::SessionDescriptionInterface *>)> &&callback_lambda)
     : _callback_lambda(callback_lambda)
 {
 }
 
-void MediaServer::CreateSessionDescriptionObserver::OnSuccess(
+void Wrappers::CreateSessionDescriptionObserver::OnSuccess(
     webrtc::SessionDescriptionInterface *desc)
 {
     // as per documentation, we own SessionDescriptionInterface,
@@ -18,13 +18,13 @@ void MediaServer::CreateSessionDescriptionObserver::OnSuccess(
     _callback_lambda(Result<webrtc::SessionDescriptionInterface *>{desc, true});
 }
 
-void MediaServer::CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error)
+void Wrappers::CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error)
 {
     _callback_lambda(
         Result<webrtc::SessionDescriptionInterface *>{nullptr, false, error.message()});
 }
 
-MediaServer::CreateSessionDescriptionObserver::~CreateSessionDescriptionObserver()
+Wrappers::CreateSessionDescriptionObserver::~CreateSessionDescriptionObserver()
 {
     // confirm that this breakpoint gets hit
     ;

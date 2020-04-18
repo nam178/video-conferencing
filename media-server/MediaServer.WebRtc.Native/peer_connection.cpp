@@ -4,13 +4,13 @@
 #include "peer_connection.h"
 #include "string_helper.h"
 
-MediaServer::PeerConnection::PeerConnection(
+Wrappers::PeerConnection::PeerConnection(
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> &&peer_connection_interface)
     : _peer_connection_interface(std::move(peer_connection_interface))
 {
 }
 
-void MediaServer::PeerConnection::CreateAnswer(Callback<MediaServer::CreateAnswerResult> &&callback)
+void Wrappers::PeerConnection::CreateAnswer(Callback<Wrappers::CreateAnswerResult> &&callback)
 {
     const webrtc::PeerConnectionInterface::RTCOfferAnswerOptions opts{};
 
@@ -19,7 +19,7 @@ void MediaServer::PeerConnection::CreateAnswer(Callback<MediaServer::CreateAnswe
     // PeerConnectionInterface takes owner ship of CreateSessionDescriptionObserver
     // see struct CreateSessionDescriptionRequest in the source.
     _peer_connection_interface->CreateAnswer(
-        new MediaServer::CreateSessionDescriptionObserver(
+        new Wrappers::CreateSessionDescriptionObserver(
             [callback](Result<webrtc::SessionDescriptionInterface *> result) {
                 if(result._success)
                 {
@@ -41,7 +41,7 @@ void MediaServer::PeerConnection::CreateAnswer(Callback<MediaServer::CreateAnswe
                     }
                     Utils::StringHelper::EnsureNullTerminatedCString(sdp_str);
 
-                    // Callback
+                    // CreateAnswerCallback
                     callback({true, nullptr, sdp_type_str.c_str(), sdp_str.c_str()});
                 }
                 else
@@ -57,12 +57,12 @@ void MediaServer::PeerConnection::CreateAnswer(Callback<MediaServer::CreateAnswe
         opts);
 }
 
-void MediaServer::PeerConnection::Close()
+void Wrappers::PeerConnection::Close()
 {
     _peer_connection_interface->Close();
 }
 
-void MediaServer::PeerConnection::RemoteSessionDescription(const char *sdp_type, const char *sdp)
+void Wrappers::PeerConnection::RemoteSessionDescription(const char *sdp_type, const char *sdp)
 {
     rtc::scoped_refptr<webrtc::SetRemoteDescriptionObserverInterface> observer;
 
@@ -78,7 +78,7 @@ void MediaServer::PeerConnection::RemoteSessionDescription(const char *sdp_type,
     _peer_connection_interface->SetRemoteDescription(std::move(session_description), observer);
 }
 
-webrtc::PeerConnectionInterface *MediaServer::PeerConnection::GetPeerConnectionInterface()
+webrtc::PeerConnectionInterface *Wrappers::PeerConnection::GetPeerConnectionInterface()
 {
     return _peer_connection_interface.get();
 }

@@ -4,7 +4,7 @@
 
 #include "ice_gathering_state.h"
 
-using namespace MediaServer;
+using namespace Wrappers;
 
 extern "C"
 {

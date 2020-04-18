@@ -5,12 +5,12 @@
 
 void CONVENTION PeerConnectionDestroy(PeerConnectionPtr peer_connection_ptr)
 {
-    delete static_cast<MediaServer::PeerConnection *>(peer_connection_ptr);
+    delete static_cast<Wrappers::PeerConnection *>(peer_connection_ptr);
 }
 
 void CONVENTION PeerConnectionClose(PeerConnectionPtr peer_connection_ptr)
 {
-    auto tmp = static_cast<MediaServer::PeerConnection *>(peer_connection_ptr);
+    auto tmp = static_cast<Wrappers::PeerConnection *>(peer_connection_ptr);
     if(!tmp)
     {
         throw new std::runtime_error("peer_connection_ptr is NULL");
@@ -19,10 +19,10 @@ void CONVENTION PeerConnectionClose(PeerConnectionPtr peer_connection_ptr)
 }
 
 void CONVENTION PeerConnectionCreateAnswer(PeerConnectionPtr peer_connection_ptr,
-                                           Callback callback,
+                                           CreateAnswerCallback callback,
                                            UserData user_data)
 {
-    auto peer_connection = static_cast<MediaServer::PeerConnection *>(peer_connection_ptr);
+    auto peer_connection = static_cast<Wrappers::PeerConnection *>(peer_connection_ptr);
     if(!peer_connection)
     {
         RTC_LOG(LS_ERROR, "peer_connection_ptr null pointer");
@@ -30,14 +30,17 @@ void CONVENTION PeerConnectionCreateAnswer(PeerConnectionPtr peer_connection_ptr
     }
 
     peer_connection->CreateAnswer(
-        MediaServer::Callback<MediaServer::CreateAnswerResult>{callback, user_data});
+        Wrappers::Callback<Wrappers::CreateAnswerResult>{callback, user_data});
 }
 
-void CONVENTION PeerConnectionSetRemoteSessionDescription(PeerConnectionPtr peer_connection_ptr,
-                                                          const char *sdp_type,
-                                                          const char *sdp)
+void CONVENTION
+PeerConnectionSetRemoteSessionDescription(PeerConnectionPtr peer_connection_ptr,
+                                          const char *sdp_type,
+                                          const char *sdp,
+                                          SetRemoteSessionDescriptionCallback callback,
+                                          UserData user_data)
 {
-    auto peer_connection = static_cast<MediaServer::PeerConnection *>(peer_connection_ptr);
+    auto peer_connection = static_cast<Wrappers::PeerConnection *>(peer_connection_ptr);
     if(!peer_connection)
     {
         RTC_LOG(LS_ERROR, "peer_connection is NULL");

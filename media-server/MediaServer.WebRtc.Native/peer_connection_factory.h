@@ -5,7 +5,7 @@
 using namespace webrtc;
 using namespace rtc;
 
-namespace MediaServer
+namespace Wrappers
 {
 // Responsible for the setup and tear down of the PeerConnectionFactory.
 // Designed to be used one per room.
@@ -32,4 +32,4 @@ class PeerConnectionFactory final
 
     scoped_refptr<PeerConnectionFactoryInterface> _peer_connection_factory = {};
 };
-} // namespace MediaServer
+} // namespace Wrappers

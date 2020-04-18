@@ -4,7 +4,7 @@
 
 #include "create_answer_result.h"
 
-namespace MediaServer
+namespace Wrappers
 {
 // manages the smart pointer to the libWebRTC peer connection
 // so it won't get destroyed
@@ -19,7 +19,7 @@ class PeerConnection final
     // Create answer to an sdp offer.
     // the callback will be called on the signalling thread in theory.
     // The callback owns the SessionDescriptionInterface*
-    void CreateAnswer(Callback<MediaServer::CreateAnswerResult> &&callback);
+    void CreateAnswer(Callback<Wrappers::CreateAnswerResult> &&callback);
 
     // Completely kill this, implementation maps to native PeerConnection Close()
     void Close();
@@ -34,4 +34,4 @@ class PeerConnection final
   private:
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> _peer_connection_interface;
 };
-} // namespace MediaServer
+} // namespace Wrappers

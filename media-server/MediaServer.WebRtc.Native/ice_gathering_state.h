@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace MediaServer
+namespace Wrappers
 {
 enum class IceGatheringState : int32_t
 {
@@ -10,4 +10,4 @@ enum class IceGatheringState : int32_t
     Gathering = 1,
     Complete = 2,
 };
-} // namespace MediaServer
+} // namespace Wrappers

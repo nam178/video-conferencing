@@ -3,7 +3,7 @@
 #include "export.h"
 #include "pch.h"
 
-namespace MediaServer
+namespace Wrappers
 {
 template <typename... Args> struct Callback
 {
@@ -26,4 +26,4 @@ template <typename... Args> struct Callback
         }
     }
 };
-} // namespace MediaServer
+} // namespace Wrappers

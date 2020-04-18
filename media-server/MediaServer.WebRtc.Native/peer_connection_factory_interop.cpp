@@ -7,9 +7,9 @@
 #include "passive_video_track.h"
 #include "passive_video_track_source.h"
 
-MediaServer::PeerConnectionFactory *Cast(void *opaque_ptr)
+Wrappers::PeerConnectionFactory *Cast(void *opaque_ptr)
 {
-    auto tmp = static_cast<MediaServer::PeerConnectionFactory *>(opaque_ptr);
+    auto tmp = static_cast<Wrappers::PeerConnectionFactory *>(opaque_ptr);
     if(!tmp)
     {
         RTC_LOG(LS_ERROR, "PeerConnectionFactory null ptr");
@@ -20,7 +20,7 @@ MediaServer::PeerConnectionFactory *Cast(void *opaque_ptr)
 
 PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryCreate()
 {
-    return new MediaServer::PeerConnectionFactory();
+    return new Wrappers::PeerConnectionFactory();
 }
 
 void CONVENTION PeerConnectionFactoryInitialize(PeerConnectionFactoryPtr instance)
@@ -95,7 +95,7 @@ PeerConnectionFactoryCreatePeerConnection(PeerConnectionFactoryPtr peer_connecti
     }
 
     auto factory_manager =
-        static_cast<MediaServer::PeerConnectionFactory *>(peer_connection_factory);
+        static_cast<Wrappers::PeerConnectionFactory *>(peer_connection_factory);
     if(!factory_manager)
     {
         RTC_LOG(LS_ERROR, "peer_connection_observer is null");
@@ -107,7 +107,7 @@ PeerConnectionFactoryCreatePeerConnection(PeerConnectionFactoryPtr peer_connecti
     auto peer_connection = factory_manager->GetPeerConnectionFactory()->CreatePeerConnection(
         rtc_config, std::move(dependencies));
 
-    return new MediaServer::PeerConnection(std::move(peer_connection));
+    return new Wrappers::PeerConnection(std::move(peer_connection));
 }
 
 PassiveVideoTrackPtr CONVENTION PeerConnectionFactoryCreatePassiveVideoTrack(

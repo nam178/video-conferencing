@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace MediaServer
+namespace Wrappers
 {
 struct IceCandidate
 {
@@ -10,4 +10,4 @@ struct IceCandidate
     const char *_sdp_mid = nullptr;
     int _sdp_mline_index = 0;
 };
-} // namespace MediaServer
+} // namespace Wrappers
