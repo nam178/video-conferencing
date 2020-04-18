@@ -1,8 +1,9 @@
 #include "pch.h"
 
-#include "peer_connection_factory.h"
+#include "noop_audio_device_module.h"
 #include "noop_video_decoder_factory.h"
 #include "noop_video_encoder_factory.h"
+#include "peer_connection_factory.h"
 
 const uint8_t INIT_STATE_NONE = 0;
 const uint8_t INIT_STATE_INITIALISED = 1;
@@ -38,7 +39,7 @@ void Wrappers::PeerConnectionFactory::Initialize()
         _network_thread.get(),
         _worker_thread.get(),
         _signalling_thread.get(),
-        nullptr,
+        rtc::scoped_refptr(new NoopAudio::NoopAudioDeviceModule()),
         webrtc::CreateBuiltinAudioEncoderFactory(),
         webrtc::CreateBuiltinAudioDecoderFactory(),
         std::make_unique<NoopVideo::Encoder::NoopVideoEncoderFactory>(),
@@ -60,8 +61,7 @@ void Wrappers::PeerConnectionFactory::TearDown()
     }
 }
 
-PeerConnectionFactoryInterface *Wrappers::PeerConnectionFactory::
-    GetPeerConnectionFactory()
+PeerConnectionFactoryInterface *Wrappers::PeerConnectionFactory::GetPeerConnectionFactory()
 {
     if(_initialized_state.load() != INIT_STATE_INITIALISED)
     {

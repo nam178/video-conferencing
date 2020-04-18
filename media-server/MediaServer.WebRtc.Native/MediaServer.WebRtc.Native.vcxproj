@@ -111,6 +111,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="create_session_description_observer.h" />
+    <ClInclude Include="noop_audio_device_module.h" />
     <ClInclude Include="peer_connection.h" />
     <ClInclude Include="peer_connection_factory_interop.h" />
     <ClInclude Include="peer_connection_interop.h" />
@@ -143,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="create_session_description_observer.cpp" />
+    <ClCompile Include="noop_audio_device_module.cpp" />
     <ClCompile Include="peer_connection.cpp" />
     <ClCompile Include="peer_connection_factory_interop.cpp" />
     <ClCompile Include="peer_connection_interop.cpp" />

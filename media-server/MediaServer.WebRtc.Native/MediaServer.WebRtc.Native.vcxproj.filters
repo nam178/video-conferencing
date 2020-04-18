@@ -57,6 +57,7 @@
       <Filter>wrappers\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="set_remote_session_description_observer.cpp" />
+    <ClCompile Include="noop_audio_device_module.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -143,6 +144,9 @@
     <ClInclude Include="pointer_helper.h">
       <Filter>misc</Filter>
     </ClInclude>
+    <ClInclude Include="noop_audio_device_module.h">
+      <Filter>noop_audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -168,6 +172,9 @@
     </Filter>
     <Filter Include="wrappers\peer_connection">
       <UniqueIdentifier>{2ada02e8-c6dc-4d50-89da-fa498673670f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="noop_audio">
+      <UniqueIdentifier>{9e1557b4-ff96-46ce-836e-f5bd1d99cc09}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
