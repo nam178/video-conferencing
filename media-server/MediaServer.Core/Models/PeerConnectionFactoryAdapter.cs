@@ -1,7 +1,4 @@
-﻿using MediaServer.Core.Common;
-using Microsoft.Extensions.Options;
-using System;
-using System.Linq;
+﻿using System;
 using System.Threading;
 
 namespace MediaServer.Core.Models
@@ -9,20 +6,11 @@ namespace MediaServer.Core.Models
     sealed class PeerConnectionFactoryAdapter : IPeerConnectionFactory
     {
         readonly WebRtc.Managed.PeerConnectionFactory _webRtcPeerConnectionFactory;
-        readonly IOptions<PeerConnectionFactorySettings> _peerConnectionFactorySettings;
 
-        public PeerConnectionFactoryAdapter(IOptions<PeerConnectionFactorySettings> peerConnectionFactorySettings)
+        public PeerConnectionFactoryAdapter()
         {
-            if(_peerConnectionFactorySettings.Value.StunUrls is null
-                || !_peerConnectionFactorySettings.Value.StunUrls.Any())
-            {
-                throw new ArgumentException("StunUrls cannot be null or empty");
-            }
-
             // actual implementation uses WebRTC
             _webRtcPeerConnectionFactory = new WebRtc.Managed.PeerConnectionFactory();
-            _peerConnectionFactorySettings = peerConnectionFactorySettings
-                ?? throw new System.ArgumentNullException(nameof(peerConnectionFactorySettings));
         }
 
         int _initialised = 0;
@@ -37,7 +25,14 @@ namespace MediaServer.Core.Models
 
         public IPeerConnection Create()
         {
-            return new PeerConnectionAdapter(_webRtcPeerConnectionFactory, _peerConnectionFactorySettings.Value.StunUrls);
+            var stunUrls = Environment.GetEnvironmentVariable("STUN_URLS");
+            if(string.IsNullOrWhiteSpace(stunUrls))
+            {
+                throw new ApplicationException("STUN_URLS environment variable has not been set");
+            }
+            return new PeerConnectionAdapter(_webRtcPeerConnectionFactory, new[] {
+                stunUrls
+            });
         }
     }
 }
