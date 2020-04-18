@@ -68,6 +68,23 @@ namespace MediaServer.WebRtc.Managed
         }
 
         /// <summary>
+        /// Only call this after SetRemoteSessionDescriptionAsync completes
+        /// </summary>
+        /// <exception cref="Errors.AddIceCandidateFailedException"
+        public void AddIceCandidate(RTCIceCandidate iceCandidate)
+        {
+            Require.NotEmpty(iceCandidate);
+            if(false == PeerConnectionInterop.AddIceCandidate(
+                _handle,
+                iceCandidate.SdpMid,
+                iceCandidate.SdpMLineIndex,
+                iceCandidate.Candidate))
+            {
+                throw new Errors.AddIceCandidateFailedException("Add ICE candidate failed, check RTC logs");
+            }
+        }
+
+        /// <summary>
         /// Close the native PeerConnection, 
         /// note that pending async operations such as the CreateAnswer() 
         /// method may still continue execute after the PeerConnection is closed.

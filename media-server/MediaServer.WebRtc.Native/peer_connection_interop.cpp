@@ -35,17 +35,16 @@ PeerConnectionSetRemoteSessionDescription(PeerConnectionPtr peer_connection_ptr,
 
 bool CONVENTION PeerConnectionAddIceCandidate(PeerConnectionPtr peer_connection_ptr,
                                               const char *sdp_mid,
-                                              uint32_t sdp_mline_index,
-                                              const char *sdp,
-                                              const char *error_message)
+                                              int32_t sdp_mline_index,
+                                              const char *sdp)
 {
     std::string out_error{};
-    auto result = StaticCastOrThrow<Wrappers::PeerConnection>(peer_connection_ptr)
-                      ->AddIceCandiate(sdp_mid, sdp_mline_index, sdp, out_error);
-    if(!result)
+    auto success = StaticCastOrThrow<Wrappers::PeerConnection>(peer_connection_ptr)
+                         ->AddIceCandiate(sdp_mid, sdp_mline_index, sdp, out_error);
+    if(!success)
     {
         Utils::StringHelper::EnsureNullTerminatedCString(out_error);
-        error_message = out_error.c_str();
+        RTC_LOG(LS_ERROR, "Failed adding candidate: " + out_error);
     }
-    return result;
+    return success;
 }

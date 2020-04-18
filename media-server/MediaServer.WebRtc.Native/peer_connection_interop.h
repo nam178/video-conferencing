@@ -30,7 +30,6 @@ extern "C"
 
     EXPORT bool CONVENTION PeerConnectionAddIceCandidate(PeerConnectionPtr peer_connection_ptr,
                                                          const char *sdp_mid,
-                                                         uint32_t sdp_mline_index,
-                                                         const char *sdp,
-                                                         const char *error_message);
+                                                         int32_t sdp_mline_index,
+                                                         const char *sdp);
 }

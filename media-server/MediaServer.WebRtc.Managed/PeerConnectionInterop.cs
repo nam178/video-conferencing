@@ -32,5 +32,9 @@ namespace MediaServer.WebRtc.Managed
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionSetRemoteSessionDescription")]
         public static extern void SetRemoteSessionDescription(PeerConnectionSafeHandle handle, string type, string sdp, SetRemoteSessionDescriptionCallback callback, IntPtr userData);
+
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddIceCandidate")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool AddIceCandidate(PeerConnectionSafeHandle handle, string sdpMid, int mLineIndex, string sdp);
     }
 }
