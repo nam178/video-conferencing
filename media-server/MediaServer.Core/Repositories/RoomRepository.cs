@@ -1,4 +1,5 @@
-﻿using MediaServer.Core.Models;
+﻿using MediaServer.Common.Utils;
+using MediaServer.Core.Models;
 using MediaServer.Models;
 using System;
 using System.Collections.Generic;
@@ -7,22 +8,21 @@ namespace MediaServer.Core.Repositories
 {
     sealed class RoomRepository : IRoomRepository
     {
-        readonly List<Room> _rooms = new List<Room>();
-        readonly Dictionary<RoomId, Room> _roomIndexById = new Dictionary<RoomId, Room>();
+        readonly List<IRoom> _rooms = new List<IRoom>();
+        readonly Dictionary<RoomId, IRoom> _roomIndexById = new Dictionary<RoomId, IRoom>();
 
-        public Room CreateRoom(RoomId id)
+        public void AddRoom(IRoom room)
         {
-            if(_roomIndexById.ContainsKey(id))
+            Require.NotNull(room);
+            if(_roomIndexById.ContainsKey(room.Id))
             {
-                throw new InvalidOperationException($"Room by id {id} already exist");
+                throw new InvalidOperationException($"Room by id {room.Id} already exist");
             }
-            var room = new Room { Id = id };
-            _roomIndexById[id] = room;
+            _roomIndexById[room.Id] = room;
             _rooms.Add(room);
-            return _roomIndexById[id];
         }
 
-        public Room GetRoomById(RoomId id)
+        public IRoom GetRoomById(RoomId id)
         {
             if(_roomIndexById.ContainsKey(id))
             {

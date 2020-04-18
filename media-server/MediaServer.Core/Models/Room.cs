@@ -4,31 +4,20 @@ using MediaServer.Core.Repositories;
 
 namespace MediaServer.Models
 {
-    /// <summary>
-    /// The room model.
-    /// </summary>
-    /// <remarks>Not thread safe. Make sure modifications to the model are made using the dispatch queue associated with this room</remarks>
-    public sealed class Room
+    sealed class Room : IRoom
     {
-        /// <summary>
-        /// Each room has its own dispatch queue, used to update models, handling signals, etc..
-        /// to avoid race conditions.
-        /// </summary>
         public IDispatchQueue DispatchQueue { get; }
 
-        /// <summary>
-        /// The room id
-        /// </summary>
         public RoomId Id { get; set; }
 
-        /// <summary>
-        /// The users that belongs to this room
-        /// </summary>
         public IUserProfileCollection UserProfiles { get; } = new UserProfileCollection();
 
-        public Room()
+        public IPeerConnectionFactory PeerConnectionFactory { get; }
+
+        public Room(IPeerConnectionFactory peerConnectionFactory)
         {
-            // Create and start an exclusive dispatch queue for this room
+            PeerConnectionFactory = peerConnectionFactory
+                ?? throw new System.ArgumentNullException(nameof(peerConnectionFactory));
             DispatchQueue = new ThreadPoolDispatchQueue();
             ((ThreadPoolDispatchQueue)DispatchQueue).Start();
         }

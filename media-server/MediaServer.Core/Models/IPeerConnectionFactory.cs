@@ -1,7 +1,9 @@
 ﻿namespace MediaServer.Core.Models
 {
-    interface IPeerConnectionFactory
+    public interface IPeerConnectionFactory
     {
+        void EnsureInitialised();
+
         IPeerConnection Create();
     }
 }

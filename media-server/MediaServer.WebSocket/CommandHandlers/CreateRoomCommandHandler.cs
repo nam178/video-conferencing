@@ -1,4 +1,5 @@
 ﻿using MediaServer.Common.Mediator;
+using MediaServer.Core.Models;
 using MediaServer.Core.Services;
 using MediaServer.Core.Services.ServerManager;
 using MediaServer.WebSocket.Net;
@@ -9,9 +10,9 @@ namespace MediaServer.WebSocket.CommandHandlers
 {
     sealed class CreateRoomCommandHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.CreateRoom>
     {
-        readonly ICoreService<NewRoomRequest, NewRoomResponse> _coreHandler;
+        readonly ICoreService<NewRoomRequest, RoomId> _coreHandler;
 
-        public CreateRoomCommandHandler(ICoreService<NewRoomRequest, NewRoomResponse> coreHandler)
+        public CreateRoomCommandHandler(ICoreService<NewRoomRequest, RoomId> coreHandler)
         {
             _coreHandler = coreHandler
                 ?? throw new System.ArgumentNullException(nameof(coreHandler));
@@ -25,11 +26,7 @@ namespace MediaServer.WebSocket.CommandHandlers
                 {
                     NewRoomName = args.NewRoomName
                 });
-
-                if(result.Success)
-                    await remoteDevice.SendAsync("RoomCreated", result.CreatedRoomId.ToString());
-                else
-                    await remoteDevice.SendAsync("RoomCreationFailed", result.ErrorMessage);
+                await remoteDevice.SendAsync("RoomCreated", result.ToString());
             }
             catch(Exception ex)
             {

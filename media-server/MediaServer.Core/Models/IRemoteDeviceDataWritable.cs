@@ -4,7 +4,7 @@ namespace MediaServer.Core.Models
 {
     public interface IRemoteDeviceDataWritable
     {
-        Room Room { set; }
+        IRoom Room { set; }
 
         UserProfile  User { set; }
     }

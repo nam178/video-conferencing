@@ -11,19 +11,17 @@ namespace MediaServer.Core.Repositories
     interface IRoomRepository
     {
         /// <summary>
-        /// Create new room
+        /// Add specified room into the repo
         /// </summary>
-        /// <param name="id"></param>
-        /// <exception cref="System.ArgumentException">When the id is invalid</exception>
-        /// <exception cref="System.InvalidOperationException">When room already exists</exception>
-        /// <returns></returns>
-        Room CreateRoom(RoomId id);
+        /// <param name="room"></param>
+        /// <exception cref="System.InvalidOperationException">When room already exist</exception>
+        void AddRoom(IRoom room);
 
         /// <summary>
         /// Find the specified room
         /// </summary>
         /// <param name="id"></param>
         /// <returns>The room if found, or NULL when the room doesn't exist</returns>
-        Room GetRoomById(RoomId id);
+        IRoom GetRoomById(RoomId id);
     }
 }

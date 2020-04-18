@@ -7,48 +7,50 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.ServerManager
 {
-    sealed class NewRoomRequestHandler : ICoreService<NewRoomRequest, NewRoomResponse>
+    sealed class NewRoomRequestHandler : ICoreService<NewRoomRequest, RoomId>
     {
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;
+        readonly IRoomFactory _roomFactory;
 
-        public NewRoomRequestHandler(IDispatchQueue centralDispatchQueue, IRoomRepository roomRepository)
+        public NewRoomRequestHandler(
+            IDispatchQueue centralDispatchQueue,
+            IRoomRepository roomRepository,
+            IRoomFactory roomFactory)
         {
             _centralDispatchQueue = centralDispatchQueue
                 ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
             _roomRepository = roomRepository
                 ?? throw new ArgumentNullException(nameof(roomRepository));
+            _roomFactory = roomFactory
+                ?? throw new ArgumentNullException(nameof(roomFactory));
         }
 
-        public Task<NewRoomResponse> HandleAsync(IRemoteDevice remoteDevice, NewRoomRequest request)
+        public async Task<RoomId> HandleAsync(IRemoteDevice remoteDevice, NewRoomRequest request)
         {
             // Currently anyone can create rooms,
             // TODO: add some security here
             var roomId = RoomId.FromString(request.NewRoomName);
-            return _centralDispatchQueue.ExecuteAsync(delegate
+            var room = await _centralDispatchQueue.ExecuteAsync(() =>
+                {
+                    var existingRoom = _roomRepository.GetRoomById(roomId);
+                    if(existingRoom != null)
+                    {
+                        return existingRoom;
+                    }
+                    var newRoom = _roomFactory.Create();
+                    _roomRepository.AddRoom(newRoom);
+                    return newRoom;
+                });
+
+            // Initialise room, 
+            // done in the room's queue to avoid blocking the main queue.
+            await room.DispatchQueue.ExecuteAsync(delegate
             {
-                try
-                {
-                    var room = _roomRepository.CreateRoom(roomId);
-                    return new NewRoomResponse // room created the first time
-                    {
-                        Success = true,
-                        CreatedRoomId = room.Id
-                    };
-                }
-                catch(InvalidOperationException) // room already created
-                {
-                    return new NewRoomResponse { Success = true, CreatedRoomId = roomId };
-                }
-                catch(Exception ex) // unexpected failure
-                {
-                    return new NewRoomResponse
-                    {
-                        Success = false,
-                        ErrorMessage = ex.Message
-                    };
-                }
+                room.PeerConnectionFactory.EnsureInitialised();
             });
+
+            return roomId;
         }
     }
 }

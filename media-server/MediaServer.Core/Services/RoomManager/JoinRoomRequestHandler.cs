@@ -62,7 +62,7 @@ namespace MediaServer.Core.Services.RoomManager
             return GenericResponse.SuccessResponse();
         }
 
-        async Task<Room> GetAndValidateRoom(IRemoteDevice remoteDevice, JoinRoomRequest request)
+        async Task<IRoom> GetAndValidateRoom(IRemoteDevice remoteDevice, JoinRoomRequest request)
         {
             // Jump into the central dispatch queue and do some validations first
             return await _centralDispatchQueue.ExecuteAsync(delegate
@@ -84,7 +84,7 @@ namespace MediaServer.Core.Services.RoomManager
             });
         }
 
-        static async Task<UserProfile> GetOrCreateUserProfile(IRemoteDevice remoteDevice, JoinRoomRequest request, Room room)
+        static async Task<UserProfile> GetOrCreateUserProfile(IRemoteDevice remoteDevice, JoinRoomRequest request, IRoom room)
         {
             // Then dispatch to the room's thread and 
             // create an user profile if not exist

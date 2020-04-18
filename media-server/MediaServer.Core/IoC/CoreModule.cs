@@ -1,11 +1,13 @@
 ﻿using Autofac;
 using MediaServer.Common.Threading;
 using MediaServer.Core.Decorators;
+using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Core.Services;
 using MediaServer.Core.Services.RoomManager;
 using MediaServer.Core.Services.ServerManager;
 using Microsoft.Extensions.Hosting;
+using NLog.Targets.Wrappers;
 
 namespace MediaServer.Core.IoC
 {
@@ -40,6 +42,9 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<DeviceDisconnectionRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<SendStatusUpdateRequestHandler>().AsImplementedInterfaces();
 
+            // Factories
+            builder.RegisterType<RoomFactory>().AsImplementedInterfaces();
+            builder.RegisterType<PeerConnectionFactory>().AsImplementedInterfaces();
 
             // Decorators
             builder.RegisterDecorator<DeviceDisconnectionRequestHandlerDecorator, IRemoteDeviceService<DeviceDisconnectionRequest>>();

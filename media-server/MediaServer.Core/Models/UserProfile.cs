@@ -24,9 +24,9 @@ namespace MediaServer.Core.Models
         /// <summary>
         /// The room in which this user belongs to
         /// </summary>
-        public Room Room { get; }
+        public IRoom Room { get; }
 
-        public UserProfile(Room room)
+        public UserProfile(IRoom room)
         {
             Room = room ?? throw new ArgumentNullException(nameof(room));
         }

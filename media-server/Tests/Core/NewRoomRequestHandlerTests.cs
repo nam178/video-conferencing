@@ -14,30 +14,35 @@ namespace Tests.Core
     {
         readonly ThreadPoolDispatchQueue _dispatchQueue = new ThreadPoolDispatchQueue();
         readonly Mock<IRoomRepository> _roomRepository = new Mock<IRoomRepository>();
+        readonly Mock<IRoomFactory> _mockRoomFactory = new Mock<IRoomFactory>();
         readonly NewRoomRequestHandler _handler;
+        readonly Mock<IPeerConnectionFactory> _mockPeerConnectionFactory;
+        readonly Mock<IRoom> _room;
 
         public NewRoomRequestHandlerTests()
         {
             _dispatchQueue.Start();
-            _handler = new NewRoomRequestHandler(_dispatchQueue, _roomRepository.Object);
+            _mockPeerConnectionFactory = new Mock<IPeerConnectionFactory>();
+            _mockPeerConnectionFactory
+                .Setup(x => x.Create())
+                .Returns(Mock.Of<IPeerConnection>());
+            _room = new Mock<IRoom>();
+            _room.Setup(x => x.DispatchQueue).Returns(_dispatchQueue);
+            _room.Setup(x => x.PeerConnectionFactory).Returns(_mockPeerConnectionFactory.Object);
+            _handler = new NewRoomRequestHandler(_dispatchQueue, _roomRepository.Object, _mockRoomFactory.Object);
         }
 
         [Fact]
-        public async Task HandleAsync_RoomNotCreated_CreateRoomAndReturnSuccess()
+        public async Task HandleAsync_RoomDoesNotExist_CreateRoomAndReturnSuccess()
         {
-            _roomRepository
-                .Setup(x => x.CreateRoom(It.IsAny<RoomId>()))
-                .Returns(new Room
-                {
-                    Id = RoomId.FromString("my-bar")
-                })
-                .Verifiable();
+            _roomRepository.Setup(x => x.GetRoomById(RoomId.FromString("my bar"))).Returns((Room)null);
+            _roomRepository.Setup(x => x.AddRoom(It.IsAny<IRoom>())).Verifiable();
+            _mockRoomFactory.Setup(x => x.Create()).Returns(_room.Object);
 
-            var result = await _handler.HandleAsync(Mock.Of<IRemoteDevice>(), new NewRoomRequest
+            await _handler.HandleAsync(Mock.Of<IRemoteDevice>(), new NewRoomRequest
             {
                 NewRoomName = "my bar"
             });
-            Assert.True(result.Success);
             _roomRepository.Verify();
         }
 
@@ -45,29 +50,33 @@ namespace Tests.Core
         public async Task HandleAsync_RoomAlreadyExist_WontCreateRoomButReturnSuccessToo()
         {
             _roomRepository
-                .Setup(x => x.CreateRoom(It.IsAny<RoomId>()))
+                .Setup(x => x.GetRoomById(RoomId.FromString("my bar")))
+                .Returns(_room.Object);
+            _roomRepository
+                .Setup(x => x.AddRoom(It.IsAny<IRoom>()))
                 .Throws<InvalidOperationException>();
 
-            var result = await _handler.HandleAsync(Mock.Of<IRemoteDevice>(), new NewRoomRequest
+            var roomId = await _handler.HandleAsync(Mock.Of<IRemoteDevice>(), new NewRoomRequest
             {
                 NewRoomName = "my bar"
             });
-            Assert.True(result.Success);
-            Assert.Equal(result.CreatedRoomId, RoomId.FromString("my-bar"));
+            Assert.Equal(roomId, RoomId.FromString("my-bar"));
         }
 
         [Fact]
-        public async Task HandleAsync_UnExpectedError_ReturnsFailure()
+        public async Task HandleAsync_UnExpectedError_Rethrow()
         {
             _roomRepository
-                .Setup(x => x.CreateRoom(It.IsAny<RoomId>()))
+                .Setup(x => x.AddRoom(It.IsAny<Room>()))
                 .Throws<ApplicationException>();
 
-            var result = await _handler.HandleAsync(Mock.Of<IRemoteDevice>(), new NewRoomRequest
+            await Assert.ThrowsAsync<ApplicationException>(async delegate
             {
-                NewRoomName = "my bar"
+                await _handler.HandleAsync(Mock.Of<IRemoteDevice>(), new NewRoomRequest
+                {
+                    NewRoomName = "my bar"
+                });
             });
-            Assert.False(result.Success);
         }
     }
 }

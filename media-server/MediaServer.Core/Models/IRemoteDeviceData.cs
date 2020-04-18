@@ -7,7 +7,7 @@ namespace MediaServer.Core.Models
         /// <summary>
         /// The room in which the device belongs to
         /// </summary>
-        Room Room { get; }
+        IRoom Room { get; }
 
         /// <summary>
         /// The user profile in which the device belongs to

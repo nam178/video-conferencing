@@ -58,7 +58,7 @@ namespace Tests.Core
         [Fact]
         public async Task HandleAsync_NoPeerConnectionYet_NewOneWillBeCreated()
         {
-            var mockUser = new UserProfile(new Room());
+            var mockUser = new UserProfile(Mock.Of<IRoom>());
             var mockPeerConnection = new Mock<IPeerConnection>();
             _remoteDeviceDataRepository
                 .Setup(x => x.GetForDevice(_mockRemoteDevice.Object))
@@ -85,7 +85,7 @@ namespace Tests.Core
         [Fact]
         public async Task HandleAsync_PeerConnectionCreatedTwice_LaterOneIsRejected()
         {
-            var mockUser = new UserProfile(new Room());
+            var mockUser = new UserProfile(Mock.Of<IRoom>());
             var currentPeerConnections = new List<IPeerConnection>();
             var peerConnection1 = new Mock<IPeerConnection>();
 

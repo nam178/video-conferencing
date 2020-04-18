@@ -7,6 +7,6 @@ namespace MediaServer.Core.Services.RoomManager
         /// <summary>
         /// The room in which the status update request will be sent to
         /// </summary>
-        public Room Room { get; set; }
+        public IRoom Room { get; set; }
     }
 }
