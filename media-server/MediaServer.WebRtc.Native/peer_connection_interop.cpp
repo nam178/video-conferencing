@@ -44,7 +44,7 @@ bool CONVENTION PeerConnectionAddIceCandidate(PeerConnectionPtr peer_connection_
     if(!success)
     {
         Utils::StringHelper::EnsureNullTerminatedCString(out_error);
-        RTC_LOG(LS_ERROR, "Failed adding candidate: " + out_error);
+        RTC_LOG(LS_ERROR) << "Failed adding candidate: " << out_error;
     }
     return success;
 }

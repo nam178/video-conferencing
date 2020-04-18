@@ -81,13 +81,13 @@ void Wrappers::PeerConnectionObserver::SetRemoteTrackRemovedCallback(
 void Wrappers::PeerConnectionObserver::OnSignalingChange(
     webrtc::PeerConnectionInterface::SignalingState new_state)
 {
-    RTC_LOG(LS_INFO, "signaling state changed: SignalingState(" + new_state + ")");
+    RTC_LOG(LS_INFO) << "signaling state changed: SignalingState(" << new_state << ")";
 }
 
 void Wrappers::PeerConnectionObserver::OnDataChannel(
     rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel)
 {
-    RTC_LOG(LS_INFO, "data channel created");
+    RTC_LOG(LS_INFO) << "data channel created";
 }
 
 Wrappers::PeerConnectionObserver::PeerConnectionObserver()
