@@ -63,6 +63,22 @@ void Wrappers::PeerConnection::Close()
     _peer_connection_interface->Close();
 }
 
+bool Wrappers::PeerConnection::AddIceCandiate(const char *sdp_mid,
+                                              int sdp_mline_index,
+                                              const char *sdp,
+                                              std::string &out_error)
+{
+    webrtc::SdpParseError parse_error{};
+    auto ice_candidate = webrtc::CreateIceCandidate(sdp_mid, sdp_mline_index, sdp, &parse_error);
+    if(!ice_candidate)
+    {
+        out_error = "Line=" + parse_error.line + ", Description=" + parse_error.description;
+        return false;
+    }
+
+    _peer_connection_interface->AddIceCandidate(ice_candidate);
+}
+
 void Wrappers::PeerConnection::RemoteSessionDescription(const char *sdp_type,
                                                         const char *sdp,
                                                         Callback<Success, ErrorMessage> callback)

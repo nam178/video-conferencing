@@ -5,7 +5,7 @@
 #include "create_answer_result.h"
 
 using Success = bool;
-using ErrorMessage = const char*;
+using ErrorMessage = const char *;
 
 namespace Wrappers
 {
@@ -26,6 +26,13 @@ class PeerConnection final
 
     // Completely kill this, implementation maps to native PeerConnection Close()
     void Close();
+
+    // Add ice candiadate,
+    // should only call ths after RemoveSessionDescription() is set
+    bool AddIceCandiate(const char *sdp_mid,
+                        int sdp_mline_index,
+                        const char *sdp,
+                        std::string &out_error);
 
     // Set remote session description
     void RemoteSessionDescription(const char *sdp_type,
