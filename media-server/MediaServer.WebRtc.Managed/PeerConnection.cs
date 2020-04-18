@@ -42,6 +42,13 @@ namespace MediaServer.WebRtc.Managed
             return taskCompletionSource.Task;
         }
 
+        /// <summary>
+        /// Close the native PeerConnection, 
+        /// note that pending async operations such as the CreateAnswer() 
+        /// method may still continue execute after the PeerConnection is closed.
+        /// </summary>
+        public void Close() => PeerConnectionInterop.Close(_handle);
+
         public void Dispose() => _handle.Dispose();
     }
 }

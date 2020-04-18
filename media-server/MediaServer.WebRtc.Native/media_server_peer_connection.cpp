@@ -53,6 +53,11 @@ void MediaServer::PeerConnection::CreateAnswer(Callback<MediaServer::CreateAnswe
         opts);
 }
 
+void MediaServer::PeerConnection::Close()
+{
+    _peer_connection_interface->Close();
+}
+
 webrtc::PeerConnectionInterface *MediaServer::PeerConnection::GetPeerConnectionInterface()
 {
     return _peer_connection_interface.get();

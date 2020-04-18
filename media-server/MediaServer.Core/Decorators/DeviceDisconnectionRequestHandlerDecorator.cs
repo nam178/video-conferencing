@@ -41,17 +41,13 @@ namespace MediaServer.Core.Decorators
             {
                 await _dispatchQueue.ExecuteAsync(delegate
                 {
-                    var peerConnections = _peerConnectionRepository.Find(remoteDevice);
-                    if(peerConnections != null)
+                    foreach(var peer in _peerConnectionRepository.Find(remoteDevice))
                     {
-                        foreach(var peer in peerConnections)
+                        using(peer)
                         {
-                            _logger.Debug($"Terminating {peer} due to device {remoteDevice} disconnect");
-                            using(peer)
-                            {
-                                _peerConnectionRepository.Remove(peer);
-                            }
+                            _peerConnectionRepository.Remove(peer);
                         }
+                        _logger.Debug($"PeerConnection closed due to device disconnect, device {remoteDevice}");
                     }
                 });
             }

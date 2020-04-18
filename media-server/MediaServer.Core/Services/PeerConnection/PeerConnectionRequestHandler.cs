@@ -4,6 +4,8 @@ using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Core.Services;
 using MediaServer.Models;
+using NLog;
+using NLog.LayoutRenderers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ namespace MediaServer.Core.Services.PeerConnection
         readonly IPeerConnectionFactory _peerConnectionFactory;
         readonly IRemoteDeviceDataRepository _remoteDeviceDataRepository;
         readonly IDispatchQueue _centralDispatchQueue;
+        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public PeerConnectionRequestHandler(
             IPeerConnectionRepository peerConnectionRepository,
@@ -54,6 +57,7 @@ namespace MediaServer.Core.Services.PeerConnection
             {
                 // Create PeerConnection outside of the main thread, because it's slow.
                 pc = _peerConnectionFactory.Create();
+                _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
 
                 // Jump back to the main thread to register it.
                 await _centralDispatchQueue.ExecuteAsync(delegate
@@ -64,6 +68,7 @@ namespace MediaServer.Core.Services.PeerConnection
                     if(existingPeerConnections != null && existingPeerConnections.Any())
                     {
                         pc.Dispose();
+                        _logger.Warn($"PeerConnection closed due to duplicate, user {user}, device {remoteDevice}");
                         throw new OperationCanceledException();
                     }
                     _peerConnectionRepository.Add(user, remoteDevice, pc);

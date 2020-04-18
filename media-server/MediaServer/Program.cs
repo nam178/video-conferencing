@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using MediaServer.Core.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,6 +30,7 @@ namespace MediaServerConsole
                     .ConfigureServices((context, services) =>
                     {
                         services.AddOptions();
+                        services.Configure<PeerConnectionFactorySettings>(context.Configuration);
                     })
                     .ConfigureContainer<ContainerBuilder>(builder =>
                     {

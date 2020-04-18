@@ -1,14 +1,28 @@
-﻿using System.Threading;
+﻿using MediaServer.Core.Common;
+using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
+using System.Threading;
 
 namespace MediaServer.Core.Models
 {
     sealed class PeerConnectionFactory : IPeerConnectionFactory
     {
         readonly WebRtc.Managed.PeerConnectionFactory _webRtcPeerConnectionFactory;
+        readonly IOptions<PeerConnectionFactorySettings> _peerConnectionFactorySettings;
 
-        public PeerConnectionFactory()
+        public PeerConnectionFactory(IOptions<PeerConnectionFactorySettings> peerConnectionFactorySettings)
         {
+            if(_peerConnectionFactorySettings.Value.StunUrls is null
+                || !_peerConnectionFactorySettings.Value.StunUrls.Any())
+            {
+                throw new ArgumentException("StunUrls cannot be null or empty");
+            }
+
+            // actual implementation uses WebRTC
             _webRtcPeerConnectionFactory = new WebRtc.Managed.PeerConnectionFactory();
+            _peerConnectionFactorySettings = peerConnectionFactorySettings
+                ?? throw new System.ArgumentNullException(nameof(peerConnectionFactorySettings));
         }
 
         int _initialised = 0;
@@ -23,7 +37,7 @@ namespace MediaServer.Core.Models
 
         public IPeerConnection Create()
         {
-            return null;
+            return new PeerConnection(_webRtcPeerConnectionFactory, _peerConnectionFactorySettings.Value.StunUrls);
         }
     }
 }

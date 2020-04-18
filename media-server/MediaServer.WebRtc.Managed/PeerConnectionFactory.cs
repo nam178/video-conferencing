@@ -35,10 +35,7 @@ namespace MediaServer.WebRtc.Managed
 
         public PassiveVideoTrack CreatePassiveVideoTrack(string videoTrackName, PassiveVideoTrackSource source)
         {
-            return new PassiveVideoTrack(
-                PeerConnectionFactoryInterop.CreatePassiveVideoTrac(Native, source.Native, videoTrackName)
-
-                );
+            return new PassiveVideoTrack(PeerConnectionFactoryInterop.CreatePassiveVideoTrac(Native, source.Native, videoTrackName));
         }
 
         public void Initialize() => PeerConnectionFactoryInterop.Initialize(Native);

@@ -12,6 +12,8 @@ extern "C"
 
     EXPORT void CONVENTION PeerConnectionDestroy(PeerConnectionPtr peer_connection_ptr);
 
+    EXPORT void CONVENTION PeerConnectionClose(PeerConnectionPtr peer_connection_ptr);
+
     EXPORT void CONVENTION PeerConnectionCreateAnswer(PeerConnectionPtr peer_connection_ptr,
                                                       Callback callback,
                                                       UserData user_data);
