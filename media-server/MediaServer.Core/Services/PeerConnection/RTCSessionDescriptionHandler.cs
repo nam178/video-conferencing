@@ -78,6 +78,7 @@ namespace MediaServer.Core.Services.PeerConnection
 
             // Update SDP 
             await pc.SetRemoteSessionDescriptionAsync(request);
+            _logger.Info($"Remote {request} SDP set for {pc}");
         }
     }
 }

@@ -42,7 +42,7 @@ namespace MediaServer.Core.Services.PeerConnection
             });
 
             peerConnection.AddIceCandidate(iceCandidate);
-            _logger.Info($"Ice candidate {iceCandidate} added to {peerConnection}");
+            _logger.Debug($"Ice candidate {iceCandidate} added to {peerConnection}");
         }
     }
 }

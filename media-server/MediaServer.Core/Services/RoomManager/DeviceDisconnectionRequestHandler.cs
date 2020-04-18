@@ -52,7 +52,7 @@ namespace MediaServer.Core.Services.RoomManager
                 return tmp;
             });
 
-            // Then jump into the room's queue and disconnectthe device with the user
+            // Then jump into the room's queue and disconnect the device with the user
             if(deviceData?.Room != null && deviceData.User != null)
             {
                 await deviceData.Room.DispatchQueue.ExecuteAsync(delegate
