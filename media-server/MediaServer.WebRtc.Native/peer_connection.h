@@ -4,6 +4,9 @@
 
 #include "create_answer_result.h"
 
+using Success = bool;
+using ErrorMessage = const char*;
+
 namespace Wrappers
 {
 // manages the smart pointer to the libWebRTC peer connection
@@ -25,7 +28,9 @@ class PeerConnection final
     void Close();
 
     // Set remote session description
-    void RemoteSessionDescription(const char *sdp_type, const char *sdp);
+    void RemoteSessionDescription(const char *sdp_type,
+                                  const char *sdp,
+                                  Callback<Success, ErrorMessage> callback);
 
     // get the raw pointer to the underlying native
     // PeerConnectionInterface

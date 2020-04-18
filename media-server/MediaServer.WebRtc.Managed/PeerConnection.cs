@@ -37,14 +37,34 @@ namespace MediaServer.WebRtc.Managed
                     taskCompletionSource.SetException(new CreateAnswerFailedException(result.ErrorMessage ?? string.Empty));
             });
             PeerConnectionInterop.CreateAnswer(
-                _handle, callback, 
+                _handle, callback,
                 GCHandleHelper.ToIntPtr(GCHandle.Alloc(callback, GCHandleType.Normal)));
             return taskCompletionSource.Task;
         }
 
-        public void SetRemoteSessionDescription(string type, string sdp)
+        /// <summary>
+        /// Call this when receive session description from remote peers
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="sdp"></param>
+        /// <exception cref="Errors.SetRemoteSessionDescriptionFailedException"></exception>
+        /// <returns></returns>
+        public Task SetRemoteSessionDescription(string type, string sdp)
         {
-            PeerConnectionInterop.SetRemoteSessionDescription(_handle, type, sdp);
+            var taskCompletionSource = new TaskCompletionSource<bool>();
+            var callback = new PeerConnectionInterop.SetRemoteSessionDescriptionCallback(
+                (userData, sucess, errorMessage) =>
+                {
+                    GCHandle.FromIntPtr(userData).Free();
+                    if(sucess)
+                        taskCompletionSource.SetResult(true);
+                    else
+                        taskCompletionSource.SetException(
+                            new SetRemoteSessionDescriptionFailedException(errorMessage ?? String.Empty));
+                });
+            PeerConnectionInterop.SetRemoteSessionDescription(
+                _handle, type, sdp, callback, GCHandleHelper.ToIntPtr(callback));
+            return taskCompletionSource.Task;
         }
 
         /// <summary>

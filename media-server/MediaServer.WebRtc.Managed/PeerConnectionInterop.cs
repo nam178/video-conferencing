@@ -5,7 +5,7 @@ namespace MediaServer.WebRtc.Managed
 {
     static class PeerConnectionInterop
     {
-        [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Ansi)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         public struct CreateAnswerResult
         {
             [MarshalAs(UnmanagedType.I1)]
@@ -18,16 +18,19 @@ namespace MediaServer.WebRtc.Managed
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         public delegate void CreateAnswerResultCallback(IntPtr userData, CreateAnswerResult result);
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        public delegate void SetRemoteSessionDescriptionCallback(IntPtr userData, [MarshalAs(UnmanagedType.I1)]bool success, string errorMessage);
+
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionCreateAnswer")]
         public static extern void CreateAnswer(PeerConnectionSafeHandle peerConnectionSafeHandle, CreateAnswerResultCallback callback, IntPtr userData);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionClose")]
         public static extern void Close(PeerConnectionSafeHandle native);
-        
+
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionDestroy")]
         public static extern void Destroy(IntPtr native);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionSetRemoteSessionDescription")]
-        public static extern void SetRemoteSessionDescription(PeerConnectionSafeHandle handle, string type, string sdp);
+        public static extern void SetRemoteSessionDescription(PeerConnectionSafeHandle handle, string type, string sdp, SetRemoteSessionDescriptionCallback callback, IntPtr userData);
     }
 }

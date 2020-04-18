@@ -46,5 +46,6 @@ PeerConnectionSetRemoteSessionDescription(PeerConnectionPtr peer_connection_ptr,
         RTC_LOG(LS_ERROR, "peer_connection is NULL");
         throw new std::runtime_error("peer_connection is NULL");
     }
-    peer_connection->RemoteSessionDescription(sdp_type, sdp);
+    peer_connection->RemoteSessionDescription(
+        sdp_type, sdp, Wrappers::Callback<Success, ErrorMessage>{callback, user_data});
 }
