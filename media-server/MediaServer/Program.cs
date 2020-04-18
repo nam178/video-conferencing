@@ -30,7 +30,6 @@ namespace MediaServerConsole
                     .ConfigureServices((context, services) =>
                     {
                         services.AddOptions();
-                        services.Configure<PeerConnectionFactorySettings>(context.Configuration);
                     })
                     .ConfigureContainer<ContainerBuilder>(builder =>
                     {
