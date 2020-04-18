@@ -79,7 +79,7 @@ namespace Tests.Core
             _peerConnectionRepository
                 .Verify(x => x.Add(It.IsAny<UserProfile>(), It.IsAny<IRemoteDevice>(), It.IsAny<IPeerConnection>()), Times.Once);
             mockPeerConnection
-                .VerifySet(p => p.RemoteSessionDescription = request.OfferedSessionDescription, Times.Once);
+                .Verify(x => x.SetRemoteSessionDescriptionAsync(It.IsAny<RTCSessionDescription>()), Times.Once);
         }
 
         [Fact]

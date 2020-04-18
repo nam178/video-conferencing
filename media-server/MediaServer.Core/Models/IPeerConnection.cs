@@ -1,5 +1,6 @@
 ﻿using MediaServer.WebRtc.Managed;
 using System;
+using System.Threading.Tasks;
 
 namespace MediaServer.Core.Models
 {
@@ -12,6 +13,6 @@ namespace MediaServer.Core.Models
     /// </remarks>
     public interface IPeerConnection : IDisposable
     {
-        public RTCSessionDescription RemoteSessionDescription { get; set; }
+        public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description);
     }
 }

@@ -49,7 +49,7 @@ namespace MediaServer.WebRtc.Managed
         /// <param name="sdp"></param>
         /// <exception cref="Errors.SetRemoteSessionDescriptionFailedException"></exception>
         /// <returns></returns>
-        public Task SetRemoteSessionDescription(string type, string sdp)
+        public Task SetRemoteSessionDescriptionAsync(string type, string sdp)
         {
             var taskCompletionSource = new TaskCompletionSource<bool>();
             var callback = new PeerConnectionInterop.SetRemoteSessionDescriptionCallback(

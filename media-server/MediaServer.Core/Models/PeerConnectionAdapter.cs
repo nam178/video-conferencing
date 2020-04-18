@@ -1,18 +1,16 @@
 ﻿using MediaServer.WebRtc.Managed;
-using NLog;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaServer.Core.Models
 {
-    sealed class PeerConnection : IPeerConnection
+    sealed class PeerConnectionAdapter : IPeerConnection
     {
         readonly PeerConnectionObserver _nativeObserver;
         readonly WebRtc.Managed.PeerConnection _nativePeerConnection;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public RTCSessionDescription RemoteSessionDescription { get; set; }
-
-        public PeerConnection(
+        public PeerConnectionAdapter(
             WebRtc.Managed.PeerConnectionFactory webRtcPeerConnectionFactory,
             IReadOnlyList<string> stunUrls)
         {
@@ -32,12 +30,22 @@ namespace MediaServer.Core.Models
             _nativePeerConnection = webRtcPeerConnectionFactory.CreatePeerConnection(_nativeObserver, config);
         }
 
+        public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
+        {
+            return _nativePeerConnection.SetRemoteSessionDescriptionAsync(description.Sdp, description.SdpType);
+        }
+
+        int _disposed;
         public void Dispose()
         {
-            // Order matters! PeerConnection must be closed first;
-            _nativePeerConnection.Close();
-            _nativePeerConnection.Dispose();
-            _nativeObserver.Dispose();
+            if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
+            {
+                // Order matters! PeerConnection must be closed first;
+                _nativePeerConnection.Close();
+                _nativePeerConnection.Dispose();
+                // Observer later, cuz PeerConnection uses it
+                _nativeObserver.Dispose();
+            }
         }
     }
 }

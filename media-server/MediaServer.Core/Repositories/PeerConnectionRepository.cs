@@ -66,7 +66,7 @@ namespace MediaServer.Core.Repositories
             return _empty;
         }
 
-        static readonly IReadOnlyList<IPeerConnection> _empty = new List<PeerConnection>();
+        static readonly IReadOnlyList<IPeerConnection> _empty = new List<PeerConnectionAdapter>();
 
         public void Remove(IPeerConnection peerConnection)
         {

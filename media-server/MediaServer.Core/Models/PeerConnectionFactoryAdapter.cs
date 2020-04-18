@@ -6,12 +6,12 @@ using System.Threading;
 
 namespace MediaServer.Core.Models
 {
-    sealed class PeerConnectionFactory : IPeerConnectionFactory
+    sealed class PeerConnectionFactoryAdapter : IPeerConnectionFactory
     {
         readonly WebRtc.Managed.PeerConnectionFactory _webRtcPeerConnectionFactory;
         readonly IOptions<PeerConnectionFactorySettings> _peerConnectionFactorySettings;
 
-        public PeerConnectionFactory(IOptions<PeerConnectionFactorySettings> peerConnectionFactorySettings)
+        public PeerConnectionFactoryAdapter(IOptions<PeerConnectionFactorySettings> peerConnectionFactorySettings)
         {
             if(_peerConnectionFactorySettings.Value.StunUrls is null
                 || !_peerConnectionFactorySettings.Value.StunUrls.Any())
@@ -37,7 +37,7 @@ namespace MediaServer.Core.Models
 
         public IPeerConnection Create()
         {
-            return new PeerConnection(_webRtcPeerConnectionFactory, _peerConnectionFactorySettings.Value.StunUrls);
+            return new PeerConnectionAdapter(_webRtcPeerConnectionFactory, _peerConnectionFactorySettings.Value.StunUrls);
         }
     }
 }

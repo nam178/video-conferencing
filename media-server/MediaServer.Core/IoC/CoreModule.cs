@@ -1,13 +1,9 @@
 ﻿using Autofac;
 using MediaServer.Common.Threading;
-using MediaServer.Core.Decorators;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
-using MediaServer.Core.Services;
 using MediaServer.Core.Services.RoomManager;
 using MediaServer.Core.Services.ServerManager;
-using Microsoft.Extensions.Hosting;
-using NLog.Targets.Wrappers;
 
 namespace MediaServer.Core.IoC
 {
@@ -44,7 +40,7 @@ namespace MediaServer.Core.IoC
 
             // Factories
             builder.RegisterType<RoomFactory>().AsImplementedInterfaces();
-            builder.RegisterType<PeerConnectionFactory>().AsImplementedInterfaces();
+            builder.RegisterType<PeerConnectionFactoryAdapter>().AsImplementedInterfaces();
         }
     }
 }

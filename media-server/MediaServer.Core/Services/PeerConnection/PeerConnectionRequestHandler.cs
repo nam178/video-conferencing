@@ -76,7 +76,7 @@ namespace MediaServer.Core.Services.PeerConnection
             }
 
             // Update SDP 
-            pc.RemoteSessionDescription = request.OfferedSessionDescription;
+            await pc.SetRemoteSessionDescriptionAsync(request.OfferedSessionDescription);
         }
     }
 }
