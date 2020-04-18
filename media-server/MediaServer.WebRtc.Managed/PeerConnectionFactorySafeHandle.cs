@@ -5,16 +5,21 @@ namespace MediaServer.WebRtc.Managed
 {
     sealed class PeerConnectionFactorySafeHandle : SafeHandle
     {
-        public PeerConnectionFactorySafeHandle() 
+        public PeerConnectionFactorySafeHandle()
             : base(IntPtr.Zero, true)
         {
+            SetHandle(PeerConnectionFactoryInterop.Create());
         }
 
         public override bool IsInvalid => handle != IntPtr.Zero;
 
         protected override bool ReleaseHandle()
         {
-            throw new NotImplementedException();
+            if(handle != IntPtr.Zero)
+            {
+                PeerConnectionFactoryInterop.Destroy(handle);
+            }
+            return true;
         }
     }
 }
