@@ -22,7 +22,7 @@ namespace MediaServer.WebRtc.Managed
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Errors.CreateAnswerFailedException" />
-        public Task<RTCSessionDescription> CreateAnswer()
+        public Task<RTCSessionDescription> CreateAnswerAsync()
         {
             var taskCompletionSource = new TaskCompletionSource<RTCSessionDescription>();
             var callback = new PeerConnectionInterop.CreateAnswerResultCallback((userData, result) =>

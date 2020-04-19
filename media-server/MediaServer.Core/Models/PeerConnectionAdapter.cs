@@ -37,6 +37,11 @@ namespace MediaServer.Core.Models
             return _nativePeerConnection.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
         }
 
+        public Task<RTCSessionDescription> CreateAnswerAsync()
+        {
+            return _nativePeerConnection.CreateAnswerAsync();
+        }
+
         public void AddIceCandidate(RTCIceCandidate iceCandidate)
         {
             _nativePeerConnection.AddIceCandidate(iceCandidate);
