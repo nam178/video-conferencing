@@ -4,6 +4,7 @@ using MediaServer.Core.Repositories;
 using MediaServer.Models;
 using NLog;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.RoomManager
@@ -37,7 +38,7 @@ namespace MediaServer.Core.Services.RoomManager
             var deviceData = await _centralDispatchQueue.ExecuteAsync(delegate
             {
                 // Remove associated PeerConnections
-                foreach(var peer in _peerConnectionRepository.Find(remoteDevice))
+                foreach(var peer in _peerConnectionRepository.Find(remoteDevice).ToList())
                 {
                     using(peer)
                     {

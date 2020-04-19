@@ -13,7 +13,7 @@ namespace MediaServer.WebSocket.Net
 
         public WebSocketDeviceDisconnectedHandler(IRemoteDeviceService<DeviceDisconnectionRequest> coreHandler)
         {
-            _coreHandler = coreHandler 
+            _coreHandler = coreHandler
                 ?? throw new System.ArgumentNullException(nameof(coreHandler));
         }
 
@@ -25,9 +25,9 @@ namespace MediaServer.WebSocket.Net
             {
                 if(task.Exception != null)
                 {
-                    _logger.Fatal(
+                    _logger.Fatal(task.Exception.InnerException,
                         "Unexpected exception thrown by core handler " +
-                        "when handling disconnection request", task.Exception);
+                        "when handling disconnection request");
                 }
             });
         }
