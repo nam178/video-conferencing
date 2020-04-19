@@ -52,7 +52,7 @@ export default class PeerConnectionManager {
             ]
         });
         this._peerConnection.addEventListener('icecandidate', e => {
-            this._logger.debug('Received local ICE candidate', e);
+            this._logger.debug('Generated local ICE candidate', e);
             if (e.candidate)
                 this._sendIceCandidate(e.candidate);
         });
@@ -153,12 +153,28 @@ export default class PeerConnectionManager {
         });
     }
 
-    _onSetIceCandidate(args) {
-        // TODO
+    _onIceCandidate(iceCandidate) {
+        if(!this._peerConnection) {
+            this._logger.warn('Received ICE candidate without PeerConnection');
+            return;
+        }
+        this._peerConnection.addIceCandidate(iceCandidate);
     }
 
-    _onSetAnswer(args) {
-        // TODO
+    _onAnswer(sdp) {
+        this._setSdp(sdp);
+    }
+
+    _onOffer(sdp) {
+        this._setSdp(sdp);
+    }
+
+    _setSdp(sdp) {
+        if(!this._peerConnection) {
+            this._logger.warn('Received answer/offer without PeerConnection');
+            return;
+        }
+        this._peerConnection.setRemoteDescription(sdp);
     }
 
     _handleWebSocketMessage(e) {

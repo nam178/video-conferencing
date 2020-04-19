@@ -31,7 +31,7 @@ void Wrappers::PeerConnection::CreateAnswer(Callback<Wrappers::CreateAnswerResul
 
                     // Get sdp
                     std::string sdp_str;
-                    if(result._result->ToString(&sdp_str))
+                    if(!result._result->ToString(&sdp_str))
                     {
                         callback({
                             false,
@@ -39,6 +39,7 @@ void Wrappers::PeerConnection::CreateAnswer(Callback<Wrappers::CreateAnswerResul
                             nullptr,
                             nullptr,
                         });
+                        return;
                     }
                     Utils::StringHelper::EnsureNullTerminatedCString(sdp_str);
 

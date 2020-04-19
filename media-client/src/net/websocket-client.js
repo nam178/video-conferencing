@@ -101,12 +101,7 @@ export default class WebSocketClient extends EventTarget
             // otherwise trigger an event for externals
             if(typeof this[commandName] == 'undefined')
             {
-                this.dispatchEvent(new CustomEvent('message', {
-                    detail: {
-                        command: commandName,
-                        args: response.args
-                    }
-                }));
+                this.dispatchEvent(new CustomEvent('message', { detail: response }));
             }
             else
                 this[commandName](response.args);
