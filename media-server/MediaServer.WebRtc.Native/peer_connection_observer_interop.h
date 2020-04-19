@@ -38,8 +38,32 @@ extern "C"
     EXPORT void CONVENTION
     PeerConnectionObserverDestroy(PeerConnectionObserverIntPtr peer_connection_observer_ptr);
 
-    EXPORT void CONVENTION
-    PeerConnectionObserverSetCallbacks(PeerConnectionObserverIntPtr peer_connection_observer_ptr,
-                                       PeerConnectionObserverCallbacks call_backs,
-                                       void *user_data);
+    EXPORT void CONVENTION PeerConnectionObserverSetRenegotiationNeededCallback(
+        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        RenegotiationNeededCallback call_back,
+        UserData user_data);
+    EXPORT void CONVENTION PeerConnectionObserverSetIceGatheringStateChangedCallback(
+        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        IceGatheringStateChangedCallback call_back,
+        UserData user_data);
+    EXPORT void CONVENTION PeerConnectionObserverSetIceConnectionChangeCallback(
+        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        IceConnectionChangeCallback call_back,
+        UserData user_data);
+    EXPORT void CONVENTION PeerConnectionObserverSetIceCandidateCallback(
+        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        IceCandidateCallback call_back,
+        UserData user_data);
+    EXPORT void CONVENTION PeerConnectionObserverSetIceCandidatesRemovedCallback(
+        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        IceCandidatesRemovedCallback call_back,
+        UserData user_data);
+    EXPORT void CONVENTION PeerConnectionObserverSetRemoteTrackAddedCallback(
+        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        RemoteTrackAddedCallback call_back,
+        UserData user_data);
+    EXPORT void CONVENTION PeerConnectionObserverSetRemoteTrackRemovedCallback(
+        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        RemoteTrackRemovedCallback call_back,
+        UserData user_data);
 }

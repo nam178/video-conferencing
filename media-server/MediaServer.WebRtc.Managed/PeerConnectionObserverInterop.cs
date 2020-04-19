@@ -13,18 +13,6 @@ namespace MediaServer.WebRtc.Managed
             public Int32 MLineIndex;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct PeerConnectionObserverCallbacks
-        {
-            public RenegotiationNeededCallback RenegotiationNeededCallback;
-            public IceGatheringStateChangedCallback IceGatheringStateChangedCallback;
-            public IceConnectionChangeCallback IceConnectionChangeCallback;
-            public IceCandidateCallback IceCandidateCallback;
-            public IceCandidatesRemovedCallback IceCandidatesRemovedCallback;
-            public RemoteTrackAddedCallback RemoteTrackAddedCallback;
-            public RemoteTrackRemovedCallback RemoteTrackRemovedCallback;
-        };
-
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         public delegate void RenegotiationNeededCallback(IntPtr userData);
 
@@ -52,7 +40,7 @@ namespace MediaServer.WebRtc.Managed
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverDestroy")]
         public extern static void Destroy(IntPtr native);
 
-        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverSetCallbacks")]
-        public extern static void SetCallbacks(PeerConnectionObserverSafeHandle safeHandle, IntPtr userData, PeerConnectionObserverCallbacks callbacks);
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverSetIceConnectionChangeCallback")]
+        public extern static void SetIceConnectionChangeCallback(PeerConnectionObserverSafeHandle safeHandle, IceConnectionChangeCallback callback, IntPtr userData);
     }
 }

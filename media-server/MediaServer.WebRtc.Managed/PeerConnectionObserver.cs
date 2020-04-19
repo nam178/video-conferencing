@@ -33,22 +33,13 @@ namespace MediaServer.WebRtc.Managed
 
             var userData = GCHandleHelper.ToIntPtr(this, out _handle);
 
-            SetCallbacks(Native, userData, new PeerConnectionObserverCallbacks
-            {
-                RenegotiationNeededCallback = _renegotiationNeededCallback,
-                IceGatheringStateChangedCallback = _iceGatheringStateChangedCallback,
-                IceConnectionChangeCallback = _iceConnectionChangeCallback,
-                IceCandidateCallback = _iceCandidateCallback,
-                IceCandidatesRemovedCallback = _iceCandidatesRemovedCallback,
-                RemoteTrackAddedCallback = _remoteTrackAddedCallback,
-                RemoteTrackRemovedCallback = _remoteTrackRemovedCallback
-            });
+            SetIceConnectionChangeCallback(Native, _iceConnectionChangeCallback, userData);
         }
 
         static void IceCandidateCallback(IntPtr userData, IceCandidate iceCandidate)
         {
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.IceCandidateAdded(
+            source?.IceCandidateAdded?.Invoke(
                 source, 
                 new EventArgs<RTCIceCandidate>(new RTCIceCandidate(iceCandidate)));
         }
@@ -56,37 +47,37 @@ namespace MediaServer.WebRtc.Managed
         static void IceConnectionChangeCallback(IntPtr userData, RTCIceConnectionState state)
         {
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.IceConnectionStateChanged(source, new EventArgs<RTCIceConnectionState>(state));
+            source?.IceConnectionStateChanged?.Invoke(source, new EventArgs<RTCIceConnectionState>(state));
         }
 
         static void IceGatheringStateChangedCallback(IntPtr userData, RTCIceGatheringState state)
         {
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.IceGatheringStateChanged(source, new EventArgs<RTCIceGatheringState>(state));
+            source?.IceGatheringStateChanged?.Invoke(source, new EventArgs<RTCIceGatheringState>(state));
         }
 
         static void RenegotiationNeededCallback(IntPtr userData)
         {
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.RenegotiationNeeded(source, EventArgs.Empty);
+            source?.RenegotiationNeeded?.Invoke(source, EventArgs.Empty);
         }
 
         static void RemoteTrackRemovedCallback(IntPtr userData, IntPtr rtpReceiverInterfacePtr)
         {
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.RemoteTrackRemoved(source, new EventArgs<IntPtr>(rtpReceiverInterfacePtr));
+            source?.RemoteTrackRemoved?.Invoke(source, new EventArgs<IntPtr>(rtpReceiverInterfacePtr));
         }
 
         static void RemoteTrackAddedCallback(IntPtr userData, IntPtr rtpTransceiverInterfacePtr)
         {
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.RemoteTrackAdded(source, new EventArgs<IntPtr>(rtpTransceiverInterfacePtr));
+            source?.RemoteTrackAdded?.Invoke(source, new EventArgs<IntPtr>(rtpTransceiverInterfacePtr));
         }
 
         static void IceCandidatesRemovedCallback(IntPtr userData, IntPtr candidates)
         {
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.IceCandidatesRemoved(source, new EventArgs<IntPtr>(candidates));
+            source?.IceCandidatesRemoved?.Invoke(source, new EventArgs<IntPtr>(candidates));
         }
 
         int _disposed = 0;
