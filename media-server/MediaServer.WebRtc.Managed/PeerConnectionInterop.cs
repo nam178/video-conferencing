@@ -19,7 +19,7 @@ namespace MediaServer.WebRtc.Managed
         public delegate void CreateAnswerResultCallback(IntPtr userData, CreateAnswerResult result);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public delegate void SetRemoteSessionDescriptionCallback(IntPtr userData, [MarshalAs(UnmanagedType.I1)]bool success, string errorMessage);
+        public delegate void SetSessionDescriptionCallback(IntPtr userData, [MarshalAs(UnmanagedType.I1)]bool success, string errorMessage);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionCreateAnswer")]
         public static extern void CreateAnswer(PeerConnectionSafeHandle peerConnectionSafeHandle, CreateAnswerResultCallback callback, IntPtr userData);
@@ -31,7 +31,10 @@ namespace MediaServer.WebRtc.Managed
         public static extern void Destroy(IntPtr native);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionSetRemoteSessionDescription")]
-        public static extern void SetRemoteSessionDescription(PeerConnectionSafeHandle handle, string type, string sdp, SetRemoteSessionDescriptionCallback callback, IntPtr userData);
+        public static extern void SetRemoteSessionDescription(PeerConnectionSafeHandle handle, string type, string sdp, SetSessionDescriptionCallback callback, IntPtr userData);
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionSetLocalSessionDescription")]
+        public static extern void SetLocalSessionDescription(PeerConnectionSafeHandle handle, string type, string sdp, SetSessionDescriptionCallback callback, IntPtr userData);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddIceCandidate")]
         [return: MarshalAs(UnmanagedType.I1)]

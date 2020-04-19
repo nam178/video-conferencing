@@ -33,6 +33,18 @@ PeerConnectionSetRemoteSessionDescription(PeerConnectionPtr peer_connection_ptr,
             sdp_type, sdp, Wrappers::Callback<Success, ErrorMessage>{callback, user_data});
 }
 
+void CONVENTION
+PeerConnectionSetLocalSessionDescription(PeerConnectionPtr peer_connection_ptr,
+                                         const char *sdp_type,
+                                         const char *sdp,
+                                         SetRemoteSessionDescriptionCallback callback,
+                                         UserData user_data)
+{
+    StaticCastOrThrow<Wrappers::PeerConnection>(peer_connection_ptr)
+        ->LocalSessionDescription(
+            sdp_type, sdp, Wrappers::Callback<Success, ErrorMessage>{callback, user_data});
+}
+
 bool CONVENTION PeerConnectionAddIceCandidate(PeerConnectionPtr peer_connection_ptr,
                                               const char *sdp_mid,
                                               int32_t sdp_mline_index,
@@ -40,7 +52,7 @@ bool CONVENTION PeerConnectionAddIceCandidate(PeerConnectionPtr peer_connection_
 {
     std::string out_error{};
     auto success = StaticCastOrThrow<Wrappers::PeerConnection>(peer_connection_ptr)
-                         ->AddIceCandiate(sdp_mid, sdp_mline_index, sdp, out_error);
+                       ->AddIceCandiate(sdp_mid, sdp_mline_index, sdp, out_error);
     if(!success)
     {
         Utils::StringHelper::EnsureNullTerminatedCString(out_error);

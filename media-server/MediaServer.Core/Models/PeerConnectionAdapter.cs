@@ -37,13 +37,21 @@ namespace MediaServer.Core.Models
             _nativePeerConnection = webRtcPeerConnectionFactory.CreatePeerConnection(_nativeObserver, config);
         }
 
-        public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description) 
+        public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
             => _nativePeerConnection.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
 
-        public Task<RTCSessionDescription> CreateAnswerAsync() 
-            => _nativePeerConnection.CreateAnswerAsync();
+        public async Task<RTCSessionDescription> CreateAnswerAsync()
+        {
+            var localDescription = await _nativePeerConnection.CreateAnswerAsync();
+            // After generating answer, must set LocalSdp,
+            // otherwise ICE candidates won't be gathered.
+            await _nativePeerConnection.SetLocalSessionDescriptionAsync(
+                localDescription.Type,
+                localDescription.Sdp);
+            return localDescription;
+        }
 
-        public void AddIceCandidate(RTCIceCandidate iceCandidate) 
+        public void AddIceCandidate(RTCIceCandidate iceCandidate)
             => _nativePeerConnection.AddIceCandidate(iceCandidate);
 
         public void ObserveIceCandidate(Action<RTCIceCandidate> observer) => _iceCandidateObserver = observer;

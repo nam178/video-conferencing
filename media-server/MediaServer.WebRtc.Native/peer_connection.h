@@ -39,6 +39,12 @@ class PeerConnection final
                                   const char *sdp,
                                   Callback<Success, ErrorMessage> callback);
 
+    // Set local session description
+    // Must be called immediately after CreateAnswer()
+    void LocalSessionDescription(const char *sdp_type,
+                                 const char *sdp,
+                                 Callback<Success, ErrorMessage> callback);
+
     // get the raw pointer to the underlying native
     // PeerConnectionInterface
     webrtc::PeerConnectionInterface *GetPeerConnectionInterface();

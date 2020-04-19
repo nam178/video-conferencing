@@ -5,6 +5,47 @@
 #include "set_remote_session_description_observer.h"
 #include "string_helper.h"
 
+using SetFunction =
+    void (webrtc::PeerConnectionInterface::*)(webrtc::SetSessionDescriptionObserver *observer,
+                                              webrtc::SessionDescriptionInterface *);
+
+void SetSessionDescription(
+    const char *sdp_type,
+    const char *sdp,
+    Wrappers::Callback<Success, ErrorMessage> callback,
+    rtc::scoped_refptr<webrtc::PeerConnectionInterface> peer_connection_interface,
+    SetFunction function)
+{
+
+    auto sdp_type_enum = webrtc::SdpTypeFromString(sdp_type);
+    if(!sdp_type_enum.has_value())
+    {
+        std::string err = "Failed parsing sdp_type";
+        Utils::StringHelper::EnsureNullTerminatedCString(err);
+        callback(false, err.c_str());
+        return;
+    }
+
+    auto callback_lambda = [callback](webrtc::RTCError error) {
+        if(error.ok())
+        {
+            callback(true, nullptr);
+        }
+        else
+        {
+            std::string error_message(error.message());
+            Utils::StringHelper::EnsureNullTerminatedCString(error_message);
+            callback(false, nullptr);
+        }
+    };
+
+    auto observer = new Wrappers::SetRemoteSessionDescriptionObserver(std::move(callback_lambda));
+    auto session_description =
+        webrtc::CreateSessionDescription(sdp_type_enum.value(), sdp).release();
+
+    (peer_connection_interface.get()->*function)(observer, session_description);
+}
+
 Wrappers::PeerConnection::PeerConnection(
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> &&peer_connection_interface)
     : _peer_connection_interface(std::move(peer_connection_interface))
@@ -84,34 +125,22 @@ void Wrappers::PeerConnection::RemoteSessionDescription(const char *sdp_type,
                                                         const char *sdp,
                                                         Callback<Success, ErrorMessage> callback)
 {
-    auto sdp_type_enum = webrtc::SdpTypeFromString(sdp_type);
-    if(!sdp_type_enum.has_value())
-    {
-        std::string err = "Failed parsing sdp_type";
-        Utils::StringHelper::EnsureNullTerminatedCString(err);
-        callback(false, err.c_str());
-        return;
-    }
+    SetSessionDescription(sdp_type,
+                          sdp,
+                          callback,
+                          _peer_connection_interface,
+                          &webrtc::PeerConnectionInterface::SetRemoteDescription);
+}
 
-    auto callback_lambda = [callback](webrtc::RTCError error) {
-        if(error.ok())
-        {
-            callback(true, nullptr);
-        }
-        else
-        {
-            std::string error_message(error.message());
-            Utils::StringHelper::EnsureNullTerminatedCString(error_message);
-            callback(false, nullptr);
-        }
-    };
-
-    auto observer = rtc::scoped_refptr<webrtc::SetRemoteDescriptionObserverInterface>(
-        new Wrappers::SetRemoteSessionDescriptionObserver(std::move(callback_lambda)));
-
-    auto session_description = webrtc::CreateSessionDescription(sdp_type_enum.value(), sdp);
-
-    _peer_connection_interface->SetRemoteDescription(std::move(session_description), observer);
+void Wrappers::PeerConnection::LocalSessionDescription(const char *sdp_type,
+                                                       const char *sdp,
+                                                       Callback<Success, ErrorMessage> callback)
+{
+    SetSessionDescription(sdp_type,
+                          sdp,
+                          callback,
+                          _peer_connection_interface,
+                          &webrtc::PeerConnectionInterface::SetLocalDescription);
 }
 
 webrtc::PeerConnectionInterface *Wrappers::PeerConnection::GetPeerConnectionInterface()

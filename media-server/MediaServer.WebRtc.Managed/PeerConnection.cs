@@ -47,12 +47,33 @@ namespace MediaServer.WebRtc.Managed
         /// </summary>
         /// <param name="type"></param>
         /// <param name="sdp"></param>
-        /// <exception cref="Errors.SetRemoteSessionDescriptionFailedException"></exception>
+        /// <exception cref="Errors.SetSessionDescriptionFailedException"></exception>
         /// <returns></returns>
         public Task SetRemoteSessionDescriptionAsync(string type, string sdp)
         {
             var taskCompletionSource = new TaskCompletionSource<bool>();
-            var callback = new PeerConnectionInterop.SetRemoteSessionDescriptionCallback(
+            PeerConnectionInterop.SetSessionDescriptionCallback callback = CreateSdpCallback(taskCompletionSource);
+            PeerConnectionInterop.SetRemoteSessionDescription(
+                _handle, type, sdp, callback, GCHandleHelper.ToIntPtr(callback));
+            return taskCompletionSource.Task;
+        }
+
+        /// <summary>
+        /// Call this immediately after CreateAnswer()
+        /// </summary>
+        /// <exception cref="Errors.SetSessionDescriptionFailedException"></exception>
+        public Task SetLocalSessionDescriptionAsync(string type, string sdp)
+        {
+            var taskCompletionSource = new TaskCompletionSource<bool>();
+            PeerConnectionInterop.SetSessionDescriptionCallback callback = CreateSdpCallback(taskCompletionSource);
+            PeerConnectionInterop.SetLocalSessionDescription(
+                _handle, type, sdp, callback, GCHandleHelper.ToIntPtr(callback));
+            return taskCompletionSource.Task;
+        }
+
+        static PeerConnectionInterop.SetSessionDescriptionCallback CreateSdpCallback(TaskCompletionSource<bool> taskCompletionSource)
+        {
+            return new PeerConnectionInterop.SetSessionDescriptionCallback(
                 (userData, sucess, errorMessage) =>
                 {
                     GCHandle.FromIntPtr(userData).Free();
@@ -60,11 +81,8 @@ namespace MediaServer.WebRtc.Managed
                         taskCompletionSource.SetResult(true);
                     else
                         taskCompletionSource.SetException(
-                            new SetRemoteSessionDescriptionFailedException(errorMessage ?? String.Empty));
+                            new SetSessionDescriptionFailedException(errorMessage ?? string.Empty));
                 });
-            PeerConnectionInterop.SetRemoteSessionDescription(
-                _handle, type, sdp, callback, GCHandleHelper.ToIntPtr(callback));
-            return taskCompletionSource.Task;
         }
 
         /// <summary>

@@ -28,6 +28,13 @@ extern "C"
                                               SetRemoteSessionDescriptionCallback callback,
                                               UserData user_data);
 
+    EXPORT void CONVENTION
+    PeerConnectionSetLocalSessionDescription(PeerConnectionPtr peer_connection_ptr,
+                                             const char *sdp_type,
+                                             const char *sdp,
+                                             SetRemoteSessionDescriptionCallback callback,
+                                             UserData user_data);
+
     EXPORT bool CONVENTION PeerConnectionAddIceCandidate(PeerConnectionPtr peer_connection_ptr,
                                                          const char *sdp_mid,
                                                          int32_t sdp_mline_index,
