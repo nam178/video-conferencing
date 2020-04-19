@@ -17,30 +17,8 @@ export default class PeerConnectionManager {
      */
     set localMediaStreamForSending(value) 
     {
-        if(!this._peerConnection) {
-            throw 'PeerConnectionNotInitialized';
-        }
-
-        if(value != this._localMediaStreamForSending)
-        {
-            // Remove previous tracks if exist
-            if(this.localMediaStreamForSending) {
-                this.localMediaStreamForSending
-                    .getTracks()
-                    .forEach(track => {
-                        this._peerConnection.removeTrack(track);
-                        this._logger.debug(`Removed local track`, track);
-                    });
-            }
-
-            this._localMediaStreamForSending = value;
-            if(value) {
-                value.getTracks().forEach(track => {
-                    this._peerConnection.addTrack(track);
-                    this._logger.info('Added local track', track);
-                });
-            }
-        }
+        this._localMediaStreamForSending = value;
+        this._restartLocalMediaStream();
     }
 
     /**
@@ -50,16 +28,23 @@ export default class PeerConnectionManager {
         if (!websocketClient) {
             throw 'Must specify webSocketClient';
         }
+        this._handleWebSocketMessage = this._handleWebSocketMessage.bind(this);
+        this._handleRoomJoined = this._handleRoomJoined.bind(this);
         this._webSocketClient = websocketClient;
         this._webSocketClient.addEventListener('message', this._handleWebSocketMessage);
+        this._webSocketClient.addEventListener('room',  this._handleRoomJoined);
+        this._streamWasSetOnPeerConnection = null;
         this._logger = new Logger('PeerConnectionManager');
-        this._handleWebSocketMessage = this._handleWebSocketMessage.bind(this);
     }
 
     /**
      * WebSocket connection must be ready first
      */
-    initialize() {
+    _restart() {
+        if(this._peerConnection) {
+            this._peerConnection.close();
+            this._streamWasSetOnPeerConnection = null;
+        }
         this._peerConnection = new RTCPeerConnection({
             sdpSemantics: 'unified-plan',
             iceServers: [
@@ -89,6 +74,46 @@ export default class PeerConnectionManager {
             // document.getElementById('remote_video').srcObject = e.streams[0];
         });
         this._logger.log('PeerConnection initialised');
+        this._restartLocalMediaStream();
+    }
+
+    _handleRoomJoined() {
+        // Everytime we join a room, restart the PeerConnection
+        // This is due to the life time of a PeerConnection 
+        // always associated with the life time of the WebSocket connection
+        this._restart();
+    }
+
+    _restartLocalMediaStream() {
+        // Should be called everytime the PeerConnection restarts,
+        // or local media stream change, so we can re-associate
+        // them.
+        if(this._peerConnection == null) {
+            return;
+        }
+        // PeerConnection exists but its stream has not changed?
+        // Early exit.
+        if(this._streamWasSetOnPeerConnection == this._localMediaStreamForSending) 
+            {
+                this._logger.debug('Local media stream not changed, ignoring the change.');
+                return;
+            }
+        this._logger.debug('Local media stream changed, updating PeerConnection..');
+        // Pass this point strema has changed,
+        // we'll get rid of existing stream.
+        if(this._streamWasSetOnPeerConnection) {
+            var senderCount = this._peerConnection.getSenders().length;
+            this._peerConnection.getSenders().forEach(sender => this._peerConnection.removeTrack(sender));
+            this._logger.debug(`Removed ${senderCount} old RTP sender(s)`);
+        }
+        // Then add tracks for the new stream, if it exists
+        if(this._localMediaStreamForSending) {
+            var senderCount  = this._localMediaStreamForSending.getTracks().length;
+            this._localMediaStreamForSending.getTracks().forEach(track => this._peerConnection.addTrack(track));
+            this._logger.debug(`Added ${senderCount} new RTP sender(s)`);
+        }
+        // Save the current stream for next time.
+        this._streamWasSetOnPeerConnection = this.localMediaStreamForSending;
     }
 
     async _sendOffer() {

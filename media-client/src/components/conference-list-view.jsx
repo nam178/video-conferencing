@@ -39,18 +39,7 @@ export default class ConferenceListView extends React.Component {
             this.deviceManager.currentVideoInputDeviceId = lastVideoDeviceId;
         if (lastAudioSinkId)
             this.deviceManager.currentOutAudioSinkId = lastAudioSinkId;
-        // Initialise PeerConnectionManager, must done before
-        // initialising DeviceManager
-        try
-        {
-            this._peerConnectionManager = new PeerConnectionManager(this.props.webSocketClient);
-            this._peerConnectionManager.initialize();
-        }
-        catch(err) {
-            // TODO display nicer error message
-            window.alert(`PeerConnection initialisation error: ${err}`);
-        }
-        // Then initialise devices
+        this._peerConnectionManager = new PeerConnectionManager(this.props.webSocketClient);
         await this.reInitializeDevicesAsync();
     }
 

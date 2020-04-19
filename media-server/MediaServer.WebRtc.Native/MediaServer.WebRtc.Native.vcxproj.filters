@@ -56,8 +56,10 @@
     <ClCompile Include="peer_connection_factory.cpp">
       <Filter>wrappers\peer_connection</Filter>
     </ClCompile>
-    <ClCompile Include="set_remote_session_description_observer.cpp" />
     <ClCompile Include="noop_audio_device_module.cpp" />
+    <ClCompile Include="set_remote_session_description_observer.cpp">
+      <Filter>wrappers\observers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

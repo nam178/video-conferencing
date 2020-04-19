@@ -130,6 +130,7 @@ export default class WebSocketClient extends EventTarget
 
     _onJoinRoomSuccess() {
         this._initializeAsyncResolve();
+        this.dispatchEvent(new CustomEvent('room'));
     }
 
     _onJoinRoomFailed(errorMessage) {
