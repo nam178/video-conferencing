@@ -27,7 +27,7 @@ namespace MediaServer.WebSocket.Net
         public async Task SendAsync(string command, object args)
         {
             await WebSocketClient.SendAsync(Serialize(command, args));
-            _logger.Debug($"Command {command}, Args={JsonConvert.SerializeObject(args)} sent to device {this}");
+            _logger.Trace($"Command {command}, Args={JsonConvert.SerializeObject(args)} sent to device {this}");
         }
 
         public override string ToString() => $"[WebSocketClientRemoteDevice {WebSocketClient}]";
