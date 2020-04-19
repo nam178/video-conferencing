@@ -17,14 +17,14 @@ namespace MediaServer.Core.Services.RoomManager
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;
         readonly IRemoteDeviceDataRepository _remoteDeviceDataRepository;
-        readonly IHandler<SendStatusUpdateRequest> _statusUpdateSender;
+        readonly IHandler<SendSyncMessageRequest> _statusUpdateSender;
         readonly static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public JoinRoomRequestHandler(
             IDispatchQueue centralDispatchQueue,
             IRoomRepository roomRepository,
             IRemoteDeviceDataRepository remoteDeviceDataRepository,
-            IHandler<SendStatusUpdateRequest> statusUpdateSender)
+            IHandler<SendSyncMessageRequest> statusUpdateSender)
         {
             _centralDispatchQueue = centralDispatchQueue
                 ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
@@ -55,7 +55,7 @@ namespace MediaServer.Core.Services.RoomManager
             _logger.Info($"Device {remoteDevice} now associated with room {room} and user {user}");
 
             // Broadcast the status update
-            await _statusUpdateSender.HandleAsync(new SendStatusUpdateRequest
+            await _statusUpdateSender.HandleAsync(new SendSyncMessageRequest
             {
                 Room = room
             });
@@ -84,7 +84,7 @@ namespace MediaServer.Core.Services.RoomManager
             });
         }
 
-        static async Task<UserProfile> GetOrCreateUserProfile(IRemoteDevice remoteDevice, JoinRoomRequest request, IRoom room)
+        static async Task<User> GetOrCreateUserProfile(IRemoteDevice remoteDevice, JoinRoomRequest request, IRoom room)
         {
             // Then dispatch to the room's thread and 
             // create an user profile if not exist
@@ -93,7 +93,7 @@ namespace MediaServer.Core.Services.RoomManager
                 var user = room.UserProfiles.GetUserByName(request.Username);
                 if(user == null)
                 {
-                    user = new UserProfile(room)
+                    user = new User(room)
                     {
                         Id = Guid.NewGuid(),
                         Username = request.Username,

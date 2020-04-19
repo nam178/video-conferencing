@@ -37,7 +37,7 @@ namespace MediaServer.Core.Services.PeerConnection
             Require.NotNull(request.Type);
 
             // Get user and current IPeerConnection for this device
-            var user = (UserProfile)null;
+            var user = (User)null;
             var pc = (IPeerConnection)null;
             await _centralDispatchQueue.ExecuteAsync(delegate
             {

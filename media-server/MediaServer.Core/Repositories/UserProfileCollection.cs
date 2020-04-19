@@ -8,9 +8,9 @@ namespace MediaServer.Core.Repositories
 {
     sealed class UserProfileCollection : IUserProfileCollection
     {
-        readonly List<UserProfile> _users = new List<UserProfile>();
+        readonly List<User> _users = new List<User>();
 
-        public void AddUser(UserProfile user)
+        public void AddUser(User user)
         {
             if(user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -24,9 +24,9 @@ namespace MediaServer.Core.Repositories
             return string.Equals(username1, username2, StringComparison.InvariantCulture);
         }
 
-        public UserProfile GetUserByName(string username) => _users.FirstOrDefault(u => CompareUsername(username, u.Username));
+        public User GetUserByName(string username) => _users.FirstOrDefault(u => CompareUsername(username, u.Username));
 
-        public IEnumerator<UserProfile> GetEnumerator() => _users.GetEnumerator();
+        public IEnumerator<User> GetEnumerator() => _users.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _users.GetEnumerator();
     }

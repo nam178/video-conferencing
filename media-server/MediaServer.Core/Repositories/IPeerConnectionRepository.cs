@@ -18,7 +18,7 @@ namespace MediaServer.Core.Repositories
         /// <param name="user"></param>
         /// <param name="remoteDevice"></param>
         /// <param name="peerConnection"></param>
-        void Add(UserProfile user, IRemoteDevice remoteDevice, IPeerConnection peerConnection);
+        void Add(User user, IRemoteDevice remoteDevice, IPeerConnection peerConnection);
 
         /// <summary>
         /// Find the registered PeerConnection that associated with remote device

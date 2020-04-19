@@ -7,6 +7,6 @@ namespace MediaServer.Core.Services.RoomManager
         /// <summary>
         /// The user i which this peer connection is for
         /// </summary>
-        public UserProfile User { get; }
+        public User User { get; }
     }
 }

@@ -56,7 +56,7 @@ namespace Tests.Core
         [Fact]
         public async Task HandleAsync_NoPeerConnectionYet_NewOneWillBeCreated()
         {
-            var mockUser = new UserProfile(_mockRoom.Object);
+            var mockUser = new User(_mockRoom.Object);
             var mockPeerConnection = new Mock<IPeerConnection>();
             _remoteDeviceDataRepository
                 .Setup(x => x.GetForDevice(_mockRemoteDevice.Object))
@@ -72,7 +72,7 @@ namespace Tests.Core
             await _handler.HandleAsync(_mockRemoteDevice.Object, request);
 
             _peerConnectionRepository
-                .Verify(x => x.Add(It.IsAny<UserProfile>(), It.IsAny<IRemoteDevice>(), It.IsAny<IPeerConnection>()), Times.Once);
+                .Verify(x => x.Add(It.IsAny<User>(), It.IsAny<IRemoteDevice>(), It.IsAny<IPeerConnection>()), Times.Once);
             mockPeerConnection
                 .Verify(x => x.SetRemoteSessionDescriptionAsync(It.IsAny<RTCSessionDescription>()), Times.Once);
         }
@@ -80,7 +80,7 @@ namespace Tests.Core
         [Fact]
         public async Task HandleAsync_PeerConnectionCreatedTwice_LaterOneIsRejected()
         {
-            var mockUser = new UserProfile(_mockRoom.Object);
+            var mockUser = new User(_mockRoom.Object);
             var currentPeerConnections = new List<IPeerConnection>();
             var peerConnection1 = new Mock<IPeerConnection>();
 
@@ -107,7 +107,7 @@ namespace Tests.Core
                 await _handler.HandleAsync(_mockRemoteDevice.Object, new RTCSessionDescription());
             });
             _peerConnectionRepository
-                .Verify(x => x.Add(It.IsAny<UserProfile>(), It.IsAny<IRemoteDevice>(), It.IsAny<IPeerConnection>()), Times.Never);
+                .Verify(x => x.Add(It.IsAny<User>(), It.IsAny<IRemoteDevice>(), It.IsAny<IPeerConnection>()), Times.Never);
             peerConnection1
                 .Verify(x => x.Dispose(), Times.Once);
         }

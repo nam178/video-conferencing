@@ -1,6 +1,6 @@
 import Logger from '../logging/logger.js'
 import ConferenceSettings from '../models/conference-settings.js';
-import UserProfile from '../models/user-profile.js';
+import UserInfo from '../models/user-info.js';
 
 export default class WebSocketClient extends EventTarget
 {
@@ -24,9 +24,14 @@ export default class WebSocketClient extends EventTarget
     }
 
     /**
-     * @return {UserProfile[]}
+     * @return {UserInfo[]}
      */
     get users() { return this._users; }
+
+    /**
+     * @return {String}
+     */
+    get deviceId() { return this._deviceId; }
 
     constructor() {
         super();
@@ -109,8 +114,18 @@ export default class WebSocketClient extends EventTarget
         // Open
         this.webSocket.addEventListener('open', () => {
             this.logger.info(`Connected to ${webSocketEndpoint}`);
-            this._tryCreateRoom();
+            this._authenticate();
         });
+    }
+
+    _authenticate() {
+        this.queueMessageForSending('Authenticate', {});
+    }
+    
+    _onAuthenticationSuccess(args) {
+        this.logger.info(`Authentication successful, devieId=${args.deviceId}`);
+        this._tryCreateRoom();
+        this._deviceId = args.deviceId;
     }
 
     _tryCreateRoom() {
@@ -141,14 +156,14 @@ export default class WebSocketClient extends EventTarget
         this._failFast(errorMessage);
     }
 
-    _onUpdateUsers(users) {
+    _onSync(syncMessage) {
         var tmp = [];
-        for(var i in users.users)
+        for(var i in syncMessage.users)
         {
-            tmp.push(new UserProfile(users.users[i]));
+            tmp.push(new UserInfo(syncMessage.users[i]));
         }
         this._users = tmp;
-        this._logger.info('Users updated', this.users);
+        this._logger.info('Synced', this.users);
         this.dispatchEvent(new CustomEvent('users', {
             detail: this.users
         }));

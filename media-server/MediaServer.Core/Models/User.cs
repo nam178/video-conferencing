@@ -4,7 +4,7 @@ using System;
 
 namespace MediaServer.Core.Models
 {
-    public sealed class UserProfile
+    public sealed class User
     {
         /// <summary>
         /// This user's id in context of the room
@@ -26,7 +26,7 @@ namespace MediaServer.Core.Models
         /// </summary>
         public IRoom Room { get; }
 
-        public UserProfile(IRoom room)
+        public User(IRoom room)
         {
             Room = room ?? throw new ArgumentNullException(nameof(room));
         }

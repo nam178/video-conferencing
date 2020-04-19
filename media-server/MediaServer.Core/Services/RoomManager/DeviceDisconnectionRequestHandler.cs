@@ -14,14 +14,14 @@ namespace MediaServer.Core.Services.RoomManager
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRemoteDeviceDataRepository _remoteDeviceDataRepository;
         readonly IPeerConnectionRepository _peerConnectionRepository;
-        readonly IHandler<SendStatusUpdateRequest> _statusUpdateSender;
+        readonly IHandler<SendSyncMessageRequest> _statusUpdateSender;
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public DeviceDisconnectionRequestHandler(
             IDispatchQueue centralDispatchQueue,
             IRemoteDeviceDataRepository remoteDeviceUserProfileMappings,
             IPeerConnectionRepository peerConnectionRepository,
-            IHandler<SendStatusUpdateRequest> statusUpdateSender)
+            IHandler<SendSyncMessageRequest> statusUpdateSender)
         {
             _centralDispatchQueue = centralDispatchQueue
                 ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
@@ -66,7 +66,7 @@ namespace MediaServer.Core.Services.RoomManager
             // Send status update so devices can update their UIs
             if(deviceData?.Room != null)
             {
-                await _statusUpdateSender.HandleAsync(new SendStatusUpdateRequest
+                await _statusUpdateSender.HandleAsync(new SendSyncMessageRequest
                 {
                     Room = deviceData.Room
                 });

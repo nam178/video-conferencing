@@ -37,7 +37,7 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<NewRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<JoinRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<DeviceDisconnectionRequestHandler>().AsImplementedInterfaces();
-            builder.RegisterType<SendStatusUpdateRequestHandler>().AsImplementedInterfaces();
+            builder.RegisterType<SendSyncMessageRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<RTCIceCandidateHandler>().AsImplementedInterfaces();
             builder.RegisterType<RTCSessionDescriptionHandler>().AsImplementedInterfaces();
 

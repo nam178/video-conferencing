@@ -32,7 +32,7 @@ namespace MediaServer.WebSocket.Net
 
         public override string ToString() => $"[WebSocketClientRemoteDevice {WebSocketClient}]";
 
-        public Task SendUserUpdateAsync(RemoteDeviceUserUpdateMessage message) => SendAsync("UpdateUsers", message);
+        public Task SendSyncMessageAsync(SyncMessage message) => SendAsync("Sync", message);
 
         public void Teminate() => WebSocketClient.Dispose();
 

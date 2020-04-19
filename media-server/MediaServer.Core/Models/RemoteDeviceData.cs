@@ -6,6 +6,6 @@ namespace MediaServer.Core.Models
     {
         public IRoom Room { get; set; }
 
-        public UserProfile User { get; set; }
+        public User User { get; set; }
     }
 }

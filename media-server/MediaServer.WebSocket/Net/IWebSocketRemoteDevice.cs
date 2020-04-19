@@ -7,11 +7,6 @@ namespace MediaServer.WebSocket.Net
     interface IWebSocketRemoteDevice : IRemoteDevice, IDisposable
     {
         /// <summary>
-        /// Unique id of this device (within the scope of this server)
-        /// </summary>
-        Guid Id { get; }
-
-        /// <summary>
         /// Expose the underlying websocket for internal use
         /// </summary>
         WebSocketClient WebSocketClient { get; }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace MediaServer.Models
 {
@@ -10,12 +11,17 @@ namespace MediaServer.Models
     public interface IRemoteDevice
     {
         /// <summary>
+        /// Unique id of this device (within the scope of this server)
+        /// </summary>
+        Guid Id { get; }
+
+        /// <summary>
         /// Send an user-update message to this device
         /// </summary>
         /// <param name="message"></param>
         /// <exception cref="System.Exception">When network error or things like that occurs</exception>
         /// <returns></returns>
-        Task SendUserUpdateAsync(RemoteDeviceUserUpdateMessage message);
+        Task SendSyncMessageAsync(SyncMessage message);
 
         /// <summary>
         /// Terminate the connection with this device.

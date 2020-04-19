@@ -61,7 +61,7 @@ export default class ConferenceListView extends React.Component {
                     streamsCopy[k] = this.state.streams[k];
                 }
                 if(this.deviceManager.stream) {
-                    streamsCopy[this.state.me.id] = this.deviceManager.stream;
+                    streamsCopy[this.props.webSocketClient.deviceId] = this.deviceManager.stream;
                 }
                 this.setState({
                     isVideoLoading: false,
@@ -237,11 +237,13 @@ export default class ConferenceListView extends React.Component {
             </div>
             <div className="margin-fix">
                 <div className="body">
-                    {this.state.users.map(user => <ConferenceListCell 
-                        stream={typeof(this.state.streams[user.id]) != 'undefined' ? this.state.streams[user.id] : null}
-                        key={user.id} 
-                        user={user} 
-                        self={user.username == this.props.webSocketClient.conferenceSettings.username} /> )}
+                    {this.state.users.map(user => user.devices.map(device => 
+                        <ConferenceListCell 
+                            stream={typeof(this.state.streams[device.id]) != 'undefined' ? this.state.streams[device.id] : null}
+                            key={device.id}
+                            user={user} 
+                            self={user.username == this.props.webSocketClient.conferenceSettings.username} />
+                    ))}
                 </div>
             </div>
             <div className="padding"></div>

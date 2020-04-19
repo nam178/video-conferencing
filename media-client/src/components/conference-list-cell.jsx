@@ -10,7 +10,6 @@ export default class ConferenceListCell extends React.PureComponent
     static getDerivedStateFromProps(props) {
         return {
             username: props.user.username,
-            isOnline: props.user.isOnline,
             self: props.self,
             stream: props.stream
         };
@@ -31,12 +30,10 @@ export default class ConferenceListCell extends React.PureComponent
     }
 
     render() {
-        return <div className={`conference-list-cell ${this.state.isOnline ? 'online' : 'offline'}`}>
+        return <div className={`conference-list-cell online`}>
             <div className="split-container">
                 <div className="video-view-port">
-                    { this.state.isOnline 
-                        ? <video autoPlay playsInline height="310" ref={t => this._video = t}></video>
-                        : <i className="fas fa-skull-crossbones" /> }
+                    <video autoPlay playsInline height="310" ref={t => this._video = t}></video>
                 </div>
                 <div className="username">{this.state.username} {this.state.self ? '(You)' : ''}</div>
             </div>

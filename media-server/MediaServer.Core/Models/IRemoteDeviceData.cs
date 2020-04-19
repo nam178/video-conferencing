@@ -12,6 +12,6 @@ namespace MediaServer.Core.Models
         /// <summary>
         /// The user profile in which the device belongs to
         /// </summary>
-        UserProfile User { get; }
+        User User { get; }
     }
 }

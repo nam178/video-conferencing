@@ -2,7 +2,7 @@
 
 namespace MediaServer.Core.Services.RoomManager
 {
-    sealed class SendStatusUpdateRequest
+    sealed class SendSyncMessageRequest
     {
         /// <summary>
         /// The room in which the status update request will be sent to

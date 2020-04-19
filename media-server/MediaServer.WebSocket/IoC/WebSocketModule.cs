@@ -30,6 +30,7 @@ namespace MediaServer.WebSocket.IoC
             builder.RegisterType<HeartBeatCommandHandler>().AsSelf();
             builder.RegisterType<AddIceCandidateHandler>().AsSelf();
             builder.RegisterType<SetOfferCommandHandler>().AsSelf();
+            builder.RegisterType<AuthenticateCommandHandler>().AsSelf();
         }
     }
 }

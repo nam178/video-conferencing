@@ -9,18 +9,18 @@ namespace MediaServer.Core.Repositories
 {
     sealed class PeerConnectionRepository : IPeerConnectionRepository
     {
-        readonly Dictionary<UserProfile, List<(IRemoteDevice Device, IPeerConnection Pc)>> _indexByUser;
+        readonly Dictionary<User, List<(IRemoteDevice Device, IPeerConnection Pc)>> _indexByUser;
         readonly Dictionary<IRemoteDevice, List<IPeerConnection>> _indexByDevice;
-        readonly Dictionary<IPeerConnection, (UserProfile User, IRemoteDevice Device)> _indexByPeerConnection;
+        readonly Dictionary<IPeerConnection, (User User, IRemoteDevice Device)> _indexByPeerConnection;
 
         public PeerConnectionRepository()
         {
             _indexByDevice = new Dictionary<IRemoteDevice, List<IPeerConnection>>();
-            _indexByUser = new Dictionary<UserProfile, List<(IRemoteDevice, IPeerConnection)>>();
-            _indexByPeerConnection = new Dictionary<IPeerConnection, (UserProfile, IRemoteDevice)>();
+            _indexByUser = new Dictionary<User, List<(IRemoteDevice, IPeerConnection)>>();
+            _indexByPeerConnection = new Dictionary<IPeerConnection, (User, IRemoteDevice)>();
         }
 
-        public void Add(UserProfile user, IRemoteDevice remoteDevice, IPeerConnection peerConnection)
+        public void Add(User user, IRemoteDevice remoteDevice, IPeerConnection peerConnection)
         {
             ThrowIfAlreadyAdded(user, remoteDevice, peerConnection);
 
@@ -33,7 +33,7 @@ namespace MediaServer.Core.Repositories
             _indexByPeerConnection[peerConnection] = (user, remoteDevice);
         }
 
-        void ThrowIfAlreadyAdded(UserProfile user, IRemoteDevice remoteDevice, IPeerConnection peerConnection)
+        void ThrowIfAlreadyAdded(User user, IRemoteDevice remoteDevice, IPeerConnection peerConnection)
         {
             Require.NotNull(user);
             Require.NotNull(remoteDevice);
