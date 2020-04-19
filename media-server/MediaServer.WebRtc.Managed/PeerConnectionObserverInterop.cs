@@ -40,7 +40,28 @@ namespace MediaServer.WebRtc.Managed
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverDestroy")]
         public extern static void Destroy(IntPtr native);
 
+
+        
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverSetRenegotiationNeededCallback")]
+        public extern static void SetRenegotiationNeededCallback(PeerConnectionObserverSafeHandle safeHandle, RenegotiationNeededCallback callback, IntPtr userData);
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverSetIceGatheringStateChangedCallback")]
+        public extern static void SetIceGatheringStateChangedCallback(PeerConnectionObserverSafeHandle safeHandle, IceGatheringStateChangedCallback callback, IntPtr userData);
+        
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverSetIceConnectionChangeCallback")]
         public extern static void SetIceConnectionChangeCallback(PeerConnectionObserverSafeHandle safeHandle, IceConnectionChangeCallback callback, IntPtr userData);
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverSetIceCandidateCallback")]
+        public extern static void SetIceCandidateCallback(PeerConnectionObserverSafeHandle safeHandle, IceCandidateCallback callback, IntPtr userData);
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverSetIceCandidatesRemovedCallback")]
+        public extern static void SetIceCandidatesRemovedCallback(PeerConnectionObserverSafeHandle safeHandle, IceCandidatesRemovedCallback callback, IntPtr userData);
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverSetRemoteTrackAddedCallback")]
+        public extern static void SetRemoteTrackAddedCallback(PeerConnectionObserverSafeHandle safeHandle, RemoteTrackAddedCallback callback, IntPtr userData);
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverSetRemoteTrackRemovedCallback")]
+        public extern static void SetRemoteTrackRemovedCallback(PeerConnectionObserverSafeHandle safeHandle, RemoteTrackRemovedCallback callback, IntPtr userData);
     }
 }

@@ -33,7 +33,13 @@ namespace MediaServer.WebRtc.Managed
 
             var userData = GCHandleHelper.ToIntPtr(this, out _handle);
 
+            SetRenegotiationNeededCallback(Native, _renegotiationNeededCallback, userData);
+            SetIceGatheringStateChangedCallback(Native, _iceGatheringStateChangedCallback, userData);
             SetIceConnectionChangeCallback(Native, _iceConnectionChangeCallback, userData);
+            SetIceCandidateCallback(Native, _iceCandidateCallback, userData);
+            SetIceCandidatesRemovedCallback(Native, _iceCandidatesRemovedCallback, userData);
+            SetRemoteTrackAddedCallback(Native, _remoteTrackAddedCallback, userData);
+            SetRemoteTrackRemovedCallback(Native, _remoteTrackRemovedCallback, userData);
         }
 
         static void IceCandidateCallback(IntPtr userData, IceCandidate iceCandidate)
