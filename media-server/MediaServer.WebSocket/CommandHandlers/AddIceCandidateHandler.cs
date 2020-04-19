@@ -1,4 +1,5 @@
 using MediaServer.Common.Mediator;
+using MediaServer.Common.Utils;
 using MediaServer.Core.Services;
 using MediaServer.WebRtc.Managed;
 using MediaServer.WebSocket.CommandArgs;
@@ -19,9 +20,13 @@ namespace MediaServer.WebSocket.CommandHandlers
 
         public Task HandleAsync(IWebSocketRemoteDevice remoteDeivce, AddIceCandidate args)
         {
+            Require.NotNull(args.Candidate.Candidate);
+            Require.NotNull(args.Candidate.SdpMid);
+
             // This command has no response, 
             // just pass direcrlt through the service to handle it
             return _iceCandidateHandler.HandleAsync(remoteDeivce, args.Candidate);
         }
     }
 }
+

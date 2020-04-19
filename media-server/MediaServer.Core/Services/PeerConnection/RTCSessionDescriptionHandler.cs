@@ -33,7 +33,8 @@ namespace MediaServer.Core.Services.PeerConnection
 
         public async Task HandleAsync(IRemoteDevice remoteDevice, RTCSessionDescription request)
         {
-            Require.NotEmpty(request);
+            Require.NotNull(request.Sdp);
+            Require.NotNull(request.Type);
 
             // Get user and current IPeerConnection for this device
             var user = (UserProfile)null;

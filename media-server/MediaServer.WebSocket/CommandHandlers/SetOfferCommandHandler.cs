@@ -1,4 +1,5 @@
 ﻿using MediaServer.Common.Mediator;
+using MediaServer.Common.Utils;
 using MediaServer.Core.Services;
 using MediaServer.WebRtc.Managed;
 using MediaServer.WebSocket.CommandArgs;
@@ -20,8 +21,11 @@ namespace MediaServer.WebSocket.CommandHandlers
 
         public Task HandleAsync(IWebSocketRemoteDevice remoteDevice, SetOffer args)
         {
+            Require.NotNull(args.Offer.Sdp);
+            Require.NotNull(args.Offer.Type);
+
             // This command has no response, just pass that to RTC handler
-            return _sdpHandler.HandleAsync(remoteDevice, args.Sdp);
+            return _sdpHandler.HandleAsync(remoteDevice, args.Offer);
         }
     }
 }

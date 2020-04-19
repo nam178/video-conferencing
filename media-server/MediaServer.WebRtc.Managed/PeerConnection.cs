@@ -32,7 +32,7 @@ namespace MediaServer.WebRtc.Managed
 
                 // Then pass the correct result to the awaiter
                 if(result.Success)
-                    taskCompletionSource.SetResult(new RTCSessionDescription { Sdp = result.Sdp, SdpType = result.SdpType });
+                    taskCompletionSource.SetResult(new RTCSessionDescription { Sdp = result.Sdp, Type = result.SdpType });
                 else
                     taskCompletionSource.SetException(new CreateAnswerFailedException(result.ErrorMessage ?? string.Empty));
             });

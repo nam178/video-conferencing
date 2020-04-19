@@ -1,10 +1,12 @@
 ﻿using MediaServer.Common.Mediator;
+using MediaServer.Common.Utils;
 using MediaServer.Core.Common;
 using MediaServer.Core.Models;
 using MediaServer.Core.Services;
 using MediaServer.Core.Services.RoomManager;
 using MediaServer.WebSocket.CommandArgs;
 using MediaServer.WebSocket.Net;
+using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
@@ -24,6 +26,9 @@ namespace MediaServer.WebSocket.CommandHandlers
         {
             try
             {
+                Require.NotNull(args.RoomId);
+                Require.NotNull(args.Username);
+
                 var result = await _coreHandler.HandleAsync(remoteDevice, new JoinRoomRequest
                 {
                     Username = args.Username,

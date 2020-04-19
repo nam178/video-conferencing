@@ -7,8 +7,8 @@
     {
         public string Sdp { get; set; }
 
-        public string SdpType { get; set; }
+        public string Type { get; set; }
 
-        public override string ToString() => $"[RTCSessionDescription {SdpType}, length={Sdp?.Length}]";
+        public override string ToString() => $"[RTCSessionDescription {Type}, length={Sdp?.Length}]";
     }
 }

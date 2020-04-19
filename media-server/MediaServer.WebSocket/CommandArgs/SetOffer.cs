@@ -4,6 +4,6 @@ namespace MediaServer.WebSocket.CommandArgs
 {
     public sealed class SetOffer
     {
-        public RTCSessionDescription Sdp { get; set; }
+        public RTCSessionDescription Offer { get; set; }
     }
 }
