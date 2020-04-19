@@ -4,7 +4,7 @@ using MediaServer.WebSocket.Net;
 
 namespace MediaServer.WebSocket.IoC
 {
-    public sealed class SignallingModule : Autofac.Module
+    public sealed class WebSocketModule : Autofac.Module
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -29,6 +29,7 @@ namespace MediaServer.WebSocket.IoC
             builder.RegisterType<CreateRoomCommandHandler>().AsSelf();
             builder.RegisterType<HeartBeatCommandHandler>().AsSelf();
             builder.RegisterType<AddIceCandidateHandler>().AsSelf();
+            builder.RegisterType<SetOfferCommandHandler>().AsSelf();
         }
     }
 }

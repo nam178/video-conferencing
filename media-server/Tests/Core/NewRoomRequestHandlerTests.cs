@@ -37,7 +37,7 @@ namespace Tests.Core
         {
             _roomRepository.Setup(x => x.GetRoomById(RoomId.FromString("my bar"))).Returns((Room)null);
             _roomRepository.Setup(x => x.AddRoom(It.IsAny<IRoom>())).Verifiable();
-            _mockRoomFactory.Setup(x => x.Create()).Returns(_room.Object);
+            _mockRoomFactory.Setup(x => x.Create(It.IsAny<RoomId>())).Returns(_room.Object);
 
             await _handler.HandleAsync(Mock.Of<IRemoteDevice>(), new NewRoomRequest
             {

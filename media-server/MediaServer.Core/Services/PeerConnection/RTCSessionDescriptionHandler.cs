@@ -2,11 +2,9 @@
 using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
-using MediaServer.Core.Services;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using NLog;
-using NLog.LayoutRenderers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,21 +14,17 @@ namespace MediaServer.Core.Services.PeerConnection
     sealed class RTCSessionDescriptionHandler : IRemoteDeviceService<RTCSessionDescription>
     {
         readonly IPeerConnectionRepository _peerConnectionRepository;
-        readonly IPeerConnectionFactory _peerConnectionFactory;
         readonly IRemoteDeviceDataRepository _remoteDeviceDataRepository;
         readonly IDispatchQueue _centralDispatchQueue;
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public RTCSessionDescriptionHandler(
             IPeerConnectionRepository peerConnectionRepository,
-            IPeerConnectionFactory peerConnectionFactory,
             IRemoteDeviceDataRepository remoteDeviceDataRepository,
             IDispatchQueue centralDispatchQueue)
         {
             _peerConnectionRepository = peerConnectionRepository
                 ?? throw new ArgumentNullException(nameof(peerConnectionRepository));
-            _peerConnectionFactory = peerConnectionFactory
-                ?? throw new ArgumentNullException(nameof(peerConnectionFactory));
             _remoteDeviceDataRepository = remoteDeviceDataRepository
                 ?? throw new ArgumentNullException(nameof(remoteDeviceDataRepository));
             _centralDispatchQueue = centralDispatchQueue
@@ -57,7 +51,7 @@ namespace MediaServer.Core.Services.PeerConnection
             if(null == pc)
             {
                 // Create PeerConnection outside of the main thread, because it's slow.
-                pc = _peerConnectionFactory.Create();
+                pc = user.Room.PeerConnectionFactory.Create();
                 _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
 
                 // Jump back to the main thread to register it.

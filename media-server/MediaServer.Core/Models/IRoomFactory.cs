@@ -4,6 +4,6 @@ namespace MediaServer.Core.Models
 {
     interface IRoomFactory
     {
-        IRoom Create();
+        IRoom Create(RoomId id);
     }
 }

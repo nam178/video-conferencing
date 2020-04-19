@@ -2,6 +2,7 @@
 using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
+using MediaServer.Core.Services.PeerConnection;
 using MediaServer.Core.Services.RoomManager;
 using MediaServer.Core.Services.ServerManager;
 
@@ -37,10 +38,12 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<JoinRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<DeviceDisconnectionRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<SendStatusUpdateRequestHandler>().AsImplementedInterfaces();
+            builder.RegisterType<RTCIceCandidateHandler>().AsImplementedInterfaces();
+            builder.RegisterType<RTCSessionDescriptionHandler>().AsImplementedInterfaces();
 
             // Factories
             builder.RegisterType<RoomFactory>().AsImplementedInterfaces();
-            builder.RegisterType<PeerConnectionFactoryAdapter>().AsImplementedInterfaces();
+            builder.RegisterType<PeerConnectionFactoryAdapter>().AsSelf();
         }
     }
 }

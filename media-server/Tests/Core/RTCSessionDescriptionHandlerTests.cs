@@ -20,13 +20,14 @@ namespace Tests.Core
         readonly Mock<IRemoteDevice> _mockRemoteDevice = new Mock<IRemoteDevice>();
         readonly ThreadPoolDispatchQueue _centralDispatchQueue = new ThreadPoolDispatchQueue();
         readonly RTCSessionDescriptionHandler _handler;
+        readonly Mock<IRoom> _mockRoom = new Mock<IRoom>();
 
         public RTCSessionDescriptionHandlerTests()
         {
             _centralDispatchQueue.Start();
+            _mockRoom.Setup(x => x.PeerConnectionFactory).Returns(_peerConnectionFactory.Object);
             _handler = new RTCSessionDescriptionHandler(
                 _peerConnectionRepository.Object,
-                _peerConnectionFactory.Object,
                 _remoteDeviceDataRepository.Object,
                 _centralDispatchQueue
                 );
@@ -55,7 +56,7 @@ namespace Tests.Core
         [Fact]
         public async Task HandleAsync_NoPeerConnectionYet_NewOneWillBeCreated()
         {
-            var mockUser = new UserProfile(Mock.Of<IRoom>());
+            var mockUser = new UserProfile(_mockRoom.Object);
             var mockPeerConnection = new Mock<IPeerConnection>();
             _remoteDeviceDataRepository
                 .Setup(x => x.GetForDevice(_mockRemoteDevice.Object))
@@ -79,7 +80,7 @@ namespace Tests.Core
         [Fact]
         public async Task HandleAsync_PeerConnectionCreatedTwice_LaterOneIsRejected()
         {
-            var mockUser = new UserProfile(Mock.Of<IRoom>());
+            var mockUser = new UserProfile(_mockRoom.Object);
             var currentPeerConnections = new List<IPeerConnection>();
             var peerConnection1 = new Mock<IPeerConnection>();
 

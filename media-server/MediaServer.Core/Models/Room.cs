@@ -1,4 +1,5 @@
 using MediaServer.Common.Threading;
+using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 
@@ -14,11 +15,13 @@ namespace MediaServer.Models
 
         public IPeerConnectionFactory PeerConnectionFactory { get; }
 
-        public Room(IPeerConnectionFactory peerConnectionFactory)
+        public Room(RoomId id, IPeerConnectionFactory peerConnectionFactory)
         {
+            Require.NotEmpty(id);
             PeerConnectionFactory = peerConnectionFactory
                 ?? throw new System.ArgumentNullException(nameof(peerConnectionFactory));
             DispatchQueue = new ThreadPoolDispatchQueue();
+            Id = id;
             ((ThreadPoolDispatchQueue)DispatchQueue).Start();
         }
 

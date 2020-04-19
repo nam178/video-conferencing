@@ -2,6 +2,7 @@
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Models;
+using NLog;
 using System;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace MediaServer.Core.Services.ServerManager
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;
         readonly IRoomFactory _roomFactory;
+        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public NewRoomRequestHandler(
             IDispatchQueue centralDispatchQueue,
@@ -38,8 +40,9 @@ namespace MediaServer.Core.Services.ServerManager
                     {
                         return existingRoom;
                     }
-                    var newRoom = _roomFactory.Create();
+                    var newRoom = _roomFactory.Create(roomId);
                     _roomRepository.AddRoom(newRoom);
+                    _logger.Info($"New room created: {newRoom}");
                     return newRoom;
                 });
 
