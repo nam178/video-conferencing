@@ -10,6 +10,13 @@ Wrappers::SetRemoteSessionDescriptionObserver::SetRemoteSessionDescriptionObserv
 {
 }
 
+Wrappers::SetRemoteSessionDescriptionObserver::~SetRemoteSessionDescriptionObserver()
+{
+    // Make sure this get hit
+    // Notes - it did
+    ;
+}
+
 void Wrappers::SetRemoteSessionDescriptionObserver::OnSetRemoteDescriptionComplete(RTCError error)
 {
     _callback_lambda(std::move(error));

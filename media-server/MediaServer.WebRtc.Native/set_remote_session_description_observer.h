@@ -9,6 +9,7 @@ class SetRemoteSessionDescriptionObserver final
 {
   public:
     SetRemoteSessionDescriptionObserver(std::function<void(webrtc::RTCError)> &&callback_lambda);
+    ~SetRemoteSessionDescriptionObserver();
     // Inherited via RefCountedObject
     virtual void OnSetRemoteDescriptionComplete(webrtc::RTCError error) override;
 

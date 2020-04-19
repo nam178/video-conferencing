@@ -40,6 +40,10 @@ namespace MediaServer.WebSocket.Net
                     }
                 }
             }
+            catch(System.Net.WebSockets.WebSocketException ex)
+            {
+                _logger.Warn($"WebSocket Error Device={remoteDevice}, Err{ex.Message}");
+            }
             catch(Exception ex)
             {
                 _logger.Error(ex);

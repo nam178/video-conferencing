@@ -33,16 +33,16 @@
       <Filter>noop_video</Filter>
     </ClCompile>
     <ClCompile Include="peer_connection_factory_interop.cpp">
-      <Filter>interops</Filter>
+      <Filter>wrappers\interops</Filter>
     </ClCompile>
     <ClCompile Include="peer_connection_observer_interop.cpp">
-      <Filter>interops</Filter>
+      <Filter>wrappers\interops</Filter>
     </ClCompile>
     <ClCompile Include="peer_connection_interop.cpp">
-      <Filter>interops</Filter>
+      <Filter>wrappers\interops</Filter>
     </ClCompile>
     <ClCompile Include="rtp_transceiver_interop.cpp">
-      <Filter>interops</Filter>
+      <Filter>wrappers\interops</Filter>
     </ClCompile>
     <ClCompile Include="create_session_description_observer.cpp">
       <Filter>wrappers\observers</Filter>
@@ -115,16 +115,16 @@
       <Filter>noop_video</Filter>
     </ClInclude>
     <ClInclude Include="peer_connection_observer_interop.h">
-      <Filter>interops</Filter>
+      <Filter>wrappers\interops</Filter>
     </ClInclude>
     <ClInclude Include="peer_connection_factory_interop.h">
-      <Filter>interops</Filter>
+      <Filter>wrappers\interops</Filter>
     </ClInclude>
     <ClInclude Include="peer_connection_interop.h">
-      <Filter>interops</Filter>
+      <Filter>wrappers\interops</Filter>
     </ClInclude>
     <ClInclude Include="rtp_transceiver_interop.h">
-      <Filter>interops</Filter>
+      <Filter>wrappers\interops</Filter>
     </ClInclude>
     <ClInclude Include="create_session_description_observer.h">
       <Filter>wrappers\observers</Filter>
@@ -164,9 +164,6 @@
     <Filter Include="wrappers">
       <UniqueIdentifier>{834550d2-8830-48b9-bae4-5382e27a08c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="interops">
-      <UniqueIdentifier>{839919e9-cc17-4d81-b000-dfec8e93c925}</UniqueIdentifier>
-    </Filter>
     <Filter Include="wrappers\observers">
       <UniqueIdentifier>{d8211f08-75a7-4bba-aa61-6e76970885fe}</UniqueIdentifier>
     </Filter>
@@ -175,6 +172,9 @@
     </Filter>
     <Filter Include="noop_audio">
       <UniqueIdentifier>{9e1557b4-ff96-46ce-836e-f5bd1d99cc09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wrappers\interops">
+      <UniqueIdentifier>{839919e9-cc17-4d81-b000-dfec8e93c925}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
