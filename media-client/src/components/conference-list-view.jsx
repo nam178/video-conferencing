@@ -19,13 +19,14 @@ export default class ConferenceListView extends React.Component {
             microphoneDevices: null,
             cameraDevices: null,
             speakerDevices: null,
-            streams: { }
+            streams: {}
         };
         this._deviceManager = new InputDeviceManager();
         this.handleMicrophoneChange = this.handleMicrophoneChange.bind(this);
         this.handleCameraChange = this.handleCameraChange.bind(this);
         this.handleSpeakerChange = this.handleSpeakerChange.bind(this);
         this.handleDeviceClick = this.handleDeviceClick.bind(this);
+        this.handleStreamOrWebSocketDeviceIdChange = this.handleStreamOrWebSocketDeviceIdChange.bind(this);
     }
 
     async componentDidMount() {
@@ -40,36 +41,28 @@ export default class ConferenceListView extends React.Component {
         if (lastAudioSinkId)
             this.deviceManager.currentOutAudioSinkId = lastAudioSinkId;
         this._peerConnectionManager = new PeerConnectionManager(this.props.webSocketClient);
+        this.deviceManager.addEventListener('streamchange', this.handleStreamOrWebSocketDeviceIdChange);
+        this.props.webSocketClient.addEventListener('deviceidchange', this.handleStreamOrWebSocketDeviceIdChange);
         await this.reInitializeDevicesAsync();
     }
 
     async componentWillUnmount() {
         this._closed = true;
+        this.deviceManager.removeEventListener('streamchange', this.handleStreamOrWebSocketDeviceIdChange);
+        this.props.webSocketClient.addEventListener('deviceidchange', this.handleStreamOrWebSocketDeviceIdChange);
     }
 
     async reInitializeDevicesAsync() {
         try {
             this._isInitialisingDevices = true;
             await this.deviceManager.initializeAsync();
-            // Device initialisation successed,
-            // First, update peerConnection
-            this._peerConnectionManager.localMediaStreamForSending = this.deviceManager.stream;
-            // Then, update the UI
-            if(!this._closed) {
-                var streamsCopy = {};
-                for(var k in this.state.streams) {
-                    streamsCopy[k] = this.state.streams[k];
-                }
-                if(this.deviceManager.stream) {
-                    streamsCopy[this.props.webSocketClient.deviceId] = this.deviceManager.stream;
-                }
+            if (!this._closed) {
                 this.setState({
                     isVideoLoading: false,
                     isAudioLoading: false,
                     microphoneDevices: this.generateDropDownItem('audioinput'),
                     cameraDevices: this.generateDropDownItem('videoinput'),
-                    speakerDevices: this.generateDropDownItem('audiooutput'),
-                    streams: streamsCopy
+                    speakerDevices: this.generateDropDownItem('audiooutput')
                 });
             }
         }
@@ -86,22 +79,37 @@ export default class ConferenceListView extends React.Component {
         }
     }
 
+    handleStreamOrWebSocketDeviceIdChange() {
+        // Device initialisation successed,
+        // First, update peerConnection
+        this._peerConnectionManager.localMediaStreamForSending = this.deviceManager.stream;
+        // Then update the streams in the UI
+        var streamsCopy = {};
+        for (var k in this.state.streams) {
+            streamsCopy[k] = this.state.streams[k];
+        }
+        if (this.deviceManager.stream) {
+            streamsCopy[this.props.webSocketClient.deviceId] = this.deviceManager.stream;
+        }
+        this.setState({ streams: streamsCopy });
+    }
+
     async handleMicrophoneChange(item) {
-        if(!item.id) { ;return; } // Don't do anything when query device fail (it returns an empty device with id='')
+        if (!item.id) { ; return; } // Don't do anything when query device fail (it returns an empty device with id='')
         this.deviceManager.currentAudioInputDeviceId = item.id;
         this.rememberAudioChoice();
         await this.reInitializeDevicesAsync();
     }
 
     async handleCameraChange(item) {
-        if(!item.id) { ;return; } // Don't do anything when query device fail (it returns an empty device with id='')
+        if (!item.id) { ; return; } // Don't do anything when query device fail (it returns an empty device with id='')
         this.deviceManager.currentVideoInputDeviceId = item.id;
         this.rememberVideoChoice();
         await this.reInitializeDevicesAsync();
     }
 
     handleSpeakerChange(item) {
-        if(!item.id) { ;return; } // Don't do anything when query device fail (it returns an empty device with id='')
+        if (!item.id) { ; return; } // Don't do anything when query device fail (it returns an empty device with id='')
         this.deviceManager.currentOutAudioSinkId = item.id;
         this.rememberSpeakerChoice();
         this.setState({
@@ -169,7 +177,7 @@ export default class ConferenceListView extends React.Component {
                 name: 'Don\'t Use',
                 selected: selectedDeviceId == InputDeviceManager.NotSelectedDeviceId()
             });
-        } else if(result.length == 1) {
+        } else if (result.length == 1) {
             // special case for audiooutput:
             // when it fails to get a list of audiooutput devices,
             // it will returns just one empty device with deviceId is empty,
@@ -237,11 +245,11 @@ export default class ConferenceListView extends React.Component {
             </div>
             <div className="margin-fix">
                 <div className="body">
-                    {this.state.users.map(user => user.devices.map(device => 
-                        <ConferenceListCell 
-                            stream={typeof(this.state.streams[device.id]) != 'undefined' ? this.state.streams[device.id] : null}
+                    {this.state.users.map(user => user.devices.map(device =>
+                        <ConferenceListCell
+                            stream={typeof (this.state.streams[device.id]) != 'undefined' ? this.state.streams[device.id] : null}
                             key={device.id}
-                            user={user} 
+                            user={user}
                             self={user.username == this.props.webSocketClient.conferenceSettings.username} />
                     ))}
                 </div>

@@ -126,6 +126,7 @@ export default class WebSocketClient extends EventTarget
         this.logger.info(`Authentication successful, devieId=${args.deviceId}`);
         this._tryCreateRoom();
         this._deviceId = args.deviceId;
+        this.dispatchEvent(new CustomEvent('deviceidchange'));
     }
 
     _tryCreateRoom() {

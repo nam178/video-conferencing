@@ -1,6 +1,6 @@
 import Logger from '../logging/logger.js';
 
-export default class InputDeviceManager {
+export default class InputDeviceManager extends EventTarget {
     /**
      * @return {MediaStream}
      */
@@ -36,7 +36,7 @@ export default class InputDeviceManager {
     }
 
     set currentOutAudioSinkId(value) {
-        this._currentOutAudioSinkId = value; 
+        this._currentOutAudioSinkId = value;
     }
 
     /**
@@ -45,10 +45,11 @@ export default class InputDeviceManager {
     get mediaDevices() { return this._mediaDevices; }
 
     constructor() {
+        super();
         this._logger = new Logger('InputDeviceManager');
         this._currentAudioInputDeviceId = null;
         this._currentVideoInputDeviceId = null;
-        this._currentOutAudioSinkId = null; 
+        this._currentOutAudioSinkId = null;
     }
 
     static NotSelectedDeviceId() { return -1; }
@@ -59,12 +60,12 @@ export default class InputDeviceManager {
      */
     initializeAsync() {
         // Stop any running track
-        if(this.stream)
-        {
+        if (this.stream) {
             this.stream.getTracks().forEach(track => track.stop());
             this._stream = null;
+            this._triggerStreamChangeEvent();
         }
-        
+
         // Query devices with callback
         var constraints = {};
 
@@ -77,15 +78,14 @@ export default class InputDeviceManager {
         if (this.currentVideoInputDeviceId != InputDeviceManager.NotSelectedDeviceId()) {
             constraints.video = {
                 deviceId: this._currentVideoInputDeviceId ? { ideal: this._currentVideoInputDeviceId } : undefined,
-                width:  { ideal: 720 },
+                width: { ideal: 720 },
                 height: { ideal: 480 },
             }
         }
 
         // Not requesting anything?
-        if(this.currentAudioInputDeviceId == InputDeviceManager.NotSelectedDeviceId()
-            && this.currentVideoInputDeviceId == InputDeviceManager.NotSelectedDeviceId())
-        {
+        if (this.currentAudioInputDeviceId == InputDeviceManager.NotSelectedDeviceId()
+            && this.currentVideoInputDeviceId == InputDeviceManager.NotSelectedDeviceId()) {
             // Just refresh the device only, 
             // Note that the device list is best-effort based
             return new Promise((resolve, reject) => {
@@ -100,6 +100,7 @@ export default class InputDeviceManager {
                 .getUserMedia(constraints)
                 .then((stream) => {
                     this._stream = stream;
+                    this._triggerStreamChangeEvent();
                     this._logger.info('Media stream accquired', stream);
                     // Set the current device ids
                     stream.getTracks().forEach(track => {
@@ -119,6 +120,10 @@ export default class InputDeviceManager {
         });
     }
 
+    _triggerStreamChangeEvent() {
+        this.dispatchEvent(new CustomEvent('streamchange'));
+    }
+
     _refreshDevicesAsync() {
         return new Promise((resolve, reject) => {
             // Got the perms, but we'll still querying available devices
@@ -128,10 +133,9 @@ export default class InputDeviceManager {
                     this._logger.info('Devices accquired', devices);
                     this._mediaDevices = devices;
                     // Now, if the selected sink doesn't match any if the device, reset to null
-                    if(!this._mediaDevices.find(device => device.kind == 'audiooutput' 
+                    if (!this._mediaDevices.find(device => device.kind == 'audiooutput'
                         && device.deviceId == this._currentOutAudioSinkId
-                        && this._currentOutAudioSinkId))
-                    {
+                        && this._currentOutAudioSinkId)) {
                         this._logger.warn(`Could not find sink ${this._currentOutAudioSinkId}, using the default sink`);
                         this._currentOutAudioSinkId = null;
                     }
