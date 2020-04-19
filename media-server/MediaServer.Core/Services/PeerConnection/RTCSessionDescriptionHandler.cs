@@ -68,6 +68,12 @@ namespace MediaServer.Core.Services.PeerConnection
                         throw new OperationCanceledException();
                     }
                     _peerConnectionRepository.Add(user, remoteDevice, pc);
+
+                    // This is the first time is PeerConnection is created,
+                    // we'll add ICE candidate observer
+                    pc.ObserveIceCandidate(ice => remoteDevice
+                        .SendIceCandidateAsync(ice)
+                        .Forget($"Error when sending ICE candidate {ice} to device {remoteDevice}"));
                 });
             }
 

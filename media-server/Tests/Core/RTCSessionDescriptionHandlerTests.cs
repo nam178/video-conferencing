@@ -43,7 +43,7 @@ namespace Tests.Core
 
             Assert.ThrowsAsync<UnauthorizedAccessException>(async delegate
             {
-                await _handler.HandleAsync(_mockRemoteDevice.Object, new RTCSessionDescription());
+                await _handler.HandleAsync(_mockRemoteDevice.Object, new RTCSessionDescription { Sdp = "foo", Type = "bar" });
             });
         }
 
@@ -68,7 +68,7 @@ namespace Tests.Core
                 .Setup(x => x.Create())
                 .Returns(mockPeerConnection.Object);
 
-            var request = new RTCSessionDescription();
+            var request = new RTCSessionDescription { Sdp = "foo", Type = "bar" };
             await _handler.HandleAsync(_mockRemoteDevice.Object, request);
 
             _peerConnectionRepository
@@ -104,7 +104,7 @@ namespace Tests.Core
 
             await Assert.ThrowsAsync<OperationCanceledException>(async delegate
             {
-                await _handler.HandleAsync(_mockRemoteDevice.Object, new RTCSessionDescription());
+                await _handler.HandleAsync(_mockRemoteDevice.Object, new RTCSessionDescription { Sdp = "foo", Type = "bar" });
             });
             _peerConnectionRepository
                 .Verify(x => x.Add(It.IsAny<User>(), It.IsAny<IRemoteDevice>(), It.IsAny<IPeerConnection>()), Times.Never);

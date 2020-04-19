@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediaServer.WebRtc.Managed;
+using System;
 using System.Threading.Tasks;
 
 namespace MediaServer.Models
@@ -22,6 +23,20 @@ namespace MediaServer.Models
         /// <exception cref="System.Exception">When network error or things like that occurs</exception>
         /// <returns></returns>
         Task SendSyncMessageAsync(SyncMessage message);
+
+        /// <summary>
+        /// Send the
+        /// </summary>
+        /// <param name="candidate">The ICE candidate genrated from this server</param>
+        /// <returns></returns>
+        Task SendIceCandidateAsync(RTCIceCandidate candidate);
+
+        /// <summary>
+        /// Send the specified SDP to the remote peer
+        /// </summary>
+        /// <param name="description">Could be either offer or answer</param>
+        /// <returns></returns>
+        Task SendSessionDescriptionAsync(RTCSessionDescription description);
 
         /// <summary>
         /// Terminate the connection with this device.

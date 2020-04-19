@@ -1,4 +1,5 @@
-﻿using MediaServer.WebRtc.Managed;
+﻿using MediaServer.Common.Utils;
+using MediaServer.WebRtc.Managed;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -9,11 +10,14 @@ namespace MediaServer.Core.Models
     sealed class PeerConnectionAdapter : IPeerConnection
     {
         readonly PeerConnectionObserver _nativeObserver;
-        readonly WebRtc.Managed.PeerConnection _nativePeerConnection;
+        readonly PeerConnection _nativePeerConnection;
         readonly Guid _id = Guid.NewGuid();
+        readonly object _syncRoot = new object();
+
+        Action<RTCIceCandidate> _iceCandidateObserver;
 
         public PeerConnectionAdapter(
-            WebRtc.Managed.PeerConnectionFactory webRtcPeerConnectionFactory,
+            PeerConnectionFactory webRtcPeerConnectionFactory,
             IReadOnlyList<string> stunUrls)
         {
             if(webRtcPeerConnectionFactory is null)
@@ -29,23 +33,22 @@ namespace MediaServer.Core.Models
             var config = new PeerConnectionConfig();
             config.IceServers.Add(iceServerInfo);
             _nativeObserver = new PeerConnectionObserver();
+            _nativeObserver.IceCandidateAdded += IceCandidateAdded;
             _nativePeerConnection = webRtcPeerConnectionFactory.CreatePeerConnection(_nativeObserver, config);
         }
 
-        public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
-        {
-            return _nativePeerConnection.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
-        }
+        public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description) 
+            => _nativePeerConnection.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
 
-        public Task<RTCSessionDescription> CreateAnswerAsync()
-        {
-            return _nativePeerConnection.CreateAnswerAsync();
-        }
+        public Task<RTCSessionDescription> CreateAnswerAsync() 
+            => _nativePeerConnection.CreateAnswerAsync();
 
-        public void AddIceCandidate(RTCIceCandidate iceCandidate)
-        {
-            _nativePeerConnection.AddIceCandidate(iceCandidate);
-        }
+        public void AddIceCandidate(RTCIceCandidate iceCandidate) 
+            => _nativePeerConnection.AddIceCandidate(iceCandidate);
+
+        public void ObserveIceCandidate(Action<RTCIceCandidate> observer) => _iceCandidateObserver = observer;
+
+        void IceCandidateAdded(object sender, EventArgs<RTCIceCandidate> e) => _iceCandidateObserver?.Invoke(e.Payload);
 
         int _disposed;
         public void Dispose()
@@ -56,6 +59,7 @@ namespace MediaServer.Core.Models
                 _nativePeerConnection.Close();
                 _nativePeerConnection.Dispose();
                 // Observer later, cuz PeerConnection uses it
+                _nativeObserver.IceCandidateAdded -= IceCandidateAdded;
                 _nativeObserver.Dispose();
             }
         }

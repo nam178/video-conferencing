@@ -1,4 +1,5 @@
-﻿using MediaServer.WebRtc.Managed;
+﻿using MediaServer.Common.Utils;
+using MediaServer.WebRtc.Managed;
 using System;
 using System.Threading.Tasks;
 
@@ -14,6 +15,8 @@ namespace MediaServer.Core.Models
     public interface IPeerConnection : IDisposable
     {
         public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description);
+
+        void ObserveIceCandidate(Action<RTCIceCandidate> observer);
 
         void AddIceCandidate(RTCIceCandidate iceCandidate);
     }

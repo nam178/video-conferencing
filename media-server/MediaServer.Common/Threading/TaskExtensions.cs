@@ -17,7 +17,7 @@ namespace MediaServer.Common.Threading
             catch(TException) { }
         }
 
-        public static async void Forget(this Task task)
+        public static async void Forget(this Task task, string errorMessage = null)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace MediaServer.Common.Threading
             }
             catch(Exception ex)
             {
-                _logger.Warn(ex, "Error caught when fire & forget task");
+                _logger.Warn(ex, errorMessage ?? "Error caught when fire & forget task");
             }
         }
     }

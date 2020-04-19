@@ -1,4 +1,5 @@
 ﻿using MediaServer.Models;
+using MediaServer.WebRtc.Managed;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NLog;
@@ -33,6 +34,18 @@ namespace MediaServer.WebSocket.Net
         public override string ToString() => $"[WebSocketClientRemoteDevice {WebSocketClient}]";
 
         public Task SendSyncMessageAsync(SyncMessage message) => SendAsync("Sync", message);
+
+        public Task SendIceCandidateAsync(RTCIceCandidate candidate) => SendAsync("IceCandidate", candidate);
+
+        public Task SendSessionDescriptionAsync(RTCSessionDescription description)
+        {
+            if(description.Type == "offer")
+                return SendAsync("Offer", description);
+            else if(description.Type == "answer")
+                return SendAsync("Answer", description);
+
+            throw new ArgumentOutOfRangeException();
+        }
 
         public void Teminate() => WebSocketClient.Dispose();
 
