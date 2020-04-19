@@ -27,7 +27,7 @@ namespace MediaServer.WebSocket.Net
                 {
                     _logger.Fatal(
                         "Unexpected exception thrown by core handler " +
-                        "when handling disconnection request", task);
+                        "when handling disconnection request", task.Exception);
                 }
             });
         }
