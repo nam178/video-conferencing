@@ -38,48 +38,55 @@ namespace MediaServer.Core.Services.PeerConnection
 
             // Get user and current IPeerConnection for this device
             var user = (User)null;
-            var pc = (IPeerConnection)null;
+            var peerConnection = (IPeerConnection)null;
             await _centralDispatchQueue.ExecuteAsync(delegate
             {
                 var data = _remoteDeviceDataRepository.GetForDevice(remoteDevice);
                 if(data?.User == null)
                     throw new UnauthorizedAccessException();
                 user = data.User;
-                pc = _peerConnectionRepository.Find(remoteDevice)?.FirstOrDefault();
+                peerConnection = _peerConnectionRepository.Find(remoteDevice)?.FirstOrDefault();
             });
 
             // If no PeerConnection for this device, create one
-            if(null == pc)
+            if(null == peerConnection)
             {
-                // Create PeerConnection outside of the main thread, because it's slow.
-                pc = user.Room.PeerConnectionFactory.Create();
-                _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
-
-                // Jump back to the main thread to register it.
-                await _centralDispatchQueue.ExecuteAsync(delegate
-                {
-                    // Double-check:
-                    // We don't allow multiple PeerConnection per device yet
-                    var existingPeerConnections = _peerConnectionRepository.Find(remoteDevice);
-                    if(existingPeerConnections != null && existingPeerConnections.Any())
-                    {
-                        pc.Dispose();
-                        _logger.Warn($"PeerConnection closed due to duplicate, user {user}, device {remoteDevice}");
-                        throw new OperationCanceledException();
-                    }
-                    _peerConnectionRepository.Add(user, remoteDevice, pc);
-
-                    // This is the first time is PeerConnection is created,
-                    // we'll add ICE candidate observer
-                    pc.ObserveIceCandidate(ice => remoteDevice
-                        .SendIceCandidateAsync(ice)
-                        .Forget($"Error when sending ICE candidate {ice} to device {remoteDevice}"));
-                });
+                peerConnection = await CreatePeerConnectionAsync(remoteDevice, user);
             }
 
-            // Update SDP 
-            await pc.SetRemoteSessionDescriptionAsync(request);
-            _logger.Info($"Remote {request} SDP set for {pc}");
+            await peerConnection.SetRemoteSessionDescriptionAsync(request);
+            _logger.Info($"Remote {request} SDP set for {peerConnection}");
+            await remoteDevice.SendSessionDescriptionAsync(await peerConnection.CreateAnswerAsync());
+            _logger.Info($"Answer sent for {peerConnection}");
+        }
+
+        async Task<IPeerConnection> CreatePeerConnectionAsync(IRemoteDevice remoteDevice, User user)
+        {
+            // Create PeerConnection outside of the main thread, because it's slow.
+            IPeerConnection peerConnection = user.Room.PeerConnectionFactory.Create();
+            _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
+
+            // Jump back to the main thread to register it.
+            await _centralDispatchQueue.ExecuteAsync(delegate
+            {
+                // Double-check:
+                // We don't allow multiple PeerConnection per device yet
+                var existingPeerConnections = _peerConnectionRepository.Find(remoteDevice);
+                if(existingPeerConnections != null && existingPeerConnections.Any())
+                {
+                    peerConnection.Dispose();
+                    _logger.Warn($"PeerConnection closed due to duplicate, user {user}, device {remoteDevice}");
+                    throw new OperationCanceledException();
+                }
+                _peerConnectionRepository.Add(user, remoteDevice, peerConnection);
+
+                // This is the first time is PeerConnection is created,
+                // we'll add ICE candidate observer
+                peerConnection.ObserveIceCandidate(ice => remoteDevice
+                    .SendIceCandidateAsync(ice)
+                    .Forget($"Error when sending ICE candidate {ice} to device {remoteDevice}"));
+            });
+            return peerConnection;
         }
     }
 }

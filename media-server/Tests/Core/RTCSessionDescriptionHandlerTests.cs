@@ -26,6 +26,9 @@ namespace Tests.Core
         {
             _centralDispatchQueue.Start();
             _mockRoom.Setup(x => x.PeerConnectionFactory).Returns(_peerConnectionFactory.Object);
+            _mockRemoteDevice
+                .Setup(x => x.SendSessionDescriptionAsync(It.IsAny<RTCSessionDescription>()))
+                .Returns(Task.CompletedTask);
             _handler = new RTCSessionDescriptionHandler(
                 _peerConnectionRepository.Object,
                 _remoteDeviceDataRepository.Object,
