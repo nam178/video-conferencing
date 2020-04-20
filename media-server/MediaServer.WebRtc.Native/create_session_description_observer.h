@@ -19,6 +19,7 @@ class CreateSessionDescriptionObserver final
     // Inherited via RefCountedObject
     void OnSuccess(webrtc::SessionDescriptionInterface *desc) override;
     void OnFailure(webrtc::RTCError error) override;
+    void OnFailure(const std::string &error) override;
 
   private:
     std::function<void(Result<webrtc::SessionDescriptionInterface *>)> _callback_lambda;

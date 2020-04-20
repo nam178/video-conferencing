@@ -54,10 +54,22 @@ namespace MediaServer.Core.Services.PeerConnection
                 peerConnection = await CreatePeerConnectionAsync(remoteDevice, user);
             }
 
+            // Finally do the SDP exchange, 
+            // it has to be done in this exact oder:
             await peerConnection.SetRemoteSessionDescriptionAsync(request);
             _logger.Info($"Remote {request} SDP set for {peerConnection}");
-            await remoteDevice.SendSessionDescriptionAsync(await peerConnection.CreateAnswerAsync());
+
+            // Create answer and send it.
+            var answer = await peerConnection.CreateAnswerAsync();
+            _logger.Info($"Answer {answer} created for {peerConnection}");
+            await remoteDevice.SendSessionDescriptionAsync(answer);
             _logger.Info($"Answer sent for {peerConnection}");
+
+            // SetLocalSessionDescriptionAsync() must be after SendSessionDescriptionAsync()
+            // because it SetLocalSessionDescriptionAsync() generates ICE candidates,
+            // and we want to send ICE candidates after remote SDP is set.
+            await peerConnection.SetLocalSessionDescriptionAsync(answer);
+            _logger.Info($"Local description {answer} set for {peerConnection}");
         }
 
         async Task<IPeerConnection> CreatePeerConnectionAsync(IRemoteDevice remoteDevice, User user)

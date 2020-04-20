@@ -58,9 +58,9 @@ export default class PeerConnectionManager {
         });
         this._peerConnection.addEventListener('iceconnectionstatechange', e => {
             this._logger.debug('ice state change', e);
-            if (pc.iceConnectionState === "failed" ||
-                pc.iceConnectionState === "disconnected" ||
-                pc.iceConnectionState === "closed") {
+            if (this._peerConnection.iceConnectionState === "failed" ||
+                this._peerConnection.iceConnectionState === "disconnected" ||
+                this._peerConnection.iceConnectionState === "closed") {
                 // TODO Handle ice connection failure
             }
         });
@@ -159,6 +159,7 @@ export default class PeerConnectionManager {
             return;
         }
         this._peerConnection.addIceCandidate(iceCandidate);
+        this._logger.debug('Remote ICE candidate received', iceCandidate);
     }
 
     _onAnswer(sdp) {
@@ -175,6 +176,7 @@ export default class PeerConnectionManager {
             return;
         }
         this._peerConnection.setRemoteDescription(sdp);
+        this._logger.info('Remote SDP received');
     }
 
     _handleWebSocketMessage(e) {

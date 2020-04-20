@@ -2,19 +2,18 @@
 
 #include "create_session_description_observer.h"
 #include "peer_connection.h"
-#include "set_remote_session_description_observer.h"
+#include "set_session_description_observer.h"
 #include "string_helper.h"
 
 using SetFunction =
     void (webrtc::PeerConnectionInterface::*)(webrtc::SetSessionDescriptionObserver *observer,
                                               webrtc::SessionDescriptionInterface *);
 
-void SetSessionDescription(
-    const char *sdp_type,
-    const char *sdp,
-    Wrappers::Callback<Success, ErrorMessage> callback,
-    rtc::scoped_refptr<webrtc::PeerConnectionInterface> peer_connection_interface,
-    SetFunction function)
+void InvokeMethod(rtc::scoped_refptr<webrtc::PeerConnectionInterface> peer_connection_interface,
+                  SetFunction function,
+                  const char *sdp_type,
+                  const char *sdp,
+                  Wrappers::Callback<Success, ErrorMessage> callback)
 {
 
     auto sdp_type_enum = webrtc::SdpTypeFromString(sdp_type);
@@ -26,16 +25,16 @@ void SetSessionDescription(
         return;
     }
 
-    auto callback_lambda = [callback](webrtc::RTCError error) {
-        if(error.ok())
+    auto callback_lambda = [callback](bool success, const char *error_message) {
+        if(error_message)
         {
-            callback(true, nullptr);
+            std::string error_message(error_message);
+            Utils::StringHelper::EnsureNullTerminatedCString(error_message);
+            callback(false, error_message.c_str());
         }
         else
         {
-            std::string error_message(error.message());
-            Utils::StringHelper::EnsureNullTerminatedCString(error_message);
-            callback(false, nullptr);
+            callback(true, nullptr);
         }
     };
 
@@ -89,9 +88,11 @@ void Wrappers::PeerConnection::CreateAnswer(Callback<Wrappers::CreateAnswerResul
                 }
                 else
                 {
+                    std::string error_message(result._error_message);
+                    Utils::StringHelper::EnsureNullTerminatedCString(error_message);
                     callback({
                         false,
-                        result._error_message.c_str(),
+                        error_message.c_str(),
                         nullptr,
                         nullptr,
                     });
@@ -125,22 +126,22 @@ void Wrappers::PeerConnection::RemoteSessionDescription(const char *sdp_type,
                                                         const char *sdp,
                                                         Callback<Success, ErrorMessage> callback)
 {
-    SetSessionDescription(sdp_type,
-                          sdp,
-                          callback,
-                          _peer_connection_interface,
-                          &webrtc::PeerConnectionInterface::SetRemoteDescription);
+    InvokeMethod(_peer_connection_interface,
+                 &webrtc::PeerConnectionInterface::SetRemoteDescription,
+                 sdp_type,
+                 sdp,
+                 callback);
 }
 
 void Wrappers::PeerConnection::LocalSessionDescription(const char *sdp_type,
                                                        const char *sdp,
                                                        Callback<Success, ErrorMessage> callback)
 {
-    SetSessionDescription(sdp_type,
-                          sdp,
-                          callback,
-                          _peer_connection_interface,
-                          &webrtc::PeerConnectionInterface::SetLocalDescription);
+    InvokeMethod(_peer_connection_interface,
+                 &webrtc::PeerConnectionInterface::SetLocalDescription,
+                 sdp_type,
+                 sdp,
+                 callback);
 }
 
 webrtc::PeerConnectionInterface *Wrappers::PeerConnection::GetPeerConnectionInterface()

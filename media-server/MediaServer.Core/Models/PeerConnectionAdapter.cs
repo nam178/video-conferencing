@@ -1,5 +1,6 @@
 ﻿using MediaServer.Common.Utils;
 using MediaServer.WebRtc.Managed;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -13,6 +14,7 @@ namespace MediaServer.Core.Models
         readonly PeerConnection _nativePeerConnection;
         readonly Guid _id = Guid.NewGuid();
         readonly object _syncRoot = new object();
+        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         Action<RTCIceCandidate> _iceCandidateObserver;
 
@@ -42,19 +44,32 @@ namespace MediaServer.Core.Models
 
         public async Task<RTCSessionDescription> CreateAnswerAsync()
         {
-            var localDescription = await _nativePeerConnection.CreateAnswerAsync();
+            return await _nativePeerConnection.CreateAnswerAsync();
+        }
+
+        public async Task SetLocalSessionDescriptionAsync(RTCSessionDescription localDescription)
+        {
             // After generating answer, must set LocalSdp,
             // otherwise ICE candidates won't be gathered.
             await _nativePeerConnection.SetLocalSessionDescriptionAsync(
                 localDescription.Type,
                 localDescription.Sdp);
-            return localDescription;
         }
 
         public void AddIceCandidate(RTCIceCandidate iceCandidate)
             => _nativePeerConnection.AddIceCandidate(iceCandidate);
 
-        public void ObserveIceCandidate(Action<RTCIceCandidate> observer) => _iceCandidateObserver = observer;
+        public void ObserveIceCandidate(Action<RTCIceCandidate> observer)
+        {
+            lock(_syncRoot)
+            {
+                if(_iceCandidateObserver != null)
+                {
+                    throw new NotSupportedException("Only one observer supported sorry");
+                }
+                _iceCandidateObserver = observer;
+            }
+        }
 
         void IceCandidateAdded(object sender, EventArgs<RTCIceCandidate> e) => _iceCandidateObserver?.Invoke(e.Payload);
 

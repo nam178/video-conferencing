@@ -14,9 +14,11 @@ namespace MediaServer.Core.Models
     /// </remarks>
     public interface IPeerConnection : IDisposable
     {
+        Task<RTCSessionDescription> CreateAnswerAsync();
+
         Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description);
 
-        Task<RTCSessionDescription> CreateAnswerAsync();
+        Task SetLocalSessionDescriptionAsync(RTCSessionDescription description);
 
         void ObserveIceCandidate(Action<RTCIceCandidate> observer);
 

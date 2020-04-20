@@ -57,7 +57,7 @@
       <Filter>wrappers\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="noop_audio_device_module.cpp" />
-    <ClCompile Include="set_remote_session_description_observer.cpp">
+    <ClCompile Include="set_session_description_observer.cpp">
       <Filter>wrappers\observers</Filter>
     </ClCompile>
   </ItemGroup>
@@ -140,14 +140,14 @@
     <ClInclude Include="peer_connection_factory.h">
       <Filter>wrappers\peer_connection</Filter>
     </ClInclude>
-    <ClInclude Include="set_remote_session_description_observer.h">
-      <Filter>wrappers\observers</Filter>
-    </ClInclude>
     <ClInclude Include="pointer_helper.h">
       <Filter>misc</Filter>
     </ClInclude>
     <ClInclude Include="noop_audio_device_module.h">
       <Filter>noop_audio</Filter>
+    </ClInclude>
+    <ClInclude Include="set_session_description_observer.h">
+      <Filter>wrappers\observers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
