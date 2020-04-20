@@ -47,16 +47,9 @@ int32_t NoopVideo::Encoder::NoopVideoEncoder::Encode(const VideoFrame &frame,
     auto noopVideoFrameBuffer =
         static_cast<NoopVideoFrameBuffer *>(frame.video_frame_buffer().get());
 
-  _callback->OnEncodedImage(*noopVideoFrameBuffer->_original.get(),
+    _callback->OnEncodedImage(*noopVideoFrameBuffer->_original.get(),
                               &_codec_specificInfo,
                               noopVideoFrameBuffer->_frag_header.get());
-
-    _total++;
-    if((_total % 30) == 0)
-    {
-        RTC_LOG(LS_VERBOSE) << "Total frames encoded: " << _total;
-    }
-
     return WEBRTC_VIDEO_CODEC_OK;
 }
 
@@ -82,4 +75,3 @@ int32_t NoopVideo::Encoder::NoopVideoEncoder::Release()
 {
     return WEBRTC_VIDEO_CODEC_OK;
 }
-

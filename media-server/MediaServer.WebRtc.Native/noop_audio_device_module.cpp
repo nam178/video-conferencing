@@ -265,7 +265,7 @@ int32_t NoopAudio::NoopAudioDeviceModule::StereoRecording(bool *enabled) const
 
 int32_t NoopAudio::NoopAudioDeviceModule::PlayoutDelay(uint16_t *delayMS) const
 {
-    return -1;
+    return 0;
 }
 
 bool NoopAudio::NoopAudioDeviceModule::BuiltInAECIsAvailable() const

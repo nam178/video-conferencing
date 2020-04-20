@@ -27,7 +27,6 @@ class NoopVideoEncoder : public VideoEncoder
 
   private:
     EncodedImageCallback *_callback;
-    uint32_t _total;
     static CodecSpecificInfo _codec_specificInfo;
 
     // Inherited via VideoEncoder

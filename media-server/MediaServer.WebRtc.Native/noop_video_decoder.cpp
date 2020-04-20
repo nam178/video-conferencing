@@ -67,11 +67,6 @@ int32_t NoopVideo::Decoder::NoopVideoDecoder::Decode(const EncodedImage &input_i
                       .build();
 
     _callback->Decoded(result);
-    _total++;
-    if((_total % 30) == 0)
-    {
-        RTC_LOG(LS_VERBOSE) << "Total frames decoded: " << _total;
-    }
 
     // Request keyframe every 30 frames
     _propagation_cnt++;

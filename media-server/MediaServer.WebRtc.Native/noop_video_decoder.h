@@ -21,6 +21,5 @@ class NoopVideoDecoder : public webrtc::VideoDecoder
   private:
     webrtc::DecodedImageCallback *_callback;
     int32_t _propagation_cnt = 0;
-    uint32_t _total = 0;
 };
 } // namespace NoopVideo::Decoder
