@@ -30,7 +30,7 @@ void CONVENTION PeerConnectionObserverSetRemoteTrackAddedCallback(
 {
     StaticCastOrThrow<PeerConnectionObserver>(peer_connection_observer_ptr)
         ->SetRemoteTrackAddedCallback(
-            Callback<RtpTransceiverInterfacePtr>{std::move(call_back), user_data});
+            Callback<RtpReceiverWrapperPtr>{std::move(call_back), user_data});
 }
 
 void CONVENTION PeerConnectionObserverSetRemoteTrackRemovedCallback(
@@ -40,7 +40,7 @@ void CONVENTION PeerConnectionObserverSetRemoteTrackRemovedCallback(
 {
     StaticCastOrThrow<PeerConnectionObserver>(peer_connection_observer_ptr)
         ->SetRemoteTrackRemovedCallback(
-            Callback<RtpReceiverInterfacePtr>{std::move(call_back), user_data});
+            Callback<RtpReceiverPtr>{std::move(call_back), user_data});
 }
 
 void CONVENTION PeerConnectionObserverSetIceGatheringStateChangedCallback(

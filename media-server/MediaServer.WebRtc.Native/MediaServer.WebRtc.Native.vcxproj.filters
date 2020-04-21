@@ -56,11 +56,18 @@
     <ClCompile Include="peer_connection_factory.cpp">
       <Filter>wrappers\peer_connection</Filter>
     </ClCompile>
-    <ClCompile Include="noop_audio_device_module.cpp" />
     <ClCompile Include="set_session_description_observer.cpp">
       <Filter>wrappers\observers</Filter>
     </ClCompile>
-    <ClCompile Include="rtp_receiver.cpp" />
+    <ClCompile Include="noop_audio_device_module.cpp">
+      <Filter>noop_audio</Filter>
+    </ClCompile>
+    <ClCompile Include="video_track.cpp">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClCompile>
+    <ClCompile Include="rtp_receiver.cpp">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -152,6 +159,12 @@
     </ClInclude>
     <ClInclude Include="rtp_receiver.h">
       <Filter>wrappers\peer_connection</Filter>
+    </ClInclude>
+    <ClInclude Include="video_track.h">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClInclude>
+    <ClInclude Include="rtp_receiver_interop.h">
+      <Filter>wrappers\interops</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

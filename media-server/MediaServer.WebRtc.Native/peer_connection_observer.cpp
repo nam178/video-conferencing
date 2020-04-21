@@ -165,47 +165,21 @@ bool Contains(std::vector<Wrappers::RtpReceiver *> collection,
 void Wrappers::PeerConnectionObserver::OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver)
 {
-    std::scoped_lock(_rtp_receivers_lock);
-
-    // Just to be sure,
-    // only handle this event if this transceiver is new to us
-    if(!Contains(_rtp_receivers, transceiver->receiver()))
+    if(_remote_track_added_callback)
     {
-        // Wrap and take ownership of the wrapper
-        auto wrapper = new Wrappers::RtpReceiver(transceiver->receiver());
-        _rtp_receivers.push_back(wrapper);
-
-        // Expose the wrapper to unmanaged code
-        if(_remote_track_added_callback)
-        {
-            _remote_track_added_callback(wrapper);
-        }
+        // Let the unmanaged code take the ownership 
+        // of the new RtpReceiver wrapper
+        auto tmp = new Wrappers::RtpReceiver(std::move(transceiver));
+        _remote_track_added_callback(tmp);
     }
 }
 
 void Wrappers::PeerConnectionObserver::OnRemoveTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver)
 {
-    std::unique_ptr<Wrappers::RtpReceiver> match_result{};
-
+    if(_remote_track_removed_callback)
     {
-        std::scoped_lock(_rtp_receivers_lock);
-        if(Contains(_rtp_receivers, receiver))
-        {
-            auto match_position =
-                std::find_if(_rtp_receivers.begin(),
-                             _rtp_receivers.end(),
-                             [receiver](const Wrappers::RtpReceiver *value) {
-                                 return value->GetRtpReceiverInterface() == receiver.get();
-                             });
-            match_result.reset(*match_position);
-            _rtp_receivers.erase(match_position);
-        }
-    } // _rtp_receivers_lock ends
-
-    if(_remote_track_removed_callback && match_result)
-    {
-        _remote_track_removed_callback(match_result.get());
+        _remote_track_removed_callback(receiver.get());
     }
 }
 
@@ -215,16 +189,5 @@ void Wrappers::PeerConnectionObserver::OnIceCandidatesRemoved(
     if(_ice_candidates_removed_callback)
     {
         _ice_candidates_removed_callback(&candidates);
-    }
-}
-
-Wrappers::PeerConnectionObserver::~PeerConnectionObserver()
-{
-    // TODO make sure this gets called
-    std::scoped_lock(_rtp_receivers_lock);
-
-    for(auto tmp : _rtp_receivers)
-    {
-        delete tmp;
     }
 }

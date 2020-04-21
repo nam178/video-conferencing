@@ -111,6 +111,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="create_session_description_observer.h" />
+    <ClInclude Include="rtp_receiver_interop.h" />
+    <ClInclude Include="video_track.h" />
     <ClInclude Include="noop_audio_device_module.h" />
     <ClInclude Include="peer_connection.h" />
     <ClInclude Include="peer_connection_factory_interop.h" />
@@ -169,6 +171,7 @@
     </ClCompile>
     <ClCompile Include="peer_connection_factory.cpp" />
     <ClCompile Include="set_session_description_observer.cpp" />
+    <ClCompile Include="video_track.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

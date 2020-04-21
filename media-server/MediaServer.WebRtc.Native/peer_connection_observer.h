@@ -15,12 +15,11 @@ namespace Wrappers
 class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
 {
     using CandidateListPtr = const void *;
-    using RtpTransceiverInterfacePtr = void *;
+    using RtpReceiverWrapperPtr = void *;
     using RtpReceiverPtr = void *;
 
   public:
     PeerConnectionObserver();
-    ~PeerConnectionObserver();
 
     // Override PeerConnectionObserver
     void OnRenegotiationNeeded() override;
@@ -43,7 +42,7 @@ class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
     // this occurs when an ice candidate is added.
     void SetIceCandidateCallback(Callback<IceCandidate> &&callback) noexcept;
     void SetIceCandidatesRemovedCallback(Callback<CandidateListPtr> &&callback) noexcept;
-    void SetRemoteTrackAddedCallback(Callback<RtpReceiverPtr> &&callback) noexcept;
+    void SetRemoteTrackAddedCallback(Callback<RtpReceiverWrapperPtr> &&callback) noexcept;
     void SetRemoteTrackRemovedCallback(Callback<RtpReceiverPtr> &&callback) noexcept;
 
   private:
@@ -52,9 +51,7 @@ class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
     Callback<IceConnectionState> _ice_connection_change_callback{};
     Callback<IceCandidate> _ice_candidate_callback{};
     Callback<CandidateListPtr> _ice_candidates_removed_callback{};
-    Callback<RtpReceiverPtr> _remote_track_added_callback{};
+    Callback<RtpReceiverWrapperPtr> _remote_track_added_callback{};
     Callback<RtpReceiverPtr> _remote_track_removed_callback{};
-    std::vector<Wrappers::RtpReceiver *> _rtp_receivers{};
-    std::mutex _rtp_receivers_lock{};
 };
 } // namespace Wrappers

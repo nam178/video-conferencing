@@ -29,10 +29,10 @@ namespace MediaServer.WebRtc.Managed
         public delegate void IceCandidatesRemovedCallback(IntPtr userData, IntPtr candidates);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public delegate void RemoteTrackAddedCallback(IntPtr userData, IntPtr rtpTransceiverInterfacePtr);
+        public delegate void RemoteTrackAddedCallback(IntPtr userData, IntPtr rtpReceiverWrapperPtr);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public delegate void RemoteTrackRemovedCallback(IntPtr userData, IntPtr rtpReceiverInterfacePtr);
+        public delegate void RemoteTrackRemovedCallback(IntPtr userData, IntPtr rtpReceiverPtr);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverCreate")]
         public extern static IntPtr Create();
@@ -40,9 +40,6 @@ namespace MediaServer.WebRtc.Managed
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverDestroy")]
         public extern static void Destroy(IntPtr native);
 
-
-        
-        
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionObserverSetRenegotiationNeededCallback")]
         public extern static void SetRenegotiationNeededCallback(PeerConnectionObserverSafeHandle safeHandle, RenegotiationNeededCallback callback, IntPtr userData);
         
