@@ -117,6 +117,7 @@
     <ClInclude Include="peer_connection_interop.h" />
     <ClInclude Include="peer_connection_observer_interop.h" />
     <ClInclude Include="pointer_helper.h" />
+    <ClInclude Include="rtp_receiver.h" />
     <ClInclude Include="rtp_transceiver_interop.h" />
     <ClInclude Include="call_back.h" />
     <ClInclude Include="ice_candidate.h" />
@@ -150,6 +151,7 @@
     <ClCompile Include="peer_connection_interop.cpp" />
     <ClCompile Include="peer_connection_observer.cpp" />
     <ClCompile Include="peer_connection_observer_interop.cpp" />
+    <ClCompile Include="rtp_receiver.cpp" />
     <ClCompile Include="rtp_transceiver_interop.cpp" />
     <ClCompile Include="noop_video_decoder.cpp" />
     <ClCompile Include="noop_video_decoder_factory.cpp" />

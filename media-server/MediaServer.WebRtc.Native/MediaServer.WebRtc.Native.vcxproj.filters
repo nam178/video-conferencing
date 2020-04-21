@@ -60,6 +60,7 @@
     <ClCompile Include="set_session_description_observer.cpp">
       <Filter>wrappers\observers</Filter>
     </ClCompile>
+    <ClCompile Include="rtp_receiver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -148,6 +149,9 @@
     </ClInclude>
     <ClInclude Include="set_session_description_observer.h">
       <Filter>wrappers\observers</Filter>
+    </ClInclude>
+    <ClInclude Include="rtp_receiver.h">
+      <Filter>wrappers\peer_connection</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

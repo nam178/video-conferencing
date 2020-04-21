@@ -67,13 +67,13 @@ void Wrappers::PeerConnectionObserver::SetIceCandidatesRemovedCallback(
 }
 
 void Wrappers::PeerConnectionObserver::SetRemoteTrackAddedCallback(
-    Callback<RtpTransceiverInterfacePtr> &&callback) noexcept
+    Callback<RtpReceiverPtr> &&callback) noexcept
 {
     _remote_track_added_callback = std::move(callback);
 }
 
 void Wrappers::PeerConnectionObserver::SetRemoteTrackRemovedCallback(
-    Callback<RtpReceiverInterfacePtr> &&callback) noexcept
+    Callback<RtpReceiverPtr> &&callback) noexcept
 {
     _remote_track_removed_callback = std::move(callback);
 }
@@ -141,8 +141,8 @@ void Wrappers::PeerConnectionObserver::OnIceCandidate(
         // Invoke the callback
         // Notes that the char* will be deleted by the parent
         // string above
-        _ice_candidate_callback(Wrappers::IceCandidate{
-            sdp.c_str(), sdp_mid.c_str(), ice_candidate->sdp_mline_index()});
+        _ice_candidate_callback(
+            Wrappers::IceCandidate{sdp.c_str(), sdp_mid.c_str(), ice_candidate->sdp_mline_index()});
     }
 }
 
@@ -152,21 +152,60 @@ void Wrappers::PeerConnectionObserver::SetRenegotiationNeededCallback(
     _renegotiation_needed_callback = std::move(callback);
 }
 
+bool Contains(std::vector<Wrappers::RtpReceiver *> collection,
+              rtc::scoped_refptr<webrtc::RtpReceiverInterface> value)
+{
+    return collection.end() !=
+           std::find_if(
+               collection.begin(), collection.end(), [value](const Wrappers::RtpReceiver *val) {
+                   return val->GetRtpReceiverInterface() == value.get();
+               });
+}
+
 void Wrappers::PeerConnectionObserver::OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver)
 {
-    if(_remote_track_added_callback)
+    std::scoped_lock(_rtp_receivers_lock);
+
+    // Just to be sure,
+    // only handle this event if this transceiver is new to us
+    if(!Contains(_rtp_receivers, transceiver->receiver()))
     {
-        _remote_track_added_callback(transceiver.get());
+        // Wrap and take ownership of the wrapper
+        auto wrapper = new Wrappers::RtpReceiver(transceiver->receiver());
+        _rtp_receivers.push_back(wrapper);
+
+        // Expose the wrapper to unmanaged code
+        if(_remote_track_added_callback)
+        {
+            _remote_track_added_callback(wrapper);
+        }
     }
 }
 
 void Wrappers::PeerConnectionObserver::OnRemoveTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver)
 {
-    if(_remote_track_removed_callback)
+    std::unique_ptr<Wrappers::RtpReceiver> match_result{};
+
     {
-        _remote_track_removed_callback(receiver.get());
+        std::scoped_lock(_rtp_receivers_lock);
+        if(Contains(_rtp_receivers, receiver))
+        {
+            auto match_position =
+                std::find_if(_rtp_receivers.begin(),
+                             _rtp_receivers.end(),
+                             [receiver](const Wrappers::RtpReceiver *value) {
+                                 return value->GetRtpReceiverInterface() == receiver.get();
+                             });
+            match_result.reset(*match_position);
+            _rtp_receivers.erase(match_position);
+        }
+    } // _rtp_receivers_lock ends
+
+    if(_remote_track_removed_callback && match_result)
+    {
+        _remote_track_removed_callback(match_result.get());
     }
 }
 
@@ -176,5 +215,16 @@ void Wrappers::PeerConnectionObserver::OnIceCandidatesRemoved(
     if(_ice_candidates_removed_callback)
     {
         _ice_candidates_removed_callback(&candidates);
+    }
+}
+
+Wrappers::PeerConnectionObserver::~PeerConnectionObserver()
+{
+    // TODO make sure this gets called
+    std::scoped_lock(_rtp_receivers_lock);
+
+    for(auto tmp : _rtp_receivers)
+    {
+        delete tmp;
     }
 }

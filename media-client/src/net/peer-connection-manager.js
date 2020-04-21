@@ -35,6 +35,8 @@ export default class PeerConnectionManager {
         this._webSocketClient.addEventListener('room',  this._handleRoomJoined);
         this._streamWasSetOnPeerConnection = null;
         this._logger = new Logger('PeerConnectionManager');
+        this._highUploadStream = new MediaStream();
+        this._logger.detail(`High defenition stream created, id=${this._highUploadStream.id}`);
     }
 
     /**
@@ -109,7 +111,7 @@ export default class PeerConnectionManager {
         // Then add tracks for the new stream, if it exists
         if(this._localMediaStreamForSending) {
             var senderCount  = this._localMediaStreamForSending.getTracks().length;
-            this._localMediaStreamForSending.getTracks().forEach(track => this._peerConnection.addTrack(track));
+            this._localMediaStreamForSending.getTracks().forEach(track => this._peerConnection.addTrack(track, this._highUploadStream));
             this._logger.debug(`Added ${senderCount} new RTP sender(s)`);
         }
         // Save the current stream for next time.
