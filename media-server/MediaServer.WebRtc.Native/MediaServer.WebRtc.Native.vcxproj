@@ -154,6 +154,7 @@
     <ClCompile Include="peer_connection_observer.cpp" />
     <ClCompile Include="peer_connection_observer_interop.cpp" />
     <ClCompile Include="rtp_receiver.cpp" />
+    <ClCompile Include="rtp_receiver_interop.cpp" />
     <ClCompile Include="rtp_transceiver_interop.cpp" />
     <ClCompile Include="noop_video_decoder.cpp" />
     <ClCompile Include="noop_video_decoder_factory.cpp" />

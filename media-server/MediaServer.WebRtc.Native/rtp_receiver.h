@@ -7,8 +7,7 @@ namespace Wrappers
 class RtpReceiver
 {
   public:
-    RtpReceiver(rtc::scoped_refptr<webrtc::RtpReceiverInterface>&& rtp_receiver);
-    ~RtpReceiver();
+    RtpReceiver(rtc::scoped_refptr<webrtc::RtpReceiverInterface> &&rtp_receiver);
     webrtc::RtpReceiverInterface *GetRtpReceiverInterface() const;
 
   private:

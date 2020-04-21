@@ -68,6 +68,9 @@
     <ClCompile Include="rtp_receiver.cpp">
       <Filter>wrappers\peer_connection</Filter>
     </ClCompile>
+    <ClCompile Include="rtp_receiver_interop.cpp">
+      <Filter>wrappers\interops</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

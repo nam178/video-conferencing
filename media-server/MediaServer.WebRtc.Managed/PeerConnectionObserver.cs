@@ -1,4 +1,5 @@
 ﻿using MediaServer.Common.Utils;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace MediaServer.WebRtc.Managed
         readonly RemoteTrackAddedCallback _remoteTrackAddedCallback = RemoteTrackAddedCallback;
         readonly RemoteTrackRemovedCallback _remoteTrackRemovedCallback = RemoteTrackRemovedCallback;
         readonly List<RtpReceiver> _rtpReceivers = new List<RtpReceiver>();
+        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public event EventHandler<EventArgs<RTCIceCandidate>> IceCandidateAdded;
         public event EventHandler<EventArgs<RTCIceConnectionState>> IceConnectionStateChanged;
@@ -45,7 +47,7 @@ namespace MediaServer.WebRtc.Managed
             SetRemoteTrackRemovedCallback(Native, _remoteTrackRemovedCallback, userData);
         }
 
-        void OnHandleRemoveTrackAdded(IntPtr rtpReceiverWrapperPtr)
+        void OnHandleRemoveTrackAdded(IntPtr rtpReceiverWrapperPtr) // signalling thread
         {
             CheckDisposed();
 
@@ -55,9 +57,10 @@ namespace MediaServer.WebRtc.Managed
 
             // Trigger event
             RemoteTrackAdded?.Invoke(this, new EventArgs<RtpReceiver>(receiver));
+            _logger.Debug("Remote track added");
         }
 
-        void OnHandleRemoveTrackRemoved(IntPtr rtpReceiverPtr)
+        void OnHandleRemoveTrackRemoved(IntPtr rtpReceiverPtr) // signalling thread
         {
             CheckDisposed();
 
@@ -71,6 +74,7 @@ namespace MediaServer.WebRtc.Managed
                     _rtpReceivers.Remove(receiver);
                 }
             }
+            _logger.Debug("Remote track removed");
         }
 
         static void IceCandidateCallback(IntPtr userData, IceCandidate iceCandidate)
