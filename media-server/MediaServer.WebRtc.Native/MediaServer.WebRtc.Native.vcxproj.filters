@@ -71,6 +71,7 @@
     <ClCompile Include="rtp_receiver_interop.cpp">
       <Filter>wrappers\interops</Filter>
     </ClCompile>
+    <ClCompile Include="audio_track.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -168,6 +169,10 @@
     </ClInclude>
     <ClInclude Include="rtp_receiver_interop.h">
       <Filter>wrappers\interops</Filter>
+    </ClInclude>
+    <ClInclude Include="audio_track.h" />
+    <ClInclude Include="media_track.h">
+      <Filter>wrappers\peer_connection</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

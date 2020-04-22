@@ -2,9 +2,11 @@
 
 #include "pch.h"
 
+#include "media_track.h"
+
 namespace Wrappers
 {
-class VideoTrack
+class VideoTrack : public MediaTrack
 {
   public:
     VideoTrack(rtc::scoped_refptr<webrtc::VideoTrackInterface> &&video_track_interface);

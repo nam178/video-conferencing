@@ -6,6 +6,14 @@ namespace MediaServer.WebRtc.Managed
     {
         readonly RtpReceiverSafeHandle _native;
 
+        public MediaStreamTrack Track
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public RtpReceiver(IntPtr native)
         {
             _native = new RtpReceiverSafeHandle(native);
