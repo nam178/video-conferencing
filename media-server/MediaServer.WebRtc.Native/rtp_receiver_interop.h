@@ -18,5 +18,5 @@ extern "C"
 
     // Get the track associated with this RtpReceiver.
     // Note that the managed code will take ownership.
-    EXPORT TrackWrapeprPtr CONVENTION GetTrack(RtpReceiverWrapperPtr rtp_receiver_ptr);
+    EXPORT TrackWrapeprPtr CONVENTION RtpReceiverGetTrack(RtpReceiverWrapperPtr rtp_receiver_ptr);
 }

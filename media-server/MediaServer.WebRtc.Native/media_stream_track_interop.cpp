@@ -2,7 +2,7 @@
 
 #include "media_stream_track_interop.h"
 
-void CONVENTION MediaStreamDestroy(MediaStreamTrackWrapperPtr media_stream_track)
+void CONVENTION MediaStreamTrackDestroy(MediaStreamTrackWrapperPtr media_stream_track)
 {
     auto tmp = static_cast<Wrappers::MediaStreamTrack *>(media_stream_track);
     if(tmp)
