@@ -14,6 +14,10 @@ class MediaStreamTrack
     // This instance owns the memory for this string.
     const char *Id();
 
+    // Whenever this is an audio track,
+    // so manage code can wrap to the correct type
+    bool IsAudioTrack();
+
     // Whenver this track is enabled.
     // According to docs, disable track produces black/muted frames
     bool Enabled();

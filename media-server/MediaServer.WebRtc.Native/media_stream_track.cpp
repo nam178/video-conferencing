@@ -27,6 +27,11 @@ const char *Wrappers::MediaStreamTrack::Id()
     return _id.c_str();
 }
 
+bool Wrappers::MediaStreamTrack::IsAudioTrack()
+{
+    return GetMediaStreamTrack()->kind() == webrtc::MediaStreamTrackInterface::kAudioKind;
+}
+
 bool Wrappers::MediaStreamTrack::Enabled()
 {
     return GetMediaStreamTrack()->enabled();

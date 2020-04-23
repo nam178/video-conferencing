@@ -12,4 +12,7 @@ extern "C"
     EXPORT void CONVENTION MediaStreamDestroy(MediaStreamTrackWrapperPtr media_stream_track);
 
     EXPORT IdString CONVENTION MediaStreamTrackId(MediaStreamTrackWrapperPtr media_stream_track);
+
+    EXPORT bool CONVENTION
+    MediaStreamTrackIsAudioTrack(MediaStreamTrackWrapperPtr media_stream_track);
 }

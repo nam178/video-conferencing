@@ -12,7 +12,12 @@ namespace MediaServer.WebRtc.Managed
         public RtpReceiver(IntPtr native)
         {
             _native = new RtpReceiverSafeHandle(native);
-            Track = new MediaStreamTrack(RtpReceiverInterops.GetTrack(_native));
+
+            // Get the track, check the type then wrap it
+            var trackPtr = RtpReceiverInterops.GetTrack(_native);
+            Track = MediaStreamTrackInterop.IsAudioTrack(trackPtr)
+                ? (MediaStreamTrack)new AudioTrack(trackPtr)
+                : (MediaStreamTrack)new VideoTrack(trackPtr);
         }
 
         internal IntPtr GetRtpReceiverInterface() => RtpReceiverInterops.GetRtpReceiverInterface(_native);
