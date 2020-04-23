@@ -10,5 +10,8 @@ namespace MediaServer.WebRtc.Managed
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "RtpReceiverGetRtpReceiverInterface")]
         public static extern IntPtr GetRtpReceiverInterface(RtpReceiverSafeHandle rtpReceiverWrapper);
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "RtpReceiverGetTrack")]
+        public static extern IntPtr GetTrack(RtpReceiverSafeHandle rtpReceiverWrapper);
     }
 }

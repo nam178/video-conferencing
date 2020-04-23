@@ -16,3 +16,8 @@ void CONVENTION RtpReceiverDestroy(RtpReceiverWrapperPtr rtp_receiver_ptr)
         delete static_cast<Wrappers::RtpReceiver *>(rtp_receiver_ptr);
     }
 }
+
+TrackWrapeprPtr CONVENTION GetTrack(RtpReceiverWrapperPtr rtp_receiver_ptr)
+{
+    return StaticCastOrThrow<Wrappers::RtpReceiver>(rtp_receiver_ptr)->GetTrack().release();
+}

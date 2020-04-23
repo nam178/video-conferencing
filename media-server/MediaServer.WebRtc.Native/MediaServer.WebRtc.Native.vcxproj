@@ -112,7 +112,8 @@
   <ItemGroup>
     <ClInclude Include="audio_track.h" />
     <ClInclude Include="create_session_description_observer.h" />
-    <ClInclude Include="media_track.h" />
+    <ClInclude Include="media_stream_track.h" />
+    <ClInclude Include="media_stream_track_interop.h" />
     <ClInclude Include="rtp_receiver_interop.h" />
     <ClInclude Include="video_track.h" />
     <ClInclude Include="noop_audio_device_module.h" />
@@ -150,6 +151,8 @@
   <ItemGroup>
     <ClCompile Include="audio_track.cpp" />
     <ClCompile Include="create_session_description_observer.cpp" />
+    <ClCompile Include="media_stream_track.cpp" />
+    <ClCompile Include="media_stream_track_interop.cpp" />
     <ClCompile Include="noop_audio_device_module.cpp" />
     <ClCompile Include="peer_connection.cpp" />
     <ClCompile Include="peer_connection_factory_interop.cpp" />

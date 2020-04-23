@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace MediaServer.WebRtc.Managed
 {
@@ -6,24 +7,24 @@ namespace MediaServer.WebRtc.Managed
     {
         readonly RtpReceiverSafeHandle _native;
 
-        public MediaStreamTrack Track
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public MediaStreamTrack Track { get; }
 
         public RtpReceiver(IntPtr native)
         {
             _native = new RtpReceiverSafeHandle(native);
+            Track = new MediaStreamTrack(RtpReceiverInterops.GetTrack(_native));
         }
 
         internal IntPtr GetRtpReceiverInterface() => RtpReceiverInterops.GetRtpReceiverInterface(_native);
 
+        int _disposed = 0;
         public void Dispose()
         {
-            _native.Dispose();
+            if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
+            {
+                Track.Dispose();
+                _native.Dispose();
+            }
         }
     }
 }

@@ -72,6 +72,12 @@
       <Filter>wrappers\interops</Filter>
     </ClCompile>
     <ClCompile Include="audio_track.cpp" />
+    <ClCompile Include="media_stream_track.cpp">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClCompile>
+    <ClCompile Include="media_stream_track_interop.cpp">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -171,7 +177,10 @@
       <Filter>wrappers\interops</Filter>
     </ClInclude>
     <ClInclude Include="audio_track.h" />
-    <ClInclude Include="media_track.h">
+    <ClInclude Include="media_stream_track.h">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClInclude>
+    <ClInclude Include="media_stream_track_interop.h">
       <Filter>wrappers\peer_connection</Filter>
     </ClInclude>
   </ItemGroup>

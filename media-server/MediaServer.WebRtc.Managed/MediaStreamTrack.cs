@@ -7,6 +7,8 @@ namespace MediaServer.WebRtc.Managed
     {
         public MediaStreamTrackSafeHandle(IntPtr native) : base(IntPtr.Zero, true)
         {
+            if(native == IntPtr.Zero)
+                throw new ArgumentException("Native is nullptr");
             SetHandle(native);
         }
 
@@ -16,10 +18,20 @@ namespace MediaServer.WebRtc.Managed
         {
             if(handle != IntPtr.Zero)
             {
-                // TODO
+                MediaStreamTrackInterop.Destroy(handle);
             }
             return true;
         }
+    }
+
+    static class MediaStreamTrackInterop
+    {
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "MediaStreamTrackDestroy")]
+        public static extern void Destroy(IntPtr mediaStreamTrackPtr);
+        
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "MediaStreamTrackId")]
+        public static extern void Id(MediaStreamTrackSafeHandle hande);
     }
 
     public sealed class MediaStreamTrack : IDisposable

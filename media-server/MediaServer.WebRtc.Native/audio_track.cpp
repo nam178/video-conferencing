@@ -7,3 +7,8 @@ Wrappers::AudioTrack::AudioTrack(
     : _audio_track_interface(audio_track_interface)
 {
 }
+
+webrtc::MediaStreamTrackInterface *Wrappers::AudioTrack::GetMediaStreamTrack() const
+{
+    return _audio_track_interface.get();
+}

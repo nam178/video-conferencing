@@ -14,7 +14,7 @@ webrtc::RtpReceiverInterface *Wrappers::RtpReceiver::GetRtpReceiverInterface() c
     return _rtp_receiver.get();
 }
 
-std::unique_ptr<Wrappers::MediaTrack> Wrappers::RtpReceiver::GetTrack()
+std::unique_ptr<Wrappers::MediaStreamTrack> Wrappers::RtpReceiver::GetTrack()
 {
     auto track = _rtp_receiver->track();
     if(track->kind() == webrtc::MediaStreamTrackInterface::kAudioKind)

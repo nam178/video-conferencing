@@ -7,3 +7,8 @@ Wrappers::VideoTrack::VideoTrack(
     : _video_track_interface(video_track_interface)
 {
 }
+
+webrtc::MediaStreamTrackInterface *Wrappers::VideoTrack::GetMediaStreamTrack() const
+{
+    return _video_track_interface.get();
+}
