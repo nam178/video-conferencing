@@ -31,5 +31,7 @@ namespace MediaServer.WebRtc.Managed
                 _native.Dispose();
             }
         }
+
+        public override string ToString() => $"[{GetType().Name} Track={Track}]";
     }
 }

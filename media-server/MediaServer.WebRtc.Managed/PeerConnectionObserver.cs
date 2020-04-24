@@ -57,7 +57,7 @@ namespace MediaServer.WebRtc.Managed
 
             // Trigger event
             RemoteTrackAdded?.Invoke(this, new EventArgs<RtpReceiver>(receiver));
-            _logger.Debug("Remote track added");
+            _logger.Debug($"Remote track added: {receiver}");
         }
 
         void OnHandleRemoveTrackRemoved(IntPtr rtpReceiverPtr) // signalling thread
@@ -72,9 +72,9 @@ namespace MediaServer.WebRtc.Managed
                 {
                     RemoteTrackRemoved?.Invoke(this, new EventArgs<RtpReceiver>(receiver));
                     _rtpReceivers.Remove(receiver);
+                    _logger.Debug($"Remote track removed: {receiver}");
                 }
             }
-            _logger.Debug("Remote track removed");
         }
 
         static void IceCandidateCallback(IntPtr userData, IceCandidate iceCandidate)
