@@ -31,6 +31,7 @@ namespace MediaServer.WebSocket.IoC
             builder.RegisterType<AddIceCandidateHandler>().AsSelf();
             builder.RegisterType<SetOfferCommandHandler>().AsSelf();
             builder.RegisterType<AuthenticateCommandHandler>().AsSelf();
+            builder.RegisterType<SetTrackInfoCommandHandler>().AsSelf();
         }
     }
 }

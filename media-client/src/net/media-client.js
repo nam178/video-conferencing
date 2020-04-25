@@ -65,6 +65,7 @@ export default class MediaClient extends EventTarget {
             throw 'InvalidOperationDevicesInitialising';
         }
         this._inputDeviceManager.currentAudioInputDeviceId = value;
+        this._rememberAudioChoice();
         this._scanDevicesAsync();
     }
 
@@ -81,13 +82,14 @@ export default class MediaClient extends EventTarget {
             throw 'InvalidOperationDevicesInitialising';
         }
         this._inputDeviceManager.currentVideoInputDeviceId = value;
+        this._rememberVideoChoice();
         this._scanDevicesAsync();
     }
 
     /**
      * @returns {String}
      */
-    get selectedAudioSinkId() { return this._inputDeviceManager.currentOutAudioSinkId; }
+    get selectedAudioSinkId() { return this._inputDeviceManager.selectedAudioSinkId; }
 
     /**
      * @returns {String}
@@ -96,7 +98,8 @@ export default class MediaClient extends EventTarget {
         if (this._inputDeviceManagerState == InputDeviceManagerState.Scanning) {
             throw 'InvalidOperationDevicesInitialising';
         }
-        this._inputDeviceManager.currentOutAudioSinkId = value;
+        this._inputDeviceManager.selectedAudioSinkId = value;
+        this._rememberSpeakerChoice();
         this._scanDevicesAsync();
     }
 
@@ -142,11 +145,11 @@ export default class MediaClient extends EventTarget {
         var lastVideoDeviceId = localStorage.getItem('media_client_last_video_device_id');
         var lastAudioSinkId = localStorage.getItem('media_client_last_audio_sink_id');
         if (lastAudioDeviceId)
-            this.currentAudioInputDeviceId = lastAudioDeviceId;
+            this._inputDeviceManager.currentAudioInputDeviceId = lastAudioDeviceId;
         if (lastVideoDeviceId)
-            this.currentVideoInputDeviceId = lastVideoDeviceId;
+            this._inputDeviceManager.currentVideoInputDeviceId = lastVideoDeviceId;
         if (lastAudioSinkId)
-            this.currentOutAudioSinkId = lastAudioSinkId;
+            this._inputDeviceManager.selectedAudioSinkId = lastAudioSinkId;
 
         // Then initialise devices
         await this._scanDevicesAsync();
@@ -185,6 +188,25 @@ export default class MediaClient extends EventTarget {
             });
         });
         this.dispatchEvent(new CustomEvent('streams'));
+    }
+
+    _rememberAudioChoice() {
+        this._remember('media_client_last_audio_device_id', this.selectedAudioInputDeviceId);
+    }
+
+    _rememberVideoChoice() {
+        this._remember('media_client_last_video_device_id', this.selectedVideoInputDeviceId);
+    }
+
+    _rememberSpeakerChoice() {
+        this._remember('media_client_last_audio_sink_id', this.selectedAudioSinkId);
+    }
+
+    _remember(key, value) {
+        if (value)
+            localStorage.setItem(key, value);
+        else
+            localStorage.removeItem(key);
     }
 
     async _scanDevicesAsync() {

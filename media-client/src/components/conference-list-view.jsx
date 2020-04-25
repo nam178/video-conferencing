@@ -36,7 +36,7 @@ export default class ConferenceListView extends React.Component {
         this.handleInputDeviceManagerStateChange();
         this.handleStreamsUpdate();
     }
-    
+
     async componentWillUnmount() {
         this._closed = true;
         this.props.mediaClient.removeEventListener('streams', this.handleStreamsUpdate);
@@ -63,7 +63,7 @@ export default class ConferenceListView extends React.Component {
     }
 
     handleInputDeviceManagerStateChange() {
-        switch(this.props.mediaClient.inputDeviceManagerState) {
+        switch (this.props.mediaClient.inputDeviceManagerState) {
             case InputDeviceManagerState.NotInitialised:
             case InputDeviceManagerState.Error:
                 // This will not show the buttons at all
@@ -104,19 +104,16 @@ export default class ConferenceListView extends React.Component {
     async handleMicrophoneChange(item) {
         if (!item.id) { ; return; } // Don't do anything when query device fail (it returns an empty device with id='')
         this.props.mediaClient.selectedAudioInputDeviceId = item.id;
-        this.rememberAudioChoice();
     }
 
     async handleCameraChange(item) {
         if (!item.id) { ; return; } // Don't do anything when query device fail (it returns an empty device with id='')
         this.props.mediaClient.selectedVideoInputDeviceId = item.id;
-        this.rememberVideoChoice();
     }
 
     handleSpeakerChange(item) {
         if (!item.id) { ; return; } // Don't do anything when query device fail (it returns an empty device with id='')
-        this.props.mediaClient.selectedOutAudioSinkId = item.id;
-        this.rememberSpeakerChoice();
+        this.props.mediaClient.selectedAudioSinkId = item.id;
         this.setState({
             speakerDevices: this.generateDropDownItem('audiooutput')
         });
@@ -135,15 +132,12 @@ export default class ConferenceListView extends React.Component {
             && this.props.mediaClient.selectedAudioInputDeviceId == NotSelectedInputDeviceId) {
             this.setState({ isAudioLoading: true });
             this.props.mediaClient.selectedAudioInputDeviceId = null;// force re-initialisation to default device
-            this.rememberAudioChoice();
-            
             return false;
         }
         if (sender == this._videoSelectButton
             && this.props.mediaClient.selectedVideoInputDeviceId == NotSelectedInputDeviceId) {
             this.setState({ isVideoLoading: true });
             this.props.mediaClient.selectedVideoInputDeviceId = null; // force re-initialisation to default device
-            this.rememberVideoChoice();
             return false;
         }
         return true;
@@ -158,7 +152,7 @@ export default class ConferenceListView extends React.Component {
         if (kind == 'videoinput')
             selectedDeviceId = this.props.mediaClient.selectedVideoInputDeviceId;
         if (kind == 'audiooutput') {
-            selectedDeviceId = this.props.mediaClient.selectedOutAudioSinkId;
+            selectedDeviceId = this.props.mediaClient.selectedAudioSinkId;
             if (!selectedDeviceId) {
                 var tmp = this.props.mediaClient.mediaDevices.find(d => d.deviceId == 'default');
                 if (tmp) {
@@ -192,25 +186,6 @@ export default class ConferenceListView extends React.Component {
             result[0].selected = true;
         }
         return result;
-    }
-
-    rememberAudioChoice() {
-        this.remember('conference_list_view_audio_device_id', this.props.mediaClient.selectedAudioInputDeviceId);
-    }
-
-    rememberVideoChoice() {
-        this.remember('conference_list_view_video_device_id', this.props.mediaClient.selectedVideoInputDeviceId);
-    }
-
-    rememberSpeakerChoice() {
-        this.remember('conference_list_view_audio_sink_id', this.props.mediaClient.selectedOutAudioSinkId);
-    }
-
-    remember(key, value) {
-        if (value)
-            localStorage.setItem(key, value);
-        else
-            localStorage.removeItem(key);
     }
 
     static getDefaultName(number, kind) {

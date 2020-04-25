@@ -31,12 +31,12 @@ export default class InputDeviceManager extends EventTarget {
     /**
      * @return {String}
      */
-    get currentOutAudioSinkId() {
-        return this._currentOutAudioSinkId;
+    get selectedAudioSinkId() {
+        return this._selectedAudioSinkId;
     }
 
-    set currentOutAudioSinkId(value) {
-        this._currentOutAudioSinkId = value;
+    set selectedAudioSinkId(value) {
+        this._selectedAudioSinkId = value;
     }
 
     /**
@@ -50,7 +50,7 @@ export default class InputDeviceManager extends EventTarget {
         this._logger = new Logger('InputDeviceManager');
         this._currentAudioInputDeviceId = null;
         this._currentVideoInputDeviceId = null;
-        this._currentOutAudioSinkId = null;
+        this._selectedAudioSinkId = null;
     }
 
     static NotSelectedDeviceId() { return -1; }
@@ -142,11 +142,10 @@ export default class InputDeviceManager extends EventTarget {
                     this._logger.info('Devices accquired', devices);
                     this._mediaDevices = devices;
                     // Now, if the selected sink doesn't match any if the device, reset to null
-                    if (!this._mediaDevices.find(device => device.kind == 'audiooutput'
-                        && device.deviceId == this._currentOutAudioSinkId
-                        && this._currentOutAudioSinkId)) {
-                        this._logger.warn(`Could not find sink ${this._currentOutAudioSinkId}, using the default sink`);
-                        this._currentOutAudioSinkId = null;
+                    if (this._selectedAudioSinkId && !this._mediaDevices.find(device => device.kind == 'audiooutput'
+                        && device.deviceId == this._selectedAudioSinkId)) {
+                        this._logger.warn(`Could not find sink ${this._selectedAudioSinkId}, using the default sink`);
+                        this._selectedAudioSinkId = null;
                     }
                     resolve();
                 })

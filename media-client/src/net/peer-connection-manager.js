@@ -1,5 +1,6 @@
 import WebSocketClient from './websocket-client.js';
 import Logger from '../logging/logger.js'
+import Queue from '../utils/queue.js';
 
 export default class PeerConnectionManager {
     /**
@@ -15,11 +16,16 @@ export default class PeerConnectionManager {
     /**
      * @param {MediaStream} value
      */
-    set localMediaStreamForSending(value) 
-    {
+    set localMediaStreamForSending(value) {
+        var oldStream = this._localMediaStreamForSending;
         this._localMediaStreamForSending = value;
-        this._restartLocalMediaStream();
+        this._changeStream(oldStream, value);
     }
+
+    /**
+     * @var {Queue}
+     */
+    _changeStreamQueue;
 
     /**
      * @param {WebSocketClient} websocketClient 
@@ -28,11 +34,13 @@ export default class PeerConnectionManager {
         if (!websocketClient) {
             throw 'Must specify webSocketClient';
         }
+        this._changeStreamAsync = this._changeStreamAsync.bind(this);
+        this._changeStreamQueue = new Queue('change-stream', this._changeStreamAsync);
         this._handleWebSocketMessage = this._handleWebSocketMessage.bind(this);
         this._handleRoomJoined = this._handleRoomJoined.bind(this);
         this._webSocketClient = websocketClient;
         this._webSocketClient.addEventListener('message', this._handleWebSocketMessage);
-        this._webSocketClient.addEventListener('room',  this._handleRoomJoined);
+        this._webSocketClient.addEventListener('room', this._handleRoomJoined);
         this._streamWasSetOnPeerConnection = null;
         this._logger = new Logger('PeerConnectionManager');
     }
@@ -41,7 +49,7 @@ export default class PeerConnectionManager {
      * WebSocket connection must be ready first
      */
     _restart() {
-        if(this._peerConnection) {
+        if (this._peerConnection) {
             this._peerConnection.close();
             this._streamWasSetOnPeerConnection = null;
         }
@@ -66,7 +74,7 @@ export default class PeerConnectionManager {
         });
         this._peerConnection.addEventListener("negotiationneeded", () => {
             this._logger.warn('re-negotiation needed');
-            this._sendOffer();
+            this._sendOfferAsync();
         }, false);
         this._peerConnection.addEventListener('track', e => {
             this._logger.info('Received remote stream', e);
@@ -74,7 +82,7 @@ export default class PeerConnectionManager {
             // document.getElementById('remote_video').srcObject = e.streams[0];
         });
         this._logger.log('PeerConnection initialised');
-        this._restartLocalMediaStream();
+        this._changeStream(null, this._localMediaStreamForSending);
     }
 
     _handleRoomJoined() {
@@ -84,39 +92,48 @@ export default class PeerConnectionManager {
         this._restart();
     }
 
-    _restartLocalMediaStream() {
+    _changeStream(oldStream, newStream) {
+        this._changeStreamQueue.enqueue([oldStream, newStream]);
+    }
+
+    async _changeStreamAsync(queueItem) {
+        var oldStream = queueItem[0];
+        var newStream = queueItem[1];
         // Should be called everytime the PeerConnection restarts,
         // or local media stream change, so we can re-associate
         // them.
-        if(this._peerConnection == null) {
+        if (this._peerConnection == null) {
             return;
         }
         // PeerConnection exists but its stream has not changed?
         // Early exit.
-        if(this._streamWasSetOnPeerConnection == this._localMediaStreamForSending) 
-            {
-                this._logger.debug('Local media stream not changed, ignoring the change.');
-                return;
-            }
+        if (oldStream == newStream) {
+            this._logger.debug('Stream not changed, ignoring the change.');
+            return;
+        }
         this._logger.debug('Local media stream changed, updating PeerConnection..');
         // Pass this point strema has changed,
         // we'll get rid of existing stream.
-        if(this._streamWasSetOnPeerConnection) {
+        if (oldStream) {
             var senderCount = this._peerConnection.getSenders().length;
             this._peerConnection.getSenders().forEach(sender => this._peerConnection.removeTrack(sender));
             this._logger.debug(`Removed ${senderCount} old RTP sender(s)`);
         }
         // Then add tracks for the new stream, if it exists
-        if(this._localMediaStreamForSending) {
-            var senderCount  = this._localMediaStreamForSending.getTracks().length;
-            this._localMediaStreamForSending.getTracks().forEach(track => this._peerConnection.addTrack(track));
+        if (newStream) {
+            // Need to tell the server about the tracks that we're sending,
+            // otherwise it will reject it.
+            var tracks = newStream.getTracks();
+            for (var i in tracks) {
+                await this._sendTrackInfoAsync(tracks[i].id, { quality: 'High' });
+            }
+            var senderCount = newStream.getTracks().length;
+            newStream.getTracks().forEach(track => this._peerConnection.addTrack(track));
             this._logger.debug(`Added ${senderCount} new RTP sender(s)`);
         }
-        // Save the current stream for next time.
-        this._streamWasSetOnPeerConnection = this.localMediaStreamForSending;
     }
 
-    async _sendOffer() {
+    async _sendOfferAsync() {
         // Generate a token to prevent race condition when this method
         // is called multiple times and the async continuation below
         // race with each other:
@@ -142,6 +159,23 @@ export default class PeerConnectionManager {
         });
     }
 
+    _sendTrackInfoAsync(trackId, trackProperties) {
+        const timeout = 15 * 1000;
+
+        return new Promise((resolve, reject) => {
+            this._pendingSendTrackInfoResolve = resolve;
+            this.webSocketClient.queueMessageForSending('SetTrackInfo', {
+                ...trackProperties,
+                trackId: trackId
+            });
+            // Timeout:
+            window.setTimeout(() => {
+                this._pendingSendTrackInfoResolve = null;
+                reject('Timeout');
+            }, timeout);
+        });
+    }
+
     _sendIceCandidate(candidate) {
         this._logger.log('Sending ice candidate', candidate);
         this.webSocketClient.queueMessageForSending('AddIceCandidate', {
@@ -154,7 +188,7 @@ export default class PeerConnectionManager {
     }
 
     _onIceCandidate(iceCandidate) {
-        if(!this._peerConnection) {
+        if (!this._peerConnection) {
             this._logger.warn('Received ICE candidate without PeerConnection');
             return;
         }
@@ -170,8 +204,14 @@ export default class PeerConnectionManager {
         this._setSdp(sdp);
     }
 
+    _onTrackInfoSet() {
+        if (this._pendingSendTrackInfoResolve) {
+            this._pendingSendTrackInfoResolve();
+        }
+    }
+
     _setSdp(sdp) {
-        if(!this._peerConnection) {
+        if (!this._peerConnection) {
             this._logger.warn('Received answer/offer without PeerConnection');
             return;
         }
