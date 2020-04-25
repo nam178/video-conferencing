@@ -7,7 +7,7 @@ extern "C"
     using PeerConnectionFactoryPtr = void *;
     using PeerConnectionRawPointer = void *;
     using PeerConnectionObserverRawPointer = void *;
-    using PassiveVideoTrackPtr = void *;
+    using VideoTrackPtr = void *;
     using PassiveVideoTrackSourcePtr = void *;
 
     struct IceServerConfig
@@ -39,7 +39,7 @@ extern "C"
         int32_t ice_server_length,
         PeerConnectionObserverRawPointer peer_connection_observer);
 
-    EXPORT PassiveVideoTrackPtr CONVENTION PeerConnectionFactoryCreatePassiveVideoTrack(
+    EXPORT VideoTrackPtr CONVENTION PeerConnectionFactoryCreateVideoTrack(
         PeerConnectionFactoryPtr peer_connection_factory,
         PassiveVideoTrackSourcePtr passive_video_track_souce_ptr,
         const char *track_name);

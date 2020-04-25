@@ -6,6 +6,7 @@
 #include "peer_connection_factory.h"
 #include "peer_connection_factory_interop.h"
 #include "peer_connection_interop.h"
+#include "video_track.h"
 
 PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryCreate()
 {
@@ -87,7 +88,7 @@ PeerConnectionFactoryCreatePeerConnection(PeerConnectionFactoryPtr peer_connecti
     return new Wrappers::PeerConnection(std::move(peer_connection));
 }
 
-PassiveVideoTrackPtr CONVENTION PeerConnectionFactoryCreatePassiveVideoTrack(
+VideoTrackPtr CONVENTION PeerConnectionFactoryCreateVideoTrack(
     PeerConnectionFactoryPtr peer_connection_factory,
     PassiveVideoTrackSourcePtr passive_video_track_souce_ptr,
     const char *track_name)
@@ -100,8 +101,8 @@ PassiveVideoTrackPtr CONVENTION PeerConnectionFactoryCreatePassiveVideoTrack(
         throw new std::runtime_error("peer_connection_factory is null ");
     }
     auto passive_video_track_source =
-        StaticCastOrThrow<PassiveVideo::PassiveVideoTrackSource>(passive_video_track_souce_ptr);
+        StaticCastOrThrow<Video::PassiveVideoTrackSource>(passive_video_track_souce_ptr);
 
-    return new PassiveVideo::PassiveVideoTrack(
+    return new Wrappers::VideoTrack(
         factory->CreateVideoTrack(track_name, passive_video_track_source));
 }

@@ -138,8 +138,6 @@
     <ClInclude Include="noop_video_frame_buffer.h" />
     <ClInclude Include="create_h264_format.h" />
     <ClInclude Include="not_supported_exception.h" />
-    <ClInclude Include="passive_video_track.h" />
-    <ClInclude Include="passive_video_track_interop.h" />
     <ClInclude Include="passive_video_track_source.h" />
     <ClInclude Include="passive_video_track_source_interop.h" />
     <ClInclude Include="peer_connection_observer.h" />
@@ -168,8 +166,6 @@
     <ClCompile Include="noop_video_encoder_factory.cpp" />
     <ClCompile Include="noop_video_frame_buffer.cpp" />
     <ClCompile Include="create_h264_format.cpp" />
-    <ClCompile Include="passive_video_track.cpp" />
-    <ClCompile Include="passive_video_track_interop.cpp" />
     <ClCompile Include="passive_video_track_source.cpp" />
     <ClCompile Include="passive_video_track_source_interop.cpp" />
     <ClCompile Include="pch.cpp">

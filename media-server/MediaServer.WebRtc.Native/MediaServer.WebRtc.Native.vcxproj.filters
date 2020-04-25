@@ -2,17 +2,11 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="passive_video_track.cpp">
-      <Filter>passive_video</Filter>
-    </ClCompile>
-    <ClCompile Include="passive_video_track_interop.cpp">
-      <Filter>passive_video</Filter>
-    </ClCompile>
     <ClCompile Include="passive_video_track_source.cpp">
-      <Filter>passive_video</Filter>
+      <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="passive_video_track_source_interop.cpp">
-      <Filter>passive_video</Filter>
+      <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="noop_video_decoder_factory.cpp">
       <Filter>noop_video</Filter>
@@ -83,17 +77,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="passive_video_track.h">
-      <Filter>passive_video</Filter>
-    </ClInclude>
-    <ClInclude Include="passive_video_track_interop.h">
-      <Filter>passive_video</Filter>
-    </ClInclude>
     <ClInclude Include="passive_video_track_source.h">
-      <Filter>passive_video</Filter>
+      <Filter>video</Filter>
     </ClInclude>
     <ClInclude Include="passive_video_track_source_interop.h">
-      <Filter>passive_video</Filter>
+      <Filter>video</Filter>
     </ClInclude>
     <ClInclude Include="export.h" />
     <ClInclude Include="result.h" />
@@ -195,9 +183,6 @@
     <Filter Include="noop_video">
       <UniqueIdentifier>{bf41696d-43c2-4860-9db1-5ba5a699c25a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="passive_video">
-      <UniqueIdentifier>{cb7cbb6b-1fc6-468d-90ef-daae27c47907}</UniqueIdentifier>
-    </Filter>
     <Filter Include="misc">
       <UniqueIdentifier>{199f8c2d-c921-4c5a-bbf2-ed5a0f4e854c}</UniqueIdentifier>
     </Filter>
@@ -215,6 +200,9 @@
     </Filter>
     <Filter Include="wrappers\interops">
       <UniqueIdentifier>{839919e9-cc17-4d81-b000-dfec8e93c925}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video">
+      <UniqueIdentifier>{cb7cbb6b-1fc6-468d-90ef-daae27c47907}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

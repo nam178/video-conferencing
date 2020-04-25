@@ -4,7 +4,7 @@
 #include "passive_video_track_source_interop.h"
 
 using namespace webrtc;
-using namespace PassiveVideo;
+using namespace Video;
 
 EXPORT PassiveVideoTrackSourceIntPtr CONVENTION PassiveVideoTrackSourceCreate() noexcept
 {

@@ -5,7 +5,7 @@
 using namespace webrtc;
 using namespace rtc;
 
-namespace PassiveVideo
+namespace Video
 {
 class PassiveVideoTrackSource : public rtc::RefCountedObject<webrtc::VideoTrackSourceInterface>
 {
@@ -30,6 +30,5 @@ class PassiveVideoTrackSource : public rtc::RefCountedObject<webrtc::VideoTrackS
 
   private:
     std::vector<VideoSinkInterface<VideoFrame> *> _sinks;
-    uint32_t _total = 0;
 };
-} // namespace PassiveVideo
+} // namespace Video
