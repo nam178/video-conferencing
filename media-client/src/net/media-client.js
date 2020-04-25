@@ -1,0 +1,209 @@
+import WebSocketClient from './websocket-client.js';
+import PeerConnectionManager from './peer-connection-manager.js';
+import ConferenceSettings from '../models/conference-settings.js';
+import InputDeviceManager from './input-device-manager.js';
+import UserInfo from '../models/user-info.js';
+
+export let NotSelectedInputDeviceId = -1;
+
+export class InputDeviceManagerState {
+    static NotInitialised = 0;
+    static Scanning = 1;
+    static Error = 2;
+    static Ok = 3;
+}
+
+/**
+ * @event MediaClient#user
+ */
+export default class MediaClient extends EventTarget {
+    /**
+     * @var {WebSocketClient}
+     */
+    _webSocketClient;
+
+    /**
+     * @var {PeerConnectionManager}
+     */
+    _peerConnectionManager;
+
+    /**
+     * @var {InputDeviceManager}
+     */
+    _inputDeviceManager = new InputDeviceManager();
+
+    /**
+     * @var {Object}
+     */
+    _streams = {};
+
+    /**
+     * @var {Boolean}
+     */
+    _isInitialised = false;
+
+    /**
+     * @returns {String}
+     */
+    get selectedAudioInputDeviceId() { return this._inputDeviceManager.currentAudioInputDeviceId; }
+
+    /**
+     * @return {MediaDeviceInfo[]}
+     */
+    get mediaDevices() { return this._inputDeviceManager.mediaDevices; }
+
+    /**
+     * @returns {UserInfo[]}
+     */
+    get users() { return this._webSocketClient.users; }
+
+    /**
+     * @param {String} value
+     */
+    set selectedAudioInputDeviceId(value) {
+        if (this._inputDeviceManagerState == InputDeviceManagerState.Scanning) {
+            throw 'InvalidOperationDevicesInitialising';
+        }
+        this._inputDeviceManager.currentAudioInputDeviceId = value;
+        this._scanDevicesAsync();
+    }
+
+    /**
+     * @returns {String}
+     */
+    get selectedVideoInputDeviceId() { return this._inputDeviceManager.currentVideoInputDeviceId; }
+
+    /**
+     * @params {String} value
+     */
+    set selectedVideoInputDeviceId(value) {
+        if (this._inputDeviceManagerState == InputDeviceManagerState.Scanning) {
+            throw 'InvalidOperationDevicesInitialising';
+        }
+        this._inputDeviceManager.currentVideoInputDeviceId = value;
+        this._scanDevicesAsync();
+    }
+
+    /**
+     * @returns {String}
+     */
+    get selectedAudioSinkId() { return this._inputDeviceManager.currentOutAudioSinkId; }
+
+    /**
+     * @returns {String}
+     */
+    set selectedAudioSinkId(value) {
+        if (this._inputDeviceManagerState == InputDeviceManagerState.Scanning) {
+            throw 'InvalidOperationDevicesInitialising';
+        }
+        this._inputDeviceManager.currentOutAudioSinkId = value;
+        this._scanDevicesAsync();
+    }
+
+    /**
+     * @return {Number}
+     */
+    get inputDeviceManagerState() { return this._inputDeviceManagerState; }
+    _inputDeviceManagerState = InputDeviceManagerState.NotInitialised;
+
+    /**
+     * @return {ConferenceSettings}
+     */
+    get conferenceSettings() { return this._webSocketClient.conferenceSettings; }
+
+    constructor() {
+        super();
+        this._handleWebSocketClientUsersChange = this._handleWebSocketClientUsersChange.bind(this);
+        this._handleInputDeviceStreamChange = this._handleInputDeviceStreamChange.bind(this);
+        this._handleMyNetworkDeviceIdChange = this._handleMyNetworkDeviceIdChange.bind(this);
+
+        this._webSocketClient = new WebSocketClient();
+        this._peerConnectionManager = new PeerConnectionManager(this._webSocketClient);
+        this._webSocketClient.addEventListener('users', this._handleWebSocketClientUsersChange);
+        this._webSocketClient.addEventListener('deviceidchange', this._handleMyNetworkDeviceIdChange);
+        this._inputDeviceManager.addEventListener('streamchange', this._handleInputDeviceStreamChange);
+    }
+
+    /**
+     * Initialise this client, caller should call this only once.
+     * @param {ConferenceSettings} settings 
+     */
+    async initializeAsync(settings) {
+        if (this._isInitialised) {
+            throw 'AlreadyInitialized';
+        }
+        this._isInitialised = true;
+
+        // Init the WebSocket stuff first
+        await this._webSocketClient.initializeAsync(settings);
+
+        // Restore previous device selection preferences
+        var lastAudioDeviceId = localStorage.getItem('media_client_last_audio_device_id');
+        var lastVideoDeviceId = localStorage.getItem('media_client_last_video_device_id');
+        var lastAudioSinkId = localStorage.getItem('media_client_last_audio_sink_id');
+        if (lastAudioDeviceId)
+            this.currentAudioInputDeviceId = lastAudioDeviceId;
+        if (lastVideoDeviceId)
+            this.currentVideoInputDeviceId = lastVideoDeviceId;
+        if (lastAudioSinkId)
+            this.currentOutAudioSinkId = lastAudioSinkId;
+
+        // Then initialise devices
+        await this._scanDevicesAsync();
+    }
+
+    /**
+     * The mapping between network device id -> stream, can be used to display videos on the UI.
+     * 
+     * @returns {Object}
+     */
+    generateStreams() {
+        return this._streams;
+    }
+
+    _handleWebSocketClientUsersChange(e) {
+        this._rebuildStreams();
+        this.dispatchEvent(new CustomEvent('users'));
+    }
+
+    _handleInputDeviceStreamChange(e) {
+        this._peerConnectionManager.localMediaStreamForSending = this._inputDeviceManager.stream;
+        this._rebuildStreams();
+    }
+
+    _handleMyNetworkDeviceIdChange(e) {
+        this._rebuildStreams();
+    }
+
+    _rebuildStreams() {
+        this._streams = {};
+        this._webSocketClient.users.forEach(u => {
+            u.devices.forEach(device => {
+                this._streams[device.id] = device.id == this._webSocketClient.deviceId
+                    ? this._inputDeviceManager.stream
+                    : null // todo - insert other peers' streams here
+            });
+        });
+        this.dispatchEvent(new CustomEvent('streams'));
+    }
+
+    async _scanDevicesAsync() {
+        if (this._inputDeviceManagerState == InputDeviceManagerState.Scanning) {
+            throw 'AlreadyInitializingDevices';
+        }
+        this._inputDeviceManagerState = InputDeviceManagerState.Scanning;
+        this.dispatchEvent(new CustomEvent('device-scanning-started'));
+        try {
+            await this._inputDeviceManager.refreshAsync();
+            this._inputDeviceManagerState = InputDeviceManagerState.Ok;
+        }
+        catch (err) {
+            // TODO display better error message UI/UI, etc..
+            window.alert(err);
+            this._inputDeviceManagerState = InputDeviceManagerState.Error;
+        }
+        finally {
+            this.dispatchEvent(new CustomEvent('device-scanning-completed'));
+        }
+    }
+}

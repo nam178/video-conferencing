@@ -1,116 +1,121 @@
 import React from 'react';
 import ConferenceListCell from './conference-list-cell.jsx';
 import DeviceSelectButton from './device-select-button.jsx';
-import InputDeviceManager from '../models/input-device-manager.js';
-import PeerConnectionManager from '../net/peer-connection-manager.js';
+import { NotSelectedInputDeviceId, InputDeviceManagerState } from '../net/media-client.js';
 import './conference-list-view.css'
 
 export default class ConferenceListView extends React.Component {
-    /** @returns {InputDeviceManager} */
-    get deviceManager() { return this._deviceManager; }
-
-    /** @returns {PeerConnectionManager} */
-    get peerConnection() { return this._peerConnectionManager; }
-
     constructor() {
         super();
         this.state = {
-            users: null,
+            users: [],
+            isAudioLoading: false,
+            isVideoLoading: false,
+            isSpeakerLoading: false,
             microphoneDevices: null,
             cameraDevices: null,
             speakerDevices: null,
             streams: {}
         };
-        this._deviceManager = new InputDeviceManager();
         this.handleMicrophoneChange = this.handleMicrophoneChange.bind(this);
         this.handleCameraChange = this.handleCameraChange.bind(this);
         this.handleSpeakerChange = this.handleSpeakerChange.bind(this);
         this.handleDeviceClick = this.handleDeviceClick.bind(this);
-        this.handleStreamOrWebSocketDeviceIdChange = this.handleStreamOrWebSocketDeviceIdChange.bind(this);
+        this.handleUsersChange = this.handleUsersChange.bind(this);
+        this.handleStreamsUpdate = this.handleStreamsUpdate.bind(this);
+        this.handleInputDeviceManagerStateChange = this.handleInputDeviceManagerStateChange.bind(this);
     }
 
     async componentDidMount() {
-        // Restore previous preferences
-        var lastAudioDeviceId = localStorage.getItem('conference_list_view_audio_device_id');
-        var lastVideoDeviceId = localStorage.getItem('conference_list_view_video_device_id');
-        var lastAudioSinkId = localStorage.getItem('conference_list_view_audio_sink_id');
-        if (lastAudioDeviceId)
-            this.deviceManager.currentAudioInputDeviceId = lastAudioDeviceId;
-        if (lastVideoDeviceId)
-            this.deviceManager.currentVideoInputDeviceId = lastVideoDeviceId;
-        if (lastAudioSinkId)
-            this.deviceManager.currentOutAudioSinkId = lastAudioSinkId;
-        this._peerConnectionManager = new PeerConnectionManager(this.props.webSocketClient);
-        this.deviceManager.addEventListener('streamchange', this.handleStreamOrWebSocketDeviceIdChange);
-        this.props.webSocketClient.addEventListener('deviceidchange', this.handleStreamOrWebSocketDeviceIdChange);
-        await this.reInitializeDevicesAsync();
+        this.props.mediaClient.addEventListener('streams', this.handleStreamsUpdate);
+        this.props.mediaClient.addEventListener('users', this.handleUsersChange);
+        this.props.mediaClient.addEventListener('device-scanning-started', this.handleInputDeviceManagerStateChange);
+        this.props.mediaClient.addEventListener('device-scanning-completed', this.handleInputDeviceManagerStateChange);
+        // Set initial state
+        this.handleUsersChange();
+        this.handleInputDeviceManagerStateChange();
+        this.handleStreamsUpdate();
     }
-
+    
     async componentWillUnmount() {
         this._closed = true;
-        this.deviceManager.removeEventListener('streamchange', this.handleStreamOrWebSocketDeviceIdChange);
-        this.props.webSocketClient.addEventListener('deviceidchange', this.handleStreamOrWebSocketDeviceIdChange);
+        this.props.mediaClient.removeEventListener('streams', this.handleStreamsUpdate);
     }
 
-    async reInitializeDevicesAsync() {
-        try {
-            this._isInitialisingDevices = true;
-            await this.deviceManager.initializeAsync();
-            if (!this._closed) {
+    handleUsersChange() {
+        var users = this.props.mediaClient.users ?? [];
+        this.setState({
+            users: users.sort((x, y) => {
+                // Show my self first
+                if (x.username == this.props.mediaClient.conferenceSettings.username)
+                    return -1;
+                if (y.username == this.props.mediaClient.conferenceSettings.username)
+                    return 1;
+                // Show offline people at the bottom
+                if (!x.isOnline)
+                    return 1;
+                if (!y.isOnline)
+                    return -1;
+                // The rest sort by username
+                return x.username.localeCompare(y.username);
+            })
+        });
+    }
+
+    handleInputDeviceManagerStateChange() {
+        switch(this.props.mediaClient.inputDeviceManagerState) {
+            case InputDeviceManagerState.NotInitialised:
+            case InputDeviceManagerState.Error:
+                // This will not show the buttons at all
                 this.setState({
-                    isVideoLoading: false,
-                    isAudioLoading: false,
+                    microphoneDevices: null,
+                    cameraDevices: null,
+                    speakerDevices: null
+                });
+                break;
+            case InputDeviceManagerState.Scanning:
+                // This will show the buttons,
+                // however they have no items.
+                // Nothing will happen when user clicks on them, as we checked below.
+                this.setState({
+                    microphoneDevices: [],
+                    cameraDevices: [],
+                    speakerDevices: []
+                });
+                break;
+            case InputDeviceManagerState.Ok:
+                // This will show the buttons, and they will have items to click on.
+                this.setState({
                     microphoneDevices: this.generateDropDownItem('audioinput'),
                     cameraDevices: this.generateDropDownItem('videoinput'),
-                    speakerDevices: this.generateDropDownItem('audiooutput')
+                    speakerDevices: this.generateDropDownItem('audiooutput'),
+                    isVideoLoading: false,
+                    isAudioLoading: false,
+                    isSpeakerLoading: false,
                 });
-            }
-        }
-        // On any error related to initialising devices,
-        // display a warning. We can still use the room without any devices.
-        // TODO display better alert
-        catch (errorMessage) {
-            if (!this._closed) {
-                window.alert(`Device initialisation error: ${errorMessage}`);
-            }
-        }
-        finally {
-            this._isInitialisingDevices = false;
+                break;
         }
     }
 
-    handleStreamOrWebSocketDeviceIdChange() {
-        // Device initialisation successed,
-        // First, update peerConnection
-        this._peerConnectionManager.localMediaStreamForSending = this.deviceManager.stream;
-        // Then update the streams in the UI
-        var streamsCopy = {};
-        for (var k in this.state.streams) {
-            streamsCopy[k] = this.state.streams[k];
-        }
-        if (this.deviceManager.stream) {
-            streamsCopy[this.props.webSocketClient.deviceId] = this.deviceManager.stream;
-        }
-        this.setState({ streams: streamsCopy });
+    handleStreamsUpdate() {
+        this.setState({ streams: this.props.mediaClient.generateStreams() });
     }
 
     async handleMicrophoneChange(item) {
         if (!item.id) { ; return; } // Don't do anything when query device fail (it returns an empty device with id='')
-        this.deviceManager.currentAudioInputDeviceId = item.id;
+        this.props.mediaClient.selectedAudioInputDeviceId = item.id;
         this.rememberAudioChoice();
-        await this.reInitializeDevicesAsync();
     }
 
     async handleCameraChange(item) {
         if (!item.id) { ; return; } // Don't do anything when query device fail (it returns an empty device with id='')
-        this.deviceManager.currentVideoInputDeviceId = item.id;
+        this.props.mediaClient.selectedVideoInputDeviceId = item.id;
         this.rememberVideoChoice();
-        await this.reInitializeDevicesAsync();
     }
 
     handleSpeakerChange(item) {
         if (!item.id) { ; return; } // Don't do anything when query device fail (it returns an empty device with id='')
-        this.deviceManager.currentOutAudioSinkId = item.id;
+        this.props.mediaClient.selectedOutAudioSinkId = item.id;
         this.rememberSpeakerChoice();
         this.setState({
             speakerDevices: this.generateDropDownItem('audiooutput')
@@ -118,26 +123,27 @@ export default class ConferenceListView extends React.Component {
     }
 
     handleDeviceClick(sender) {
-        // Devices are initialising, prevent showing the device selector
-        if (this._isInitialisingDevices) {
+        // Devices are initialising, prevent showing the device selector.
+        // This probably never true because we disable the device buttons when it's initialising,
+        // but just to be sure:
+        if (this.props.mediaClient.inputDeviceManagerState == InputDeviceManagerState.Scanning) {
             return false;
         }
         // When the the devices disabled, clicking the device button won't show
         // any device to select, therefore we'll re-initialise the devices first
         if (sender == this._audioSelectButton
-            && this.deviceManager.currentAudioInputDeviceId == InputDeviceManager.NotSelectedDeviceId()) {
-            this.deviceManager.currentAudioInputDeviceId = null;
-            this.rememberAudioChoice();
+            && this.props.mediaClient.selectedAudioInputDeviceId == NotSelectedInputDeviceId) {
             this.setState({ isAudioLoading: true });
-            this.reInitializeDevicesAsync(); // fire and forget
+            this.props.mediaClient.selectedAudioInputDeviceId = null;// force re-initialisation to default device
+            this.rememberAudioChoice();
+            
             return false;
         }
         if (sender == this._videoSelectButton
-            && this.deviceManager.currentVideoInputDeviceId == InputDeviceManager.NotSelectedDeviceId()) {
-            this.deviceManager.currentVideoInputDeviceId = null;
-            this.rememberVideoChoice();
+            && this.props.mediaClient.selectedVideoInputDeviceId == NotSelectedInputDeviceId) {
             this.setState({ isVideoLoading: true });
-            this.reInitializeDevicesAsync(); // fire and forget
+            this.props.mediaClient.selectedVideoInputDeviceId = null; // force re-initialisation to default device
+            this.rememberVideoChoice();
             return false;
         }
         return true;
@@ -148,20 +154,20 @@ export default class ConferenceListView extends React.Component {
         var number = 1;
         var selectedDeviceId = null;
         if (kind == 'audioinput')
-            selectedDeviceId = this.deviceManager.currentAudioInputDeviceId;
+            selectedDeviceId = this.props.mediaClient.selectedAudioInputDeviceId;
         if (kind == 'videoinput')
-            selectedDeviceId = this.deviceManager.currentVideoInputDeviceId;
+            selectedDeviceId = this.props.mediaClient.selectedVideoInputDeviceId;
         if (kind == 'audiooutput') {
-            selectedDeviceId = this.deviceManager.currentOutAudioSinkId;
+            selectedDeviceId = this.props.mediaClient.selectedOutAudioSinkId;
             if (!selectedDeviceId) {
-                var tmp = this.deviceManager.mediaDevices.find(d => d.deviceId == 'default');
+                var tmp = this.props.mediaClient.mediaDevices.find(d => d.deviceId == 'default');
                 if (tmp) {
                     selectedDeviceId = tmp.deviceId;
                 }
             }
         }
 
-        this.deviceManager.mediaDevices.forEach(device => {
+        this.props.mediaClient.mediaDevices.forEach(device => {
             if (device.kind == kind) {
                 result.push({
                     id: device.deviceId,
@@ -173,9 +179,9 @@ export default class ConferenceListView extends React.Component {
         });
         if (kind != 'audiooutput') {
             result.push({
-                id: InputDeviceManager.NotSelectedDeviceId(),
+                id: NotSelectedInputDeviceId,
                 name: 'Don\'t Use',
-                selected: selectedDeviceId == InputDeviceManager.NotSelectedDeviceId()
+                selected: selectedDeviceId == NotSelectedInputDeviceId
             });
         } else if (result.length == 1) {
             // special case for audiooutput:
@@ -189,15 +195,15 @@ export default class ConferenceListView extends React.Component {
     }
 
     rememberAudioChoice() {
-        this.remember('conference_list_view_audio_device_id', this.deviceManager.currentAudioInputDeviceId);
+        this.remember('conference_list_view_audio_device_id', this.props.mediaClient.selectedAudioInputDeviceId);
     }
 
     rememberVideoChoice() {
-        this.remember('conference_list_view_video_device_id', this.deviceManager.currentVideoInputDeviceId);
+        this.remember('conference_list_view_video_device_id', this.props.mediaClient.selectedVideoInputDeviceId);
     }
 
     rememberSpeakerChoice() {
-        this.remember('conference_list_view_audio_sink_id', this.deviceManager.currentOutAudioSinkId);
+        this.remember('conference_list_view_audio_sink_id', this.props.mediaClient.selectedOutAudioSinkId);
     }
 
     remember(key, value) {
@@ -218,30 +224,10 @@ export default class ConferenceListView extends React.Component {
         }
     }
 
-    static getDerivedStateFromProps(props) {
-        return {
-            users: props.users.sort((x, y) => {
-                // Show my self first
-                if (x.username == props.webSocketClient.conferenceSettings.username)
-                    return -1;
-                if (y.username == props.webSocketClient.conferenceSettings.username)
-                    return 1;
-                // Show offline people at the bottom
-                if (!x.isOnline)
-                    return 1;
-                if (!y.isOnline)
-                    return -1;
-                // The rest sort by username
-                return x.username.localeCompare(y.username);
-            }),
-            me: props.users.find(u => u.username == props.webSocketClient.conferenceSettings.username)
-        };
-    }
-
     render() {
         return <div className="conference-list-view">
             <div className="heading">
-                <div>#{this.props.webSocketClient.conferenceSettings.roomId}</div>
+                <div>#{this.props.mediaClient.conferenceSettings.roomId}</div>
             </div>
             <div className="margin-fix">
                 <div className="body">
@@ -250,7 +236,7 @@ export default class ConferenceListView extends React.Component {
                             stream={typeof (this.state.streams[device.id]) != 'undefined' ? this.state.streams[device.id] : null}
                             key={device.id}
                             user={user}
-                            self={user.username == this.props.webSocketClient.conferenceSettings.username} />
+                            self={user.username == this.props.mediaClient.conferenceSettings.username} />
                     ))}
                 </div>
             </div>
@@ -259,16 +245,16 @@ export default class ConferenceListView extends React.Component {
                 {this.state.microphoneDevices ? <DeviceSelectButton ref={t => this._audioSelectButton = t}
                     onClick={this.handleDeviceClick}
                     isLoading={this.state.isAudioLoading}
-                    icon={this.deviceManager.currentAudioInputDeviceId == InputDeviceManager.NotSelectedDeviceId() ? 'microphone-slash' : 'microphone'}
-                    gray={this.deviceManager.currentAudioInputDeviceId == InputDeviceManager.NotSelectedDeviceId()}
+                    icon={this.props.mediaClient.selectedAudioInputDeviceId == NotSelectedInputDeviceId ? 'microphone-slash' : 'microphone'}
+                    gray={this.props.mediaClient.selectedAudioInputDeviceId == NotSelectedInputDeviceId}
                     selectItems={this.state.microphoneDevices}
                     title="Which Microphone?"
                     onItemClick={this.handleMicrophoneChange} /> : null}
                 {this.state.cameraDevices ? <DeviceSelectButton ref={t => this._videoSelectButton = t}
                     onClick={this.handleDeviceClick}
                     isLoading={this.state.isVideoLoading}
-                    icon={this.deviceManager.currentVideoInputDeviceId == InputDeviceManager.NotSelectedDeviceId() ? 'camera' : 'camera'}
-                    gray={this.deviceManager.currentVideoInputDeviceId == InputDeviceManager.NotSelectedDeviceId()}
+                    icon={this.props.mediaClient.selectedVideoInputDeviceId == NotSelectedInputDeviceId ? 'camera' : 'camera'}
+                    gray={this.props.mediaClient.selectedVideoInputDeviceId == NotSelectedInputDeviceId}
                     selectItems={this.state.cameraDevices}
                     title="Which Camera?"
                     onItemClick={this.handleCameraChange} /> : null}

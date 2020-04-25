@@ -46,6 +46,7 @@ export default class InputDeviceManager extends EventTarget {
 
     constructor() {
         super();
+        this._mediaDevices = [];
         this._logger = new Logger('InputDeviceManager');
         this._currentAudioInputDeviceId = null;
         this._currentVideoInputDeviceId = null;
@@ -58,7 +59,7 @@ export default class InputDeviceManager extends EventTarget {
      * Designed so can be called multiple items to re-initialise;
      * Must be called at least once before using;
      */
-    initializeAsync() {
+    refreshAsync() {
         // Stop any running track
         if (this.stream) {
             this.stream.getTracks().forEach(track => track.stop());
@@ -114,6 +115,14 @@ export default class InputDeviceManager extends EventTarget {
                     this._refreshDevicesAsync().then(() => resolve()).catch(err => reject(err));
                 })
                 .catch((err) => {
+                    // todo: handle those
+                    // AbortError
+                    // NotAllowedError
+                    // NotReadableError
+                    // NotFoundError
+                    // OverconstrainedError
+                    // SecurityError
+                    // TypeError
                     this._logger.error('Failed accessing media device: ' + err);
                     reject('Failed accessing your camera/microphone, please give permission.');
                 });
