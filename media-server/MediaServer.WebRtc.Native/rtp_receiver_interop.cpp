@@ -3,7 +3,7 @@
 #include "rtp_receiver.h"
 #include "rtp_receiver_interop.h"
 
-RtpReceiverInterfacePtr CONVENTION
+webrtc::RtpReceiverInterface *CONVENTION
 RtpReceiverGetRtpReceiverInterface(RtpReceiverWrapperPtr rtp_receiver_ptr)
 {
     return StaticCastOrThrow<Wrappers::RtpReceiver>(rtp_receiver_ptr)->GetRtpReceiverInterface();

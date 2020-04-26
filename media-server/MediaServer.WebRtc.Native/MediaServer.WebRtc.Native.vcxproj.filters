@@ -81,11 +81,13 @@
     <ClCompile Include="video_sink_adapter_interop.cpp">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="video_track_interops.cpp" />
     <ClCompile Include="rtc_thread.cpp">
       <Filter>wrappers</Filter>
     </ClCompile>
     <ClCompile Include="rtc_thread_interops.cpp">
+      <Filter>wrappers\interops</Filter>
+    </ClCompile>
+    <ClCompile Include="video_track_interops.cpp">
       <Filter>wrappers\interops</Filter>
     </ClCompile>
   </ItemGroup>

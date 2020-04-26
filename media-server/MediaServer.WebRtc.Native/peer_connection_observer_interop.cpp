@@ -3,7 +3,7 @@
 #include "peer_connection_observer.h"
 #include "peer_connection_observer_interop.h"
 
-PeerConnectionObserverIntPtr CONVENTION PeerConnectionObserverCreate()
+Wrappers::PeerConnectionObserver *CONVENTION PeerConnectionObserverCreate()
 {
     return new Wrappers::PeerConnectionObserver();
 }
@@ -39,8 +39,7 @@ void CONVENTION PeerConnectionObserverSetRemoteTrackRemovedCallback(
     UserData user_data)
 {
     StaticCastOrThrow<PeerConnectionObserver>(peer_connection_observer_ptr)
-        ->SetRemoteTrackRemovedCallback(
-            Callback<RtpReceiverPtr>{std::move(call_back), user_data});
+        ->SetRemoteTrackRemovedCallback(Callback<RtpReceiverPtr>{std::move(call_back), user_data});
 }
 
 void CONVENTION PeerConnectionObserverSetIceGatheringStateChangedCallback(

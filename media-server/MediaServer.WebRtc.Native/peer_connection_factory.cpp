@@ -19,6 +19,11 @@ std::unique_ptr<rtc::Thread> CreateThread(const std::string &name,
     return tmp;
 }
 
+Wrappers::PeerConnectionFactory::PeerConnectionFactory()
+{
+    _signalling_thread_wrapper.reset(new Wrappers::RtcThread(_signalling_thread.get()));
+}
+
 void Wrappers::PeerConnectionFactory::Initialize()
 {
     // Initialization guard
@@ -64,7 +69,7 @@ void Wrappers::PeerConnectionFactory::TearDown()
     }
 }
 
-PeerConnectionFactoryInterface *Wrappers::PeerConnectionFactory::GetPeerConnectionFactory()
+PeerConnectionFactoryInterface *Wrappers::PeerConnectionFactory::GetPeerConnectionFactory() const
 {
     if(_initialized_state.load() != INIT_STATE_INITIALISED)
     {
@@ -73,17 +78,22 @@ PeerConnectionFactoryInterface *Wrappers::PeerConnectionFactory::GetPeerConnecti
     return _peer_connection_factory.get();
 }
 
-rtc::Thread *Wrappers::PeerConnectionFactory::GetNetworkingThread()
+rtc::Thread *Wrappers::PeerConnectionFactory::GetNetworkingThread() const
 {
     return _network_thread.get();
 }
 
-rtc::Thread *Wrappers::PeerConnectionFactory::GetWorkerThread()
+rtc::Thread *Wrappers::PeerConnectionFactory::GetWorkerThread() const
 {
     return _worker_thread.get();
 }
 
-rtc::Thread *Wrappers::PeerConnectionFactory::GetSignallingThread()
+rtc::Thread *Wrappers::PeerConnectionFactory::GetSignallingThread() const
 {
     return _signalling_thread.get();
+}
+
+Wrappers::RtcThread *Wrappers::PeerConnectionFactory::GetSignallingThreadWrapper() const
+{
+    return _signalling_thread_wrapper.get();
 }

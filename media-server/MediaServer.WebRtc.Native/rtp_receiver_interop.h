@@ -4,14 +4,13 @@
 
 extern "C"
 {
-    // Pointer to webrtc::RtpReceiverInterface
     using RtpReceiverInterfacePtr = void *;
     // Pointer to Wrappers::RtpReceiver
     using RtpReceiverWrapperPtr = void *;
     // Pointer to either Wrappers::AudioTrack or Wrappers::VideoTrack
     using TrackWrapeprPtr = void *;
 
-    EXPORT RtpReceiverInterfacePtr CONVENTION
+    EXPORT webrtc::RtpReceiverInterface* CONVENTION
     RtpReceiverGetRtpReceiverInterface(RtpReceiverWrapperPtr rtp_receiver_ptr);
 
     EXPORT void CONVENTION RtpReceiverDestroy(RtpReceiverWrapperPtr rtp_receiver_ptr);

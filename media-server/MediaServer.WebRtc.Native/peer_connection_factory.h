@@ -2,6 +2,8 @@
 
 #include "pch.h"
 
+#include "rtc_thread.h"
+
 using namespace webrtc;
 using namespace rtc;
 
@@ -12,6 +14,8 @@ namespace Wrappers
 class PeerConnectionFactory final
 {
   public:
+    PeerConnectionFactory();
+
     // The instance must be initialised before using.
     // Not thread safe, Initialise() and TearDown() must be called in order.
     void Initialize();
@@ -22,16 +26,19 @@ class PeerConnectionFactory final
     void TearDown();
 
     // After initialisation, PeerConnectionInterface and threads will be accessible.
-    PeerConnectionFactoryInterface *GetPeerConnectionFactory();
+    PeerConnectionFactoryInterface *GetPeerConnectionFactory() const;
 
-    rtc::Thread *GetNetworkingThread();
-    rtc::Thread *GetWorkerThread();
-    rtc::Thread *GetSignallingThread();
+    rtc::Thread *GetNetworkingThread() const;
+    rtc::Thread *GetWorkerThread() const;
+    rtc::Thread *GetSignallingThread() const;
+    Wrappers::RtcThread *GetSignallingThreadWrapper() const;
+
   private:
     std::atomic<uint8_t> _initialized_state = {0};
     std::unique_ptr<rtc::Thread> _network_thread = std::make_unique<rtc::Thread>();
     std::unique_ptr<rtc::Thread> _signalling_thread = std::make_unique<rtc::Thread>();
     std::unique_ptr<rtc::Thread> _worker_thread = std::make_unique<rtc::Thread>();
+    std::unique_ptr<Wrappers::RtcThread> _signalling_thread_wrapper{};
 
     scoped_refptr<PeerConnectionFactoryInterface> _peer_connection_factory = {};
 };

@@ -8,7 +8,7 @@
 #include "peer_connection_interop.h"
 #include "video_track.h"
 
-PeerConnectionFactoryPtr CONVENTION PeerConnectionFactoryCreate()
+Wrappers::PeerConnectionFactory *CONVENTION PeerConnectionFactoryCreate()
 {
     return new Wrappers::PeerConnectionFactory();
 }
@@ -60,7 +60,7 @@ webrtc::PeerConnectionInterface::IceServers ConvertToIceServersList(IceServerCon
     return serverList;
 }
 
-EXPORT PeerConnectionRawPointer CONVENTION
+EXPORT Wrappers::PeerConnection *CONVENTION
 PeerConnectionFactoryCreatePeerConnection(PeerConnectionFactoryPtr peer_connection_factory,
                                           IceServerConfig *ice_servers,
                                           int32_t ice_server_length,
@@ -88,10 +88,10 @@ PeerConnectionFactoryCreatePeerConnection(PeerConnectionFactoryPtr peer_connecti
     return new Wrappers::PeerConnection(std::move(peer_connection));
 }
 
-VideoTrackPtr CONVENTION PeerConnectionFactoryCreateVideoTrack(
-    PeerConnectionFactoryPtr peer_connection_factory,
-    PassiveVideoTrackSourcePtr passive_video_track_souce_ptr,
-    const char *track_name)
+Wrappers::VideoTrack *CONVENTION
+PeerConnectionFactoryCreateVideoTrack(PeerConnectionFactoryPtr peer_connection_factory,
+                                      PassiveVideoTrackSourcePtr passive_video_track_souce_ptr,
+                                      const char *track_name)
 {
     auto factory = StaticCastOrThrow<Wrappers::PeerConnectionFactory>(peer_connection_factory)
                        ->GetPeerConnectionFactory();
@@ -105,4 +105,11 @@ VideoTrackPtr CONVENTION PeerConnectionFactoryCreateVideoTrack(
 
     return new Wrappers::VideoTrack(
         factory->CreateVideoTrack(track_name, passive_video_track_source));
+}
+
+Wrappers::RtcThread *PeerConnectionGetSignallingThread(
+    PeerConnectionFactoryPtr peer_connection_factory_ptr)
+{
+    return StaticCastOrThrow<Wrappers::PeerConnectionFactory>(peer_connection_factory_ptr)
+        ->GetSignallingThreadWrapper();
 }

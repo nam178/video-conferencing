@@ -33,7 +33,7 @@ extern "C"
         RemoteTrackRemovedCallback _remote_track_removed_callback{};
     };
 
-    EXPORT PeerConnectionObserverIntPtr CONVENTION PeerConnectionObserverCreate();
+    EXPORT Wrappers::PeerConnectionObserver* CONVENTION PeerConnectionObserverCreate();
 
     EXPORT void CONVENTION
     PeerConnectionObserverDestroy(PeerConnectionObserverIntPtr peer_connection_observer_ptr);
