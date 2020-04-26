@@ -34,6 +34,9 @@ void Wrappers::PeerConnectionFactory::Initialize()
     _worker_thread = std::move(CreateThread("WebRTC worker thread", &rtc::Thread::Create));
     _signalling_thread = std::move(CreateThread("WebRTC signaling thread", &rtc::Thread::Create));
 
+    // Set log level here
+    // rtc::LogMessage::LogToDebug(rtc::LS_VERBOSE);
+
     // Create PeerConnectionFactory
     _peer_connection_factory = webrtc::CreatePeerConnectionFactory(
         _network_thread.get(),

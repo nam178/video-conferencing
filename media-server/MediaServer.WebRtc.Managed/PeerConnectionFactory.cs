@@ -5,11 +5,11 @@ namespace MediaServer.WebRtc.Managed
 {
     public sealed class PeerConnectionFactory : IDisposable
     {
-        PeerConnectionFactorySafeHandle Native { get; }
+        internal PeerConnectionFactorySafeHandle Handle { get; }
 
         public PeerConnectionFactory()
         {
-            Native = new PeerConnectionFactorySafeHandle();
+            Handle = new PeerConnectionFactorySafeHandle();
         }
 
         public PeerConnection CreatePeerConnection(PeerConnectionObserver observer, PeerConnectionConfig config)
@@ -26,22 +26,34 @@ namespace MediaServer.WebRtc.Managed
                 CommaSeperatedUrls = string.Join(';', config.IceServers)
             }).ToArray();
             return new PeerConnection(PeerConnectionFactoryInterop.CreatePeerConnection(
-                Native,
+                Handle,
                 interopIceServers,
                 interopIceServers.Count(),
                 observer.Native
                 ));
         }
 
-        public VideoTrack CreatePassiveVideoTrack(string videoTrackName, PassiveVideoTrackSource source)
-        {
-            return new VideoTrack(PeerConnectionFactoryInterop.CreateVideoTrack(Native, source.Native, videoTrackName));
-        }
+        /// <summary>
+        /// Create a video track that gets frame from provided source
+        /// </summary>
+        /// <param name="videoTrackName"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public VideoTrack CreateVideoTrack(string videoTrackName, PassiveVideoTrackSource source)
+            => new VideoTrack(PeerConnectionFactoryInterop.CreateVideoTrack(Handle, source.Handle, videoTrackName));
 
-        public void Initialize() => PeerConnectionFactoryInterop.Initialize(Native);
+        /// <summary>
+        /// Create a VideoSink that push frames into the provided source
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public VideoSinkAdapter CreateVideoSinkAdapter(PassiveVideoTrackSource target)
+            => new VideoSinkAdapter(this, target);
 
-        public void TearDown() => PeerConnectionFactoryInterop.TearDown(Native);
+        public void Initialize() => PeerConnectionFactoryInterop.Initialize(Handle);
 
-        public void Dispose() => Native.Dispose();
+        public void TearDown() => PeerConnectionFactoryInterop.TearDown(Handle);
+
+        public void Dispose() => Handle.Dispose();
     }
 }
