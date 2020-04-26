@@ -14,9 +14,9 @@ namespace MediaServer.WebSocket.CommandHandlers
 {
     sealed class JoinRoomCommandHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.JoinRoom>
     {
-        readonly ICoreService<JoinRoomRequest, GenericResponse> _coreHandler;
+        readonly IRemoteDeviceService<JoinRoomRequest, GenericResponse> _coreHandler;
 
-        public JoinRoomCommandHandler(ICoreService<JoinRoomRequest, GenericResponse> coreHandler)
+        public JoinRoomCommandHandler(IRemoteDeviceService<JoinRoomRequest, GenericResponse> coreHandler)
         {
             _coreHandler = coreHandler
                 ?? throw new ArgumentNullException(nameof(coreHandler));

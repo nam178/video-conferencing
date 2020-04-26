@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.ServerManager
 {
-    sealed class NewRoomRequestHandler : ICoreService<NewRoomRequest, RoomId>
+    sealed class NewRoomRequestHandler : IRemoteDeviceService<NewRoomRequest, RoomId>
     {
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;

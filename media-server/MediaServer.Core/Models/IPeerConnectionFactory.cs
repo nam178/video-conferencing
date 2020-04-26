@@ -1,9 +1,11 @@
-﻿namespace MediaServer.Core.Models
+﻿using MediaServer.Models;
+
+namespace MediaServer.Core.Models
 {
     public interface IPeerConnectionFactory
     {
         void EnsureInitialised();
 
-        IPeerConnection Create();
+        IPeerConnection Create(IRemoteDevice remoteDevice);
     }
 }

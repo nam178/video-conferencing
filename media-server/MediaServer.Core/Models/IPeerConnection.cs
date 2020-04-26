@@ -1,4 +1,5 @@
 ﻿using MediaServer.Common.Utils;
+using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using System;
 using System.Threading.Tasks;
@@ -14,6 +15,10 @@ namespace MediaServer.Core.Models
     /// </remarks>
     public interface IPeerConnection : IDisposable
     {
+        public IRoom Room { get; }
+
+        public IRemoteDevice Device { get; }
+
         Task<RTCSessionDescription> CreateAnswerAsync();
 
         Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description);

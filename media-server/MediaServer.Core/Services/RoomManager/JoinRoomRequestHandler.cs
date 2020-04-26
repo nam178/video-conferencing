@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.RoomManager
 {
-    sealed class JoinRoomRequestHandler : ICoreService<JoinRoomRequest, GenericResponse>
+    sealed class JoinRoomRequestHandler : IRemoteDeviceService<JoinRoomRequest, GenericResponse>
     {
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;

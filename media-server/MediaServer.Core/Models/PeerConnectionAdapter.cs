@@ -1,4 +1,5 @@
 ﻿using MediaServer.Common.Utils;
+using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using NLog;
 using System;
@@ -18,7 +19,13 @@ namespace MediaServer.Core.Models
 
         Action<RTCIceCandidate> _iceCandidateObserver;
 
+        public IRoom Room { get; }
+
+        public IRemoteDevice Device { get; }
+
         public PeerConnectionAdapter(
+            IRoom room,
+            IRemoteDevice device,
             PeerConnectionFactory webRtcPeerConnectionFactory,
             IReadOnlyList<string> stunUrls)
         {
@@ -37,6 +44,10 @@ namespace MediaServer.Core.Models
             _nativeObserver = new PeerConnectionObserver();
             _nativeObserver.IceCandidateAdded += IceCandidateAdded;
             _nativePeerConnection = webRtcPeerConnectionFactory.CreatePeerConnection(_nativeObserver, config);
+            Room = room
+                ?? throw new ArgumentNullException(nameof(room));
+            Device = device
+                ?? throw new ArgumentNullException(nameof(device));
         }
 
         public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)

@@ -16,7 +16,7 @@ namespace MediaServer.Core.Services
     /// Represents a service that answer commands from a remote device,
     /// and return a result to that device.
     /// </summary>
-    public interface ICoreService<TCommandArgs, TResponse> : IMapper<IRemoteDevice, TCommandArgs, TResponse>
+    public interface IRemoteDeviceService<TCommandArgs, TResponse> : IMapper<IRemoteDevice, TCommandArgs, TResponse>
     {
 
     }

@@ -75,7 +75,7 @@ namespace MediaServer.Core.Services.PeerConnection
         async Task<IPeerConnection> CreatePeerConnectionAsync(IRemoteDevice remoteDevice, User user)
         {
             // Create PeerConnection outside of the main thread, because it's slow.
-            IPeerConnection peerConnection = user.Room.PeerConnectionFactory.Create();
+            IPeerConnection peerConnection = user.Room.PeerConnectionFactory.Create(remoteDevice);
             _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
 
             // Jump back to the main thread to register it.
