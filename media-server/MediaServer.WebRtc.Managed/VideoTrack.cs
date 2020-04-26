@@ -7,5 +7,15 @@ namespace MediaServer.WebRtc.Managed
         public VideoTrack(IntPtr native) : base(native)
         {
         }
+
+        public void AddSink(VideoSinkAdapter videoSinkAdapter)
+        {
+            VideoTrackInterop.AddSink(Handle, videoSinkAdapter.Handle);
+        }
+
+        public void RemoveSink(VideoSinkAdapter videoSinkAdapter)
+        {
+            VideoTrackInterop.RemoveSink(Handle, videoSinkAdapter.Handle);
+        }
     }
 }

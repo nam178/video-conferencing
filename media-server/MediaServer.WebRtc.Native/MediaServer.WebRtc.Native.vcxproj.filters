@@ -81,6 +81,7 @@
     <ClCompile Include="video_sink_adapter_interop.cpp">
       <Filter>video</Filter>
     </ClCompile>
+    <ClCompile Include="video_track_interops.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -190,6 +191,9 @@
     </ClInclude>
     <ClInclude Include="video_sink_adapter_interop.h">
       <Filter>video</Filter>
+    </ClInclude>
+    <ClInclude Include="video_track_interops.h">
+      <Filter>wrappers\interops</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

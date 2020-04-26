@@ -39,6 +39,7 @@ namespace MediaServer.WebRtc.Managed
         /// <param name="videoTrackName"></param>
         /// <param name="source"></param>
         /// <returns></returns>
+        /// <remarks>This can be called on any thread</remarks>
         public VideoTrack CreateVideoTrack(string videoTrackName, PassiveVideoTrackSource source)
             => new VideoTrack(PeerConnectionFactoryInterop.CreateVideoTrack(Handle, source.Handle, videoTrackName));
 
@@ -47,6 +48,7 @@ namespace MediaServer.WebRtc.Managed
         /// </summary>
         /// <param name="target"></param>
         /// <returns></returns>
+        /// <remarks>This can be called on any thread, but part of it executes on worker thread (when adding sink -> source)</remarks>
         public VideoSinkAdapter CreateVideoSinkAdapter(PassiveVideoTrackSource target)
             => new VideoSinkAdapter(this, target);
 

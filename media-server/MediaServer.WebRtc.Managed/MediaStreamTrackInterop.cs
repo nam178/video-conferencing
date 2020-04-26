@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace MediaServer.WebRtc.Managed
 {
+
     static class MediaStreamTrackInterop
     {
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "MediaStreamTrackDestroy")]

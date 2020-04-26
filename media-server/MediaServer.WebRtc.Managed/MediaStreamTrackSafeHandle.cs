@@ -5,11 +5,11 @@ namespace MediaServer.WebRtc.Managed
 {
     sealed class MediaStreamTrackSafeHandle : SafeHandle
     {
-        public MediaStreamTrackSafeHandle(IntPtr native) : base(IntPtr.Zero, true)
+        public MediaStreamTrackSafeHandle(IntPtr handle) : base(IntPtr.Zero, true)
         {
-            if(native == IntPtr.Zero)
+            if(handle == IntPtr.Zero)
                 throw new ArgumentException("Native is nullptr");
-            SetHandle(native);
+            SetHandle(handle);
         }
 
         public override bool IsInvalid => handle == IntPtr.Zero;

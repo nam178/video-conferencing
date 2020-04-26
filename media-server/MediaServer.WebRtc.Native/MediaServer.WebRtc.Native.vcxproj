@@ -148,6 +148,7 @@
     <ClInclude Include="result.h" />
     <ClInclude Include="set_session_description_observer.h" />
     <ClInclude Include="string_helper.h" />
+    <ClInclude Include="video_track_interops.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="audio_track.cpp" />
@@ -181,6 +182,7 @@
     <ClCompile Include="video_sink_adapter.cpp" />
     <ClCompile Include="video_sink_adapter_interop.cpp" />
     <ClCompile Include="video_track.cpp" />
+    <ClCompile Include="video_track_interops.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

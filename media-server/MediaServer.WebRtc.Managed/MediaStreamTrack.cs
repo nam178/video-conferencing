@@ -5,21 +5,19 @@ namespace MediaServer.WebRtc.Managed
 {
     public abstract class MediaStreamTrack : IDisposable
     {
-        readonly MediaStreamTrackSafeHandle _native;
+        internal MediaStreamTrackSafeHandle Handle { get; }
 
-        public bool IsAudioTrack => MediaStreamTrackInterop.IsAudioTrack(_native);
+        public bool IsAudioTrack => MediaStreamTrackInterop.IsAudioTrack(Handle);
 
         public string Id { get; private set; }
 
-        public MediaStreamTrack(IntPtr native)
+        public MediaStreamTrack(IntPtr handle)
         {
-            if(native == IntPtr.Zero)
-            {
-                throw new ArgumentException(nameof(native));
-            }
-            _native = new MediaStreamTrackSafeHandle(native);
+            if(handle == IntPtr.Zero)
+                throw new ArgumentException(nameof(handle));
+            Handle = new MediaStreamTrackSafeHandle(handle);
 
-            var nativeIdString = MediaStreamTrackInterop.Id(_native);
+            var nativeIdString = MediaStreamTrackInterop.Id(Handle);
             if(nativeIdString == IntPtr.Zero)
                 Id = null;
             else
@@ -28,7 +26,7 @@ namespace MediaServer.WebRtc.Managed
 
         public void Dispose()
         {
-            _native.Dispose();
+            Handle.Dispose();
         }
 
         public override string ToString() => $"[{GetType().Name}, Id={Id}]";
