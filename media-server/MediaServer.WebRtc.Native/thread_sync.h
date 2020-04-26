@@ -18,20 +18,5 @@ class ThreadSync : public rtc::MessageHandler
     std::unique_ptr<rtc::Event> _event{};
     rtc::Thread *_thread;
     std::function<void()> _action;
-
-    class ScopedEventSetter
-    {
-      public:
-        ScopedEventSetter(rtc::Event *event) : _event(event)
-        {
-        }
-        ~ScopedEventSetter()
-        {
-            _event->Set();
-        }
-
-      private:
-        rtc::Event *_event;
-    };
 };
 } // namespace Utils

@@ -16,6 +16,17 @@ void Utils::ThreadSync::Execute()
 
 void Utils::ThreadSync::OnMessage(rtc::Message *msg)
 {
-    ScopedEventSetter(_event.get());
-    _action();
+    try
+    {
+        _action();
+    }
+    catch(const std::exception &ex)
+    {
+        RTC_LOG(LS_ERROR) << "Exception occured while handling thread message: " << ex.what();
+    }
+    catch(...)
+    {
+        RTC_LOG(LS_ERROR) << "Unknown exception occured while handling thread message";
+    }
+    _event->Set();
 }
