@@ -82,6 +82,12 @@
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="video_track_interops.cpp" />
+    <ClCompile Include="rtc_thread.cpp">
+      <Filter>wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="rtc_thread_interops.cpp">
+      <Filter>wrappers\interops</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -193,6 +199,12 @@
       <Filter>video</Filter>
     </ClInclude>
     <ClInclude Include="video_track_interops.h">
+      <Filter>wrappers\interops</Filter>
+    </ClInclude>
+    <ClInclude Include="rtc_thread.h">
+      <Filter>wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="rtc_thread_interops.h">
       <Filter>wrappers\interops</Filter>
     </ClInclude>
   </ItemGroup>
