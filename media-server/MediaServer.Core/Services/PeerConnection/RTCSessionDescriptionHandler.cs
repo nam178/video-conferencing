@@ -1,7 +1,6 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
-using MediaServer.Core.Repositories;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using NLog;
@@ -13,23 +12,7 @@ namespace MediaServer.Core.Services.PeerConnection
 {
     sealed class RTCSessionDescriptionHandler : IRemoteDeviceService<RTCSessionDescription>
     {
-        readonly IPeerConnectionRepository _peerConnectionRepository;
-        readonly IRemoteDeviceDataRepository _remoteDeviceDataRepository;
-        readonly IDispatchQueue _centralDispatchQueue;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
-
-        public RTCSessionDescriptionHandler(
-            IPeerConnectionRepository peerConnectionRepository,
-            IRemoteDeviceDataRepository remoteDeviceDataRepository,
-            IDispatchQueue centralDispatchQueue)
-        {
-            _peerConnectionRepository = peerConnectionRepository
-                ?? throw new ArgumentNullException(nameof(peerConnectionRepository));
-            _remoteDeviceDataRepository = remoteDeviceDataRepository
-                ?? throw new ArgumentNullException(nameof(remoteDeviceDataRepository));
-            _centralDispatchQueue = centralDispatchQueue
-                ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
-        }
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public async Task HandleAsync(IRemoteDevice remoteDevice, RTCSessionDescription request)
         {
@@ -37,21 +20,20 @@ namespace MediaServer.Core.Services.PeerConnection
             Require.NotNull(request.Type);
 
             // Get user and current IPeerConnection for this device
-            var user = (User)null;
-            var peerConnection = (IPeerConnection)null;
-            await _centralDispatchQueue.ExecuteAsync(delegate
+            var deviceData = remoteDevice.GetCustomData();
+            if(null == deviceData.User)
             {
-                var data = _remoteDeviceDataRepository.GetForDevice(remoteDevice);
-                if(data?.User == null)
-                    throw new UnauthorizedAccessException();
-                user = data.User;
-                peerConnection = _peerConnectionRepository.Find(remoteDevice)?.FirstOrDefault();
-            });
+                throw new UnauthorizedAccessException();
+            }
 
+            var peerConnection = deviceData.PeerConnections.FirstOrDefault();
             // If no PeerConnection for this device, create one
             if(null == peerConnection)
             {
-                peerConnection = await CreatePeerConnectionAsync(remoteDevice, user);
+                peerConnection = CreatePeerConnection(remoteDevice, deviceData.User);
+                // Save
+                deviceData.PeerConnections.Add(peerConnection);
+                remoteDevice.SetCustomData(deviceData);
             }
 
             // Finally do the SDP exchange, 
@@ -72,32 +54,17 @@ namespace MediaServer.Core.Services.PeerConnection
             _logger.Info($"Local description {answer} set for {peerConnection}");
         }
 
-        async Task<IPeerConnection> CreatePeerConnectionAsync(IRemoteDevice remoteDevice, User user)
+        IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, User user)
         {
-            // Create PeerConnection outside of the main thread, because it's slow.
-            IPeerConnection peerConnection = user.Room.PeerConnectionFactory.Create(remoteDevice);
+            var peerConnection = user.Room.PeerConnectionFactory.Create(remoteDevice, user.Room);
             _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
 
-            // Jump back to the main thread to register it.
-            await _centralDispatchQueue.ExecuteAsync(delegate
-            {
-                // Double-check:
-                // We don't allow multiple PeerConnection per device yet
-                var existingPeerConnections = _peerConnectionRepository.Find(remoteDevice);
-                if(existingPeerConnections != null && existingPeerConnections.Any())
-                {
-                    peerConnection.Dispose();
-                    _logger.Warn($"PeerConnection closed due to duplicate, user {user}, device {remoteDevice}");
-                    throw new OperationCanceledException();
-                }
-                _peerConnectionRepository.Add(user, remoteDevice, peerConnection);
+            // This is the first time is PeerConnection is created,
+            // we'll add ICE candidate observer
+            peerConnection.ObserveIceCandidate(ice => remoteDevice
+                .SendIceCandidateAsync(ice)
+                .Forget($"Error when sending ICE candidate {ice} to device {remoteDevice}"));
 
-                // This is the first time is PeerConnection is created,
-                // we'll add ICE candidate observer
-                peerConnection.ObserveIceCandidate(ice => remoteDevice
-                    .SendIceCandidateAsync(ice)
-                    .Forget($"Error when sending ICE candidate {ice} to device {remoteDevice}"));
-            });
             return peerConnection;
         }
     }

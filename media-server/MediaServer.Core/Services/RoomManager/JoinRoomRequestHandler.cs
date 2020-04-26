@@ -1,7 +1,6 @@
 ﻿using MediaServer.Common.Mediator;
 using MediaServer.Common.Threading;
 using MediaServer.Core.Common;
-using MediaServer.Core.Errors;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Models;
@@ -16,22 +15,18 @@ namespace MediaServer.Core.Services.RoomManager
     {
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;
-        readonly IRemoteDeviceDataRepository _remoteDeviceDataRepository;
         readonly IHandler<SendSyncMessageRequest> _statusUpdateSender;
         readonly static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public JoinRoomRequestHandler(
             IDispatchQueue centralDispatchQueue,
             IRoomRepository roomRepository,
-            IRemoteDeviceDataRepository remoteDeviceDataRepository,
             IHandler<SendSyncMessageRequest> statusUpdateSender)
         {
             _centralDispatchQueue = centralDispatchQueue
                 ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
             _roomRepository = roomRepository
                 ?? throw new ArgumentNullException(nameof(roomRepository));
-            _remoteDeviceDataRepository = remoteDeviceDataRepository
-                ?? throw new ArgumentNullException(nameof(remoteDeviceDataRepository));
             _statusUpdateSender = statusUpdateSender 
                 ?? throw new ArgumentNullException(nameof(statusUpdateSender));
         }
@@ -42,16 +37,22 @@ namespace MediaServer.Core.Services.RoomManager
                 GenericResponse.ErrorResponse($"Invalid username");
 
             // Get the room and user
-            var room = await GetAndValidateRoom(remoteDevice, request);
+            var deviceData = remoteDevice.GetCustomData();
+            if(deviceData.Room != null)
+            {
+                throw new InvalidOperationException(
+                    $"Device {remoteDevice} already belongs to room {deviceData.Room}; " +
+                    $"Not allowed to join another room");
+            }
+
+            var room = _roomRepository.GetRoomById(request.RoomId);
             if(null == room)
                 return GenericResponse.ErrorResponse($"Room not found by id {request.RoomId}");
             var user = await GetOrCreateUserProfile(remoteDevice, request, room);
 
             // Associate the device with room/user
-            await _centralDispatchQueue.ExecuteAsync(() 
-                => _remoteDeviceDataRepository.SetForDevice(
-                    remoteDevice, 
-                    g => g.User = user));
+            deviceData.User = user;
+            remoteDevice.SetCustomData(deviceData);
             _logger.Info($"Device {remoteDevice} now associated with room {room} and user {user}");
 
             // Broadcast the status update
@@ -60,28 +61,6 @@ namespace MediaServer.Core.Services.RoomManager
                 Room = room
             });
             return GenericResponse.SuccessResponse();
-        }
-
-        async Task<IRoom> GetAndValidateRoom(IRemoteDevice remoteDevice, JoinRoomRequest request)
-        {
-            // Jump into the central dispatch queue and do some validations first
-            return await _centralDispatchQueue.ExecuteAsync(delegate
-            {
-                // First of all, one device can only be in one room at any time:
-                var data = _remoteDeviceDataRepository.GetForDevice(remoteDevice);
-                if(data?.Room != null)
-                {
-                    // Impossible! Not allowed
-                    throw new OperationForbiddenException(
-                        $"Device {remoteDevice} already belongs to room {data.Room}; " +
-                        $"Not allowed to join another room");
-                }
-
-                // Then, get the room requested and associate it with this device
-                var room = _roomRepository.GetRoomById(request.RoomId);
-                _remoteDeviceDataRepository.SetForDevice(remoteDevice, t => t.Room = room);
-                return room;
-            });
         }
 
         static async Task<User> GetOrCreateUserProfile(IRemoteDevice remoteDevice, JoinRoomRequest request, IRoom room)

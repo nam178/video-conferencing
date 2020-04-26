@@ -1,4 +1,5 @@
-﻿using MediaServer.Models;
+﻿using MediaServer.Core.Models;
+using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -14,7 +15,8 @@ namespace MediaServer.WebSocket.Net
     /// </summary>
     sealed class WebSocketRemoteDevice : IWebSocketRemoteDevice
     {
-        static readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly RemoteDeviceData _customData = new RemoteDeviceData();
 
         public WebSocketClient WebSocketClient { get; }
 
@@ -61,6 +63,22 @@ namespace MediaServer.WebSocket.Net
                 Args = args
             }, serializerSettings);
             return message;
+        }
+
+        public RemoteDeviceData GetCustomData()
+        {
+            lock(_customData)
+            {
+                return new RemoteDeviceData(_customData);
+            }
+        }
+
+        public void SetCustomData(RemoteDeviceData customData)
+        {
+            lock(_customData)
+            {
+                RemoteDeviceData.Copy(customData, _customData);
+            }
         }
     }
 }

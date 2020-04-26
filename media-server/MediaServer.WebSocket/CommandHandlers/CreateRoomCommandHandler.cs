@@ -20,18 +20,11 @@ namespace MediaServer.WebSocket.CommandHandlers
 
         public async Task HandleAsync(IWebSocketRemoteDevice remoteDevice, CommandArgs.CreateRoom args)
         {
-            try
+            var result = await _coreHandler.HandleAsync(remoteDevice, new NewRoomRequest
             {
-                var result = await _coreHandler.HandleAsync(remoteDevice, new NewRoomRequest
-                {
-                    NewRoomName = args.NewRoomName
-                });
-                await remoteDevice.SendAsync("RoomCreated", result.ToString());
-            }
-            catch(Exception ex)
-            {
-                await remoteDevice.SendAsync("RoomCreationFailed", ex.Message);
-            }
+                NewRoomName = args.NewRoomName
+            });
+            await remoteDevice.SendAsync("RoomCreated", result.ToString());
         }
     }
 }

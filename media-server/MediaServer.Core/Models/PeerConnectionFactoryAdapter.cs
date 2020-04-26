@@ -7,14 +7,11 @@ namespace MediaServer.Core.Models
     sealed class PeerConnectionFactoryAdapter : IPeerConnectionFactory
     {
         readonly WebRtc.Managed.PeerConnectionFactory _webRtcPeerConnectionFactory;
-        readonly IRoom _room;
 
-        public PeerConnectionFactoryAdapter(IRoom room)
+        public PeerConnectionFactoryAdapter()
         {
             // actual implementation uses WebRTC
             _webRtcPeerConnectionFactory = new WebRtc.Managed.PeerConnectionFactory();
-            _room = room
-                ?? throw new ArgumentNullException(nameof(room));
         }
 
         int _initialised = 0;
@@ -27,10 +24,12 @@ namespace MediaServer.Core.Models
             }
         }
 
-        public IPeerConnection Create(IRemoteDevice remoteDevice)
+        public IPeerConnection Create(IRemoteDevice remoteDevice, IRoom room)
         {
             if(remoteDevice is null)
                 throw new ArgumentNullException(nameof(remoteDevice));
+            if(room is null)
+                throw new ArgumentNullException(nameof(room));
 
             var stunUrls = Environment.GetEnvironmentVariable("STUN_URLS");
             if(string.IsNullOrWhiteSpace(stunUrls))
@@ -38,7 +37,7 @@ namespace MediaServer.Core.Models
                 throw new ApplicationException("STUN_URLS environment variable has not been set");
             }
             return new PeerConnectionAdapter(
-                _room,
+                room,
                 remoteDevice,
                 _webRtcPeerConnectionFactory, 
                 new[] {

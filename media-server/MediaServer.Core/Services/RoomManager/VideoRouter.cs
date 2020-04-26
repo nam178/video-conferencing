@@ -1,11 +1,9 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
-using MediaServer.Core.Repositories;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.RoomManager
@@ -15,17 +13,14 @@ namespace MediaServer.Core.Services.RoomManager
     {
         readonly Room _room;
         readonly IDispatchQueue _centralDispatchQueue;
-        readonly IPeerConnectionRepository _peerConnectionRepository;
         readonly Dictionary<Guid, Dictionary<TrackQuality, PassiveVideoTrackSource>> _sources;
 
-        public VideoRouter(Room room, IDispatchQueue centralDispatchQueue, IPeerConnectionRepository peerConnectionRepository)
+        public VideoRouter(Room room, IDispatchQueue centralDispatchQueue)
         {
             _room = room
-                ?? throw new System.ArgumentNullException(nameof(room));
+                ?? throw new ArgumentNullException(nameof(room));
             _centralDispatchQueue = centralDispatchQueue 
                 ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
-            _peerConnectionRepository = peerConnectionRepository
-                ?? throw new ArgumentNullException(nameof(peerConnectionRepository));
             _sources = new Dictionary<Guid, Dictionary<TrackQuality, PassiveVideoTrackSource>>();
         }
 

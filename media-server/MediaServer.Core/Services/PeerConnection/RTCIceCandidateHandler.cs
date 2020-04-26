@@ -11,38 +11,19 @@ namespace MediaServer.Core.Services.PeerConnection
 {
     sealed class RTCIceCandidateHandler : IRemoteDeviceService<RTCIceCandidate>
     {
-        readonly IDispatchQueue _centralQueue;
-        readonly IPeerConnectionRepository _peerConnectionRepository;
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public RTCIceCandidateHandler(
-            IDispatchQueue centralQueue,
-            IPeerConnectionRepository peerConnectionRepository)
+        public Task HandleAsync(IRemoteDevice remoteDevice, RTCIceCandidate iceCandidate)
         {
-            _centralQueue = centralQueue 
-                ?? throw new System.ArgumentNullException(nameof(centralQueue));
-            _peerConnectionRepository = peerConnectionRepository 
-                ?? throw new System.ArgumentNullException(nameof(peerConnectionRepository));
-        }
-
-        public async Task HandleAsync(IRemoteDevice remoteDevice, RTCIceCandidate iceCandidate)
-        {
-            var peerConnection = await _centralQueue.ExecuteAsync(delegate
+            var peerConnection = remoteDevice.GetCustomData().PeerConnections.FirstOrDefault();
+            if(null == peerConnection)
             {
-                var peerConnections = _peerConnectionRepository.Find(remoteDevice);
-                if(!peerConnections.Any())
-                {
-                    throw new InvalidOperationException(
-                        $"Remote device has not made any PeerConnection, " +
-                        $"rejecting ICE candidate."
-                        );
-                }
-                // TODO: support multiple PeerConnections per device
-                return peerConnections.First();
-            });
-
+                throw new InvalidOperationException($"Device {remoteDevice} has no PeerConnection");
+            }
             peerConnection.AddIceCandidate(iceCandidate);
             _logger.Trace($"Ice candidate {iceCandidate} added to {peerConnection}");
+
+            return Task.CompletedTask;
         }
     }
 }

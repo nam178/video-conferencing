@@ -1,74 +1,46 @@
 ﻿using MediaServer.Common.Mediator;
-using MediaServer.Common.Threading;
-using MediaServer.Core.Repositories;
 using MediaServer.Models;
 using NLog;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.RoomManager
 {
     sealed class DeviceDisconnectionRequestHandler : IRemoteDeviceService<DeviceDisconnectionRequest>
     {
-        readonly IDispatchQueue _centralDispatchQueue;
-        readonly IRemoteDeviceDataRepository _remoteDeviceDataRepository;
-        readonly IPeerConnectionRepository _peerConnectionRepository;
         readonly IHandler<SendSyncMessageRequest> _statusUpdateSender;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public DeviceDisconnectionRequestHandler(
-            IDispatchQueue centralDispatchQueue,
-            IRemoteDeviceDataRepository remoteDeviceUserProfileMappings,
-            IPeerConnectionRepository peerConnectionRepository,
-            IHandler<SendSyncMessageRequest> statusUpdateSender)
+        public DeviceDisconnectionRequestHandler(IHandler<SendSyncMessageRequest> statusUpdateSender)
         {
-            _centralDispatchQueue = centralDispatchQueue
-                ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
-            _remoteDeviceDataRepository = remoteDeviceUserProfileMappings
-                ?? throw new ArgumentNullException(nameof(remoteDeviceUserProfileMappings));
-            _peerConnectionRepository = peerConnectionRepository 
-                ?? throw new ArgumentNullException(nameof(peerConnectionRepository));
-            _statusUpdateSender = statusUpdateSender 
+            _statusUpdateSender = statusUpdateSender
                 ?? throw new ArgumentNullException(nameof(statusUpdateSender));
         }
 
         public async Task HandleAsync(IRemoteDevice remoteDevice, DeviceDisconnectionRequest request)
         {
-            var deviceData = await _centralDispatchQueue.ExecuteAsync(delegate
+            var previousData = remoteDevice.GetCustomData();
+
+            // Remove associated PeerConnections
+            foreach(var peer in previousData.PeerConnections)
             {
-                // Remove associated PeerConnections
-                foreach(var peer in _peerConnectionRepository.Find(remoteDevice).ToList())
+                using(peer)
                 {
-                    using(peer)
-                    {
-                        _peerConnectionRepository.Remove(peer);
-                    }
-                    _logger.Debug($"PeerConnection closed due to device disconnect, device {remoteDevice}");
+                    peer.Close();
                 }
-
-                // Remove device data
-                var tmp = _remoteDeviceDataRepository.GetForDevice(remoteDevice);
-                _remoteDeviceDataRepository.DeleteForDevice(remoteDevice);
-                return tmp;
-            });
-
-            // Then jump into the room's queue and disconnect the device with the user
-            if(deviceData?.Room != null && deviceData.User != null)
-            {
-                await deviceData.Room.DispatchQueue.ExecuteAsync(delegate
-                {
-                    deviceData.User.Devices.Remove(remoteDevice);
-                    _logger.Info($"Device {remoteDevice} no longer associated with user {deviceData.User}.");
-                });
+                _logger.Debug($"PeerConnection closed due to device disconnect, device {remoteDevice}");
             }
 
+            // Clear any data associated with this device.
+            // It's officially logged out
+            remoteDevice.SetCustomData(new Models.RemoteDeviceData());
+
             // Send status update so devices can update their UIs
-            if(deviceData?.Room != null)
+            if(previousData.Room != null)
             {
                 await _statusUpdateSender.HandleAsync(new SendSyncMessageRequest
                 {
-                    Room = deviceData.Room
+                    Room = previousData.Room
                 });
             }
         }

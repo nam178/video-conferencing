@@ -82,6 +82,11 @@ namespace MediaServer.Core.Models
             }
         }
 
+        public void Close()
+        {
+            _nativePeerConnection.Close();
+        }
+
         void IceCandidateAdded(object sender, EventArgs<RTCIceCandidate> e) => _iceCandidateObserver?.Invoke(e.Payload);
 
         int _disposed;
@@ -89,8 +94,7 @@ namespace MediaServer.Core.Models
         {
             if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
             {
-                // Order matters! PeerConnection must be closed first;
-                _nativePeerConnection.Close();
+                // Order matters! note that PeerConnection must be closed first by calling Close() above.
                 _nativePeerConnection.Dispose();
                 // Observer later, cuz PeerConnection uses it
                 _nativeObserver.IceCandidateAdded -= IceCandidateAdded;

@@ -147,11 +147,7 @@ export default class WebSocketClient extends EventTarget
     _onJoinRoomFailed(errorMessage) {
         this._failFast(errorMessage);
     }
-
-    _onRoomCreationFailed(errorMessage) {
-        this._failFast(errorMessage);
-    }
-
+    
     _onSync(syncMessage) {
         var tmp = [];
         for(var i in syncMessage.users)

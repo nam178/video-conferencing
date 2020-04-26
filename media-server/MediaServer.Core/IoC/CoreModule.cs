@@ -27,11 +27,6 @@ namespace MediaServer.Core.IoC
 
             // Repositories
             builder.RegisterType<RoomRepository>().As<IRoomRepository>().SingleInstance();
-            builder.RegisterType<RemoteDeviceDataRepository>().As<IRemoteDeviceDataRepository>().SingleInstance();
-            builder
-                .RegisterType<PeerConnectionRepository>()
-                .AsImplementedInterfaces()
-                .SingleInstance();
 
             // Handlers
             builder.RegisterType<NewRoomRequestHandler>().AsImplementedInterfaces();

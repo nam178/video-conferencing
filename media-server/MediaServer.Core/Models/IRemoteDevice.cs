@@ -1,4 +1,5 @@
-﻿using MediaServer.WebRtc.Managed;
+﻿using MediaServer.Core.Models;
+using MediaServer.WebRtc.Managed;
 using System;
 using System.Threading.Tasks;
 
@@ -12,9 +13,22 @@ namespace MediaServer.Models
     public interface IRemoteDevice
     {
         /// <summary>
-        /// Unique id of this device (within the scope of this server)
+        /// Unique id of this device
         /// </summary>
         Guid Id { get; }
+
+        /// <summary>
+        /// Get a copy of custom data associated with this device
+        /// </summary>
+        /// <returns>The custom data, can be empty but never null</returns>
+        RemoteDeviceData GetCustomData();
+
+        /// <summary>
+        /// Set custom data associated with this device
+        /// </summary>
+        /// <remarks>This method is thread safe</remarks>
+        /// <param name="customData"></param>
+        void SetCustomData(RemoteDeviceData customData);
 
         /// <summary>
         /// Send an user-update message to this device

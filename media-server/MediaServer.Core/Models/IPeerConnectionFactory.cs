@@ -6,6 +6,6 @@ namespace MediaServer.Core.Models
     {
         void EnsureInitialised();
 
-        IPeerConnection Create(IRemoteDevice remoteDevice);
+        IPeerConnection Create(IRemoteDevice remoteDevice, IRoom room);
     }
 }
