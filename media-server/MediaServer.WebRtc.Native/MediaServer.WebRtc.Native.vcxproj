@@ -115,6 +115,9 @@
     <ClInclude Include="media_stream_track.h" />
     <ClInclude Include="media_stream_track_interop.h" />
     <ClInclude Include="rtp_receiver_interop.h" />
+    <ClInclude Include="thread_sync.h" />
+    <ClInclude Include="video_sink_adapter.h" />
+    <ClInclude Include="video_sink_adapter_interop.h" />
     <ClInclude Include="video_track.h" />
     <ClInclude Include="noop_audio_device_module.h" />
     <ClInclude Include="peer_connection.h" />
@@ -174,6 +177,9 @@
     </ClCompile>
     <ClCompile Include="peer_connection_factory.cpp" />
     <ClCompile Include="set_session_description_observer.cpp" />
+    <ClCompile Include="thread_sync.cpp" />
+    <ClCompile Include="video_sink_adapter.cpp" />
+    <ClCompile Include="video_sink_adapter_interop.cpp" />
     <ClCompile Include="video_track.cpp" />
   </ItemGroup>
   <ItemGroup>

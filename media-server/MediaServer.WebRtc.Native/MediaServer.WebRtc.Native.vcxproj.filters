@@ -74,6 +74,13 @@
     <ClCompile Include="audio_track.cpp">
       <Filter>wrappers\peer_connection</Filter>
     </ClCompile>
+    <ClCompile Include="video_sink_adapter.cpp">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_sync.cpp" />
+    <ClCompile Include="video_sink_adapter_interop.cpp">
+      <Filter>video</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -174,6 +181,15 @@
     </ClInclude>
     <ClInclude Include="audio_track.h">
       <Filter>wrappers\peer_connection</Filter>
+    </ClInclude>
+    <ClInclude Include="video_sink_adapter.h">
+      <Filter>video</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_sync.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="video_sink_adapter_interop.h">
+      <Filter>video</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

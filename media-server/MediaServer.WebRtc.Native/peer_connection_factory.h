@@ -24,6 +24,9 @@ class PeerConnectionFactory final
     // After initialisation, PeerConnectionInterface and threads will be accessible.
     PeerConnectionFactoryInterface *GetPeerConnectionFactory();
 
+    rtc::Thread *GetNetworkingThread();
+    rtc::Thread *GetWorkerThread();
+    rtc::Thread *GetSignallingThread();
   private:
     std::atomic<uint8_t> _initialized_state = {0};
     std::unique_ptr<rtc::Thread> _network_thread = std::make_unique<rtc::Thread>();

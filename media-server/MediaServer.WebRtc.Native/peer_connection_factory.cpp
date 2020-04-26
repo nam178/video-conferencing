@@ -69,3 +69,18 @@ PeerConnectionFactoryInterface *Wrappers::PeerConnectionFactory::GetPeerConnecti
     }
     return _peer_connection_factory.get();
 }
+
+rtc::Thread *Wrappers::PeerConnectionFactory::GetNetworkingThread()
+{
+    return _network_thread.get();
+}
+
+rtc::Thread *Wrappers::PeerConnectionFactory::GetWorkerThread()
+{
+    return _worker_thread.get();
+}
+
+rtc::Thread *Wrappers::PeerConnectionFactory::GetSignallingThread()
+{
+    return _signalling_thread.get();
+}
