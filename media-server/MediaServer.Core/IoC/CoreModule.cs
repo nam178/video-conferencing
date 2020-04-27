@@ -35,6 +35,7 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<SendSyncMessageRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<RTCIceCandidateHandler>().AsImplementedInterfaces();
             builder.RegisterType<RTCSessionDescriptionHandler>().AsImplementedInterfaces();
+            builder.RegisterType<SetTrackQualityRequestHandler>().AsImplementedInterfaces();
 
             // Factories
             builder.RegisterType<RoomFactory>().AsImplementedInterfaces();

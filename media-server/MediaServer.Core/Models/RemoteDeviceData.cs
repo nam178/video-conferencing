@@ -9,6 +9,8 @@ namespace MediaServer.Core.Models
 
         public User User { get; set; }
 
+        public Dictionary<TrackQuality, VideoSinkInfo> VideoSinks { get; } = new Dictionary<TrackQuality, VideoSinkInfo>();
+
         public RemoteDeviceData()
         {
 
@@ -23,6 +25,14 @@ namespace MediaServer.Core.Models
         {
             dest.Room = src.Room;
             dest.User = src.User;
+
+            // Copy VideoSinks
+            foreach(var kv in src.VideoSinks)
+            {
+                dest.VideoSinks[kv.Key] = kv.Value;
+            }
+
+            // Copy PeerConnections
             dest.PeerConnections.Clear();
             foreach(var t in src.PeerConnections)
             {

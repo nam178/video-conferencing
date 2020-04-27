@@ -64,10 +64,5 @@ namespace MediaServer.Core.Models
                     stunUrls
                 });
         }
-
-        public IVideoRouter CreateVideoRouter(Room room)
-        {
-            return new VideoRouter(room, _impl);
-        }
     }
 }
