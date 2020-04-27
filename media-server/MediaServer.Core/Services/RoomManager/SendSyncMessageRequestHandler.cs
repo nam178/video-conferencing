@@ -21,7 +21,7 @@ namespace MediaServer.Core.Services.RoomManager
             IEnumerable<IRemoteDevice> destinationDevices = default;
 
             // Jump into the room and get all the devices and generate an update message
-            await request.Room.DispatchQueue.ExecuteAsync(delegate
+            await request.Room.SignallingThread.ExecuteAsync(delegate
             {
                 syncMessage = new SyncMessage();
                 syncMessage.Users = request.Room.UserProfiles.Select(u => new SyncMessage.UserInfo

@@ -1,4 +1,7 @@
-﻿using MediaServer.Models;
+﻿using MediaServer.Common.Threading;
+using MediaServer.Core.Services.RoomManager;
+using MediaServer.Models;
+using MediaServer.WebRtc.Managed;
 using System;
 using System.Threading;
 
@@ -6,21 +9,38 @@ namespace MediaServer.Core.Models
 {
     sealed class PeerConnectionFactoryAdapter : IPeerConnectionFactory
     {
-        readonly WebRtc.Managed.PeerConnectionFactory _webRtcPeerConnectionFactory;
+        readonly WebRtc.Managed.PeerConnectionFactory _impl;
+
+        IDispatchQueue _signallingThread;
+        public IDispatchQueue SignallingThread
+        {
+            get
+            {
+                if(Interlocked.CompareExchange(ref _initialised, 0, 0) == 0)
+                {
+                    throw new InvalidOperationException("Not initialised");
+                }
+                return _signallingThread;
+            }
+        }
 
         public PeerConnectionFactoryAdapter()
         {
-            // actual implementation uses WebRTC
-            _webRtcPeerConnectionFactory = new WebRtc.Managed.PeerConnectionFactory();
+            _impl = new WebRtc.Managed.PeerConnectionFactory();
         }
 
         int _initialised = 0;
 
-        public void EnsureInitialised()
+        public void Initialize()
         {
             if(Interlocked.CompareExchange(ref _initialised, 1, 0) == 0)
             {
-                _webRtcPeerConnectionFactory.Initialize();
+                _impl.Initialize();
+                _signallingThread = new RtcThread2DispatchQueueAdapter(_impl.SignallingThread);
+            }
+            else
+            {
+                throw new InvalidOperationException("Already initialised");
             }
         }
 
@@ -39,10 +59,15 @@ namespace MediaServer.Core.Models
             return new PeerConnectionAdapter(
                 room,
                 remoteDevice,
-                _webRtcPeerConnectionFactory, 
+                _impl, 
                 new[] {
                     stunUrls
                 });
+        }
+
+        public IVideoRouter CreateVideoRouter(Room room)
+        {
+            return new VideoRouter(room, _impl);
         }
     }
 }

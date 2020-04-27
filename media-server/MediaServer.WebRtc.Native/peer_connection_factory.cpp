@@ -21,7 +21,6 @@ std::unique_ptr<rtc::Thread> CreateThread(const std::string &name,
 
 Wrappers::PeerConnectionFactory::PeerConnectionFactory()
 {
-    _signalling_thread_wrapper.reset(new Wrappers::RtcThread(_signalling_thread.get()));
 }
 
 void Wrappers::PeerConnectionFactory::Initialize()
@@ -38,6 +37,7 @@ void Wrappers::PeerConnectionFactory::Initialize()
         std::move(CreateThread("WebRTC networking thread", &rtc::Thread::CreateWithSocketServer));
     _worker_thread = std::move(CreateThread("WebRTC worker thread", &rtc::Thread::Create));
     _signalling_thread = std::move(CreateThread("WebRTC signaling thread", &rtc::Thread::Create));
+    _signalling_thread_wrapper.reset(new Wrappers::RtcThread(_signalling_thread.get()));
 
     // Set log level here
     rtc::LogMessage::LogToDebug(rtc::LS_ERROR);
@@ -95,5 +95,10 @@ rtc::Thread *Wrappers::PeerConnectionFactory::GetSignallingThread() const
 
 Wrappers::RtcThread *Wrappers::PeerConnectionFactory::GetSignallingThreadWrapper() const
 {
+    if(!_signalling_thread_wrapper)
+    {
+        RTC_LOG(LS_ERROR) << "Not Initialised";
+        throw new std::runtime_error("Not initialised");
+    }
     return _signalling_thread_wrapper.get();
 }

@@ -107,7 +107,7 @@ PeerConnectionFactoryCreateVideoTrack(PeerConnectionFactoryPtr peer_connection_f
         factory->CreateVideoTrack(track_name, passive_video_track_source));
 }
 
-Wrappers::RtcThread *PeerConnectionGetSignallingThread(
+Wrappers::RtcThread *PeerConnectionFactoryGetSignallingThread(
     PeerConnectionFactoryPtr peer_connection_factory_ptr)
 {
     return StaticCastOrThrow<Wrappers::PeerConnectionFactory>(peer_connection_factory_ptr)

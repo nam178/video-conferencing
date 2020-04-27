@@ -39,5 +39,8 @@ namespace MediaServer.WebRtc.Managed
             PassiveVideoTrackSourceSafeHandle passiveVideoTrackSourceSafeHandle,
             string trackname
             );
+
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryGetSignallingThread")]
+        public static extern IntPtr GetSignallingThread(PeerConnectionFactorySafeHandle peerConnectionFactory);
     }
 }

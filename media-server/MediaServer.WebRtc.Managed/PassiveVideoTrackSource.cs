@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace MediaServer.WebRtc.Managed
 {
@@ -14,10 +13,7 @@ namespace MediaServer.WebRtc.Managed
 
         public void PushVideoFrame(IntPtr videoFrame) => PassiveVideoTrackSourceInterop.PushVideoFrame(Handle, videoFrame);
 
-        public void Dispose()
-        {
-            Handle.Dispose();
-        }
+        public void Dispose() => Handle.Dispose();
     }
 }
 

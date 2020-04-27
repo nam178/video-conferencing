@@ -32,26 +32,33 @@ namespace MediaServer.Core.Services.ServerManager
         {
             // Currently anyone can create rooms,
             // TODO: add some security here
+            var isNewRoomCreated = false;
             var roomId = RoomId.FromString(request.NewRoomName);
             var room = await _centralDispatchQueue.ExecuteAsync(() =>
                 {
                     var existingRoom = _roomRepository.GetRoomById(roomId);
                     if(existingRoom != null)
                     {
+                        if(existingRoom.State != RoomState.Ok)
+                            throw new InvalidProgramException(
+                                "Clients should not be able to join rooms while they are being initialised"
+                                );
                         return existingRoom;
                     }
+
                     var newRoom = _roomFactory.Create(roomId);
                     _roomRepository.AddRoom(newRoom);
                     _logger.Info($"New room created: {newRoom}");
+                    isNewRoomCreated = true;
                     return newRoom;
                 });
 
-            // Initialise room, 
-            // done in the room's queue to avoid blocking the main queue.
-            await room.DispatchQueue.ExecuteAsync(delegate
+
+            // The device that creates the room is responsible for initializing the room.
+            if(isNewRoomCreated)
             {
-                room.PeerConnectionFactory.EnsureInitialised();
-            });
+                room.Initialize();
+            }
 
             return roomId;
         }

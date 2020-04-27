@@ -67,7 +67,7 @@ namespace MediaServer.Core.Services.RoomManager
         {
             // Then dispatch to the room's thread and 
             // create an user profile if not exist
-            return await room.DispatchQueue.ExecuteAsync(delegate
+            return await room.SignallingThread.ExecuteAsync(delegate
             {
                 var user = room.UserProfiles.GetUserByName(request.Username);
                 if(user == null)

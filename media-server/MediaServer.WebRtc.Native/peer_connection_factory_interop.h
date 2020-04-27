@@ -41,6 +41,6 @@ extern "C"
                                           PassiveVideoTrackSourcePtr passive_video_track_souce_ptr,
                                           const char *track_name);
 
-    EXPORT Wrappers::RtcThread *PeerConnectionGetSignallingThread(
+    EXPORT Wrappers::RtcThread *PeerConnectionFactoryGetSignallingThread(
         PeerConnectionFactoryPtr peer_connection_factory_ptr);
 }

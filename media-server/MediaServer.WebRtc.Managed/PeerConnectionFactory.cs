@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 
 namespace MediaServer.WebRtc.Managed
 {
     public sealed class PeerConnectionFactory : IDisposable
     {
+        int _initialisationState = 0;
+
         internal PeerConnectionFactorySafeHandle Handle { get; }
+
+        public RtcThread SignallingThread { get; private set; }
 
         public PeerConnectionFactory()
         {
@@ -33,6 +38,16 @@ namespace MediaServer.WebRtc.Managed
                 ));
         }
 
+        public void Initialize()
+        {
+            if(Interlocked.CompareExchange(ref _initialisationState, 1, 0) >= 1)
+            {
+                throw new InvalidOperationException();
+            }
+            PeerConnectionFactoryInterop.Initialize(Handle);
+            SignallingThread = new RtcThread(PeerConnectionFactoryInterop.GetSignallingThread(Handle));
+        }
+
         /// <summary>
         /// Create a video track that gets frame from provided source
         /// </summary>
@@ -41,7 +56,10 @@ namespace MediaServer.WebRtc.Managed
         /// <returns></returns>
         /// <remarks>This can be called on any thread</remarks>
         public VideoTrack CreateVideoTrack(string videoTrackName, PassiveVideoTrackSource source)
-            => new VideoTrack(PeerConnectionFactoryInterop.CreateVideoTrack(Handle, source.Handle, videoTrackName));
+        {
+            RequireInitialised();
+            return new VideoTrack(PeerConnectionFactoryInterop.CreateVideoTrack(Handle, source.Handle, videoTrackName));
+        }
 
         /// <summary>
         /// Create a VideoSink that push frames into the provided source
@@ -50,12 +68,27 @@ namespace MediaServer.WebRtc.Managed
         /// <returns></returns>
         /// <remarks>This can be called on any thread, but part of it executes on worker thread (when adding sink -> source)</remarks>
         public VideoSinkAdapter CreateVideoSinkAdapter(PassiveVideoTrackSource target)
-            => new VideoSinkAdapter(this, target);
+        {
+            RequireInitialised();
+            return new VideoSinkAdapter(this, target);
+        }
 
-        public void Initialize() => PeerConnectionFactoryInterop.Initialize(Handle);
-
-        public void TearDown() => PeerConnectionFactoryInterop.TearDown(Handle);
+        public void TearDown()
+        {
+            if(Interlocked.CompareExchange(ref _initialisationState, 2, 1) == 1)
+            {
+                PeerConnectionFactoryInterop.TearDown(Handle);
+            }
+        }
 
         public void Dispose() => Handle.Dispose();
+
+        void RequireInitialised()
+        {
+            if(Interlocked.CompareExchange(ref _initialisationState, 0, 0) != 1)
+            {
+                throw new InvalidOperationException();
+            }
+        }
     }
 }
