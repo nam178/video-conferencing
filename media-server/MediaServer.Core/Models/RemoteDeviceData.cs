@@ -1,4 +1,5 @@
 ﻿using MediaServer.Models;
+using MediaServer.WebRtc.Managed;
 using System.Collections.Generic;
 
 namespace MediaServer.Core.Models

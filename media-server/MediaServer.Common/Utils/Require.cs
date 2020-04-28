@@ -4,6 +4,14 @@ namespace MediaServer.Common.Utils
 {
     public static class Require
     {
+        public static void NotNullOrWhiteSpace(string value)
+        {
+            if(string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException();
+            }
+        }
+
         public static void NotNull<T>(T value)
             where T : class
         {

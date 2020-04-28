@@ -1,4 +1,4 @@
-﻿using MediaServer.Core.Models;
+﻿using MediaServer.WebRtc.Managed;
 
 namespace MediaServer.Core.Services.PeerConnection
 {

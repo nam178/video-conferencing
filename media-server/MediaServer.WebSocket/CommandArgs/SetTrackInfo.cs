@@ -1,4 +1,4 @@
-﻿using MediaServer.Core.Models;
+﻿using MediaServer.WebRtc.Managed;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 

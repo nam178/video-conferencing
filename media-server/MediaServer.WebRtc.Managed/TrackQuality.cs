@@ -1,4 +1,4 @@
-﻿namespace MediaServer.Core.Models
+﻿namespace MediaServer.WebRtc.Managed
 {
     public enum TrackQuality
     {
