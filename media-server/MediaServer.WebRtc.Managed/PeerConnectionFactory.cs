@@ -61,18 +61,6 @@ namespace MediaServer.WebRtc.Managed
             return new VideoTrack(PeerConnectionFactoryInterop.CreateVideoTrack(Handle, source.Handle, videoTrackName));
         }
 
-        /// <summary>
-        /// Create a VideoSink that push frames into the provided source
-        /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        /// <remarks>This can be called on any thread, but part of it executes on worker thread (when adding sink -> source)</remarks>
-        public VideoSinkAdapter CreateVideoSinkAdapter(PassiveVideoTrackSource target)
-        {
-            RequireInitialised();
-            return new VideoSinkAdapter(this, target);
-        }
-
         public void TearDown()
         {
             if(Interlocked.CompareExchange(ref _initialisationState, 2, 1) == 1)
