@@ -122,21 +122,6 @@ namespace MediaServer.WebRtc.Managed
         }
 
         /// <summary>
-        /// Notify this router that a device left the current routing.
-        /// This is before any data is removed/destroyed, and before any PeerConnection is closed.
-        /// </summary>
-        /// <param name="device"></param>
-        /// <remarks>Should be called from the device messaging thread</remarks>
-        /// <returns></returns>
-        public Task RemoveDevice()
-        {
-            return _signallingThread.ExecuteAsync(delegate
-            {
-                // TODO
-            });
-        }
-
-        /// <summary>
         /// Notify this router that a track will be added into it with specified quality.
         /// </summary>
         /// <param name="deviceId">The device in which the track will be added</param>
@@ -182,18 +167,12 @@ namespace MediaServer.WebRtc.Managed
             // What's the quality of this track?
             var quality = _videoSourceCollection.FindQuality(devieId, rtpReceiver.Track.Id);
             if(null == quality)
-            {
-                _logger.Error($"Track quality for track {rtpReceiver.Track.Id} has not been set");
-                return;
-            }
+                throw new InvalidProgramException($"Track quality for track {rtpReceiver.Track.Id} has not been set");
 
             // Connect this track to the quality source
             var source = _videoSourceCollection.Get(devieId, quality.Value);
-            if(null == source || null == source.VideoSinkAdapter || null == source.VideoTrackSource)
-            {
-                _logger.Error($"Source for track TrackId={rtpReceiver.Track.Id} has not been prepared");
-                return;
-            }
+            ThrowForUnpreparedSource(rtpReceiver, source);
+
             // If there is connected track, kindly remove it first
             if(source.ConnectedTrack != null)
                 ((VideoTrack)rtpReceiver.Track).RemoveSink(source.VideoSinkAdapter);
@@ -212,7 +191,35 @@ namespace MediaServer.WebRtc.Managed
             ValidateTrack(rtpReceiver);
 
             var source = _videoSourceCollection.FindTrack((VideoTrack)rtpReceiver.Track);
+            ThrowForUnpreparedSource(rtpReceiver, source);
 
+            ((VideoTrack)rtpReceiver.Track).RemoveSink(source.VideoSinkAdapter);
+            source.ConnectedTrack = null;
+        }
+
+        /// <summary>
+        /// Notify this router that a device left the current routing.
+        /// This is before any data is removed/destroyed, and before any PeerConnection is closed.
+        /// </summary>
+        /// <param name="device"></param>
+        /// <remarks>Should be called from the device messaging thread</remarks>
+        /// <returns></returns>
+        public Task RemoveDevice()
+        {
+            return _signallingThread.ExecuteAsync(delegate
+            {
+                // TODO
+            });
+        }
+
+        static void ThrowForUnpreparedSource(RtpReceiver rtpReceiver, VideoSource source)
+        {
+            if(null == source || null == source.VideoSinkAdapter || null == source.VideoTrackSource)
+            {
+                throw new InvalidProgramException(
+                    $"Source for track TrackId={rtpReceiver.Track.Id} has not been prepared"
+                    );
+            }
         }
 
         static void ValidateTrack(RtpReceiver rtpReceiver)
