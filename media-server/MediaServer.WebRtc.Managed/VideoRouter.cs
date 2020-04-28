@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.WebRtc.Managed
 {
-    class VideoSource
+    sealed class VideoSource
     {
         public string ExpectedTrackId { get; set; }
 
@@ -19,13 +19,18 @@ namespace MediaServer.WebRtc.Managed
         public VideoSinkAdapter VideoSinkAdapter { get; set; }
     }
 
-    class VideoClientCollection
+    sealed class VideoClient
     {
-        readonly Dictionary<Guid, Dictionary<TrackQuality, VideoSource>> _indexByVideoClientId;
+        public Dictionary<TrackQuality, VideoSource> VideoSources { get; } = new Dictionary<TrackQuality, VideoSource>();
+    }
+
+    sealed class VideoClientCollection
+    {
+        readonly Dictionary<Guid, VideoClient> _indexByVideoClientId;
 
         public VideoClientCollection()
         {
-            _indexByVideoClientId = new Dictionary<Guid, Dictionary<TrackQuality, VideoSource>>();
+            _indexByVideoClientId = new Dictionary<Guid, VideoClient>();
         }
 
         public void AddVideoClient(Guid videoClientId)
@@ -34,26 +39,26 @@ namespace MediaServer.WebRtc.Managed
             {
                 throw new InvalidOperationException($"VideoClient with id {videoClientId} already added.");
             }
-            _indexByVideoClientId[videoClientId] = new Dictionary<TrackQuality, VideoSource>();
+            _indexByVideoClientId[videoClientId] = new VideoClient();
         }
 
-        public VideoSource Create(Guid videoClientId, TrackQuality trackQuality)
+        public VideoSource CreateVideoSource(Guid videoClientId, TrackQuality trackQuality)
         {
             RequireEntry(videoClientId);
-            if(_indexByVideoClientId[videoClientId].ContainsKey(trackQuality))
+            if(_indexByVideoClientId[videoClientId].VideoSources.ContainsKey(trackQuality))
             {
                 throw new InvalidOperationException();
             }
             var t = new VideoSource();
-            _indexByVideoClientId[videoClientId][trackQuality] = t;
+            _indexByVideoClientId[videoClientId].VideoSources[trackQuality] = t;
             return t;
         }
 
         public VideoSource Get(Guid videoClientId, TrackQuality trackQuality)
         {
             RequireEntry(videoClientId);
-            return _indexByVideoClientId[videoClientId].ContainsKey(trackQuality)
-                ? _indexByVideoClientId[videoClientId][trackQuality]
+            return _indexByVideoClientId[videoClientId].VideoSources.ContainsKey(trackQuality)
+                ? _indexByVideoClientId[videoClientId].VideoSources[trackQuality]
                 : null;
         }
 
@@ -68,7 +73,7 @@ namespace MediaServer.WebRtc.Managed
             Require.NotNullOrWhiteSpace(trackId);
             RequireEntry(devieId);
 
-            foreach(var kv in _indexByVideoClientId[devieId])
+            foreach(var kv in _indexByVideoClientId[devieId].VideoSources)
             {
                 if(string.Equals(kv.Value.ExpectedTrackId, trackId, StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -81,7 +86,7 @@ namespace MediaServer.WebRtc.Managed
         public VideoSource FindTrack(VideoTrack track)
         {
             return _indexByVideoClientId
-                .SelectMany(kv => kv.Value)
+                .SelectMany(kv => kv.Value.VideoSources)
                 .Where(kv => kv.Value.ConnectedTrack.Track == track)
                 .Select(kv => kv.Value)
                 .FirstOrDefault();
@@ -140,7 +145,7 @@ namespace MediaServer.WebRtc.Managed
                 var videoClient = _videoClients.Get(videoClientId, trackQuality);
                 if(null == videoClient)
                 {
-                    videoClient = _videoClients.Create(videoClientId, trackQuality);
+                    videoClient = _videoClients.CreateVideoSource(videoClientId, trackQuality);
                 }
                 videoClient.VideoTrackSource = videoClient.VideoTrackSource 
                     ?? new PassiveVideoTrackSource();
