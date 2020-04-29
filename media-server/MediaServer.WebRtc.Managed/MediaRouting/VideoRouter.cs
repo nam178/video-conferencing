@@ -6,106 +6,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.WebRtc.Managed
+namespace MediaServer.WebRtc.Managed.MediaRouting
 {
-    sealed class VideoSource
-    {
-        public string ExpectedTrackId { get; set; }
-
-        public RtpReceiver ConnectedTrack { get; set; }
-
-        public PassiveVideoTrackSource VideoTrackSource { get; set; }
-
-        public VideoSinkAdapter VideoSinkAdapter { get; set; }
-    }
-
-    sealed class VideoClient
-    {
-        public Dictionary<TrackQuality, VideoSource> VideoSources { get; } = new Dictionary<TrackQuality, VideoSource>();
-    }
-
-    sealed class VideoClientCollection
-    {
-        readonly Dictionary<Guid, VideoClient> _indexByVideoClientId;
-
-        public VideoClientCollection()
-        {
-            _indexByVideoClientId = new Dictionary<Guid, VideoClient>();
-        }
-
-        public void AddVideoClient(Guid videoClientId)
-        {
-            if(_indexByVideoClientId.ContainsKey(videoClientId))
-            {
-                throw new InvalidOperationException($"VideoClient with id {videoClientId} already added.");
-            }
-            _indexByVideoClientId[videoClientId] = new VideoClient();
-        }
-
-        public VideoSource CreateVideoSource(Guid videoClientId, TrackQuality trackQuality)
-        {
-            RequireEntry(videoClientId);
-            if(_indexByVideoClientId[videoClientId].VideoSources.ContainsKey(trackQuality))
-            {
-                throw new InvalidOperationException();
-            }
-            var t = new VideoSource();
-            _indexByVideoClientId[videoClientId].VideoSources[trackQuality] = t;
-            return t;
-        }
-
-        public VideoSource Get(Guid videoClientId, TrackQuality trackQuality)
-        {
-            RequireEntry(videoClientId);
-            return _indexByVideoClientId[videoClientId].VideoSources.ContainsKey(trackQuality)
-                ? _indexByVideoClientId[videoClientId].VideoSources[trackQuality]
-                : null;
-        }
-
-        void RequireEntry(Guid videoClientId)
-        {
-            if(!_indexByVideoClientId.ContainsKey(videoClientId))
-                throw new InvalidOperationException($"VideoClient {videoClientId} has not been added.");
-        }
-
-        public TrackQuality? FindQuality(Guid devieId, string trackId)
-        {
-            Require.NotNullOrWhiteSpace(trackId);
-            RequireEntry(devieId);
-
-            foreach(var kv in _indexByVideoClientId[devieId].VideoSources)
-            {
-                if(string.Equals(kv.Value.ExpectedTrackId, trackId, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return kv.Key;
-                }
-            }
-            return null;
-        }
-
-        public VideoSource FindTrack(VideoTrack track)
-        {
-            return _indexByVideoClientId
-                .SelectMany(kv => kv.Value.VideoSources)
-                .Where(kv => kv.Value.ConnectedTrack.Track == track)
-                .Select(kv => kv.Value)
-                .FirstOrDefault();
-        }
-    }
-
     sealed class VideoRouter
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly IDispatchQueue _signallingThread;
         readonly PeerConnectionFactory _peerConnectionFactory;
         readonly VideoClientCollection _videoClients = new VideoClientCollection();
-        readonly static IReadOnlyList<TrackQuality> _quality = new TrackQuality[] { TrackQuality.High, TrackQuality.Mid, TrackQuality.Low };
 
         public VideoRouter(IDispatchQueue signallingThread, PeerConnectionFactory peerConnectionFactory)
         {
             _signallingThread = signallingThread
                 ?? throw new ArgumentNullException(nameof(signallingThread));
-            _peerConnectionFactory = peerConnectionFactory 
+            _peerConnectionFactory = peerConnectionFactory
                 ?? throw new ArgumentNullException(nameof(peerConnectionFactory));
         }
 
@@ -142,14 +56,14 @@ namespace MediaServer.WebRtc.Managed
             return _signallingThread.ExecuteAsync(delegate
             {
                 // Prepare the source for this quality, if it was not created
-                var videoClient = _videoClients.Get(videoClientId, trackQuality);
+                var videoClient = _videoClients.FindVideoSource(videoClientId, trackQuality);
                 if(null == videoClient)
                 {
                     videoClient = _videoClients.CreateVideoSource(videoClientId, trackQuality);
                 }
-                videoClient.VideoTrackSource = videoClient.VideoTrackSource 
+                videoClient.VideoTrackSource = videoClient.VideoTrackSource
                     ?? new PassiveVideoTrackSource();
-                videoClient.VideoSinkAdapter = videoClient.VideoSinkAdapter 
+                videoClient.VideoSinkAdapter = videoClient.VideoSinkAdapter
                     ?? new VideoSinkAdapter(_peerConnectionFactory, videoClient.VideoTrackSource, false);
 
                 // Flag this source to say it should be 
@@ -170,13 +84,14 @@ namespace MediaServer.WebRtc.Managed
         {
             _signallingThread.ExecuteAsync(delegate
             {
-                // TODO
+                var videoClient = _videoClients.Get(videoClientId);
+                videoClient.PeerConnections.Add(new PeerConnectionEntry(peerConnection, peerConnectionObserver));
 
                 peerConnectionObserver.RemoteTrackAdded += PeerConnectionObserver_RemoteTrackAdded;
                 peerConnectionObserver.RemoteTrackRemoved += PeerConnectionObserver_RemoteTrackRemoved;
             });
         }
-        
+
         /// <summary>
         /// Notify this router that a PeerConnection will be removed/closed.
         /// Must be called right before the PeerConnection is closed.
@@ -188,63 +103,78 @@ namespace MediaServer.WebRtc.Managed
         {
             _signallingThread.ExecuteAsync(delegate
             {
-                // TODO
-
                 peerConnectionObserver.RemoteTrackAdded -= PeerConnectionObserver_RemoteTrackAdded;
                 peerConnectionObserver.RemoteTrackRemoved -= PeerConnectionObserver_RemoteTrackRemoved;
+
+                var videoClient = _videoClients.Get(videoClientId);
+                var removed = videoClient.PeerConnections.RemoveAll(entry => entry.PeerConnection == peerConnection);
+                if(removed == 0)
+                    throw new InvalidProgramException("PeerConnection did not removed from memory");
             });
-        }
-
-
-        void PeerConnectionObserver_RemoteTrackRemoved(object sender, EventArgs<RtpReceiver> e)
-        {
-            throw new NotImplementedException();
         }
 
         void PeerConnectionObserver_RemoteTrackAdded(object sender, EventArgs<RtpReceiver> e)
         {
-            throw new NotImplementedException();
+            var observer = (PeerConnectionObserver)sender;
+            var videoClient = _videoClients.FindByObserver(observer, out var peerConnection);
+            if(null == videoClient)
+                throw new InvalidProgramException($"VideoClient not found for observer with track={e.Payload}");
+
+            AddTrack(videoClient, peerConnection, e.Payload);
         }
+
+        void PeerConnectionObserver_RemoteTrackRemoved(object sender, EventArgs<RtpReceiver> e)
+        {
+            var observer = (PeerConnectionObserver)sender;
+            var videoClient = _videoClients.FindByObserver(observer, out var peerConnection);
+            if(null == videoClient)
+                throw new InvalidProgramException($"VideoClient not found for observer with track={e.Payload}");
+
+            RemoveTrack(videoClient, peerConnection, e.Payload);
+        }
+
 
         /// <summary>
         /// Notify this router that a remote track has been added
         /// </summary>
-        /// <param name="videoClientId"></param>
         /// <remarks>Must be called from signalling thread, right after the track is added.</remarks>
         /// <returns></returns>
-        public void AddTrack(Guid videoClientId, PeerConnection peerConnection, RtpReceiver rtpReceiver)
+        internal void AddTrack(VideoClient videoClient, PeerConnection peerConnection, RtpReceiver rtpReceiver)
         {
-            ValidateTrack(rtpReceiver);
+            ThrowWhenInvalidVideoTrack(rtpReceiver);
 
-            // What's the quality of this track?
-            var quality = _videoClients.FindQuality(videoClientId, rtpReceiver.Track.Id);
-            if(null == quality)
+            // What's the video source that this track should be connected to?
+            var videoSource = videoClient.VideoSources
+                .FirstOrDefault(kv => string.Equals(kv.Value.ExpectedTrackId, rtpReceiver.Track.Id, StringComparison.InvariantCultureIgnoreCase))
+                .Value;
+            if(null == videoSource)
                 throw new InvalidProgramException($"Track quality for track {rtpReceiver.Track.Id} has not been set");
 
-            // Connect this track to the quality source
-            var source = _videoClients.Get(videoClientId, quality.Value);
-            ThrowForUnpreparedSource(rtpReceiver, source);
+            ThrowWhenSourceIsEmpty(videoSource, rtpReceiver);
 
+            // Connect this track to the desired source:
             // If there is connected track, kindly remove it first
-            if(source.ConnectedTrack != null)
-                ((VideoTrack)rtpReceiver.Track).RemoveSink(source.VideoSinkAdapter);
+            if(videoSource.ConnectedTrack != null)
+                ((VideoTrack)rtpReceiver.Track).RemoveSink(videoSource.VideoSinkAdapter);
+
             // Then connect the new one
-            ((VideoTrack)rtpReceiver.Track).AddSink(source.VideoSinkAdapter);
+            ((VideoTrack)rtpReceiver.Track).AddSink(videoSource.VideoSinkAdapter);
         }
 
         /// <summary>
         /// Notify this router that a remote track has been removed 
         /// </summary>
-        /// <param name="videoClientId"></param>
         /// <remarks>Must be called from signalling thread, right before the track is removed</remarks>
         /// <returns></returns>
-        public void RemoveTrack(Guid videoClientId, PeerConnection peerConnection, RtpReceiver rtpReceiver)
+        internal void RemoveTrack(VideoClient videoClient, PeerConnection peerConnection, RtpReceiver rtpReceiver)
         {
-            ValidateTrack(rtpReceiver);
+            ThrowWhenInvalidVideoTrack(rtpReceiver);
 
-            var source = _videoClients.FindTrack((VideoTrack)rtpReceiver.Track);
-            ThrowForUnpreparedSource(rtpReceiver, source);
+            // Find the source that connected to this track
+            var source = videoClient.VideoSources.FirstOrDefault(kv => kv.Value.ConnectedTrack == rtpReceiver).Value;
+            ThrowWhenSourceIsEmpty(source, rtpReceiver);
 
+            // And remove this track from it
             ((VideoTrack)rtpReceiver.Track).RemoveSink(source.VideoSinkAdapter);
             source.ConnectedTrack = null;
         }
@@ -265,7 +195,7 @@ namespace MediaServer.WebRtc.Managed
             });
         }
 
-        static void ThrowForUnpreparedSource(RtpReceiver rtpReceiver, VideoSource source)
+        static void ThrowWhenSourceIsEmpty(VideoSource source, RtpReceiver rtpReceiver)
         {
             if(null == source || null == source.VideoSinkAdapter || null == source.VideoTrackSource)
             {
@@ -275,7 +205,7 @@ namespace MediaServer.WebRtc.Managed
             }
         }
 
-        static void ValidateTrack(RtpReceiver rtpReceiver)
+        static void ThrowWhenInvalidVideoTrack(RtpReceiver rtpReceiver)
         {
             // Do not away this, as signalling thread not permitted to wait on room's thread.
             // Connect this track with one of the source
