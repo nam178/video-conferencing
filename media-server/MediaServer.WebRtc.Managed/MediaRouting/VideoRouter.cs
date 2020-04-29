@@ -2,7 +2,6 @@
 using MediaServer.Common.Utils;
 using NLog;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,6 +13,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
         readonly IDispatchQueue _signallingThread;
         readonly PeerConnectionFactory _peerConnectionFactory;
         readonly VideoClientCollection _videoClients = new VideoClientCollection();
+        readonly VideoRouterEventHandler _eventHandler;
 
         public VideoRouter(IDispatchQueue signallingThread, PeerConnectionFactory peerConnectionFactory)
         {
@@ -21,6 +21,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 ?? throw new ArgumentNullException(nameof(signallingThread));
             _peerConnectionFactory = peerConnectionFactory
                 ?? throw new ArgumentNullException(nameof(peerConnectionFactory));
+            _eventHandler = new VideoRouterEventHandler(this, _videoClients); 
         }
 
         /// <summary>
@@ -87,8 +88,13 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 var videoClient = _videoClients.Get(videoClientId);
                 videoClient.PeerConnections.Add(new PeerConnectionEntry(peerConnection, peerConnectionObserver));
 
-                peerConnectionObserver.RemoteTrackAdded += PeerConnectionObserver_RemoteTrackAdded;
-                peerConnectionObserver.RemoteTrackRemoved += PeerConnectionObserver_RemoteTrackRemoved;
+                peerConnectionObserver.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
+                peerConnectionObserver.RemoteTrackRemoved += _eventHandler.RemoteTrackRemoved;
+
+                // TODO:
+                // For each of other people's video source,
+                // Create one track on this peer;
+                
             });
         }
 
@@ -103,8 +109,8 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
         {
             _signallingThread.ExecuteAsync(delegate
             {
-                peerConnectionObserver.RemoteTrackAdded -= PeerConnectionObserver_RemoteTrackAdded;
-                peerConnectionObserver.RemoteTrackRemoved -= PeerConnectionObserver_RemoteTrackRemoved;
+                peerConnectionObserver.RemoteTrackAdded -= _eventHandler.RemoteTrackAdded;
+                peerConnectionObserver.RemoteTrackRemoved -= _eventHandler.RemoteTrackRemoved;
 
                 var videoClient = _videoClients.Get(videoClientId);
                 var removed = videoClient.PeerConnections.RemoveAll(entry => entry.PeerConnection == peerConnection);
@@ -112,27 +118,6 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                     throw new InvalidProgramException("PeerConnection did not removed from memory");
             });
         }
-
-        void PeerConnectionObserver_RemoteTrackAdded(object sender, EventArgs<RtpReceiver> e)
-        {
-            var observer = (PeerConnectionObserver)sender;
-            var videoClient = _videoClients.FindByObserver(observer, out var peerConnection);
-            if(null == videoClient)
-                throw new InvalidProgramException($"VideoClient not found for observer with track={e.Payload}");
-
-            AddTrack(videoClient, peerConnection, e.Payload);
-        }
-
-        void PeerConnectionObserver_RemoteTrackRemoved(object sender, EventArgs<RtpReceiver> e)
-        {
-            var observer = (PeerConnectionObserver)sender;
-            var videoClient = _videoClients.FindByObserver(observer, out var peerConnection);
-            if(null == videoClient)
-                throw new InvalidProgramException($"VideoClient not found for observer with track={e.Payload}");
-
-            RemoveTrack(videoClient, peerConnection, e.Payload);
-        }
-
 
         /// <summary>
         /// Notify this router that a remote track has been added
