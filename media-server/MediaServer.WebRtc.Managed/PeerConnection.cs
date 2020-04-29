@@ -1,7 +1,8 @@
 ﻿using MediaServer.Common.Utils;
 using MediaServer.WebRtc.Managed.Errors;
 using System;
-using System.Globalization;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@ namespace MediaServer.WebRtc.Managed
     public class PeerConnection : IDisposable
     {
         readonly PeerConnectionSafeHandle _handle;
+        readonly List<(RtpSender RtpSender, MediaStreamTrack Track)> _localTracks = new List<(RtpSender RtpSender, MediaStreamTrack Track)>();
 
         public PeerConnectionObserver Observer { get; }
 
@@ -108,12 +110,24 @@ namespace MediaServer.WebRtc.Managed
         /// </summary>
         /// <param name="track"></param>
         /// <param name="streamId">Id of the stream, doesn't have to exist</param>
+        /// <exception cref="AddTrackFailedException"></exception>
         /// <remarks>Can be called from anythread, the libWebRTC will proxy to the correct thread</remarks>
-        public void AddTrack(MediaStreamTrack track, Guid streamId)
+        /// <returns>RtpSender, this PeerConnection takes ownership</returns>
+        public RtpSender AddTrack(MediaStreamTrack track, Guid streamId)
         {
             Require.NotNull(track);
             Require.NotEmpty(streamId);
-            PeerConnectionInterop.AddTrack(_handle, track.Handle, streamId.ToString());
+            var rtpSenderPtr = PeerConnectionInterop.AddTrack(_handle, track.Handle, streamId.ToString());
+            if(rtpSenderPtr == IntPtr.Zero)
+            {
+                throw new AddTrackFailedException();
+            }
+            var rtpSender = new RtpSender(rtpSenderPtr);
+            lock(_localTracks)
+            {
+                _localTracks.Add((rtpSender, track));
+            }
+            return rtpSender;
         }
 
         /// <summary>
@@ -121,8 +135,24 @@ namespace MediaServer.WebRtc.Managed
         /// note that pending async operations such as the CreateAnswer() 
         /// method may still continue execute after the PeerConnection is closed.
         /// </summary>
-        public void Close() => PeerConnectionInterop.Close(_handle);
+        public void Close()
+        {
+            lock(_localTracks)
+            {
+                if(_localTracks.Count > 0)
+                {
+                    throw new InvalidOperationException(
+                        "All local tracks must be removed before closing PeerConnection");
+                }
+            }
+            
+            PeerConnectionInterop.Close(_handle);
+        }
 
-        public void Dispose() => _handle.Dispose();
+        public void Dispose()
+        {
+            Debug.Assert(_localTracks.Count == 0); // All local tracks must be removed prior to disposing this PeerConection
+            _handle.Dispose();
+        }
     }
 }

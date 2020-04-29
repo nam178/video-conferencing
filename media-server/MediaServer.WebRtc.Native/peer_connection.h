@@ -3,6 +3,7 @@
 #include "pch.h"
 
 #include "create_answer_result.h"
+#include "rtp_sender.h"
 
 using Success = bool;
 using ErrorMessage = const char *;
@@ -45,9 +46,11 @@ class PeerConnection final
                                  const char *sdp,
                                  Callback<Success, ErrorMessage> callback);
 
-    // Add track
-    void AddTrack(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
-                  const std::vector<std::string> &stream_ids);
+    // Add and remove local tracks,
+    // and return the rtp sender associated with this track
+    std::unique_ptr<Wrappers::RtpSender> AddTrack(
+        rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
+        const std::vector<std::string> &stream_ids);
 
     // get the raw pointer to the underlying native
     // PeerConnectionInterface

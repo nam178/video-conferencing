@@ -86,21 +86,27 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             _signallingThread.ExecuteAsync(delegate
             {
                 var videoClient = _videoClients.Get(videoClientId);
-                videoClient.PeerConnections.Add(new PeerConnectionEntry(peerConnection, peerConnectionObserver));
+                var peerConnectionEntry = new PeerConnectionEntry(peerConnection, peerConnectionObserver);
+                videoClient.PeerConnections.Add(peerConnectionEntry);
 
                 peerConnectionObserver.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
                 peerConnectionObserver.RemoteTrackRemoved += _eventHandler.RemoteTrackRemoved;
 
-                // TODO:
+                // If this is the primary PeerConnection
                 // For each of other people's video source, add one remote track for this PeerConnection.
-                foreach(var other in _videoClients
-                    .OtherThan(videoClient)
-                    .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredRemoteQuality)))
+                if(videoClient.IsPrimaryPeerConnection(peerConnection))
                 {
-                    var trackId = Guid.NewGuid();
-                    var track = _peerConnectionFactory.CreateVideoTrack(trackId.ToString(), other.VideoSources[TrackQuality.High].VideoTrackSource);
+                    foreach(var other in _videoClients
+                        .OtherThan(videoClient)
+                        .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredRemoteQuality)))
+                    {
+                        var trackId = Guid.NewGuid();
+                        var streamId = Guid.NewGuid();
+                        var track = _peerConnectionFactory.CreateVideoTrack(trackId.ToString(), other.VideoSources[TrackQuality.High].VideoTrackSource);
+                        var rtpSender = peerConnection.AddTrack(track, streamId);
 
-                    
+                        // TODO
+                    }
                 }
             });
         }

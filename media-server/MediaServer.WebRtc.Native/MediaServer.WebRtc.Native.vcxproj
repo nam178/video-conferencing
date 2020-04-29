@@ -117,6 +117,7 @@
     <ClInclude Include="rtc_thread.h" />
     <ClInclude Include="rtc_thread_interops.h" />
     <ClInclude Include="rtp_receiver_interop.h" />
+    <ClInclude Include="rtp_sender.h" />
     <ClInclude Include="thread_sync.h" />
     <ClInclude Include="video_sink_adapter.h" />
     <ClInclude Include="video_sink_adapter_interop.h" />
@@ -167,6 +168,7 @@
     <ClCompile Include="rtc_thread_interops.cpp" />
     <ClCompile Include="rtp_receiver.cpp" />
     <ClCompile Include="rtp_receiver_interop.cpp" />
+    <ClCompile Include="rtp_sender.cpp" />
     <ClCompile Include="rtp_transceiver_interop.cpp" />
     <ClCompile Include="noop_video_decoder.cpp" />
     <ClCompile Include="noop_video_decoder_factory.cpp" />

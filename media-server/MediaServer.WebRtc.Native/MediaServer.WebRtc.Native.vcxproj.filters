@@ -90,6 +90,9 @@
     <ClCompile Include="video_track_interops.cpp">
       <Filter>wrappers\interops</Filter>
     </ClCompile>
+    <ClCompile Include="rtp_sender.cpp">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -208,6 +211,9 @@
     </ClInclude>
     <ClInclude Include="rtc_thread_interops.h">
       <Filter>wrappers\interops</Filter>
+    </ClInclude>
+    <ClInclude Include="rtp_sender.h">
+      <Filter>wrappers\peer_connection</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

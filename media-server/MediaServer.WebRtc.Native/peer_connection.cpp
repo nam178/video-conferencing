@@ -144,10 +144,19 @@ void Wrappers::PeerConnection::LocalSessionDescription(const char *sdp_type,
                  callback);
 }
 
-void Wrappers::PeerConnection::AddTrack(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
+std::unique_ptr<Wrappers::RtpSender> Wrappers::PeerConnection::AddTrack(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
                                         const std::vector<std::string> &stream_ids)
 {
-    _peer_connection_interface->AddTrack(track, stream_ids);
+
+    std::unique_ptr<Wrappers::RtpSender> result{};
+    auto add_track_result = _peer_connection_interface->AddTrack(track, stream_ids);
+    if(!add_track_result.ok())
+    {
+        RTC_LOG(LS_ERROR) << "Failed adding track into PeerConnection";
+        return result;
+    }
+    result.reset(std::move(add_track_result.value));
+    return result;
 }
 
 webrtc::PeerConnectionInterface *Wrappers::PeerConnection::GetPeerConnectionInterface()

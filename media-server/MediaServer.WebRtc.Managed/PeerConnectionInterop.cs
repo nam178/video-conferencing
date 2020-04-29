@@ -41,6 +41,6 @@ namespace MediaServer.WebRtc.Managed
         public static extern bool AddIceCandidate(PeerConnectionSafeHandle handle, string sdpMid, int mLineIndex, string sdp);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddTrack")]
-        public static extern void AddTrack(PeerConnectionSafeHandle handle, MediaStreamTrackSafeHandle mediaStreamTrackSafeHandle, string streamId);
+        public static extern IntPtr AddTrack(PeerConnectionSafeHandle handle, MediaStreamTrackSafeHandle mediaStreamTrackSafeHandle, string streamId);
     }
 }

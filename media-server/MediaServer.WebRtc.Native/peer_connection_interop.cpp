@@ -58,11 +58,15 @@ bool CONVENTION PeerConnectionAddIceCandidate(Wrappers::PeerConnection *peer_con
     return success;
 }
 
-void CONVENTION PeerConnectionAddTrack(Wrappers::PeerConnection *peer_connection,
+Wrappers::RtpSender* CONVENTION PeerConnectionAddTrack(Wrappers::PeerConnection *peer_connection,
                                        Wrappers::MediaStreamTrack *media_stream_track,
                                        const char *stream_id)
 {
     std::string stream_id(stream_id);
     std::vector<std::string> stream_ids{stream_id};
-    peer_connection->AddTrack(media_stream_track->GetMediaStreamTrack(), stream_ids);
+    auto result = peer_connection->AddTrack(media_stream_track->GetMediaStreamTrack(), stream_ids);
+    if(result) {
+        return result.release();
+    }
+    return nullptr;
 }

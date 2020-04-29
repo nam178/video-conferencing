@@ -41,7 +41,8 @@ extern "C"
                                   int32_t sdp_mline_index,
                                   const char *sdp);
 
-    EXPORT void CONVENTION PeerConnectionAddTrack(Wrappers::PeerConnection *peer_connection,
-                                                  Wrappers::MediaStreamTrack *media_stream_track,
-                                                  const char *stream_id);
+    EXPORT Wrappers::RtpSender *CONVENTION
+    PeerConnectionAddTrack(Wrappers::PeerConnection *peer_connection,
+                           Wrappers::MediaStreamTrack *media_stream_track,
+                           const char *stream_id);
 }
