@@ -144,6 +144,12 @@ void Wrappers::PeerConnection::LocalSessionDescription(const char *sdp_type,
                  callback);
 }
 
+void Wrappers::PeerConnection::AddTrack(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
+                                        const std::vector<std::string> &stream_ids)
+{
+    _peer_connection_interface->AddTrack(track, stream_ids);
+}
+
 webrtc::PeerConnectionInterface *Wrappers::PeerConnection::GetPeerConnectionInterface()
 {
     return _peer_connection_interface.get();

@@ -86,5 +86,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             if(!_indexByVideoClientId.ContainsKey(videoClientId))
                 throw new InvalidOperationException($"VideoClient {videoClientId} has not been added.");
         }
+
+        public IEnumerable<VideoClient> OtherThan(VideoClient videoClient) => _indexByVideoClientId.Where(kv => kv.Value != videoClient).Select(kv => kv.Value);
     }
 }

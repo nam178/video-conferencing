@@ -32,12 +32,15 @@ namespace MediaServer.WebRtc.Managed
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionSetRemoteSessionDescription")]
         public static extern void SetRemoteSessionDescription(PeerConnectionSafeHandle handle, string type, string sdp, SetSessionDescriptionCallback callback, IntPtr userData);
-        
+
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionSetLocalSessionDescription")]
         public static extern void SetLocalSessionDescription(PeerConnectionSafeHandle handle, string type, string sdp, SetSessionDescriptionCallback callback, IntPtr userData);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddIceCandidate")]
         [return: MarshalAs(UnmanagedType.I1)]
         public static extern bool AddIceCandidate(PeerConnectionSafeHandle handle, string sdpMid, int mLineIndex, string sdp);
+
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddTrack")]
+        public static extern void AddTrack(PeerConnectionSafeHandle handle, MediaStreamTrackSafeHandle mediaStreamTrackSafeHandle, string streamId);
     }
 }

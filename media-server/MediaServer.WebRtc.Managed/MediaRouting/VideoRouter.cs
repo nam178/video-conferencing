@@ -92,9 +92,16 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 peerConnectionObserver.RemoteTrackRemoved += _eventHandler.RemoteTrackRemoved;
 
                 // TODO:
-                // For each of other people's video source,
-                // Create one track on this peer;
-                
+                // For each of other people's video source, add one remote track for this PeerConnection.
+                foreach(var other in _videoClients
+                    .OtherThan(videoClient)
+                    .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredRemoteQuality)))
+                {
+                    var trackId = Guid.NewGuid();
+                    var track = _peerConnectionFactory.CreateVideoTrack(trackId.ToString(), other.VideoSources[TrackQuality.High].VideoTrackSource);
+
+                    
+                }
             });
         }
 

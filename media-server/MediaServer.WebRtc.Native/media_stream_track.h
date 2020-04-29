@@ -25,7 +25,6 @@ class MediaStreamTrack
     // Enable or disable the track
     void Enabled(bool value);
 
-  protected:
     virtual webrtc::MediaStreamTrackInterface *GetMediaStreamTrack() const = 0;
 
   private:

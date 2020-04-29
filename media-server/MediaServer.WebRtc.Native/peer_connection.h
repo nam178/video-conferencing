@@ -45,6 +45,10 @@ class PeerConnection final
                                  const char *sdp,
                                  Callback<Success, ErrorMessage> callback);
 
+    // Add track
+    void AddTrack(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
+                  const std::vector<std::string> &stream_ids);
+
     // get the raw pointer to the underlying native
     // PeerConnectionInterface
     webrtc::PeerConnectionInterface *GetPeerConnectionInterface();

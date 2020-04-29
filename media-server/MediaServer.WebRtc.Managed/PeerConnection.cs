@@ -1,6 +1,7 @@
 ﻿using MediaServer.Common.Utils;
 using MediaServer.WebRtc.Managed.Errors;
 using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -100,6 +101,19 @@ namespace MediaServer.WebRtc.Managed
             {
                 throw new Errors.AddIceCandidateFailedException("Add ICE candidate failed, check RTC logs");
             }
+        }
+
+        /// <summary>
+        /// Add the specified track into this PeerConnection's specified stream
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="streamId">Id of the stream, doesn't have to exist</param>
+        /// <remarks>Can be called from anythread, the libWebRTC will proxy to the correct thread</remarks>
+        public void AddTrack(MediaStreamTrack track, Guid streamId)
+        {
+            Require.NotNull(track);
+            Require.NotEmpty(streamId);
+            PeerConnectionInterop.AddTrack(_handle, track.Handle, streamId.ToString());
         }
 
         /// <summary>
