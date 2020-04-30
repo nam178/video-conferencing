@@ -27,7 +27,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 return;
             }
 
-            _videoRouter.AddTrack(videoClient, peerConnection, e.Payload);
+            _videoRouter.AddRemoteTrack(videoClient, peerConnection, e.Payload);
         }
 
         public void RemoteTrackRemoved(object sender, EventArgs<RtpReceiver> e)
@@ -40,7 +40,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 return;
             }
 
-            _videoRouter.RemoveTrack(videoClient, peerConnection, e.Payload);
+            _videoRouter.RemoveRemoteTrack(videoClient, peerConnection, e.Payload);
         }
     }
 }

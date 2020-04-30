@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace MediaServer.WebRtc.Managed.MediaRouting
+﻿namespace MediaServer.WebRtc.Managed.MediaRouting
 {
     sealed class VideoSource
     {

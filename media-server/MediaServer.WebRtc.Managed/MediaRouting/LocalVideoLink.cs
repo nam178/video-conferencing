@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace MediaServer.WebRtc.Managed.MediaRouting
 {
-    sealed class VideoLink : IDisposable
+    sealed class LocalVideoLink : IDisposable
     {
         readonly VideoTrack _track;
         readonly RtpSender _rtpSender;
@@ -12,7 +12,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
 
         public VideoSource VideoSource { get; }
 
-        public VideoLink(PeerConnectionFactory peerConnectionFactory, VideoSource videoSource, PeerConnection targetPeerConnection)
+        public LocalVideoLink(PeerConnectionFactory peerConnectionFactory, VideoSource videoSource, PeerConnection targetPeerConnection)
         {
             if(peerConnectionFactory is null)
                 throw new ArgumentNullException(nameof(peerConnectionFactory));

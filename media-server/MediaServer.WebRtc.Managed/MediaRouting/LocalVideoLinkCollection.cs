@@ -4,24 +4,29 @@ using System.Linq;
 
 namespace MediaServer.WebRtc.Managed.MediaRouting
 {
-    sealed class VideoLinkCollection
+    /// <summary>
+    /// Represents one-to-many relationshop between PeerConnection and VideoSource.
+    /// One PeerConnection can has many VideoSource (video streams from other peers)
+    /// </summary>
+    /// <remarks>Not thread safe.</remarks>
+    sealed class LocalVideoLinkCollection
     {
-        public void Add(VideoLink link)
+        public void Add(LocalVideoLink link)
         {
             throw new NotImplementedException();
         }
 
-        public IReadOnlyList<VideoLink> GetByPeerConnection(PeerConnection peerConnection)
+        public IReadOnlyList<LocalVideoLink> GetByPeerConnection(PeerConnection peerConnection)
         {
             throw new NotImplementedException();
         }
 
-        public IReadOnlyList<VideoLink> GetByVideoSource(VideoSource videoSource)
+        public IReadOnlyList<LocalVideoLink> GetByVideoSource(VideoSource videoSource)
         {
             throw new NotImplementedException();
         }
 
-        public void Remove(VideoLink link)
+        public void Remove(LocalVideoLink link)
         {
             throw new NotImplementedException();
         }
@@ -29,7 +34,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
 
     static class VideoLinkCollectionExtensions
     {
-        public static void RemoveByPeerConnection(this VideoLinkCollection collection, PeerConnection peerConnection)
+        public static void RemoveByPeerConnection(this LocalVideoLinkCollection collection, PeerConnection peerConnection)
         {
             foreach(var link in collection.GetByPeerConnection(peerConnection).ToList())
             {
@@ -41,7 +46,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             }
         }
         
-        public static void RemoveByVideoSource(this VideoLinkCollection collection, VideoSource videoSource)
+        public static void RemoveByVideoSource(this LocalVideoLinkCollection collection, VideoSource videoSource)
         {
             foreach(var link in collection.GetByVideoSource(videoSource).ToList())
             {
