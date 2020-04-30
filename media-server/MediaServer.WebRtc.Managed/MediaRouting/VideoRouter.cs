@@ -149,7 +149,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
         /// <returns></returns>
         internal void AddTrack(VideoClient videoClient, PeerConnection peerConnection, RtpReceiver rtpReceiver)
         {
-            ThrowWhenInvalidVideoTrack(rtpReceiver);
+            VideoRouterThrow.WhenInvalidVideoTrack(rtpReceiver);
 
             // What's the video source that this track should be connected to?
             var videoSource = videoClient.VideoSources
@@ -158,7 +158,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             if(null == videoSource)
                 throw new InvalidProgramException($"Track quality for track {rtpReceiver.Track.Id} has not been set");
 
-            ThrowWhenSourceIsEmpty(videoSource, rtpReceiver);
+            VideoRouterThrow.WhenSourceIsEmpty(videoSource, rtpReceiver);
 
             // Connect this track to the desired source:
             // If there is connected track, kindly remove it first
@@ -176,11 +176,11 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
         /// <returns></returns>
         internal void RemoveTrack(VideoClient videoClient, PeerConnection peerConnection, RtpReceiver rtpReceiver)
         {
-            ThrowWhenInvalidVideoTrack(rtpReceiver);
+            VideoRouterThrow.WhenInvalidVideoTrack(rtpReceiver);
 
             // Find the source that connected to this track
             var source = videoClient.VideoSources.FirstOrDefault(kv => kv.Value.ConnectedTrack == rtpReceiver).Value;
-            ThrowWhenSourceIsEmpty(source, rtpReceiver);
+            VideoRouterThrow.WhenSourceIsEmpty(source, rtpReceiver);
 
             // And remove this track from it
             ((VideoTrack)rtpReceiver.Track).RemoveSink(source.VideoSinkAdapter);
@@ -201,26 +201,6 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 // TODO
                 throw new NotImplementedException();
             });
-        }
-
-        static void ThrowWhenSourceIsEmpty(VideoSource source, RtpReceiver rtpReceiver)
-        {
-            if(null == source || null == source.VideoSinkAdapter || null == source.VideoTrackSource)
-            {
-                throw new InvalidProgramException(
-                    $"Source for track TrackId={rtpReceiver.Track.Id} has not been prepared"
-                    );
-            }
-        }
-
-        static void ThrowWhenInvalidVideoTrack(RtpReceiver rtpReceiver)
-        {
-            // Do not away this, as signalling thread not permitted to wait on room's thread.
-            // Connect this track with one of the source
-            if(string.IsNullOrWhiteSpace(rtpReceiver.Track.Id))
-                throw new ArgumentNullException($"Track id is null for RTP Receiver {rtpReceiver}, Track {rtpReceiver.Track}");
-            if(rtpReceiver.Track.IsAudioTrack)
-                throw new ArgumentException($"Track {rtpReceiver.Track} is not a VideoTrack");
         }
     }
 }
