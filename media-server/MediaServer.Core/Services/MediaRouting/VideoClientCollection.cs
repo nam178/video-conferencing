@@ -1,8 +1,9 @@
-﻿using System;
+﻿using MediaServer.WebRtc.Managed;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MediaServer.WebRtc.Managed.MediaRouting
+namespace MediaServer.Core.Services.MediaRouting
 {
     sealed class VideoClientCollection
     {
@@ -40,7 +41,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             return _indexByVideoClientId[videoClientId];
         }
 
-        public VideoClient FindByObserver(PeerConnectionObserver observer, out PeerConnection peerConnection)
+        public VideoClient FindByObserver(PeerConnectionObserver observer, out global::MediaServer.WebRtc.Managed.PeerConnection peerConnection)
         {
             foreach(var kv in _indexByVideoClientId)
             {

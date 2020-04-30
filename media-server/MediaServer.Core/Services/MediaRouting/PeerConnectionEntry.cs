@@ -1,14 +1,15 @@
-﻿using System;
+﻿using MediaServer.WebRtc.Managed;
+using System;
 
-namespace MediaServer.WebRtc.Managed.MediaRouting
+namespace MediaServer.Core.Services.MediaRouting
 {
     sealed class PeerConnectionEntry
     {
-        public PeerConnection PeerConnection { get; }
+        public global::MediaServer.WebRtc.Managed.PeerConnection PeerConnection { get; }
         public PeerConnectionObserver PeerConnectionObserver { get; }
 
         public PeerConnectionEntry(
-            PeerConnection peerConnection,
+            global::MediaServer.WebRtc.Managed.PeerConnection peerConnection,
             PeerConnectionObserver peerConnectionObserver)
         {
             PeerConnection = peerConnection

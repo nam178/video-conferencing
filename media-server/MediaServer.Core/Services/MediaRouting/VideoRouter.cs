@@ -1,13 +1,14 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
+using MediaServer.WebRtc.Managed;
 using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.WebRtc.Managed.MediaRouting
+namespace MediaServer.Core.Services.MediaRouting
 {
-    sealed class VideoRouter
+    sealed class VideoRouter : IVideoRouter
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly IDispatchQueue _signallingThread;
@@ -17,7 +18,9 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
         readonly LocalVideoLinkCollection _localVideoLinks = new LocalVideoLinkCollection();
         readonly RemoteVideoLinkCollection _remoteVideoLink = new RemoteVideoLinkCollection();
 
-        public VideoRouter(IDispatchQueue signallingThread, PeerConnectionFactory peerConnectionFactory)
+        public VideoRouter(
+            IDispatchQueue signallingThread,
+            PeerConnectionFactory peerConnectionFactory)
         {
             _signallingThread = signallingThread
                 ?? throw new ArgumentNullException(nameof(signallingThread));
@@ -26,13 +29,6 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             _eventHandler = new VideoRouterEventHandler(this, _videoClients);
         }
 
-        /// <summary>
-        /// Notify this router that a video client has joined the routing.
-        /// This is before any PeerConnection with the video client is created.
-        /// </summary>
-        /// <param name="videoClientId"></param>
-        /// <remarks>Can be called from any thread, will dispatch to the signalling thread</remarks>
-        /// <returns></returns>
         public Task AddVideoClient(Guid videoClientId)
         {
             Require.NotEmpty(videoClientId);
@@ -43,14 +39,6 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             });
         }
 
-        /// <summary>
-        /// Notify this router that a track will be added into it with specified quality.
-        /// </summary>
-        /// <param name="videoClientId">The video client in which the track will be added</param>
-        /// <param name="trackQuality"></param>
-        /// <param name="trackId"></param>
-        /// <remarks>Can be called from any thread, will be switched to the signalling thread.</remarks>
-        /// <returns></returns>
         public Task PepareTrack(Guid videoClientId, TrackQuality trackQuality, string trackId)
         {
             Require.NotEmpty(videoClientId);
@@ -80,9 +68,12 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                     // we'll have to connect this source to any existing primary PeerConnection
                     foreach(var otherVideoClient in _videoClients
                         .OtherThan(videoClient)
-                        .Where(other => other.DesiredVideoQuality == trackQuality && other.PeerConnections.Count > 0))
+                        .Where(other => other.DesiredVideoQuality == trackQuality
+                            && other.PeerConnections.Count > 0))
                     {
-                        _localVideoLinks.Add(new LocalVideoLink(_peerConnectionFactory, videoSource, otherVideoClient.PeerConnections[0].PeerConnection));
+                        _localVideoLinks.Add(new LocalVideoLink(
+                            _peerConnectionFactory, videoSource,
+                            otherVideoClient.PeerConnections[0].PeerConnection));
                     }
                 }
 
@@ -93,16 +84,12 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             });
         }
 
-        /// <summary>
-        /// Notify this router that a PeerConnection is created.
-        /// Must be called right after the PeerConnection is created, before SetRemoteSessionDescription()
-        /// </summary>
-        /// <param name="videoClientId"></param>
-        /// <param name="peerConnection"></param>
-        /// <remarks>Can be called on any thread</remarks>
-        public void AddPeerConnection(Guid videoClientId, PeerConnection peerConnection, PeerConnectionObserver peerConnectionObserver)
+        public Task AddPeerConnection(
+            Guid videoClientId,
+            global::MediaServer.WebRtc.Managed.PeerConnection peerConnection,
+            PeerConnectionObserver peerConnectionObserver)
         {
-            _signallingThread.ExecuteAsync(delegate
+            return _signallingThread.ExecuteAsync(delegate
             {
                 // Add PeerConnection into VideoClient
                 var videoClient = _videoClients.Get(videoClientId);
@@ -121,22 +108,21 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                         .OtherThan(videoClient)
                         .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredVideoQuality)))
                     {
-                        _localVideoLinks.Add(new LocalVideoLink(_peerConnectionFactory, other.VideoSources[videoClient.DesiredVideoQuality], peerConnection));
+                        _localVideoLinks.Add(new LocalVideoLink(
+                            _peerConnectionFactory,
+                            other.VideoSources[videoClient.DesiredVideoQuality],
+                            peerConnection));
                     }
                 }
             });
         }
 
-        /// <summary>
-        /// Notify this router that a PeerConnection will be removed/closed.
-        /// Must be called right before the PeerConnection is closed.
-        /// </summary>
-        /// <param name="videoClientId"></param>
-        /// <param name="peerConnection"></param>
-        /// <remarks>Can be called on any thread</remarks>
-        public void RemovePeerConnection(Guid videoClientId, PeerConnection peerConnection, PeerConnectionObserver peerConnectionObserver)
+        public Task RemovePeerConnection(
+            Guid videoClientId,
+            global::MediaServer.WebRtc.Managed.PeerConnection peerConnection,
+            PeerConnectionObserver peerConnectionObserver)
         {
-            _signallingThread.ExecuteAsync(delegate
+            return _signallingThread.ExecuteAsync(delegate
             {
                 // Here basically undo the things we did in AddPeerConnection(),
                 // in reverse order.
@@ -155,46 +141,6 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             });
         }
 
-        /// <summary>
-        /// Notify this router that a remote track has been added
-        /// </summary>
-        /// <remarks>Must be called from signalling thread, right after the track is added.</remarks>
-        /// <returns></returns>
-        internal void AddRemoteTrack(VideoClient videoClient, PeerConnection peerConnection, RtpReceiver rtpReceiver)
-        {
-            VideoRouterThrow.WhenInvalidVideoTrack(rtpReceiver);
-
-            // What's the video source that this track should be connected to?
-            var videoSource = videoClient.VideoSources
-                .FirstOrDefault(kv => string.Equals(kv.Value.ExpectedTrackId, rtpReceiver.Track.Id, StringComparison.InvariantCultureIgnoreCase))
-                .Value;
-            if(null == videoSource)
-                throw new InvalidProgramException($"Track quality for track {rtpReceiver.Track.Id} has not been set");
-
-            VideoRouterThrow.WhenSourceIsEmpty(videoSource, rtpReceiver);
-
-            _remoteVideoLink.AddOrUpdate(new RemoteVideoLink(videoSource, rtpReceiver));
-        }
-
-        /// <summary>
-        /// Notify this router that a remote track has been removed 
-        /// </summary>
-        /// <remarks>Must be called from signalling thread, right before the track is removed</remarks>
-        /// <returns></returns>
-        internal void RemoveRemoteTrack(VideoClient videoClient, PeerConnection peerConnection, RtpReceiver rtpReceiver)
-        {
-            VideoRouterThrow.WhenInvalidVideoTrack(rtpReceiver);
-
-            _remoteVideoLink.RemoveByRemoteTrack(rtpReceiver);
-        }
-
-        /// <summary>
-        /// Notify this router that a video client has left the current routing.
-        /// This is before any data is removed/destroyed, and before any PeerConnection is closed.
-        /// </summary>
-        /// <param name="videoClientId"></param>
-        /// <remarks>Can be called from any thread</remarks>
-        /// <returns></returns>
         public Task RemoveVideoClient(Guid videoClientId)
         {
             return _signallingThread.ExecuteAsync(delegate
@@ -227,6 +173,39 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 // Remove the video client
                 _videoClients.Remove(videoClientId);
             });
+        }
+
+        /// <summary>
+        /// Notify this router that a remote track has been added
+        /// </summary>
+        /// <remarks>Must be called from signalling thread, right after the track is added.</remarks>
+        /// <returns></returns>
+        internal void AddRemoteTrack(VideoClient videoClient, RtpReceiver rtpReceiver)
+        {
+            VideoRouterThrowHelper.WhenInvalidVideoTrack(rtpReceiver);
+
+            // What's the video source that this track should be connected to?
+            var videoSource = videoClient.VideoSources
+                .FirstOrDefault(kv => string.Equals(kv.Value.ExpectedTrackId, rtpReceiver.Track.Id, StringComparison.InvariantCultureIgnoreCase))
+                .Value;
+            if(null == videoSource)
+                throw new InvalidProgramException($"Track quality for track {rtpReceiver.Track.Id} has not been set");
+
+            VideoRouterThrowHelper.WhenSourceIsEmpty(videoSource, rtpReceiver);
+
+            _remoteVideoLink.AddOrUpdate(new RemoteVideoLink(videoSource, rtpReceiver));
+        }
+
+        /// <summary>
+        /// Notify this router that a remote track has been removed 
+        /// </summary>
+        /// <remarks>Must be called from signalling thread, right before the track is removed</remarks>
+        /// <returns></returns>
+        internal void RemoveRemoteTrack(RtpReceiver rtpReceiver)
+        {
+            VideoRouterThrowHelper.WhenInvalidVideoTrack(rtpReceiver);
+
+            _remoteVideoLink.RemoveByRemoteTrack(rtpReceiver);
         }
     }
 }

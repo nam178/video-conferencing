@@ -9,7 +9,7 @@ namespace MediaServer.WebRtc.Managed
 
         internal VideoSinkAdapterSafeHandle Handle { get; }
 
-        internal VideoSinkAdapter(PeerConnectionFactory peerConnectionFactory, PassiveVideoTrackSource trackSource, bool ownTrackSource)
+        public VideoSinkAdapter(PeerConnectionFactory peerConnectionFactory, PassiveVideoTrackSource trackSource, bool ownTrackSource)
         {
             _trackSource = trackSource ?? throw new ArgumentNullException(nameof(trackSource));
             _ownTrackSource = ownTrackSource;

@@ -1,4 +1,6 @@
-﻿namespace MediaServer.WebRtc.Managed.MediaRouting
+﻿using MediaServer.WebRtc.Managed;
+
+namespace MediaServer.Core.Services.MediaRouting
 {
     sealed class RemoteVideoLink
     {
@@ -8,9 +10,9 @@
 
         public RemoteVideoLink(VideoSource videoSource, RtpReceiver remoteTrack)
         {
-            VideoSource = videoSource 
+            VideoSource = videoSource
                 ?? throw new System.ArgumentNullException(nameof(videoSource));
-            RemoteTrack = remoteTrack 
+            RemoteTrack = remoteTrack
                 ?? throw new System.ArgumentNullException(nameof(remoteTrack));
         }
     }

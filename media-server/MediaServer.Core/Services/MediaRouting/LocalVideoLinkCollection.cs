@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MediaServer.WebRtc.Managed.MediaRouting
+namespace MediaServer.Core.Services.MediaRouting
 {
     /// <summary>
     /// Represents one-to-many relationshop between PeerConnection and VideoSource.
@@ -16,7 +16,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             throw new NotImplementedException();
         }
 
-        public IReadOnlyList<LocalVideoLink> GetByPeerConnection(PeerConnection peerConnection)
+        public IReadOnlyList<LocalVideoLink> GetByPeerConnection(global::MediaServer.WebRtc.Managed.PeerConnection peerConnection)
         {
             throw new NotImplementedException();
         }
@@ -34,7 +34,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
 
     static class VideoLinkCollectionExtensions
     {
-        public static void RemoveByPeerConnection(this LocalVideoLinkCollection collection, PeerConnection peerConnection)
+        public static void RemoveByPeerConnection(this LocalVideoLinkCollection collection, global::MediaServer.WebRtc.Managed.PeerConnection peerConnection)
         {
             foreach(var link in collection.GetByPeerConnection(peerConnection).ToList())
             {
@@ -45,7 +45,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 }
             }
         }
-        
+
         public static void RemoveByVideoSource(this LocalVideoLinkCollection collection, VideoSource videoSource)
         {
             foreach(var link in collection.GetByVideoSource(videoSource).ToList())

@@ -1,16 +1,17 @@
 ﻿using MediaServer.Common.Utils;
+using MediaServer.WebRtc.Managed;
 using NLog;
 
-namespace MediaServer.WebRtc.Managed.MediaRouting
+namespace MediaServer.Core.Services.MediaRouting
 {
     sealed class VideoRouterEventHandler
     {
         readonly VideoRouter _videoRouter;
         readonly VideoClientCollection _videoClients;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public VideoRouterEventHandler(
-            VideoRouter videoRouter, 
+            VideoRouter videoRouter,
             VideoClientCollection videoClients)
         {
             _videoRouter = videoRouter;
@@ -27,7 +28,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 return;
             }
 
-            _videoRouter.AddRemoteTrack(videoClient, peerConnection, e.Payload);
+            _videoRouter.AddRemoteTrack(videoClient, e.Payload);
         }
 
         public void RemoteTrackRemoved(object sender, EventArgs<RtpReceiver> e)
@@ -40,7 +41,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 return;
             }
 
-            _videoRouter.RemoveRemoteTrack(videoClient, peerConnection, e.Payload);
+            _videoRouter.RemoveRemoteTrack(e.Payload);
         }
     }
 }

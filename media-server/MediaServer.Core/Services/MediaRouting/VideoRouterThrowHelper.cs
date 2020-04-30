@@ -1,8 +1,9 @@
-﻿using System;
+﻿using MediaServer.WebRtc.Managed;
+using System;
 
-namespace MediaServer.WebRtc.Managed.MediaRouting
+namespace MediaServer.Core.Services.MediaRouting
 {
-    static class VideoRouterThrow
+    static class VideoRouterThrowHelper
     {
         public static void WhenSourceIsEmpty(VideoSource source, RtpReceiver rtpReceiver)
         {
