@@ -5,57 +5,94 @@ using System.Linq;
 namespace MediaServer.Core.Services.MediaRouting
 {
     /// <summary>
-    /// Represents one-to-many relationshop between PeerConnection and VideoSource.
+    /// Represents many-to-many relationshop between PeerConnection and VideoSource.
     /// One PeerConnection can has many VideoSource (video streams from other peers)
     /// </summary>
     /// <remarks>Not thread safe.</remarks>
     sealed class LocalVideoLinkCollection
     {
+        readonly Dictionary<WebRtc.Managed.PeerConnection, List<LocalVideoLink>> _idx_peerConnection;
+        readonly Dictionary<VideoSource, List<LocalVideoLink>> _idx_videoSource;
+
+        public LocalVideoLinkCollection()
+        {
+            _idx_peerConnection = new Dictionary<WebRtc.Managed.PeerConnection, List<LocalVideoLink>>();
+            _idx_videoSource = new Dictionary<VideoSource, List<LocalVideoLink>>();
+        }
+
         public void Add(LocalVideoLink link)
         {
-            throw new NotImplementedException();
+            Add(_idx_videoSource, link.VideoSource, link);
+            Add(_idx_peerConnection, link.TargetPeerConnection, link);
         }
 
-        public IReadOnlyList<LocalVideoLink> GetByPeerConnection(global::MediaServer.WebRtc.Managed.PeerConnection peerConnection)
+        public void RemoveByPeerConnection(WebRtc.Managed.PeerConnection peerConnection)
         {
-            throw new NotImplementedException();
-        }
-
-        public IReadOnlyList<LocalVideoLink> GetByVideoSource(VideoSource videoSource)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Remove(LocalVideoLink link)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    static class VideoLinkCollectionExtensions
-    {
-        public static void RemoveByPeerConnection(this LocalVideoLinkCollection collection, global::MediaServer.WebRtc.Managed.PeerConnection peerConnection)
-        {
-            foreach(var link in collection.GetByPeerConnection(peerConnection).ToList())
+            if(_idx_peerConnection.ContainsKey(peerConnection))
             {
-                using(link)
+                foreach(var link in _idx_peerConnection[peerConnection].ToList())
                 {
-                    link.Close();
-                    collection.Remove(link);
+                    if(false == _idx_videoSource.ContainsKey(link.VideoSource))
+                        throw new InvalidProgramException();
+
+                    using(link)
+                    {
+                        Remove(_idx_videoSource, link.VideoSource, link);
+                        link.Close();
+                    }
                 }
+
+                _idx_peerConnection.Remove(peerConnection);
             }
         }
 
-        public static void RemoveByVideoSource(this LocalVideoLinkCollection collection, VideoSource videoSource)
+        public void RemoveByVideoSource(VideoSource videoSource)
         {
-            foreach(var link in collection.GetByVideoSource(videoSource).ToList())
+            if(_idx_videoSource.ContainsKey(videoSource))
             {
-                using(link)
+                foreach(var link in _idx_videoSource[videoSource].ToList())
                 {
-                    link.Close();
-                    collection.Remove(link);
+                    if(false == _idx_peerConnection.ContainsKey(link.TargetPeerConnection))
+                        throw new InvalidProgramException();
+
+                    using(link)
+                    {
+                        Remove(_idx_peerConnection, link.TargetPeerConnection, link);
+                        link.Close();
+                    }
                 }
+
+                _idx_videoSource.Remove(videoSource);
             }
         }
+
+        static void Add<K, V>(Dictionary<K, List<V>> dict, K key, V value)
+        {
+            if(false == dict.ContainsKey(key))
+            {
+                dict[key] = new List<V> { value };
+            }
+            else
+            {
+                if(dict[key].Contains(value))
+                {
+                    throw new ArgumentException($"Duplicate value for {typeof(K).Name}={key}, {typeof(V).Name}={value}");
+                }
+                dict[key].Add(value);
+            }
+        }
+
+        static void Remove<K, V>(Dictionary<K, List<V>> dict, K key, V value)
+        {
+            if(false == dict.ContainsKey(key))
+                return;
+
+            dict[key].Remove(value);
+            if(dict[key].Count == 0)
+            {
+                dict.Remove(key);
+            }
+        }
+
     }
 }
