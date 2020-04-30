@@ -155,8 +155,22 @@ std::unique_ptr<Wrappers::RtpSender> Wrappers::PeerConnection::AddTrack(rtc::sco
         RTC_LOG(LS_ERROR) << "Failed adding track into PeerConnection";
         return result;
     }
-    result.reset(std::move(add_track_result.value));
+    result.reset(new Wrappers::RtpSender(std::move(add_track_result.value())));
     return result;
+}
+
+void Wrappers::PeerConnection::RemoveTrack(Wrappers::RtpSender *rtp_sender)
+{
+    if(rtp_sender)
+    {
+        RTC_LOG(LS_ERROR) << "rtp_sender is nullptr";
+        throw new std::runtime_error("rtp_sender is nullptr");
+    }
+
+    if(false == _peer_connection_interface->RemoveTrack(rtp_sender->Native()))
+    {
+        RTC_LOG(LS_ERROR) << "Failed removing track id=" << rtp_sender->Native()->track()->id();
+    }
 }
 
 webrtc::PeerConnectionInterface *Wrappers::PeerConnection::GetPeerConnectionInterface()

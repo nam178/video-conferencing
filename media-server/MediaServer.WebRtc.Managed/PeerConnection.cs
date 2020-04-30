@@ -3,6 +3,7 @@ using MediaServer.WebRtc.Managed.Errors;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -128,6 +129,38 @@ namespace MediaServer.WebRtc.Managed
                 _localTracks.Add((rtpSender, track));
             }
             return rtpSender;
+        }
+
+        /// <summary>
+        /// Remove the specified track; The RtpSender and its associated media stream will be disposed.
+        /// </summary>
+        /// <param name="rtpSender">The track, represented by its RtpSender</param>
+        /// <remarks>Can be called from any thread, will be proxied to signalling thread by the lib.</remarks>
+        public void RemoveTrack(RtpSender rtpSender)
+        {
+            lock(_localTracks)
+            {
+                var t = _localTracks.Where(tmp => tmp.RtpSender == rtpSender).FirstOrDefault();
+                if(t.RtpSender == null)
+                {
+                    throw new ArgumentException($"Provided RtpSender not found");
+                }
+                t.RtpSender.Dispose();
+                t.Track.Dispose();
+                _localTracks.Remove(t);
+            }
+        }
+
+        /// <summary>
+        /// Get local tracks that were added to this PeerConnection.
+        /// </summary>
+        /// <returns>A copy of RTPSenders for local tracks</returns>
+        public RtpSender[] GetLocalTracks()
+        {
+            lock(_localTracks)
+            {
+                return _localTracks.Select(t => t.RtpSender).ToArray();
+            }
         }
 
         /// <summary>

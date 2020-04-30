@@ -93,6 +93,9 @@
     <ClCompile Include="rtp_sender.cpp">
       <Filter>wrappers\peer_connection</Filter>
     </ClCompile>
+    <ClCompile Include="rtp_sender_interop.cpp">
+      <Filter>wrappers\interops</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -214,6 +217,9 @@
     </ClInclude>
     <ClInclude Include="rtp_sender.h">
       <Filter>wrappers\peer_connection</Filter>
+    </ClInclude>
+    <ClInclude Include="rtp_sender_interop.h">
+      <Filter>wrappers\interops</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

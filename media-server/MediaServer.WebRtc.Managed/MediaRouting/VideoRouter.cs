@@ -85,10 +85,12 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
         {
             _signallingThread.ExecuteAsync(delegate
             {
+                // Add PeerConnection into VideoClient
                 var videoClient = _videoClients.Get(videoClientId);
                 var peerConnectionEntry = new PeerConnectionEntry(peerConnection, peerConnectionObserver);
                 videoClient.PeerConnections.Add(peerConnectionEntry);
 
+                // Start listening to it for track events
                 peerConnectionObserver.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
                 peerConnectionObserver.RemoteTrackRemoved += _eventHandler.RemoteTrackRemoved;
 
@@ -103,9 +105,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                         var trackId = Guid.NewGuid();
                         var streamId = Guid.NewGuid();
                         var track = _peerConnectionFactory.CreateVideoTrack(trackId.ToString(), other.VideoSources[TrackQuality.High].VideoTrackSource);
-                        var rtpSender = peerConnection.AddTrack(track, streamId);
-
-                        // TODO
+                        peerConnection.AddTrack(track, streamId);
                     }
                 }
             });
@@ -122,13 +122,23 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
         {
             _signallingThread.ExecuteAsync(delegate
             {
+                // Here basically undo the things we did in AddPeerConnection(),
+                // in reverse order.
+                // No longer interested in its track events
                 peerConnectionObserver.RemoteTrackAdded -= _eventHandler.RemoteTrackAdded;
                 peerConnectionObserver.RemoteTrackRemoved -= _eventHandler.RemoteTrackRemoved;
 
+                // Remove this PeerConnection from VideoClient
                 var videoClient = _videoClients.Get(videoClientId);
                 var removed = videoClient.PeerConnections.RemoveAll(entry => entry.PeerConnection == peerConnection);
                 if(removed == 0)
                     throw new InvalidProgramException("PeerConnection did not removed from memory");
+
+                // Remove all local tracks that was added for this PeerConnection
+                foreach(var sender in peerConnection.GetLocalTracks())
+                {
+                    peerConnection.RemoveTrack(sender);
+                }
             });
         }
 

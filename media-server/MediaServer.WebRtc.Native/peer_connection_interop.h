@@ -45,4 +45,7 @@ extern "C"
     PeerConnectionAddTrack(Wrappers::PeerConnection *peer_connection,
                            Wrappers::MediaStreamTrack *media_stream_track,
                            const char *stream_id);
+
+    EXPORT void CONVENTION PeerConnectionRemoveTrack(Wrappers::PeerConnection *peer_connection,
+                                                     Wrappers::RtpSender *rtp_sender);
 }

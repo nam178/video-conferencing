@@ -2,18 +2,15 @@
 
 namespace MediaServer.WebRtc.Managed
 {
-    public class RtpSender : IDisposable
+    public sealed class RtpSender : IDisposable
     {
-        private IntPtr _rtpSenderPtr;
+        internal RtpSenderSafeHandle Handle { get; }
 
         public RtpSender(IntPtr rtpSenderPtr)
         {
-            _rtpSenderPtr = rtpSenderPtr;
+            Handle = new RtpSenderSafeHandle(rtpSenderPtr);
         }
 
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
+        public void Dispose() => Handle.Dispose();
     }
 }

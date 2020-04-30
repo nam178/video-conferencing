@@ -52,6 +52,8 @@ class PeerConnection final
         rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
         const std::vector<std::string> &stream_ids);
 
+    void RemoveTrack(Wrappers::RtpSender *rtp_sender);
+
     // get the raw pointer to the underlying native
     // PeerConnectionInterface
     webrtc::PeerConnectionInterface *GetPeerConnectionInterface();

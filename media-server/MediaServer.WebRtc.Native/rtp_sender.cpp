@@ -6,3 +6,8 @@ Wrappers::RtpSender::RtpSender(rtc::scoped_refptr<webrtc::RtpSenderInterface> na
     : _native(native)
 {
 }
+
+webrtc::RtpSenderInterface *Wrappers::RtpSender::Native()
+{
+    return _native.get();
+}
