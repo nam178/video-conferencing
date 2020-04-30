@@ -1,10 +1,12 @@
-﻿namespace MediaServer.WebRtc.Managed.MediaRouting
+﻿using System.Collections.Generic;
+
+namespace MediaServer.WebRtc.Managed.MediaRouting
 {
     sealed class VideoSource
     {
         public string ExpectedTrackId { get; set; }
 
-        public RtpReceiver ConnectedTrack { get; set; }
+        public RtpReceiver ConnectedRemoteTrack { get; set; }
 
         public PassiveVideoTrackSource VideoTrackSource { get; set; }
 

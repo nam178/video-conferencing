@@ -1,3 +1,5 @@
+#include "pch.h"
+
 #include "rtp_sender_interop.h"
 
 void CONVENTION RtpSenderDestroy(Wrappers::RtpSender *rtp_sender)

@@ -14,6 +14,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
         readonly PeerConnectionFactory _peerConnectionFactory;
         readonly VideoClientCollection _videoClients = new VideoClientCollection();
         readonly VideoRouterEventHandler _eventHandler;
+        readonly VideoLinkCollection _videoLinks = new VideoLinkCollection();
 
         public VideoRouter(IDispatchQueue signallingThread, PeerConnectionFactory peerConnectionFactory)
         {
@@ -21,7 +22,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 ?? throw new ArgumentNullException(nameof(signallingThread));
             _peerConnectionFactory = peerConnectionFactory
                 ?? throw new ArgumentNullException(nameof(peerConnectionFactory));
-            _eventHandler = new VideoRouterEventHandler(this, _videoClients); 
+            _eventHandler = new VideoRouterEventHandler(this, _videoClients);
         }
 
         /// <summary>
@@ -57,19 +58,36 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             return _signallingThread.ExecuteAsync(delegate
             {
                 // Prepare the source for this quality, if it was not created
-                var videoClient = _videoClients.FindVideoSource(videoClientId, trackQuality);
-                if(null == videoClient)
+                var videoClient = _videoClients.Get(videoClientId);
+                var videoSource = videoClient.VideoSources.ContainsKey(trackQuality)
+                    ? videoClient.VideoSources[trackQuality]
+                    : null;
+                if(null == videoSource)
                 {
-                    videoClient = _videoClients.CreateVideoSource(videoClientId, trackQuality);
+                    videoSource = _videoClients.CreateVideoSource(videoClientId, trackQuality);
                 }
-                videoClient.VideoTrackSource = videoClient.VideoTrackSource
-                    ?? new PassiveVideoTrackSource();
-                videoClient.VideoSinkAdapter = videoClient.VideoSinkAdapter
-                    ?? new VideoSinkAdapter(_peerConnectionFactory, videoClient.VideoTrackSource, false);
+
+                // Create the VideoTrackSource for the desired quality
+                if(videoSource.VideoTrackSource == null)
+                {
+                    videoSource.VideoTrackSource = new PassiveVideoTrackSource();
+                    videoSource.VideoSinkAdapter = new VideoSinkAdapter(
+                        _peerConnectionFactory,
+                        videoSource.VideoTrackSource, false);
+
+                    // As new video source is added, 
+                    // we'll have to connect this source to any existing primary PeerConnection
+                    foreach(var otherVideoClient in _videoClients
+                        .OtherThan(videoClient)
+                        .Where(other => other.DesiredVideoQuality == trackQuality && other.PeerConnections.Count > 0))
+                    {
+                        _videoLinks.Add(new VideoLink(_peerConnectionFactory, videoSource, otherVideoClient.PeerConnections[0].PeerConnection));
+                    }
+                }
 
                 // Flag this source to say it should be 
                 // linked with the provided track
-                videoClient.ExpectedTrackId = trackId;
+                videoSource.ExpectedTrackId = trackId;
                 _logger.Info($"Prepared source for track {trackId}, Quality={trackQuality}");
             });
         }
@@ -100,12 +118,9 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 {
                     foreach(var other in _videoClients
                         .OtherThan(videoClient)
-                        .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredRemoteQuality)))
+                        .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredVideoQuality)))
                     {
-                        var trackId = Guid.NewGuid();
-                        var streamId = Guid.NewGuid();
-                        var track = _peerConnectionFactory.CreateVideoTrack(trackId.ToString(), other.VideoSources[TrackQuality.High].VideoTrackSource);
-                        peerConnection.AddTrack(track, streamId);
+                        _videoLinks.Add(new VideoLink(_peerConnectionFactory, other.VideoSources[videoClient.DesiredVideoQuality], peerConnection));
                     }
                 }
             });
@@ -134,11 +149,8 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
                 if(removed == 0)
                     throw new InvalidProgramException("PeerConnection did not removed from memory");
 
-                // Remove all local tracks that was added for this PeerConnection
-                foreach(var sender in peerConnection.GetLocalTracks())
-                {
-                    peerConnection.RemoveTrack(sender);
-                }
+                // Remove all video links that was created for this PeerConnection
+                _videoLinks.RemoveByPeerConnection(peerConnection);
             });
         }
 
@@ -162,7 +174,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
 
             // Connect this track to the desired source:
             // If there is connected track, kindly remove it first
-            if(videoSource.ConnectedTrack != null)
+            if(videoSource.ConnectedRemoteTrack != null)
                 ((VideoTrack)rtpReceiver.Track).RemoveSink(videoSource.VideoSinkAdapter);
 
             // Then connect the new one
@@ -179,12 +191,12 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
             VideoRouterThrow.WhenInvalidVideoTrack(rtpReceiver);
 
             // Find the source that connected to this track
-            var source = videoClient.VideoSources.FirstOrDefault(kv => kv.Value.ConnectedTrack == rtpReceiver).Value;
+            var source = videoClient.VideoSources.FirstOrDefault(kv => kv.Value.ConnectedRemoteTrack == rtpReceiver).Value;
             VideoRouterThrow.WhenSourceIsEmpty(source, rtpReceiver);
 
             // And remove this track from it
             ((VideoTrack)rtpReceiver.Track).RemoveSink(source.VideoSinkAdapter);
-            source.ConnectedTrack = null;
+            source.ConnectedRemoteTrack = null;
         }
 
         /// <summary>
@@ -198,8 +210,39 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
         {
             return _signallingThread.ExecuteAsync(delegate
             {
-                // TODO
-                throw new NotImplementedException();
+                // Remove the video sources
+                var videoClient = _videoClients.Get(videoClientId);
+
+                if(videoClient.PeerConnections.Count > 0)
+                    throw new InvalidProgramException("VideoClient's PeerConnections were not removed");
+
+                // Remove each video source
+                foreach(var kv in videoClient.VideoSources)
+                {
+                    var videoSource = kv.Value;
+
+                    if(videoSource.VideoTrackSource == null)
+                        throw new InvalidProgramException($"{nameof(videoSource.VideoTrackSource)} is null");
+                    if(videoSource.VideoSinkAdapter == null)
+                        throw new InvalidProgramException($"{nameof(videoSource.VideoSinkAdapter)} is null");
+
+                    using(videoSource.VideoTrackSource)
+                    using(videoSource.VideoSinkAdapter)
+                    {
+                        // Disconnect this source with the remote track
+                        if(videoSource.ConnectedRemoteTrack != null)
+                        {
+                            ((VideoTrack)videoSource.ConnectedRemoteTrack.Track)
+                                .RemoveSink(videoSource.VideoSinkAdapter);
+                        }
+
+                        // Disconnect all the video links
+                        _videoLinks.RemoveByVideoSource(videoSource);
+                    }
+                }
+
+                // Remove the video client
+                _videoClients.Remove(videoClientId);
             });
         }
     }

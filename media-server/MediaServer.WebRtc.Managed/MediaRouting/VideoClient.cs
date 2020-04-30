@@ -11,7 +11,7 @@ namespace MediaServer.WebRtc.Managed.MediaRouting
 
         public List<PeerConnectionEntry> PeerConnections = new List<PeerConnectionEntry>();
 
-        public TrackQuality DesiredRemoteQuality => TrackQuality.High; // todo - support multiple quality streams
+        public TrackQuality DesiredVideoQuality => TrackQuality.High; // todo - support multiple quality streams
 
         public bool IsPrimaryPeerConnection(PeerConnection peerConnection)
         {
