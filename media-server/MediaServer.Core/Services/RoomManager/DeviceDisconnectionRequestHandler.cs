@@ -19,10 +19,10 @@ namespace MediaServer.Core.Services.RoomManager
 
         public async Task HandleAsync(IRemoteDevice remoteDevice, DeviceDisconnectionRequest request)
         {
-            var previousData = remoteDevice.GetCustomData();
+            var deviceData = remoteDevice.GetCustomData();
 
             // Remove associated PeerConnections
-            foreach(var peer in previousData.PeerConnections)
+            foreach(var peer in deviceData.PeerConnections)
             {
                 using(peer)
                 {
@@ -31,16 +31,23 @@ namespace MediaServer.Core.Services.RoomManager
                 _logger.Debug($"PeerConnection closed due to device disconnect, device {remoteDevice}");
             }
 
+            // If this devie has joined a room,
+            // It also need to be removed from the router, so media no longer to/from to it.
+            if(deviceData.Room != null)
+            {
+                await deviceData.Room.VideoRouter.RemoveVideoClientAsync(remoteDevice.Id);
+            }
+
             // Clear any data associated with this device.
             // It's officially logged out
             remoteDevice.SetCustomData(new Models.RemoteDeviceData());
 
             // Send status update so devices can update their UIs
-            if(previousData.Room != null)
+            if(deviceData.Room != null)
             {
                 await _statusUpdateSender.HandleAsync(new SendSyncMessageRequest
                 {
-                    Room = previousData.Room
+                    Room = deviceData.Room
                 });
             }
         }

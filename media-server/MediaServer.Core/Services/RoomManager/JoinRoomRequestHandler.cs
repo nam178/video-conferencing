@@ -1,5 +1,4 @@
 ﻿using MediaServer.Common.Mediator;
-using MediaServer.Common.Threading;
 using MediaServer.Core.Common;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
@@ -13,18 +12,14 @@ namespace MediaServer.Core.Services.RoomManager
 {
     sealed class JoinRoomRequestHandler : IRemoteDeviceService<JoinRoomRequest, GenericResponse>
     {
-        readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;
         readonly IHandler<SendSyncMessageRequest> _statusUpdateSender;
         readonly static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public JoinRoomRequestHandler(
-            IDispatchQueue centralDispatchQueue,
             IRoomRepository roomRepository,
             IHandler<SendSyncMessageRequest> statusUpdateSender)
         {
-            _centralDispatchQueue = centralDispatchQueue
-                ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
             _roomRepository = roomRepository
                 ?? throw new ArgumentNullException(nameof(roomRepository));
             _statusUpdateSender = statusUpdateSender 
@@ -54,6 +49,10 @@ namespace MediaServer.Core.Services.RoomManager
             deviceData.User = user;
             remoteDevice.SetCustomData(deviceData);
             _logger.Info($"Device {remoteDevice} now associated with room {room} and user {user}");
+
+            // Add this device to the router, 
+            // so the router knows about it and will route media to it.
+            await deviceData.Room.VideoRouter.AddVideoClientAsync(remoteDevice.Id);
 
             // Broadcast the status update
             await _statusUpdateSender.HandleAsync(new SendSyncMessageRequest

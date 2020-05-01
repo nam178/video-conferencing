@@ -8,7 +8,7 @@ namespace MediaServer.Core.Services.PeerConnection
     {
         const int MaxTrackIdLength = 1024;
 
-        public Task HandleAsync(IRemoteDevice device, SetTrackQualityRequest args)
+        public async Task HandleAsync(IRemoteDevice device, SetTrackQualityRequest args)
         {
             var data = device.GetCustomData();
             if(data.Room == null)
@@ -20,13 +20,7 @@ namespace MediaServer.Core.Services.PeerConnection
             if(args.TrackId.Length > MaxTrackIdLength)
                 throw new ArgumentException("TrackId is too long");
 
-            var tmp = data.VideoSinks[args.TrackQuality];
-            tmp.ExpectedTrackId = args.TrackId;
-            data.VideoSinks[args.TrackQuality] = tmp;
-
-            device.SetCustomData(data);
-
-            return Task.CompletedTask;
+            await data.Room.VideoRouter.PepareTrackAsync(device.Id, args.TrackQuality, args.TrackId);
         }
     }
 }
