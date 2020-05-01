@@ -1,6 +1,7 @@
 ﻿using MediaServer.Common.Utils;
 using MediaServer.WebRtc.Managed;
 using NLog;
+using System;
 
 namespace MediaServer.Core.Services.MediaRouting
 {
@@ -28,7 +29,14 @@ namespace MediaServer.Core.Services.MediaRouting
                 return;
             }
 
-            _videoRouter.AddRemoteTrack(videoClient, e.Payload);
+            try
+            {
+                _videoRouter.AddRemoteTrack(videoClient, e.Payload);
+            }
+            catch(Exception ex)
+            {
+                _logger.Error(ex, "Failed adding remote track into VideoRouter");
+            }
         }
 
         public void RemoteTrackRemoved(object sender, EventArgs<RtpReceiver> e)
@@ -41,7 +49,14 @@ namespace MediaServer.Core.Services.MediaRouting
                 return;
             }
 
-            _videoRouter.RemoveRemoteTrack(e.Payload);
+            try
+            {
+                _videoRouter.RemoveRemoteTrack(e.Payload);
+            }
+            catch(Exception ex)
+            {
+                _logger.Error(ex, "Failed removing remote track from VideoRouter");
+            }
         }
     }
 }

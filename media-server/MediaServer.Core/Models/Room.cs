@@ -42,13 +42,12 @@ namespace MediaServer.Models
             }
         }
 
-        IVideoRouter _videoRouter;
         public IVideoRouter VideoRouter
         {
             get
             {
                 CheckState();
-                return _videoRouter;
+                return _infra.VideoRouter;
             }
         }
 
@@ -72,7 +71,6 @@ namespace MediaServer.Models
             }
             State = RoomState.Initialising;
             _infra.Initialize();
-            _videoRouter = _infra.CreateVideoRouter();
             State = RoomState.Ok;
         }
 

@@ -16,10 +16,13 @@ namespace MediaServer.Core.Models
         /// <exception cref="System.InvalidOperationException">When this PeerConnectionFactory has not been initialised</exception>
         IDispatchQueue SignallingThread { get; }
 
+        /// <summary>
+        /// The VideoRouter, use this to route video between video clients.
+        /// </summary>
+        IVideoRouter VideoRouter { get; }
+
         void Initialize();
 
         IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, IRoom room);
-
-        IVideoRouter CreateVideoRouter();
     }
 }

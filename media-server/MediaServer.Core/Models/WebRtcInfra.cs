@@ -24,19 +24,29 @@ namespace MediaServer.Core.Models
             }
         }
 
+        VideoRouter _videoRouter;
+        public IVideoRouter VideoRouter
+        {
+            get
+            {
+                RequireInitialised();
+                return _videoRouter;
+            }
+        }
+
         public WebRtcInfra()
         {
             _peerConnectionFactory = new WebRtc.Managed.PeerConnectionFactory();
         }
 
         int _initialised = 0;
-
         public void Initialize()
         {
             if(Interlocked.CompareExchange(ref _initialised, 1, 0) == 0)
             {
                 _peerConnectionFactory.Initialize();
                 _signallingThread = new RtcThread2DispatchQueueAdapter(_peerConnectionFactory.SignallingThread);
+                _videoRouter = new VideoRouter(_signallingThread, _peerConnectionFactory);
             }
             else
             {
@@ -46,6 +56,7 @@ namespace MediaServer.Core.Models
 
         public IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, IRoom room)
         {
+            RequireInitialised();
             if(remoteDevice is null)
                 throw new ArgumentNullException(nameof(remoteDevice));
             if(room is null)
@@ -59,19 +70,15 @@ namespace MediaServer.Core.Models
             return new PeerConnectionAdapter(
                 room,
                 remoteDevice,
-                _peerConnectionFactory, 
-                new[] {
-                    stunUrls
-                });
+                _peerConnectionFactory,
+                new[] { stunUrls },
+                _videoRouter);
         }
 
-        public IVideoRouter CreateVideoRouter()
+        void RequireInitialised()
         {
-            if(Interlocked.CompareExchange(ref _initialised, 0, 0) == 0)
-            {
-                throw new InvalidOperationException("Not initialised");
-            }
-            return new VideoRouter(_signallingThread, _peerConnectionFactory);
+            if(Interlocked.CompareExchange(ref _initialised, 0, 0) != 0)
+                throw new InvalidOperationException("Not Initialised");
         }
     }
 }

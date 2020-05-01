@@ -29,7 +29,7 @@ namespace MediaServer.Core.Services.MediaRouting
             _eventHandler = new VideoRouterEventHandler(this, _videoClients);
         }
 
-        public Task AddVideoClient(Guid videoClientId)
+        public Task AddVideoClientAsync(Guid videoClientId)
         {
             Require.NotEmpty(videoClientId);
 
@@ -39,7 +39,7 @@ namespace MediaServer.Core.Services.MediaRouting
             });
         }
 
-        public Task PepareTrack(Guid videoClientId, TrackQuality trackQuality, string trackId)
+        public Task PepareTrackAsync(Guid videoClientId, TrackQuality trackQuality, string trackId)
         {
             Require.NotEmpty(videoClientId);
             Require.NotNullOrWhiteSpace(trackId);
@@ -84,7 +84,7 @@ namespace MediaServer.Core.Services.MediaRouting
             });
         }
 
-        public Task AddPeerConnection(
+        public Task AddPeerConnectionAsync(
             Guid videoClientId,
             global::MediaServer.WebRtc.Managed.PeerConnection peerConnection,
             PeerConnectionObserver peerConnectionObserver)
@@ -117,7 +117,7 @@ namespace MediaServer.Core.Services.MediaRouting
             });
         }
 
-        public Task RemovePeerConnection(
+        public Task RemovePeerConnectionAsync(
             Guid videoClientId,
             global::MediaServer.WebRtc.Managed.PeerConnection peerConnection,
             PeerConnectionObserver peerConnectionObserver)
@@ -141,7 +141,7 @@ namespace MediaServer.Core.Services.MediaRouting
             });
         }
 
-        public Task RemoveVideoClient(Guid videoClientId)
+        public Task RemoveVideoClientAsync(Guid videoClientId)
         {
             return _signallingThread.ExecuteAsync(delegate
             {
@@ -189,7 +189,7 @@ namespace MediaServer.Core.Services.MediaRouting
                 .FirstOrDefault(kv => string.Equals(kv.Value.ExpectedTrackId, rtpReceiver.Track.Id, StringComparison.InvariantCultureIgnoreCase))
                 .Value;
             if(null == videoSource)
-                throw new InvalidProgramException($"Track quality for track {rtpReceiver.Track.Id} has not been set");
+                throw new InvalidOperationException($"Track quality for track {rtpReceiver.Track.Id} has not been set");
 
             VideoRouterThrowHelper.WhenSourceIsEmpty(videoSource, rtpReceiver);
 
