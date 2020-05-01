@@ -1,6 +1,6 @@
 using MediaServer.Common.Mediator;
 using MediaServer.Common.Utils;
-using MediaServer.Core.Services;
+using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using MediaServer.WebSocket.CommandArgs;
 using MediaServer.WebSocket.Net;
@@ -10,9 +10,9 @@ namespace MediaServer.WebSocket.CommandHandlers
 {
     sealed class AddIceCandidateHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.AddIceCandidate>
     {
-        readonly IRemoteDeviceService<RTCIceCandidate> _iceCandidateHandler;
+        readonly IHandler<IRemoteDevice, RTCIceCandidate> _iceCandidateHandler;
 
-        public AddIceCandidateHandler(IRemoteDeviceService<RTCIceCandidate> iceCandidateHandler)
+        public AddIceCandidateHandler(IHandler<IRemoteDevice, RTCIceCandidate> iceCandidateHandler)
         {
             _iceCandidateHandler = iceCandidateHandler
                 ?? throw new System.ArgumentNullException(nameof(iceCandidateHandler));

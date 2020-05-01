@@ -1,6 +1,6 @@
 ﻿using MediaServer.Common.Mediator;
-using MediaServer.Core.Services;
 using MediaServer.Core.Services.RoomManager;
+using MediaServer.Models;
 using NLog;
 using System.Threading.Tasks;
 
@@ -8,10 +8,10 @@ namespace MediaServer.WebSocket.Net
 {
     sealed class WebSocketDeviceDisconnectedHandler : IHandler<IWebSocketRemoteDevice>
     {
-        readonly IRemoteDeviceService<DeviceDisconnectionRequest> _coreHandler;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly IHandler<IRemoteDevice, DeviceDisconnectionRequest> _coreHandler;
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public WebSocketDeviceDisconnectedHandler(IRemoteDeviceService<DeviceDisconnectionRequest> coreHandler)
+        public WebSocketDeviceDisconnectedHandler(IHandler<IRemoteDevice, DeviceDisconnectionRequest> coreHandler)
         {
             _coreHandler = coreHandler
                 ?? throw new System.ArgumentNullException(nameof(coreHandler));

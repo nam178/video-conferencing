@@ -1,5 +1,4 @@
-﻿using MediaServer.Common.Threading;
-using MediaServer.Core.Repositories;
+﻿using MediaServer.Common.Mediator;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using NLog;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
-    sealed class RTCIceCandidateHandler : IRemoteDeviceService<RTCIceCandidate>
+    sealed class RTCIceCandidateHandler : IHandler<IRemoteDevice, RTCIceCandidate>
     {
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 

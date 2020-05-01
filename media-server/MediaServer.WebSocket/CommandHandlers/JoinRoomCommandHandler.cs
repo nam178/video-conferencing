@@ -4,6 +4,7 @@ using MediaServer.Core.Common;
 using MediaServer.Core.Models;
 using MediaServer.Core.Services;
 using MediaServer.Core.Services.RoomManager;
+using MediaServer.Models;
 using MediaServer.WebSocket.CommandArgs;
 using MediaServer.WebSocket.Net;
 using Newtonsoft.Json;
@@ -14,9 +15,9 @@ namespace MediaServer.WebSocket.CommandHandlers
 {
     sealed class JoinRoomCommandHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.JoinRoom>
     {
-        readonly IRemoteDeviceService<JoinRoomRequest, GenericResponse> _coreHandler;
+        readonly IMapper<IRemoteDevice, JoinRoomRequest, GenericResponse> _coreHandler;
 
-        public JoinRoomCommandHandler(IRemoteDeviceService<JoinRoomRequest, GenericResponse> coreHandler)
+        public JoinRoomCommandHandler(IMapper<IRemoteDevice, JoinRoomRequest, GenericResponse> coreHandler)
         {
             _coreHandler = coreHandler
                 ?? throw new ArgumentNullException(nameof(coreHandler));

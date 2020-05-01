@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.RoomManager
 {
-    sealed class JoinRoomRequestHandler : IRemoteDeviceService<JoinRoomRequest, GenericResponse>
+    sealed class JoinRoomRequestHandler : IMapper<IRemoteDevice, JoinRoomRequest, GenericResponse>
     {
         readonly IRoomRepository _roomRepository;
         readonly IHandler<SendSyncMessageRequest> _statusUpdateSender;

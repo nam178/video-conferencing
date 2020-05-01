@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.RoomManager
 {
-    sealed class DeviceDisconnectionRequestHandler : IRemoteDeviceService<DeviceDisconnectionRequest>
+    sealed class DeviceDisconnectionRequestHandler : IHandler<IRemoteDevice, DeviceDisconnectionRequest>
     {
         readonly IHandler<SendSyncMessageRequest> _statusUpdateSender;
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();

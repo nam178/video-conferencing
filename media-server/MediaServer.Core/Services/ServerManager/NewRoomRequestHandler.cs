@@ -1,4 +1,5 @@
-﻿using MediaServer.Common.Threading;
+﻿using MediaServer.Common.Mediator;
+using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Models;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.ServerManager
 {
-    sealed class NewRoomRequestHandler : IRemoteDeviceService<NewRoomRequest, RoomId>
+    sealed class NewRoomRequestHandler : IMapper<IRemoteDevice, NewRoomRequest, RoomId>
     {
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;

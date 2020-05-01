@@ -1,6 +1,6 @@
 ﻿using MediaServer.Common.Mediator;
 using MediaServer.Common.Utils;
-using MediaServer.Core.Services;
+using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using MediaServer.WebSocket.CommandArgs;
 using MediaServer.WebSocket.Net;
@@ -11,9 +11,9 @@ namespace MediaServer.WebSocket.CommandHandlers
 {
     sealed class SetOfferCommandHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.SetOffer>
     {
-        readonly IRemoteDeviceService<RTCSessionDescription> _sdpHandler;
+        readonly IHandler<IRemoteDevice, RTCSessionDescription> _sdpHandler;
 
-        public SetOfferCommandHandler(IRemoteDeviceService<RTCSessionDescription> sdpHandler)
+        public SetOfferCommandHandler(IHandler<IRemoteDevice, RTCSessionDescription> sdpHandler)
         {
             _sdpHandler = sdpHandler
                 ?? throw new ArgumentNullException(nameof(sdpHandler));

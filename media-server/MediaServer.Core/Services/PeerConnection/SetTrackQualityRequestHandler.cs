@@ -1,10 +1,11 @@
-﻿using MediaServer.Models;
+﻿using MediaServer.Common.Mediator;
+using MediaServer.Models;
 using System;
 using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
-    sealed class SetTrackQualityRequestHandler : IRemoteDeviceService<SetTrackQualityRequest>
+    sealed class SetTrackQualityRequestHandler : IHandler<IRemoteDevice, SetTrackQualityRequest>
     {
         const int MaxTrackIdLength = 1024;
 

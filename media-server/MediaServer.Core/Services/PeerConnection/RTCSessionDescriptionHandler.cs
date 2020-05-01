@@ -1,4 +1,5 @@
-﻿using MediaServer.Common.Threading;
+﻿using MediaServer.Common.Mediator;
+using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
 using MediaServer.Models;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
-    sealed class RTCSessionDescriptionHandler : IRemoteDeviceService<RTCSessionDescription>
+    sealed class RTCSessionDescriptionHandler : IHandler<IRemoteDevice, RTCSessionDescription>
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
