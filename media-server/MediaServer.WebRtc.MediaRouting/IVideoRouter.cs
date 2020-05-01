@@ -1,8 +1,7 @@
-﻿using MediaServer.WebRtc.Managed;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.MediaRouting
+namespace MediaServer.WebRtc.MediaRouting
 {
     public interface IVideoRouter
     {

@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L4. Infra_Libs", "L4. Infra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.WebSocket", "MediaServer.WebSocket\MediaServer.WebSocket.csproj", "{6F09F346-C7A8-4325-BCD3-2A9221EB0611}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.WebRtc.MediaRouting", "MediaServer.WebRtc.MediaRouting\MediaServer.WebRtc.MediaRouting.csproj", "{77A1917D-E087-4175-AFA6-B9B1EECD0311}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,6 +149,22 @@ Global
 		{6F09F346-C7A8-4325-BCD3-2A9221EB0611}.Release|x64.Build.0 = Release|Any CPU
 		{6F09F346-C7A8-4325-BCD3-2A9221EB0611}.Release|x86.ActiveCfg = Release|Any CPU
 		{6F09F346-C7A8-4325-BCD3-2A9221EB0611}.Release|x86.Build.0 = Release|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Debug|ARM.Build.0 = Debug|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Debug|x64.Build.0 = Debug|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Debug|x86.Build.0 = Debug|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Release|ARM.ActiveCfg = Release|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Release|ARM.Build.0 = Release|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Release|x64.ActiveCfg = Release|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Release|x64.Build.0 = Release|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Release|x86.ActiveCfg = Release|Any CPU
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -159,6 +177,7 @@ Global
 		{02E37D3A-C4C4-4577-A6CD-4985A0239748} = {2D0A3A85-DC14-484A-8F5F-26E6F142D498}
 		{1461C406-A311-4A4A-A0FC-FB14CB887AEF} = {7457F509-1C6B-4096-9AFA-3423DA363ABD}
 		{6F09F346-C7A8-4325-BCD3-2A9221EB0611} = {2BFD1514-AB21-41C2-8788-1CA0CB80651E}
+		{77A1917D-E087-4175-AFA6-B9B1EECD0311} = {AFAE8858-AF8A-4DAF-B4C6-FC05094AC513}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FDDDC335-362A-4F14-815D-5D40C75CCE88}

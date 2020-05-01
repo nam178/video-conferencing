@@ -1,6 +1,6 @@
 ﻿using MediaServer.WebRtc.Managed;
 
-namespace MediaServer.Core.Services.MediaRouting
+namespace MediaServer.WebRtc.MediaRouting
 {
     sealed class VideoSource
     {

@@ -6,9 +6,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.MediaRouting
+namespace MediaServer.WebRtc.MediaRouting
 {
-    sealed class VideoRouter : IVideoRouter
+    public sealed class VideoRouter : IVideoRouter
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly IDispatchQueue _signallingThread;
@@ -86,7 +86,7 @@ namespace MediaServer.Core.Services.MediaRouting
 
         public Task AddPeerConnectionAsync(
             Guid videoClientId,
-            global::MediaServer.WebRtc.Managed.PeerConnection peerConnection,
+            PeerConnection peerConnection,
             PeerConnectionObserver peerConnectionObserver)
         {
             return _signallingThread.ExecuteAsync(delegate
@@ -119,7 +119,7 @@ namespace MediaServer.Core.Services.MediaRouting
 
         public Task RemovePeerConnectionAsync(
             Guid videoClientId,
-            global::MediaServer.WebRtc.Managed.PeerConnection peerConnection,
+            PeerConnection peerConnection,
             PeerConnectionObserver peerConnectionObserver)
         {
             return _signallingThread.ExecuteAsync(delegate

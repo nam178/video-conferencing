@@ -1,7 +1,7 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
-using MediaServer.Core.Services.MediaRouting;
+using MediaServer.WebRtc.MediaRouting;
 
 namespace MediaServer.Models
 {

@@ -1,8 +1,7 @@
-﻿using MediaServer.WebRtc.Managed;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace MediaServer.Core.Services.MediaRouting
+namespace MediaServer.WebRtc.MediaRouting
 {
     sealed class VideoClient
     {
@@ -14,7 +13,7 @@ namespace MediaServer.Core.Services.MediaRouting
 
         public TrackQuality DesiredVideoQuality => TrackQuality.High; // todo - support multiple quality streams
 
-        public bool IsPrimaryPeerConnection(global::MediaServer.WebRtc.Managed.PeerConnection peerConnection)
+        public bool IsPrimaryPeerConnection(Managed.PeerConnection peerConnection)
         {
             // The primary PeerConnection simply 
             // the first one added for this device

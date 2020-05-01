@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MediaServer.Common\MediaServer.Common.csproj" />
     <ProjectReference Include="..\MediaServer.WebRtc.Managed\MediaServer.WebRtc.Managed.csproj" />
+    <ProjectReference Include="..\MediaServer.WebRtc.MediaRouting\MediaServer.WebRtc.MediaRouting.csproj" />
   </ItemGroup>
 
 </Project>

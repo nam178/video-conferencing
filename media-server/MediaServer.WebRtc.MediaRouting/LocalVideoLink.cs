@@ -2,18 +2,18 @@
 using System;
 using System.Threading;
 
-namespace MediaServer.Core.Services.MediaRouting
+namespace MediaServer.WebRtc.MediaRouting
 {
     sealed class LocalVideoLink : IDisposable
     {
         readonly VideoTrack _track;
         readonly RtpSender _rtpSender;
 
-        public global::MediaServer.WebRtc.Managed.PeerConnection TargetPeerConnection { get; }
+        public PeerConnection TargetPeerConnection { get; }
 
         public VideoSource VideoSource { get; }
 
-        public LocalVideoLink(PeerConnectionFactory peerConnectionFactory, VideoSource videoSource, global::MediaServer.WebRtc.Managed.PeerConnection targetPeerConnection)
+        public LocalVideoLink(PeerConnectionFactory peerConnectionFactory, VideoSource videoSource, PeerConnection targetPeerConnection)
         {
             if(peerConnectionFactory is null)
                 throw new ArgumentNullException(nameof(peerConnectionFactory));

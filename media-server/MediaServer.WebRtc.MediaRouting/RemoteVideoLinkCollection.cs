@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MediaServer.Core.Services.MediaRouting
+namespace MediaServer.WebRtc.MediaRouting
 {
     /// <summary>
     /// Manages the zero-to-one relationship between VideoSource -> RtpReceiver.

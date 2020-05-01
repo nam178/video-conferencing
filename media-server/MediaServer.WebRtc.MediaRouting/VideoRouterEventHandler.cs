@@ -3,7 +3,7 @@ using MediaServer.WebRtc.Managed;
 using NLog;
 using System;
 
-namespace MediaServer.Core.Services.MediaRouting
+namespace MediaServer.WebRtc.MediaRouting
 {
     sealed class VideoRouterEventHandler
     {

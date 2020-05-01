@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MediaServer.Core.Services.MediaRouting
+namespace MediaServer.WebRtc.MediaRouting
 {
     /// <summary>
     /// Represents many-to-many relationshop between PeerConnection and VideoSource.
@@ -11,12 +11,12 @@ namespace MediaServer.Core.Services.MediaRouting
     /// <remarks>Not thread safe.</remarks>
     sealed class LocalVideoLinkCollection
     {
-        readonly Dictionary<WebRtc.Managed.PeerConnection, HashSet<LocalVideoLink>> _idx_peerConnection;
+        readonly Dictionary<Managed.PeerConnection, HashSet<LocalVideoLink>> _idx_peerConnection;
         readonly Dictionary<VideoSource, HashSet<LocalVideoLink>> _idx_videoSource;
 
         public LocalVideoLinkCollection()
         {
-            _idx_peerConnection = new Dictionary<WebRtc.Managed.PeerConnection, HashSet<LocalVideoLink>>();
+            _idx_peerConnection = new Dictionary<Managed.PeerConnection, HashSet<LocalVideoLink>>();
             _idx_videoSource = new Dictionary<VideoSource, HashSet<LocalVideoLink>>();
         }
 
@@ -26,7 +26,7 @@ namespace MediaServer.Core.Services.MediaRouting
             Add(_idx_peerConnection, link.TargetPeerConnection, link);
         }
 
-        public void RemoveByPeerConnection(WebRtc.Managed.PeerConnection peerConnection)
+        public void RemoveByPeerConnection(Managed.PeerConnection peerConnection)
         {
             if(_idx_peerConnection.ContainsKey(peerConnection))
             {

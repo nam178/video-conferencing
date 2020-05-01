@@ -1,4 +1,4 @@
-﻿namespace MediaServer.WebRtc.Managed
+﻿namespace MediaServer.WebRtc.MediaRouting
 {
     public enum TrackQuality
     {

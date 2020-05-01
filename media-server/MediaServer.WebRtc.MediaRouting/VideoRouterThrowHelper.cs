@@ -1,7 +1,7 @@
 ﻿using MediaServer.WebRtc.Managed;
 using System;
 
-namespace MediaServer.Core.Services.MediaRouting
+namespace MediaServer.WebRtc.MediaRouting
 {
     static class VideoRouterThrowHelper
     {
