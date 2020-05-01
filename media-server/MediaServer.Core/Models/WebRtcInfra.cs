@@ -1,5 +1,5 @@
 ﻿using MediaServer.Common.Threading;
-using MediaServer.Core.Services.RoomManager;
+using MediaServer.Core.Services.MediaRouting;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using System;
@@ -7,9 +7,9 @@ using System.Threading;
 
 namespace MediaServer.Core.Models
 {
-    sealed class PeerConnectionFactoryAdapter : IPeerConnectionFactory
+    sealed class WebRtcInfra : IWebRtcInfra
     {
-        readonly WebRtc.Managed.PeerConnectionFactory _impl;
+        readonly PeerConnectionFactory _peerConnectionFactory;
 
         IDispatchQueue _signallingThread;
         public IDispatchQueue SignallingThread
@@ -24,9 +24,9 @@ namespace MediaServer.Core.Models
             }
         }
 
-        public PeerConnectionFactoryAdapter()
+        public WebRtcInfra()
         {
-            _impl = new WebRtc.Managed.PeerConnectionFactory();
+            _peerConnectionFactory = new WebRtc.Managed.PeerConnectionFactory();
         }
 
         int _initialised = 0;
@@ -35,8 +35,8 @@ namespace MediaServer.Core.Models
         {
             if(Interlocked.CompareExchange(ref _initialised, 1, 0) == 0)
             {
-                _impl.Initialize();
-                _signallingThread = new RtcThread2DispatchQueueAdapter(_impl.SignallingThread);
+                _peerConnectionFactory.Initialize();
+                _signallingThread = new RtcThread2DispatchQueueAdapter(_peerConnectionFactory.SignallingThread);
             }
             else
             {
@@ -44,7 +44,7 @@ namespace MediaServer.Core.Models
             }
         }
 
-        public IPeerConnection Create(IRemoteDevice remoteDevice, IRoom room)
+        public IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, IRoom room)
         {
             if(remoteDevice is null)
                 throw new ArgumentNullException(nameof(remoteDevice));
@@ -59,10 +59,19 @@ namespace MediaServer.Core.Models
             return new PeerConnectionAdapter(
                 room,
                 remoteDevice,
-                _impl, 
+                _peerConnectionFactory, 
                 new[] {
                     stunUrls
                 });
+        }
+
+        public IVideoRouter CreateVideoRouter()
+        {
+            if(Interlocked.CompareExchange(ref _initialised, 0, 0) == 0)
+            {
+                throw new InvalidOperationException("Not initialised");
+            }
+            return new VideoRouter(_signallingThread, _peerConnectionFactory);
         }
     }
 }

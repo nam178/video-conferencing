@@ -1,9 +1,13 @@
 ﻿using MediaServer.Common.Threading;
+using MediaServer.Core.Services.MediaRouting;
 using MediaServer.Models;
 
 namespace MediaServer.Core.Models
 {
-    public interface IPeerConnectionFactory
+    /// <summary>
+    /// Represents the WebRTC library
+    /// </summary>
+    interface IWebRtcInfra
     {
         /// <summary>
         /// Get the signalling thread
@@ -14,6 +18,8 @@ namespace MediaServer.Core.Models
 
         void Initialize();
 
-        IPeerConnection Create(IRemoteDevice remoteDevice, IRoom room);
+        IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, IRoom room);
+
+        IVideoRouter CreateVideoRouter();
     }
 }

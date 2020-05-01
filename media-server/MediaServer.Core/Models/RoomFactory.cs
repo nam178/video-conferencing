@@ -13,6 +13,6 @@ namespace MediaServer.Core.Models
             _lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
         }
 
-        public IRoom Create(RoomId id) => new Room(id, _lifetimeScope.Resolve<PeerConnectionFactoryAdapter>());
+        public IRoom Create(RoomId id) => new Room(id, _lifetimeScope.Resolve<WebRtcInfra>());
     }
 }

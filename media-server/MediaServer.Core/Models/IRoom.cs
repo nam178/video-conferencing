@@ -1,6 +1,7 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
+using MediaServer.Core.Services.MediaRouting;
 
 namespace MediaServer.Models
 {
@@ -28,20 +29,26 @@ namespace MediaServer.Models
         RoomState State { get; }
 
         /// <summary>
-        /// The factory to create PeerConnections for users in this room.
-        /// </summary>
-        /// <exception cref="System.InvalidOperationException">When the room is not initialised</exception>
-        IPeerConnectionFactory PeerConnectionFactory { get; }
-
-        /// <summary>
         /// The users that belongs to this room
         /// </summary>
         /// <exception cref="System.InvalidOperationException">When the room is not initialised</exception>
         IUserProfileCollection UserProfiles { get; }
 
         /// <summary>
+        /// Video router that routes video for this room
+        /// </summary>
+        IVideoRouter VideoRouter { get; }
+
+        /// <summary>
         /// Initialise the room
         /// </summary>
         void Initialize();
+
+        /// <summary>
+        /// Create a PeerConnection for specified remote device
+        /// </summary>
+        /// <param name="remoteDevice"></param>
+        /// <returns></returns>
+        IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice);
     }
 }

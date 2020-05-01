@@ -40,7 +40,7 @@ namespace MediaServer.Core.IoC
 
             // Factories
             builder.RegisterType<RoomFactory>().AsImplementedInterfaces();
-            builder.RegisterType<PeerConnectionFactoryAdapter>().AsSelf();
+            builder.RegisterType<WebRtcInfra>().AsSelf();
         }
     }
 }

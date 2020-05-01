@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.MediaRouting
 {
-    interface IVideoRouter
+    public interface IVideoRouter
     {
         /// <summary>
         /// Notify this router that a PeerConnection is created.

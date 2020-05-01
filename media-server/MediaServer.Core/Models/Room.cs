@@ -2,6 +2,7 @@ using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
+using MediaServer.Core.Services.MediaRouting;
 using System;
 using System.Threading;
 
@@ -10,14 +11,14 @@ namespace MediaServer.Models
     sealed class Room : IRoom
     {
         readonly IUserProfileCollection _userProfiles = new UserProfileCollection();
-        readonly IPeerConnectionFactory _peerConnectionFactory;
+        readonly IWebRtcInfra _infra;
 
         public IDispatchQueue SignallingThread
         {
             get
             {
                 CheckState();
-                return _peerConnectionFactory.SignallingThread;
+                return _infra.SignallingThread;
             }
         }
 
@@ -32,21 +33,31 @@ namespace MediaServer.Models
             }
         }
 
-        public IPeerConnectionFactory PeerConnectionFactory
+        public IWebRtcInfra PeerConnectionFactory
         {
             get
             {
                 CheckState();
-                return _peerConnectionFactory;
+                return _infra;
+            }
+        }
+
+        IVideoRouter _videoRouter;
+        public IVideoRouter VideoRouter
+        {
+            get
+            {
+                CheckState();
+                return _videoRouter;
             }
         }
 
         public RoomState State { get; private set; } = RoomState.JustCreated;
 
-        public Room(RoomId id, IPeerConnectionFactory peerConnectionFactory)
+        public Room(RoomId id, IWebRtcInfra peerConnectionFactory)
         {
             Require.NotEmpty(id);
-            _peerConnectionFactory = peerConnectionFactory
+            _infra = peerConnectionFactory
                 ?? throw new System.ArgumentNullException(nameof(peerConnectionFactory));
             Id = id;
         }
@@ -60,8 +71,17 @@ namespace MediaServer.Models
                 throw new InvalidOperationException();
             }
             State = RoomState.Initialising;
-            _peerConnectionFactory.Initialize();
+            _infra.Initialize();
+            _videoRouter = _infra.CreateVideoRouter();
             State = RoomState.Ok;
+        }
+
+        public IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice)
+        {
+            if(remoteDevice is null)
+                throw new ArgumentNullException(nameof(remoteDevice));
+            CheckState();
+            return _infra.CreatePeerConnection(remoteDevice, this);
         }
 
         public override string ToString() => $"[Room Id={Id}]";

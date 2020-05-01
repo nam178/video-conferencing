@@ -56,7 +56,7 @@ namespace MediaServer.Core.Services.PeerConnection
 
         IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, User user)
         {
-            var peerConnection = user.Room.PeerConnectionFactory.Create(remoteDevice, user.Room);
+            var peerConnection = user.Room.PeerConnectionFactory.CreatePeerConnection(remoteDevice, user.Room);
             _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
 
             // This is the first time is PeerConnection is created,
