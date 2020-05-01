@@ -34,7 +34,6 @@ namespace MediaServer.Core.Services.MediaRouting
 
             // Add track to peer
             _rtpSender = TargetPeerConnection.AddTrack(_track, streamId);
-
         }
 
         int _close;

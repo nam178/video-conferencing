@@ -61,7 +61,8 @@ namespace MediaServer.Core.Services.MediaRouting
             var track = _idx_sourceToTrack[videoSource];
             if(false == _idx_sourceToTrack.Remove(videoSource))
                 throw new InvalidProgramException("Failed removing VideoSource");
-            _idx_trackToSource.Remove(track);
+            if(false == _idx_trackToSource.Remove(track))
+                throw new InvalidProgramException("Failed removing track");
 
             Disconnect(track, videoSource);
         }

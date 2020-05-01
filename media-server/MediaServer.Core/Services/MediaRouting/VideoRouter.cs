@@ -124,6 +124,9 @@ namespace MediaServer.Core.Services.MediaRouting
         {
             return _signallingThread.ExecuteAsync(delegate
             {
+                // Remove all video links that was created for this PeerConnection
+                _localVideoLinks.RemoveByPeerConnection(peerConnection);
+
                 // Here basically undo the things we did in AddPeerConnection(),
                 // in reverse order.
                 // No longer interested in its track events
@@ -135,9 +138,6 @@ namespace MediaServer.Core.Services.MediaRouting
                 var removed = videoClient.PeerConnections.RemoveAll(entry => entry.PeerConnection == peerConnection);
                 if(removed == 0)
                     throw new InvalidProgramException("PeerConnection did not removed from memory");
-
-                // Remove all video links that was created for this PeerConnection
-                _localVideoLinks.RemoveByPeerConnection(peerConnection);
             });
         }
 

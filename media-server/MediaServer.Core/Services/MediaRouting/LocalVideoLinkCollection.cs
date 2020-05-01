@@ -11,13 +11,13 @@ namespace MediaServer.Core.Services.MediaRouting
     /// <remarks>Not thread safe.</remarks>
     sealed class LocalVideoLinkCollection
     {
-        readonly Dictionary<WebRtc.Managed.PeerConnection, List<LocalVideoLink>> _idx_peerConnection;
-        readonly Dictionary<VideoSource, List<LocalVideoLink>> _idx_videoSource;
+        readonly Dictionary<WebRtc.Managed.PeerConnection, HashSet<LocalVideoLink>> _idx_peerConnection;
+        readonly Dictionary<VideoSource, HashSet<LocalVideoLink>> _idx_videoSource;
 
         public LocalVideoLinkCollection()
         {
-            _idx_peerConnection = new Dictionary<WebRtc.Managed.PeerConnection, List<LocalVideoLink>>();
-            _idx_videoSource = new Dictionary<VideoSource, List<LocalVideoLink>>();
+            _idx_peerConnection = new Dictionary<WebRtc.Managed.PeerConnection, HashSet<LocalVideoLink>>();
+            _idx_videoSource = new Dictionary<VideoSource, HashSet<LocalVideoLink>>();
         }
 
         public void Add(LocalVideoLink link)
@@ -30,8 +30,10 @@ namespace MediaServer.Core.Services.MediaRouting
         {
             if(_idx_peerConnection.ContainsKey(peerConnection))
             {
-                foreach(var link in _idx_peerConnection[peerConnection].ToList())
+                var links = _idx_peerConnection[peerConnection].ToList();
+                for(int i = 0; i < links.Count; i++)
                 {
+                    var link = links[i];
                     if(false == _idx_videoSource.ContainsKey(link.VideoSource))
                         throw new InvalidProgramException();
 
@@ -41,7 +43,6 @@ namespace MediaServer.Core.Services.MediaRouting
                         link.Close();
                     }
                 }
-
                 _idx_peerConnection.Remove(peerConnection);
             }
         }
@@ -50,8 +51,10 @@ namespace MediaServer.Core.Services.MediaRouting
         {
             if(_idx_videoSource.ContainsKey(videoSource))
             {
-                foreach(var link in _idx_videoSource[videoSource].ToList())
+                var links = _idx_videoSource[videoSource].ToList();
+                for(int i = 0; i < links.Count; i++)
                 {
+                    var link = links[i];
                     if(false == _idx_peerConnection.ContainsKey(link.TargetPeerConnection))
                         throw new InvalidProgramException();
 
@@ -66,11 +69,11 @@ namespace MediaServer.Core.Services.MediaRouting
             }
         }
 
-        static void Add<K, V>(Dictionary<K, List<V>> dict, K key, V value)
+        static void Add<K, V>(Dictionary<K, HashSet<V>> dict, K key, V value)
         {
             if(false == dict.ContainsKey(key))
             {
-                dict[key] = new List<V> { value };
+                dict[key] = new HashSet<V> { value };
             }
             else
             {
@@ -82,7 +85,7 @@ namespace MediaServer.Core.Services.MediaRouting
             }
         }
 
-        static void Remove<K, V>(Dictionary<K, List<V>> dict, K key, V value)
+        static void Remove<K, V>(Dictionary<K, HashSet<V>> dict, K key, V value)
         {
             if(false == dict.ContainsKey(key))
                 return;
