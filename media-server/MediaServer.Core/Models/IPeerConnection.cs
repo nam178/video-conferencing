@@ -27,6 +27,6 @@ namespace MediaServer.Core.Models
 
         void AddIceCandidate(RTCIceCandidate iceCandidate);
 
-        void Close();
+        Task CloseAsync();
     }
 }

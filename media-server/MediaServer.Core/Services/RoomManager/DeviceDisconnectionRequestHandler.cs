@@ -26,9 +26,9 @@ namespace MediaServer.Core.Services.RoomManager
             {
                 using(peer)
                 {
-                    peer.Close();
+                    await peer.CloseAsync();
+                    _logger.Debug($"{peer} closed due to device disconnect, device {remoteDevice}");
                 }
-                _logger.Debug($"PeerConnection closed due to device disconnect, device {remoteDevice}");
             }
 
             // If this devie has joined a room,

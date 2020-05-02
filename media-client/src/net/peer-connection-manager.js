@@ -128,7 +128,10 @@ export default class PeerConnectionManager {
                 await this._sendTrackInfoAsync(tracks[i].id, { quality: 'High', kind: tracks[i].kind });
             }
             var senderCount = newStream.getTracks().length;
-            newStream.getTracks().forEach(track => this._peerConnection.addTrack(track));
+            newStream.getTracks().forEach(track => {
+                var rtpSender = this._peerConnection.addTrack(track);
+                this._logger.debug(`Added new RtpSender with trackId=${rtpSender.track.id}`);
+            });
             this._logger.debug(`Added ${senderCount} new RTP sender(s)`);
         }
     }

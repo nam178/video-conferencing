@@ -1,7 +1,10 @@
-﻿using MediaServer.Common.Mediator;
+﻿using MediaServer.Api.WebSocket.Errors;
+using MediaServer.Common.Mediator;
 using NLog;
 using System;
 using System.Net;
+using System.Net.WebSockets;
+using System.Threading.Tasks;
 
 namespace MediaServer.Api.WebSocket.Net
 {
@@ -15,9 +18,9 @@ namespace MediaServer.Api.WebSocket.Net
             IHandler<IWebSocketRemoteDevice> remoteDeviceConnectedHandler,
             IHandler<IWebSocketRemoteDevice> remoteDeviceDisconenctedHandler)
         {
-            _remoteDeviceConnectedHandler = remoteDeviceConnectedHandler 
+            _remoteDeviceConnectedHandler = remoteDeviceConnectedHandler
                 ?? throw new ArgumentNullException(nameof(remoteDeviceConnectedHandler));
-            _remoteDeviceDisconenctedHandler = remoteDeviceDisconenctedHandler 
+            _remoteDeviceDisconenctedHandler = remoteDeviceDisconenctedHandler
                 ?? throw new ArgumentNullException(nameof(remoteDeviceDisconenctedHandler));
         }
 
@@ -27,20 +30,18 @@ namespace MediaServer.Api.WebSocket.Net
             try
             {
                 _logger.Trace($"{httpListenerContext.Request.RemoteEndPoint.Address}:{httpListenerContext.Request.RemoteEndPoint.Port} connected.");
-
                 using(httpListenerContext.Response)
                 {
                     var webSocketContext = await httpListenerContext.AcceptWebSocketAsync(null);
                     remoteDevice = new WebSocketRemoteDevice(new WebSocketClient(httpListenerContext, webSocketContext));
                     _logger.Trace($"{remoteDevice} Http -> WebSocket upgraded OK.");
-
                     using(webSocketContext.WebSocket)
                     {
                         await _remoteDeviceConnectedHandler.HandleAsync(remoteDevice);
                     }
                 }
             }
-            catch(System.Net.WebSockets.WebSocketException ex)
+            catch(Exception ex) when(ex is WebSocketException || ex is WebSocketClientDisposedException)
             {
                 _logger.Warn($"WebSocket Error Device={remoteDevice}, Err{ex.Message}");
             }
@@ -50,24 +51,27 @@ namespace MediaServer.Api.WebSocket.Net
             }
             finally
             {
-                // always, upon the exit of this block
-                // must trigger the DeviceDisconenctedHandler
-                if(remoteDevice != null)
-                {
-                    using(remoteDevice)
+                await CleanUpAsync(remoteDevice);
+            }
+        }
+
+        async Task CleanUpAsync(WebSocketRemoteDevice remoteDevice)
+        {
+            if(remoteDevice == null)
+                return;
+
+            using(remoteDevice)
+            {
+                _logger.Warn($"Device {remoteDevice} disconnected.");
+                await _remoteDeviceDisconenctedHandler
+                    .HandleAsync(remoteDevice)
+                    .ContinueWith(task =>
                     {
-                        _logger.Warn($"Device {remoteDevice} disconnected.");
-                        await _remoteDeviceDisconenctedHandler
-                            .HandleAsync(remoteDevice)
-                            .ContinueWith(task =>
-                            {
-                                if(task.Exception != null)
-                                {
-                                    _logger.Error("remoteDeviceDisconenctedHandler throws exception", task.Exception);
-                                }
-                            });
-                    }
-                }
+                        if(task.Exception != null)
+                        {
+                            _logger.Error("remoteDeviceDisconenctedHandler throws exception", task.Exception);
+                        }
+                    });
             }
         }
     }

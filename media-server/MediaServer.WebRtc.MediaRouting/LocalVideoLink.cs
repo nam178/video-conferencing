@@ -1,4 +1,5 @@
 ﻿using MediaServer.WebRtc.Managed;
+using NLog;
 using System;
 using System.Threading;
 
@@ -8,6 +9,7 @@ namespace MediaServer.WebRtc.MediaRouting
     {
         readonly VideoTrack _track;
         readonly RtpSender _rtpSender;
+        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public PeerConnection TargetPeerConnection { get; }
 
@@ -34,6 +36,7 @@ namespace MediaServer.WebRtc.MediaRouting
 
             // Add track to peer
             _rtpSender = TargetPeerConnection.AddTrack(_track, streamId);
+            _logger.Debug($"Local track created {_track}");
         }
 
         int _close;
@@ -53,6 +56,6 @@ namespace MediaServer.WebRtc.MediaRouting
             _track.Dispose();
         }
 
-        public override string ToString() => $"[LocalVideoLink Source={VideoSource}, Target={TargetPeerConnection}]";
+        public override string ToString() => $"[LocalVideoLink Source={VideoSource}, Target={TargetPeerConnection}, Track={_track}]";
     }
 }

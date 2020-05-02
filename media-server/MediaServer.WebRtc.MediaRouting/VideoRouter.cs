@@ -80,7 +80,7 @@ namespace MediaServer.WebRtc.MediaRouting
                 // Flag this source to say it should be 
                 // linked with the provided track
                 videoSource.ExpectedTrackId = trackId;
-                _logger.Info($"Prepared source for track {trackId}, Quality={trackQuality}");
+                _logger.Info($"Associated {videoSource} with track {trackId}");
             });
         }
 

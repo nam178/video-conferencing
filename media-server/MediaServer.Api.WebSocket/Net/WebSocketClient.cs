@@ -1,6 +1,6 @@
-﻿using MediaServer.Common.Threading;
+﻿using MediaServer.Api.WebSocket.Errors;
+using MediaServer.Common.Threading;
 using System;
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.WebSockets;
 using System.Threading;
@@ -34,7 +34,10 @@ namespace MediaServer.Api.WebSocket.Net
 
         public Task SendAsync(string message)
         {
-            return _outboundMessageQueue.ExecuteAsync(async delegate {
+            if(Interlocked.CompareExchange(ref _disposed, 0, 0) == 1)
+                throw new WebSocketClientDisposedException($"message could not be sent because {this} is closed");
+            return _outboundMessageQueue.ExecuteAsync(async delegate
+            {
                 await WebSocketContext.WebSocket.SendAsync(
                     new System.ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(message)),
                     WebSocketMessageType.Text,
@@ -45,8 +48,12 @@ namespace MediaServer.Api.WebSocket.Net
 
         public override string ToString() => $"[WebSocketClient {_name}]";
 
+        int _disposed;
+
         public void Dispose()
         {
+            if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 1)
+                return;
             try
             {
                 _outboundMessageQueue.Dispose();

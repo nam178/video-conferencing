@@ -101,10 +101,10 @@ namespace MediaServer.Core.Models
             }
         }
 
-        public void Close()
+        public async Task CloseAsync()
         {
             RequireInitialised();
-            _videoRouter.RemovePeerConnectionAsync(Device.Id, _nativePeerConnection, _nativeObserver);
+            await _videoRouter.RemovePeerConnectionAsync(Device.Id, _nativePeerConnection, _nativeObserver);
             _nativePeerConnection.Close();
         }
 
