@@ -13,14 +13,21 @@ namespace MediaServer.WebRtc.Managed
     {
         readonly PeerConnectionSafeHandle _handle;
         readonly List<(RtpSender RtpSender, MediaStreamTrack Track)> _localTracks = new List<(RtpSender RtpSender, MediaStreamTrack Track)>();
-
-        public PeerConnectionObserver Observer { get; }
+        /// <summary>
+        /// PeerConnection does not own observer, keep reference for convernient access only
+        /// </summary>
+        readonly PeerConnectionObserver _observer;
 
         public Guid Id = Guid.NewGuid();
 
-        internal PeerConnection(IntPtr unmanagedPointer)
+        public IReadOnlyList<RtpReceiver> RemoteTracks => _observer.RemoteTracks;
+
+        internal PeerConnection(
+            IntPtr unmanagedPointer,
+            PeerConnectionObserver observer)
         {
             _handle = new PeerConnectionSafeHandle(unmanagedPointer);
+            _observer = observer;
         }
 
         /// <summary>
@@ -180,7 +187,7 @@ namespace MediaServer.WebRtc.Managed
                         "All local tracks must be removed before closing PeerConnection");
                 }
             }
-            
+
             PeerConnectionInterop.Close(_handle);
         }
 

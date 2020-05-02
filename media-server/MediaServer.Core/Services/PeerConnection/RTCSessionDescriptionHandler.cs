@@ -31,7 +31,7 @@ namespace MediaServer.Core.Services.PeerConnection
             // If no PeerConnection for this device, create one
             if(null == peerConnection)
             {
-                peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User);
+                peerConnection = CreatePeerConnection(remoteDevice, deviceData.User);
                 // Save
                 deviceData.PeerConnections.Add(peerConnection);
                 remoteDevice.SetCustomData(deviceData);
@@ -55,10 +55,9 @@ namespace MediaServer.Core.Services.PeerConnection
             _logger.Info($"Local description {answer} set for {peerConnection}");
         }
 
-        async Task<IPeerConnection> CreatePeerConnection(IRemoteDevice remoteDevice, User user)
+        IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, User user)
         {
             var peerConnection = user.Room.CreatePeerConnection(remoteDevice);
-            await peerConnection.InitialiseAsync();
             _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
 
             // This is the first time is PeerConnection is created,

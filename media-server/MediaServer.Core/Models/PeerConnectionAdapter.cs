@@ -50,31 +50,19 @@ namespace MediaServer.Core.Models
             _nativePeerConnection = peerConnectionFactory.CreatePeerConnection(_nativeObserver, config);
         }
 
-        int _initialised;
-        public async Task InitialiseAsync()
-        {
-            if(Interlocked.CompareExchange(ref _initialised, 1, 0) != 0)
-            {
-                throw new InvalidOperationException();
-            }
-            await _videoRouter.AddPeerConnectionAsync(Device.Id, _nativePeerConnection, _nativeObserver);
-        }
-
         public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
         {
-            RequireInitialised();
             return _nativePeerConnection.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
         }
 
         public async Task<RTCSessionDescription> CreateAnswerAsync()
         {
-            RequireInitialised();
+            await _videoRouter.AddPeerConnectionAsync(Device.Id, _nativePeerConnection, _nativeObserver);
             return await _nativePeerConnection.CreateAnswerAsync();
         }
 
         public async Task SetLocalSessionDescriptionAsync(RTCSessionDescription localDescription)
         {
-            RequireInitialised();
             // After generating answer, must set LocalSdp,
             // otherwise ICE candidates won't be gathered.
             await _nativePeerConnection.SetLocalSessionDescriptionAsync(
@@ -84,13 +72,11 @@ namespace MediaServer.Core.Models
 
         public void AddIceCandidate(RTCIceCandidate iceCandidate)
         {
-            RequireInitialised();
             _nativePeerConnection.AddIceCandidate(iceCandidate);
         }
 
         public void ObserveIceCandidate(Action<RTCIceCandidate> observer)
         {
-            RequireInitialised();
             lock(_syncRoot)
             {
                 if(_iceCandidateObserver != null)
@@ -103,7 +89,6 @@ namespace MediaServer.Core.Models
 
         public async Task CloseAsync()
         {
-            RequireInitialised();
             await _videoRouter.RemovePeerConnectionAsync(Device.Id, _nativePeerConnection, _nativeObserver);
             _nativePeerConnection.Close();
         }
@@ -124,13 +109,5 @@ namespace MediaServer.Core.Models
         public override string ToString() => $"[PeerConnectionAdapter Id={_id.ToString().Substring(0, 8)}]";
 
         void IceCandidateAdded(object sender, EventArgs<RTCIceCandidate> e) => _iceCandidateObserver?.Invoke(e.Payload);
-
-        void RequireInitialised()
-        {
-            if(Interlocked.CompareExchange(ref _initialised, 0, 0) == 0)
-            {
-                throw new InvalidOperationException();
-            }
-        }
     }
 }
