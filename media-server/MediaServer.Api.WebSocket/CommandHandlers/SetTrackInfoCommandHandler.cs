@@ -1,8 +1,8 @@
-﻿using MediaServer.Common.Mediator;
+﻿using MediaServer.Api.WebSocket.CommandArgs;
+using MediaServer.Api.WebSocket.Net;
+using MediaServer.Common.Mediator;
 using MediaServer.Core.Services.PeerConnection;
 using MediaServer.Models;
-using MediaServer.Api.WebSocket.CommandArgs;
-using MediaServer.Api.WebSocket.Net;
 using System.Threading.Tasks;
 
 namespace MediaServer.Api.WebSocket.CommandHandlers
@@ -21,7 +21,8 @@ namespace MediaServer.Api.WebSocket.CommandHandlers
             await _service.HandleAsync(remoteDevice, new SetTrackQualityRequest
             {
                 TrackId = trackInfo.TrackId,
-                TrackQuality = trackInfo.Quality
+                TrackQuality = trackInfo.Quality,
+                Kind = trackInfo.Kind
             });
             await remoteDevice.SendAsync("TrackInfoSet", null);
         }

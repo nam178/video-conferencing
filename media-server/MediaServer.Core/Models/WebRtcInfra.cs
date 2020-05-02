@@ -77,7 +77,7 @@ namespace MediaServer.Core.Models
 
         void RequireInitialised()
         {
-            if(Interlocked.CompareExchange(ref _initialised, 0, 0) != 0)
+            if(Interlocked.CompareExchange(ref _initialised, 0, 0) != 1)
                 throw new InvalidOperationException("Not Initialised");
         }
     }

@@ -1,4 +1,5 @@
-﻿using MediaServer.WebRtc.MediaRouting;
+﻿using MediaServer.WebRtc.Managed;
+using MediaServer.WebRtc.MediaRouting;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
@@ -7,5 +8,7 @@ namespace MediaServer.Core.Services.PeerConnection
         public string TrackId { get; set; }
 
         public TrackQuality TrackQuality { get; set; }
+
+        public MediaStreamTrack.Kind Kind { get; set; }
     }
 }

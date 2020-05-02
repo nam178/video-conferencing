@@ -46,6 +46,7 @@ namespace MediaServer.Core.Services.RoomManager
             var user = await GetOrCreateUserProfile(remoteDevice, request, room);
 
             // Associate the device with room/user
+            deviceData.Room = room;
             deviceData.User = user;
             remoteDevice.SetCustomData(deviceData);
             _logger.Info($"Device {remoteDevice} now associated with room {room} and user {user}");

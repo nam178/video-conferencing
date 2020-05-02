@@ -14,13 +14,15 @@ namespace MediaServer.WebRtc.MediaRouting
             _indexByVideoClientId = new Dictionary<Guid, VideoClient>();
         }
 
-        public void AddVideoClient(Guid videoClientId)
+        public VideoClient AddVideoClient(Guid videoClientId)
         {
             if(_indexByVideoClientId.ContainsKey(videoClientId))
             {
                 throw new InvalidOperationException($"VideoClient with id {videoClientId} already added.");
             }
-            _indexByVideoClientId[videoClientId] = new VideoClient(videoClientId);
+            var videoClient = new VideoClient(videoClientId);
+            _indexByVideoClientId[videoClientId] = videoClient;
+            return videoClient;
         }
 
         public VideoSource CreateVideoSource(Guid videoClientId, TrackQuality trackQuality)
@@ -73,5 +75,7 @@ namespace MediaServer.WebRtc.MediaRouting
             if(!_indexByVideoClientId.ContainsKey(videoClientId))
                 throw new InvalidOperationException($"VideoClient {videoClientId} has not been added.");
         }
+
+        public override string ToString() => $"[VideoClientCollection Total Clients={_indexByVideoClientId.Count}]";
     }
 }

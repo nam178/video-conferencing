@@ -33,7 +33,7 @@ namespace MediaServer.WebRtc.Managed
             PeerConnectionObserverSafeHandle peerConnectionObserver
             );
 
-        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryVideoTrack")]
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFactoryCreateVideoTrack")]
         public static extern IntPtr CreateVideoTrack(
             PeerConnectionFactorySafeHandle peerConnectionFactorySafeHandle,
             PassiveVideoTrackSourceSafeHandle passiveVideoTrackSourceSafeHandle,

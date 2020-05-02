@@ -1,6 +1,7 @@
 ﻿using MediaServer.WebRtc.Managed;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaServer.WebRtc.MediaRouting
 {
@@ -11,8 +12,16 @@ namespace MediaServer.WebRtc.MediaRouting
     /// <remarks>Not thread safe</remarks>
     sealed class RemoteVideoLinkCollection
     {
-        readonly Dictionary<RtpReceiver, VideoSource> _idx_trackToSource = new Dictionary<RtpReceiver, VideoSource>();
-        readonly Dictionary<VideoSource, RtpReceiver> _idx_sourceToTrack = new Dictionary<VideoSource, RtpReceiver>();
+        readonly Dictionary<RtpReceiver, (VideoSource Source, PeerConnection PeerConnection)> _indexByVideoTrack;
+        readonly Dictionary<VideoSource, RtpReceiver> _indexByVideoSource;
+        readonly Dictionary<PeerConnection, HashSet<RtpReceiver>> _indexByPeerConnection;
+
+        public RemoteVideoLinkCollection()
+        {
+            _indexByVideoTrack = new Dictionary<RtpReceiver, (VideoSource Sorce, PeerConnection PeerConnection)>();
+            _indexByVideoSource = new Dictionary<VideoSource, RtpReceiver>();
+            _indexByPeerConnection = new Dictionary<PeerConnection, HashSet<RtpReceiver>>();
+        }
 
         public void AddOrUpdate(RemoteVideoLink link)
         {
@@ -20,51 +29,48 @@ namespace MediaServer.WebRtc.MediaRouting
                 throw new ArgumentNullException(nameof(link));
 
             // Updating track's source? Not allowed.
-            if(_idx_trackToSource.ContainsKey(link.RemoteTrack))
+            if(_indexByVideoTrack.ContainsKey(link.RemoteTrack))
                 throw new InvalidProgramException("A track is not permitted to change soure");
 
             // Updating source's track? Make sure we remove the old one first.
-            if(_idx_sourceToTrack.ContainsKey(link.VideoSource))
+            if(_indexByVideoSource.ContainsKey(link.VideoSource))
                 RemoveByVideoSource(link.VideoSource);
 
             // Then connect the new one
             Connect(link.RemoteTrack, link.VideoSource);
 
             // Update the index
-            _idx_sourceToTrack[link.VideoSource] = link.RemoteTrack;
-            _idx_trackToSource[link.RemoteTrack] = link.VideoSource;
+            _indexByVideoSource[link.VideoSource] = link.RemoteTrack;
+            _indexByVideoTrack[link.RemoteTrack] = (link.VideoSource, link.PeerConnection);
+            _indexByPeerConnection.Add(link.PeerConnection, link.RemoteTrack);
         }
 
         public void RemoveByRemoteTrack(RtpReceiver remoteTrack)
         {
             if(remoteTrack is null)
                 throw new ArgumentNullException(nameof(remoteTrack));
-            if(false == _idx_trackToSource.ContainsKey(remoteTrack))
+            if(false == _indexByVideoTrack.ContainsKey(remoteTrack))
                 return;
 
-            var source = _idx_trackToSource[remoteTrack];
-            if(null == source)
-                throw new NullReferenceException(nameof(source));
-            Disconnect(remoteTrack, source);
+            var link = _indexByVideoTrack[remoteTrack];
+            Disconnect(remoteTrack, link.Source);
 
-            _idx_sourceToTrack.Remove(source);
-            _idx_trackToSource.Remove(remoteTrack);
+            _indexByVideoSource.Remove(link.Source);
+            _indexByVideoTrack.Remove(remoteTrack);
+            _indexByPeerConnection.Remove(link.PeerConnection, remoteTrack);
         }
 
-        public void RemoveByVideoSource(VideoSource videoSource)
+        public bool Exists(VideoSource videoSource) => _indexByVideoSource.ContainsKey(videoSource);
+
+        public void RemoveByPeerConnection(PeerConnection peerConnection)
         {
-            if(videoSource is null)
-                throw new ArgumentNullException(nameof(videoSource));
-            if(false == _idx_sourceToTrack.ContainsKey(videoSource))
-                return;
-
-            var track = _idx_sourceToTrack[videoSource];
-            if(false == _idx_sourceToTrack.Remove(videoSource))
-                throw new InvalidProgramException("Failed removing VideoSource");
-            if(false == _idx_trackToSource.Remove(track))
-                throw new InvalidProgramException("Failed removing track");
-
-            Disconnect(track, videoSource);
+            if(_indexByPeerConnection.ContainsKey(peerConnection))
+            {
+                foreach(var track  in _indexByPeerConnection[peerConnection].ToList())
+                {
+                    RemoveByRemoteTrack(track);
+                }
+            }
         }
 
         static void Disconnect(RtpReceiver remoteTrack, VideoSource source)
@@ -72,5 +78,31 @@ namespace MediaServer.WebRtc.MediaRouting
 
         static void Connect(RtpReceiver remoteTrack, VideoSource videoSource)
             => ((VideoTrack)remoteTrack.Track).AddSink(videoSource.VideoSinkAdapter);
+
+        void RemoveByVideoSource(VideoSource videoSource)
+        {
+            if(videoSource is null)
+                throw new ArgumentNullException(nameof(videoSource));
+            if(false == _indexByVideoSource.ContainsKey(videoSource))
+                return;
+
+            // Remove VideoSource omdex
+            var track = _indexByVideoSource[videoSource];
+            if(false == _indexByVideoSource.Remove(videoSource))
+                throw new InvalidProgramException("Failed removing VideoSource");
+
+            // Remote track index
+            if(false == _indexByVideoTrack.ContainsKey(track))
+                throw new InvalidProgramException("Failed removing VideoSource");
+            var link = _indexByVideoTrack[track];
+            _indexByVideoTrack.Remove(track);
+
+            // Remove PeerConnection index
+            _indexByPeerConnection.Remove(link.PeerConnection, track);
+
+            Disconnect(track, videoSource);
+        }
+
+        public override string ToString() => $"[RemoteVideoLinkCollection Total Tracks={_indexByVideoTrack.Count}, Total Sources={_indexByVideoSource.Count}]";
     }
 }

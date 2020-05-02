@@ -13,10 +13,6 @@ class VideoSinkAdapter : public rtc::VideoSinkInterface<webrtc::VideoFrame>
     // This adapter doesn't take ownership of the provided video_track_source;
     VideoSinkAdapter(Video::PassiveVideoTrackSource *video_track_source);
 
-    // Initialise this adapter,
-    // will be executed on the provided worker thread
-    void Initialise(rtc::Thread *worker_thread);
-
     // Inherited via VideoSinkInterface
     virtual void OnFrame(const webrtc::VideoFrame &frame) override;
 

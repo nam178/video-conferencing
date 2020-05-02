@@ -21,7 +21,7 @@ namespace MediaServer.WebRtc.MediaRouting
             // Connect this track with one of the source
             if(string.IsNullOrWhiteSpace(rtpReceiver.Track.Id))
                 throw new ArgumentNullException($"Track id is null for RTP Receiver {rtpReceiver}, Track {rtpReceiver.Track}");
-            if(rtpReceiver.Track.IsAudioTrack)
+            if(rtpReceiver.Track.TrackKind == MediaStreamTrack.Kind.Audio)
                 throw new ArgumentException($"Track {rtpReceiver.Track} is not a VideoTrack");
         }
     }

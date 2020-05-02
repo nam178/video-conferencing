@@ -21,6 +21,12 @@ namespace MediaServer.Core.Services.PeerConnection
             if(args.TrackId.Length > MaxTrackIdLength)
                 throw new ArgumentException("TrackId is too long");
 
+            // Ignore audio tracks for now
+            if(args.Kind == WebRtc.Managed.MediaStreamTrack.Kind.Audio)
+            {
+                return;
+            }
+
             await data.Room.VideoRouter.PepareTrackAsync(device.Id, args.TrackQuality, args.TrackId);
         }
     }

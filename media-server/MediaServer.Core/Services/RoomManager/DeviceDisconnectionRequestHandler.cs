@@ -38,6 +38,16 @@ namespace MediaServer.Core.Services.RoomManager
                 await deviceData.Room.VideoRouter.RemoveVideoClientAsync(remoteDevice.Id);
             }
 
+            // If this device associated with an user,
+            // Move the association.
+            if(deviceData.User != null)
+            {
+                await deviceData.User.Room.SignallingThread.ExecuteAsync(delegate
+                {
+                    deviceData.User.Devices.Remove(remoteDevice);
+                });
+            }
+
             // Clear any data associated with this device.
             // It's officially logged out
             remoteDevice.SetCustomData(new Models.RemoteDeviceData());

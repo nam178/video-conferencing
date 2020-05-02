@@ -1,4 +1,5 @@
-﻿using MediaServer.WebRtc.MediaRouting;
+﻿using MediaServer.WebRtc.Managed;
+using MediaServer.WebRtc.MediaRouting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -10,5 +11,8 @@ namespace MediaServer.Api.WebSocket.CommandArgs
 
         [JsonConverter(typeof(StringEnumConverter))]
         public TrackQuality Quality { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public MediaStreamTrack.Kind Kind { get; set; }
     }
 }

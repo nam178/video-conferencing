@@ -29,9 +29,16 @@ namespace MediaServer.WebRtc.MediaRouting
                 return;
             }
 
+            // TODO: handle audio tracks
+            if(e.Payload.Track.TrackKind == MediaStreamTrack.Kind.Audio)
+            {
+                _logger.Warn("Ignored an audio track");
+                return;
+            }
+
             try
             {
-                _videoRouter.AddRemoteTrack(videoClient, e.Payload);
+                _videoRouter.AddRemoteTrack(peerConnection, videoClient, e.Payload);
             }
             catch(Exception ex)
             {
@@ -46,6 +53,13 @@ namespace MediaServer.WebRtc.MediaRouting
             if(null == videoClient)
             {
                 _logger.Error($"VideoClient not found for observer with track={e.Payload}");
+                return;
+            }
+            
+            // TODO: handle audio tracks
+            if(e.Payload.Track.TrackKind == MediaStreamTrack.Kind.Audio)
+            {
+                _logger.Warn("Ignored an audio track");
                 return;
             }
 

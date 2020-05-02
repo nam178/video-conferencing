@@ -11,8 +11,6 @@ namespace MediaServer.WebRtc.Managed
             Handle = new PassiveVideoTrackSourceSafeHandle();
         }
 
-        public void PushVideoFrame(IntPtr videoFrame) => PassiveVideoTrackSourceInterop.PushVideoFrame(Handle, videoFrame);
-
         public void Dispose() => Handle.Dispose();
     }
 }

@@ -16,7 +16,7 @@ namespace MediaServer.WebRtc.MediaRouting
         readonly VideoClientCollection _videoClients = new VideoClientCollection();
         readonly VideoRouterEventHandler _eventHandler;
         readonly LocalVideoLinkCollection _localVideoLinks = new LocalVideoLinkCollection();
-        readonly RemoteVideoLinkCollection _remoteVideoLink = new RemoteVideoLinkCollection();
+        readonly RemoteVideoLinkCollection _remoteVideoLinks = new RemoteVideoLinkCollection();
 
         public VideoRouter(
             IDispatchQueue signallingThread,
@@ -35,7 +35,8 @@ namespace MediaServer.WebRtc.MediaRouting
 
             return _signallingThread.ExecuteAsync(delegate
             {
-                _videoClients.AddVideoClient(videoClientId);
+                var videoClient = _videoClients.AddVideoClient(videoClientId);
+                _logger.Info($"Added {videoClient} into {_videoClients}");
             });
         }
 
@@ -54,15 +55,11 @@ namespace MediaServer.WebRtc.MediaRouting
                 if(null == videoSource)
                 {
                     videoSource = _videoClients.CreateVideoSource(videoClientId, trackQuality);
-                }
-
-                // Create the VideoTrackSource for the desired quality
-                if(videoSource.VideoTrackSource == null)
-                {
                     videoSource.VideoTrackSource = new PassiveVideoTrackSource();
                     videoSource.VideoSinkAdapter = new VideoSinkAdapter(
                         _peerConnectionFactory,
                         videoSource.VideoTrackSource, false);
+                    _logger.Info($"Created {videoSource}");
 
                     // As new video source is added, 
                     // we'll have to connect this source to any existing primary PeerConnection
@@ -71,11 +68,14 @@ namespace MediaServer.WebRtc.MediaRouting
                         .Where(other => other.DesiredVideoQuality == trackQuality
                             && other.PeerConnections.Count > 0))
                     {
-                        _localVideoLinks.Add(new LocalVideoLink(
+                        var localVideoLink = new LocalVideoLink(
                             _peerConnectionFactory, videoSource,
-                            otherVideoClient.PeerConnections[0].PeerConnection));
+                            otherVideoClient.PeerConnections[0].PeerConnection);
+                        _localVideoLinks.Add(localVideoLink);
+                        _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
                     }
                 }
+
 
                 // Flag this source to say it should be 
                 // linked with the provided track
@@ -95,6 +95,7 @@ namespace MediaServer.WebRtc.MediaRouting
                 var videoClient = _videoClients.Get(videoClientId);
                 var peerConnectionEntry = new PeerConnectionEntry(peerConnection, peerConnectionObserver);
                 videoClient.PeerConnections.Add(peerConnectionEntry);
+                _logger.Info($"Added {peerConnection} into {videoClient}, total PeerConnections for this client={videoClient.PeerConnections.Count}");
 
                 // Start listening to it for track events
                 peerConnectionObserver.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
@@ -108,10 +109,12 @@ namespace MediaServer.WebRtc.MediaRouting
                         .OtherThan(videoClient)
                         .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredVideoQuality)))
                     {
-                        _localVideoLinks.Add(new LocalVideoLink(
+                        var localVideoLink = new LocalVideoLink(
                             _peerConnectionFactory,
                             other.VideoSources[videoClient.DesiredVideoQuality],
-                            peerConnection));
+                            peerConnection);
+                        _localVideoLinks.Add(localVideoLink);
+                        _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
                     }
                 }
             });
@@ -126,6 +129,11 @@ namespace MediaServer.WebRtc.MediaRouting
             {
                 // Remove all video links that was created for this PeerConnection
                 _localVideoLinks.RemoveByPeerConnection(peerConnection);
+                _logger.Info($"Removed all video links for {peerConnection} from {_localVideoLinks}");
+
+                // Remove all video links that was created for this PeerConnetion's remote tracks
+                _remoteVideoLinks.RemoveByPeerConnection(peerConnection);
+                _logger.Info($"Removed all video links for {peerConnection} from {_remoteVideoLinks}");
 
                 // Here basically undo the things we did in AddPeerConnection(),
                 // in reverse order.
@@ -138,6 +146,7 @@ namespace MediaServer.WebRtc.MediaRouting
                 var removed = videoClient.PeerConnections.RemoveAll(entry => entry.PeerConnection == peerConnection);
                 if(removed == 0)
                     throw new InvalidProgramException("PeerConnection did not removed from memory");
+                _logger.Info($"Removed {peerConnection} from {videoClient}, remaining PeerConnections for this client={videoClient.PeerConnections.Count}");
             });
         }
 
@@ -164,14 +173,24 @@ namespace MediaServer.WebRtc.MediaRouting
                     using(videoSource.VideoTrackSource)
                     using(videoSource.VideoSinkAdapter)
                     {
-                        // Disconnect all the video links
-                        _remoteVideoLink.RemoveByVideoSource(videoSource);
+                        // At this point, there must be no remote link to this VideoSource,
+                        // because they are removed when PeerConnection closes.
+                        // If not, it's a programmer mistake.
+                        if(_remoteVideoLinks.Exists(videoSource))
+                        {
+                            throw new InvalidProgramException(
+                                "All remote VideoSource must be removed at the time VideoClient left.");
+                        }
+
+                        // Disconnect all any remote video links.
                         _localVideoLinks.RemoveByVideoSource(videoSource);
+                        _logger.Info($"Removed {videoSource} from {_localVideoLinks}");
                     }
                 }
 
                 // Remove the video client
                 _videoClients.Remove(videoClientId);
+                _logger.Info($"Removed client {videoClient} from {_videoClients}");
             });
         }
 
@@ -180,8 +199,10 @@ namespace MediaServer.WebRtc.MediaRouting
         /// </summary>
         /// <remarks>Must be called from signalling thread, right after the track is added.</remarks>
         /// <returns></returns>
-        internal void AddRemoteTrack(VideoClient videoClient, RtpReceiver rtpReceiver)
+        internal void AddRemoteTrack(PeerConnection peerConnection, VideoClient videoClient, RtpReceiver rtpReceiver)
         {
+            if(peerConnection is null)
+                throw new ArgumentNullException(nameof(peerConnection));
             VideoRouterThrowHelper.WhenInvalidVideoTrack(rtpReceiver);
 
             // What's the video source that this track should be connected to?
@@ -193,7 +214,9 @@ namespace MediaServer.WebRtc.MediaRouting
 
             VideoRouterThrowHelper.WhenSourceIsEmpty(videoSource, rtpReceiver);
 
-            _remoteVideoLink.AddOrUpdate(new RemoteVideoLink(videoSource, rtpReceiver));
+            var remoteVideoLink = new RemoteVideoLink(peerConnection, videoSource, rtpReceiver);
+            _remoteVideoLinks.AddOrUpdate(remoteVideoLink);
+            _logger.Info($"Added {remoteVideoLink} into {_remoteVideoLinks}");
         }
 
         /// <summary>
@@ -205,7 +228,8 @@ namespace MediaServer.WebRtc.MediaRouting
         {
             VideoRouterThrowHelper.WhenInvalidVideoTrack(rtpReceiver);
 
-            _remoteVideoLink.RemoveByRemoteTrack(rtpReceiver);
+            _remoteVideoLinks.RemoveByRemoteTrack(rtpReceiver);
+            _logger.Info($"Removed {rtpReceiver} from {_remoteVideoLinks}");
         }
     }
 }

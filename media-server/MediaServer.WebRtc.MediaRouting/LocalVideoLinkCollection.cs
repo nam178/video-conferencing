@@ -11,91 +11,64 @@ namespace MediaServer.WebRtc.MediaRouting
     /// <remarks>Not thread safe.</remarks>
     sealed class LocalVideoLinkCollection
     {
-        readonly Dictionary<Managed.PeerConnection, HashSet<LocalVideoLink>> _idx_peerConnection;
-        readonly Dictionary<VideoSource, HashSet<LocalVideoLink>> _idx_videoSource;
+        readonly Dictionary<Managed.PeerConnection, HashSet<LocalVideoLink>> _indexByPeerConnection;
+        readonly Dictionary<VideoSource, HashSet<LocalVideoLink>> _indexByVideoSource;
 
         public LocalVideoLinkCollection()
         {
-            _idx_peerConnection = new Dictionary<Managed.PeerConnection, HashSet<LocalVideoLink>>();
-            _idx_videoSource = new Dictionary<VideoSource, HashSet<LocalVideoLink>>();
+            _indexByPeerConnection = new Dictionary<Managed.PeerConnection, HashSet<LocalVideoLink>>();
+            _indexByVideoSource = new Dictionary<VideoSource, HashSet<LocalVideoLink>>();
         }
 
         public void Add(LocalVideoLink link)
         {
-            Add(_idx_videoSource, link.VideoSource, link);
-            Add(_idx_peerConnection, link.TargetPeerConnection, link);
+            _indexByVideoSource.Add(link.VideoSource, link);
+            _indexByPeerConnection.Add(link.TargetPeerConnection, link);
         }
 
         public void RemoveByPeerConnection(Managed.PeerConnection peerConnection)
         {
-            if(_idx_peerConnection.ContainsKey(peerConnection))
+            if(_indexByPeerConnection.ContainsKey(peerConnection))
             {
-                var links = _idx_peerConnection[peerConnection].ToList();
+                var links = _indexByPeerConnection[peerConnection].ToList();
                 for(int i = 0; i < links.Count; i++)
                 {
                     var link = links[i];
-                    if(false == _idx_videoSource.ContainsKey(link.VideoSource))
+                    if(false == _indexByVideoSource.ContainsKey(link.VideoSource))
                         throw new InvalidProgramException();
 
                     using(link)
                     {
-                        Remove(_idx_videoSource, link.VideoSource, link);
+                        _indexByVideoSource.Remove(link.VideoSource, link);
                         link.Close();
                     }
                 }
-                _idx_peerConnection.Remove(peerConnection);
+                _indexByPeerConnection.Remove(peerConnection);
             }
         }
 
         public void RemoveByVideoSource(VideoSource videoSource)
         {
-            if(_idx_videoSource.ContainsKey(videoSource))
+            if(_indexByVideoSource.ContainsKey(videoSource))
             {
-                var links = _idx_videoSource[videoSource].ToList();
+                var links = _indexByVideoSource[videoSource].ToList();
                 for(int i = 0; i < links.Count; i++)
                 {
                     var link = links[i];
-                    if(false == _idx_peerConnection.ContainsKey(link.TargetPeerConnection))
+                    if(false == _indexByPeerConnection.ContainsKey(link.TargetPeerConnection))
                         throw new InvalidProgramException();
 
                     using(link)
                     {
-                        Remove(_idx_peerConnection, link.TargetPeerConnection, link);
+                        _indexByPeerConnection.Remove(link.TargetPeerConnection, link);
                         link.Close();
                     }
                 }
 
-                _idx_videoSource.Remove(videoSource);
+                _indexByVideoSource.Remove(videoSource);
             }
         }
 
-        static void Add<K, V>(Dictionary<K, HashSet<V>> dict, K key, V value)
-        {
-            if(false == dict.ContainsKey(key))
-            {
-                dict[key] = new HashSet<V> { value };
-            }
-            else
-            {
-                if(dict[key].Contains(value))
-                {
-                    throw new ArgumentException($"Duplicate value for {typeof(K).Name}={key}, {typeof(V).Name}={value}");
-                }
-                dict[key].Add(value);
-            }
-        }
-
-        static void Remove<K, V>(Dictionary<K, HashSet<V>> dict, K key, V value)
-        {
-            if(false == dict.ContainsKey(key))
-                return;
-
-            dict[key].Remove(value);
-            if(dict[key].Count == 0)
-            {
-                dict.Remove(key);
-            }
-        }
-
+        public override string ToString() => $"[LocalVideoLinkCollection Total PeerConnections={_indexByPeerConnection.Count}, Total VideoSources={_indexByVideoSource.Count}]";
     }
 }

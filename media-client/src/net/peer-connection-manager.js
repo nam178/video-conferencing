@@ -125,7 +125,7 @@ export default class PeerConnectionManager {
             // otherwise it will reject it.
             var tracks = newStream.getTracks();
             for (var i in tracks) {
-                await this._sendTrackInfoAsync(tracks[i].id, { quality: 'High' });
+                await this._sendTrackInfoAsync(tracks[i].id, { quality: 'High', kind: tracks[i].kind });
             }
             var senderCount = newStream.getTracks().length;
             newStream.getTracks().forEach(track => this._peerConnection.addTrack(track));
