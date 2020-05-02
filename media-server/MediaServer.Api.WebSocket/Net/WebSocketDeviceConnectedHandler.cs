@@ -1,7 +1,9 @@
-﻿using MediaServer.Common.Mediator;
+﻿using MediaServer.Api.WebSocket.Errors;
+using MediaServer.Common.Mediator;
 using MediaServer.Common.Utils;
 using MediaServer.Models;
 using System;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,13 +47,23 @@ namespace MediaServer.Api.WebSocket.Net
                 // Read chunks of a message
                 while(true)
                 {
-                    var tmp = await device.WebSocketClient.WebSocketContext.WebSocket.ReceiveAsync(buff, CancellationToken.None);
+                    WebSocketReceiveResult tmp;
+                    try
+                    {
+                        tmp = await device.WebSocketClient.WebSocketContext.WebSocket.ReceiveAsync(buff, CancellationToken.None);
+                    }
+                    // When the WebSocketClient is disposed
+                    // by some other thread, it will throw InvalidOperationException
+                    catch(InvalidOperationException ex)
+                    {
+                        throw new WebSocketClientDisposedException(ex.Message);
+                    }
 
-                    if(tmp.MessageType == System.Net.WebSockets.WebSocketMessageType.Close)
+                    if(tmp.MessageType == WebSocketMessageType.Close)
                         return;
-                    if(tmp.MessageType != System.Net.WebSockets.WebSocketMessageType.Text)
+                    if(tmp.MessageType != WebSocketMessageType.Text)
                         throw new NotSupportedException();
-                    if(tmp.Count > 0 && tmp.MessageType == System.Net.WebSockets.WebSocketMessageType.Text)
+                    if(tmp.Count > 0 && tmp.MessageType == WebSocketMessageType.Text)
                         messageBuilder.Append(Encoding.UTF8.GetString(buff.Array, 0, tmp.Count));
                     if(tmp.EndOfMessage)
                         break;
