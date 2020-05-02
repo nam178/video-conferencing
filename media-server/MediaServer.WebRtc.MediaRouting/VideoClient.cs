@@ -28,5 +28,7 @@ namespace MediaServer.WebRtc.MediaRouting
             }
             Id = id;
         }
+
+        public override string ToString() => $"[VideoClient ${Id.ToString().Substring(0, 8)}]";
     }
 }

@@ -16,6 +16,8 @@ namespace MediaServer.WebRtc.Managed
 
         public PeerConnectionObserver Observer { get; }
 
+        public Guid Id = Guid.NewGuid();
+
         internal PeerConnection(IntPtr unmanagedPointer)
         {
             _handle = new PeerConnectionSafeHandle(unmanagedPointer);
@@ -187,5 +189,7 @@ namespace MediaServer.WebRtc.Managed
             Debug.Assert(_localTracks.Count == 0); // All local tracks must be removed prior to disposing this PeerConection
             _handle.Dispose();
         }
+
+        public override string ToString() => $"[PeerConnection Id={Id.ToString().Substring(0, 8)}]";
     }
 }

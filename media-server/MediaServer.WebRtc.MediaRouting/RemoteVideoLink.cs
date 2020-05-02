@@ -15,5 +15,7 @@ namespace MediaServer.WebRtc.MediaRouting
             RemoteTrack = remoteTrack
                 ?? throw new System.ArgumentNullException(nameof(remoteTrack));
         }
+
+        public override string ToString() => $"[RemoteVideoLink Src={RemoteTrack}, Dst={VideoSource}]";
     }
 }

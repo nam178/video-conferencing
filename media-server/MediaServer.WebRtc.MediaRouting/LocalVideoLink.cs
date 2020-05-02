@@ -52,5 +52,7 @@ namespace MediaServer.WebRtc.MediaRouting
             // Don't dispose RtpSender, the PeerConnection owns it.
             _track.Dispose();
         }
+
+        public override string ToString() => $"[LocalVideoLink Source={VideoSource}, Target={TargetPeerConnection}]";
     }
 }

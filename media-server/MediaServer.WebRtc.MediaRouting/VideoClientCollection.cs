@@ -30,7 +30,7 @@ namespace MediaServer.WebRtc.MediaRouting
             {
                 throw new InvalidOperationException();
             }
-            var t = new VideoSource();
+            var t = new VideoSource($"{videoClientId.ToString().Substring(0, 8)}-{trackQuality.ToString()}");
             _indexByVideoClientId[videoClientId].VideoSources[trackQuality] = t;
             return t;
         }

@@ -29,6 +29,6 @@ namespace MediaServer.WebRtc.Managed
             Handle.Dispose();
         }
 
-        public override string ToString() => $"[{GetType().Name}, Id={Id}]";
+        public override string ToString() => $"[{GetType().Name}, Id={Id.Substring(0, 8)}]";
     }
 }
