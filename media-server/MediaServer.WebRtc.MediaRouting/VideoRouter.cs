@@ -87,10 +87,10 @@ namespace MediaServer.WebRtc.MediaRouting
                 peerConnectionObserver.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
                 peerConnectionObserver.RemoteTrackRemoved += _eventHandler.RemoteTrackRemoved;
 
-                // If this is the outbound PeerConnection,
+                // If this is the sending PeerConnection,
                 // it is used to send media out, therefore we'll create LocalLinks
                 // with other client's video sources.
-                if(false == videoClient.IsInboundPeerConnection(peerConnection))
+                if(false == videoClient.IsForReceiving(peerConnection))
                 {
                     foreach(var other in _videoClients
                         .OtherThan(videoClient)
@@ -222,13 +222,13 @@ namespace MediaServer.WebRtc.MediaRouting
         void OnVideoSourceAdded(VideoClient videoClient, VideoSource videoSource, TrackQuality quality)
         {
             // As new video source is added, 
-            // we'll have to connect this source to any existing primary PeerConnection
+            // we'll have to connect this source to any existing sending-PeerConnection
             foreach(var otherVideoClient in _videoClients
                 .OtherThan(videoClient)
                 .Where(other => other.DesiredVideoQuality == quality
                     && other.PeerConnections.Count > 1))
             {
-                foreach(var peerConnection in otherVideoClient.PeerConnections.Where(p => false == otherVideoClient.IsInboundPeerConnection(p.PeerConnection)))
+                foreach(var peerConnection in otherVideoClient.PeerConnections.Where(p => false == otherVideoClient.IsForReceiving(p.PeerConnection)))
                 {
                     var localVideoLink = new LocalVideoLink(
                         _peerConnectionFactory,
