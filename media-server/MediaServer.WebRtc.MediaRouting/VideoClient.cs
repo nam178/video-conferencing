@@ -13,7 +13,7 @@ namespace MediaServer.WebRtc.MediaRouting
 
         public TrackQuality DesiredVideoQuality => TrackQuality.High; // todo - support multiple quality streams
 
-        public bool IsPrimaryPeerConnection(Managed.PeerConnection peerConnection)
+        public bool IsInboundPeerConnection(Managed.PeerConnection peerConnection)
         {
             // The primary PeerConnection simply 
             // the first one added for this device
