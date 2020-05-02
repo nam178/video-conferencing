@@ -15,6 +15,8 @@ namespace MediaServer.Core.Models
 
         public IRemoteDevice Device { get; }
 
+        Task InitialiseAsync();
+
         Task<RTCSessionDescription> CreateAnswerAsync();
 
         Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description);
