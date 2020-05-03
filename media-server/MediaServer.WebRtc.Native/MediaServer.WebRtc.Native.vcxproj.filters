@@ -110,9 +110,6 @@
     <ClInclude Include="call_back.h">
       <Filter>wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="create_answer_result.h">
-      <Filter>wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="ice_candidate.h">
       <Filter>wrappers</Filter>
     </ClInclude>
@@ -220,6 +217,9 @@
     </ClInclude>
     <ClInclude Include="rtp_sender_interop.h">
       <Filter>wrappers\interops</Filter>
+    </ClInclude>
+    <ClInclude Include="create_sdp_result.h">
+      <Filter>wrappers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

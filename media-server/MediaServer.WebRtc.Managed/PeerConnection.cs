@@ -1,51 +1,89 @@
-﻿using MediaServer.Common.Utils;
+﻿using MediaServer.Common.Threading;
+using MediaServer.Common.Utils;
 using MediaServer.WebRtc.Managed.Errors;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace MediaServer.WebRtc.Managed
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>This class is thread safe, due to some method is called from singalling threads, while other from device threads</remarks>
     public class PeerConnection : IDisposable
     {
         readonly PeerConnectionSafeHandle _handle;
         readonly List<(RtpSender RtpSender, MediaStreamTrack Track)> _localTracks = new List<(RtpSender RtpSender, MediaStreamTrack Track)>();
+        readonly List<IPendingTask> _pendingTasks = new List<IPendingTask>();
 
         public PeerConnectionObserver Observer { get; }
 
         public Guid Id = Guid.NewGuid();
 
-        internal PeerConnection(IntPtr unmanagedPointer)
+        PeerConnectionInterop.CreateSdpResultCallback _createOfferCallback;
+        PeerConnectionInterop.CreateSdpResultCallback _createAnswerCallback;
+        PeerConnectionInterop.SetSessionDescriptionCallback _setRemoteSessionDescCallback;
+        PeerConnectionInterop.SetSessionDescriptionCallback _setLocalSessionDescCallback;
+        object _mutex = new object();
+        bool _isClosed;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unmanagedPointer"></param>
+        /// <param name="observer">Keep ref only, does not own observer</param>
+        internal PeerConnection(IntPtr unmanagedPointer, PeerConnectionObserver observer)
         {
             _handle = new PeerConnectionSafeHandle(unmanagedPointer);
+            Observer = observer;
         }
 
         /// <summary>
         /// Generate an answer after the remote sdp is set
         /// </summary>
         /// <returns></returns>
+        /// <remarks>Can be called from any thread</remarks>
         /// <exception cref="Errors.CreateAnswerFailedException" />
         public Task<RTCSessionDescription> CreateAnswerAsync()
         {
-            var taskCompletionSource = new TaskCompletionSource<RTCSessionDescription>();
-            var callback = new PeerConnectionInterop.CreateAnswerResultCallback((userData, result) =>
+            var pendingTask = new PendingTask<RTCSessionDescription>();
+            lock(_mutex)
             {
-                // Free the callback first
-                GCHandle.FromIntPtr(userData).Free();
+                RequireCallbackNotSet(_createOfferCallback);
+                _createAnswerCallback = new PeerConnectionInterop.CreateSdpResultCallback((userData, result) =>
+                {
+                    _createAnswerCallback = null;
+                    CompletePendingTask(pendingTask, result);
+                });
+                _pendingTasks.Add(pendingTask);
+            }
+            PeerConnectionInterop.CreateAnswer(_handle, _createAnswerCallback, IntPtr.Zero);
+            return pendingTask.Task;
+        }
 
-                // Then pass the correct result to the awaiter
-                if(result.Success)
-                    taskCompletionSource.SetResult(new RTCSessionDescription { Sdp = result.Sdp, Type = result.SdpType });
-                else
-                    taskCompletionSource.SetException(new CreateAnswerFailedException(result.ErrorMessage ?? string.Empty));
-            });
-            PeerConnectionInterop.CreateAnswer(
-                _handle, callback,
-                GCHandleHelper.ToIntPtr(GCHandle.Alloc(callback, GCHandleType.Normal)));
-            return taskCompletionSource.Task;
+        /// <summary>
+        /// Generate an SDP offer.
+        /// </summary>
+        /// <remarks>Can be called from any thread</remarks>
+        /// <returns></returns>
+        public Task<RTCSessionDescription> CreateOfferAsync()
+        {
+            var pendingTask = new PendingTask<RTCSessionDescription>();
+            lock(_mutex)
+            {
+                RequireCallbackNotSet(_createOfferCallback);
+                _createOfferCallback = new PeerConnectionInterop.CreateSdpResultCallback((userData, result) =>
+                {
+                    _createOfferCallback = null;
+                    CompletePendingTask(pendingTask, result);
+                });
+                _pendingTasks.Add(pendingTask);
+            }
+            PeerConnectionInterop.CreateOffer(_handle, _createOfferCallback, IntPtr.Zero);
+            return pendingTask.Task;
         }
 
         /// <summary>
@@ -57,11 +95,20 @@ namespace MediaServer.WebRtc.Managed
         /// <returns></returns>
         public Task SetRemoteSessionDescriptionAsync(string type, string sdp)
         {
-            var taskCompletionSource = new TaskCompletionSource<bool>();
-            PeerConnectionInterop.SetSessionDescriptionCallback callback = CreateSdpCallback(taskCompletionSource);
-            PeerConnectionInterop.SetRemoteSessionDescription(
-                _handle, type, sdp, callback, GCHandleHelper.ToIntPtr(callback));
-            return taskCompletionSource.Task;
+            var pendingTask = new PendingTask<bool>();
+            lock(_mutex)
+            {
+                RequireCallbackNotSet(_setRemoteSessionDescCallback);
+                _setRemoteSessionDescCallback = new PeerConnectionInterop.SetSessionDescriptionCallback(
+                    (userData, sucess, errorMessage) =>
+                    {
+                        _setRemoteSessionDescCallback = null;
+                        CompletePendingTask(pendingTask, sucess, errorMessage);
+                    });
+                _pendingTasks.Add(pendingTask);
+            }
+            PeerConnectionInterop.SetRemoteSessionDescription(_handle, type, sdp, _setRemoteSessionDescCallback, IntPtr.Zero);
+            return pendingTask.Task;
         }
 
         /// <summary>
@@ -70,25 +117,20 @@ namespace MediaServer.WebRtc.Managed
         /// <exception cref="Errors.SetSessionDescriptionFailedException"></exception>
         public Task SetLocalSessionDescriptionAsync(string type, string sdp)
         {
-            var taskCompletionSource = new TaskCompletionSource<bool>();
-            PeerConnectionInterop.SetSessionDescriptionCallback callback = CreateSdpCallback(taskCompletionSource);
-            PeerConnectionInterop.SetLocalSessionDescription(
-                _handle, type, sdp, callback, GCHandleHelper.ToIntPtr(callback));
-            return taskCompletionSource.Task;
-        }
-
-        static PeerConnectionInterop.SetSessionDescriptionCallback CreateSdpCallback(TaskCompletionSource<bool> taskCompletionSource)
-        {
-            return new PeerConnectionInterop.SetSessionDescriptionCallback(
-                (userData, sucess, errorMessage) =>
-                {
-                    GCHandle.FromIntPtr(userData).Free();
-                    if(sucess)
-                        taskCompletionSource.SetResult(true);
-                    else
-                        taskCompletionSource.SetException(
-                            new SetSessionDescriptionFailedException(errorMessage ?? string.Empty));
-                });
+            var pendingTask = new PendingTask<bool>();
+            lock(_mutex)
+            {
+                RequireCallbackNotSet(_setLocalSessionDescCallback);
+                _setLocalSessionDescCallback = new PeerConnectionInterop.SetSessionDescriptionCallback(
+                    (userData, sucess, errorMessage) =>
+                    {
+                        _setLocalSessionDescCallback = null;
+                        CompletePendingTask(pendingTask, sucess, errorMessage);
+                    });
+                _pendingTasks.Add(pendingTask);
+            }
+            PeerConnectionInterop.SetLocalSessionDescription(_handle, type, sdp, _setLocalSessionDescCallback, IntPtr.Zero);
+            return pendingTask.Task;
         }
 
         /// <summary>
@@ -126,7 +168,7 @@ namespace MediaServer.WebRtc.Managed
                 throw new AddTrackFailedException();
             }
             var rtpSender = new RtpSender(rtpSenderPtr);
-            lock(_localTracks)
+            lock(_mutex)
             {
                 _localTracks.Add((rtpSender, track));
             }
@@ -140,7 +182,7 @@ namespace MediaServer.WebRtc.Managed
         /// <remarks>Can be called from any thread, will be proxied to signalling thread by the lib.</remarks>
         public void RemoveTrack(RtpSender rtpSender)
         {
-            lock(_localTracks)
+            lock(_mutex)
             {
                 var t = _localTracks.Where(tmp => tmp.RtpSender == rtpSender).FirstOrDefault();
                 if(t.RtpSender == null)
@@ -159,7 +201,7 @@ namespace MediaServer.WebRtc.Managed
         /// <returns>A copy of RTPSenders for local tracks</returns>
         public RtpSender[] GetLocalTracks()
         {
-            lock(_localTracks)
+            lock(_mutex)
             {
                 return _localTracks.Select(t => t.RtpSender).ToArray();
             }
@@ -172,24 +214,70 @@ namespace MediaServer.WebRtc.Managed
         /// </summary>
         public void Close()
         {
-            lock(_localTracks)
+            List<IPendingTask> pendingTasksToPrune;
+            lock(_mutex)
             {
+                if(_isClosed)
+                    throw new InvalidOperationException("Already closed");
                 if(_localTracks.Count > 0)
-                {
                     throw new InvalidOperationException(
                         "All local tracks must be removed before closing PeerConnection");
-                }
+                _isClosed = true;
+                pendingTasksToPrune = _pendingTasks.ToList();
+                _pendingTasks.Clear();
             }
-            
+
+            pendingTasksToPrune.ForEach(l => l.Cancel());
+
             PeerConnectionInterop.Close(_handle);
         }
 
         public void Dispose()
         {
-            Debug.Assert(_localTracks.Count == 0); // All local tracks must be removed prior to disposing this PeerConection
+            lock(_mutex)
+            {
+                Debug.Assert(_localTracks.Count == 0); // All local tracks must be removed prior to disposing this PeerConection
+            }
             _handle.Dispose();
         }
 
         public override string ToString() => $"[PeerConnection Id={Id.ToString().Substring(0, 8)}]";
+
+        void RequireCallbackNotSet(object t)
+        {
+            if(_isClosed)
+                throw new InvalidOperationException("Already closed");
+            if(t != null)
+                throw new InvalidOperationException("Already setting remote sdp");
+        }
+
+        void CompletePendingTask(PendingTask<RTCSessionDescription> pendingTask, PeerConnectionInterop.CreateAnswerResult result)
+        {
+            lock(_mutex)
+            {
+                if(_isClosed)
+                    return;
+                _pendingTasks.Remove(pendingTask);
+            }
+            if(result.Success)
+                pendingTask.Source.TrySetResult(new RTCSessionDescription { Sdp = result.Sdp, Type = result.SdpType });
+            else
+                pendingTask.Source.TrySetException(new CreateAnswerFailedException(result.ErrorMessage ?? string.Empty));
+        }
+
+        void CompletePendingTask(PendingTask<bool> pendingTask, bool sucess, string errorMessage)
+        {
+            lock(_mutex)
+            {
+                if(_isClosed)
+                    return;
+                _pendingTasks.Remove(pendingTask);
+            }
+            if(sucess)
+                pendingTask.Source.TrySetResult(true);
+            else
+                pendingTask.Source.TrySetException(
+                    new SetSessionDescriptionFailedException(errorMessage ?? string.Empty));
+        }
     }
 }

@@ -32,6 +32,8 @@ namespace MediaServer.WebRtc.Managed
         public event EventHandler<EventArgs<RtpReceiver>> RemoteTrackAdded;
         public event EventHandler<EventArgs<IntPtr>> IceCandidatesRemoved;
 
+        public IReadOnlyList<RtpReceiver> RemoteTracks => _rtpReceivers;
+
         public PeerConnectionObserver()
         {
             Native = new PeerConnectionObserverSafeHandle();

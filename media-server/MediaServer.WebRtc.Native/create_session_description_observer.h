@@ -5,7 +5,6 @@
 namespace Wrappers
 {
 // Generic observer, allows you to supply a callback.
-// Designed so it owns it self, self-delete after the callback is called
 class CreateSessionDescriptionObserver final
     : public rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver>
 {
@@ -13,8 +12,6 @@ class CreateSessionDescriptionObserver final
     // Constructor from a callback
     CreateSessionDescriptionObserver(
         std::function<void(Result<webrtc::SessionDescriptionInterface *>)> &&callback_lambda);
-
-    ~CreateSessionDescriptionObserver();
 
     // Inherited via RefCountedObject
     void OnSuccess(webrtc::SessionDescriptionInterface *desc) override;

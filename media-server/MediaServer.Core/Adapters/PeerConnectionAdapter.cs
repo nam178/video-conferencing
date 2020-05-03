@@ -1,4 +1,5 @@
 ﻿using MediaServer.Common.Utils;
+using MediaServer.Core.Models;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using MediaServer.WebRtc.MediaRouting;
@@ -8,7 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Models
+namespace MediaServer.Core.Adapters
 {
     sealed class PeerConnectionAdapter : IPeerConnection
     {
@@ -16,9 +17,11 @@ namespace MediaServer.Core.Models
         readonly PeerConnection _peerConnectionImpl;
         readonly Guid _id = Guid.NewGuid();
         readonly object _syncRoot = new object();
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly VideoRouter _videoRouter;
-        Action<RTCIceCandidate> _iceCandidateObserver;
+
+        Action<IPeerConnection, RTCIceCandidate> _iceCandidateObserver;
+        Action<IPeerConnection> _renegotationNeededObserver;
 
         public IRoom Room { get; }
 
@@ -49,13 +52,14 @@ namespace MediaServer.Core.Models
             config.IceServers.Add(iceServerInfo);
             _peerConnectionObserverImpl = new PeerConnectionObserver();
             _peerConnectionObserverImpl.IceCandidateAdded += IceCandidateAdded;
+            _peerConnectionObserverImpl.RenegotiationNeeded += RenegotationNeeded;
             _peerConnectionImpl = peerConnectionFactory.CreatePeerConnection(_peerConnectionObserverImpl, config);
         }
 
-        int _initialised;
-        public async Task InitialiseAsync()
+        int _mediaRoutingStatus;
+        public async Task StartMediaRoutingAsync()
         {
-            if(Interlocked.CompareExchange(ref _initialised, 1, 0) != 0)
+            if(Interlocked.CompareExchange(ref _mediaRoutingStatus, 1, 0) != 0)
             {
                 throw new InvalidOperationException();
             }
@@ -64,7 +68,6 @@ namespace MediaServer.Core.Models
 
         public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
         {
-            RequireInitialised();
             return _peerConnectionImpl.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
         }
 
@@ -90,7 +93,7 @@ namespace MediaServer.Core.Models
             _peerConnectionImpl.AddIceCandidate(iceCandidate);
         }
 
-        public void ObserveIceCandidate(Action<RTCIceCandidate> observer)
+        public IPeerConnection ObserveIceCandidate(Action<IPeerConnection, RTCIceCandidate> observer)
         {
             RequireInitialised();
             lock(_syncRoot)
@@ -101,6 +104,19 @@ namespace MediaServer.Core.Models
                 }
                 _iceCandidateObserver = observer;
             }
+            return this;
+        }
+
+        public IPeerConnection ObserveRenegotiationNeeded(Action<IPeerConnection> observer)
+        {
+            RequireInitialised();
+            lock(_syncRoot)
+            {
+                if(_renegotationNeededObserver != null)
+                    throw new NotSupportedException("Only one observer supported sorry");
+                _renegotationNeededObserver = observer;
+            }
+            return this;
         }
 
         public async Task CloseAsync()
@@ -119,17 +135,20 @@ namespace MediaServer.Core.Models
                 _peerConnectionImpl.Dispose();
                 // Observer later, cuz PeerConnection uses it
                 _peerConnectionObserverImpl.IceCandidateAdded -= IceCandidateAdded;
+                _peerConnectionObserverImpl.RenegotiationNeeded -= RenegotationNeeded;
                 _peerConnectionObserverImpl.Dispose();
             }
         }
 
         public override string ToString() => $"[PeerConnectionAdapter Id={_id.ToString().Substring(0, 8)}]";
 
-        void IceCandidateAdded(object sender, EventArgs<RTCIceCandidate> e) => _iceCandidateObserver?.Invoke(e.Payload);
+        void IceCandidateAdded(object sender, EventArgs<RTCIceCandidate> e) => _iceCandidateObserver?.Invoke(this, e.Payload);
+
+        void RenegotationNeeded(object sender, EventArgs e) => _renegotationNeededObserver?.Invoke(this);
 
         void RequireInitialised()
         {
-            if(Interlocked.CompareExchange(ref _initialised, 0, 0) == 0)
+            if(Interlocked.CompareExchange(ref _mediaRoutingStatus, 0, 0) == 0)
             {
                 throw new InvalidOperationException();
             }

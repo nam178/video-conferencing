@@ -23,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L2.APIs", "L2.APIs", "{2BFD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L4. Infra_Libs", "L4. Infra_Libs", "{AFAE8858-AF8A-4DAF-B4C6-FC05094AC513}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.WebRtc.MediaRouting", "MediaServer.WebRtc.MediaRouting\MediaServer.WebRtc.MediaRouting.csproj", "{77A1917D-E087-4175-AFA6-B9B1EECD0311}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.WebRtc.MediaRouting", "MediaServer.WebRtc.MediaRouting\MediaServer.WebRtc.MediaRouting.csproj", "{77A1917D-E087-4175-AFA6-B9B1EECD0311}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.Api.WebSocket", "MediaServer.Api.WebSocket\MediaServer.Api.WebSocket.csproj", "{54D52555-2E2C-4D15-A2B7-806041159066}"
 EndProject

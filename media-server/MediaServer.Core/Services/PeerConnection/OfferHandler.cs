@@ -33,21 +33,23 @@ namespace MediaServer.Core.Services.PeerConnection
                 peerConnection = deviceData.PeerConnections.FirstOrDefault(p => p.Id == peerConnectionId);
             }
 
-            // Otherwise, create a new one
+            // Create new PeerConnection
             if(null == peerConnection)
             {
-                // Create new PeerConnection
-                peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User);
+               
+                peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User, request);
                 // Save
                 deviceData.PeerConnections.Add(peerConnection);
                 remoteDevice.SetCustomData(deviceData);
             }
+            // Update existing PeerConnection
+            else
+            {
+                await peerConnection.SetRemoteSessionDescriptionAsync(request);
+                _logger.Info($"Remote {request} SDP updated for {peerConnection}");
+            }
 
-            // Finally do the SDP exchange, 
-            // it has to be done in this exact oder:
-            await peerConnection.SetRemoteSessionDescriptionAsync(request);
-            _logger.Info($"Remote {request} SDP set for {peerConnection}");
-
+            // Finally do the SDP exchange, order important
             // Create answer and send it.
             var answer = await peerConnection.CreateAnswerAsync();
             _logger.Info($"Answer {answer} created for {peerConnection}");
@@ -61,19 +63,33 @@ namespace MediaServer.Core.Services.PeerConnection
             _logger.Info($"Local description {answer} set for {peerConnection}");
         }
 
-        async Task<IPeerConnection> CreatePeerConnection(IRemoteDevice remoteDevice, User user)
+        async Task<IPeerConnection> CreatePeerConnection(IRemoteDevice remoteDevice, User user, RTCSessionDescription remoteSdp)
         {
             var peerConnection = user.Room.CreatePeerConnection(remoteDevice);
-            await peerConnection.InitialiseAsync();
+
+            await peerConnection.SetRemoteSessionDescriptionAsync(remoteSdp);
+            _logger.Info($"Remote {remoteSdp} SDP set for {peerConnection}");
+
+            await peerConnection.StartMediaRoutingAsync();
             _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
 
             // This is the first time is PeerConnection is created,
             // we'll add ICE candidate observer
-            peerConnection.ObserveIceCandidate(ice => remoteDevice
-                .SendIceCandidateAsync(peerConnection.Id, ice)
-                .Forget($"Error when sending ICE candidate {ice} to device {remoteDevice}"));
+            peerConnection
+                .ObserveIceCandidate((peer, cand) => SendAndForget(remoteDevice, peer, cand))
+                .ObserveRenegotiationNeeded(peer =>
+                {
+                    throw new NotImplementedException();
+                });
 
             return peerConnection;
+        }
+
+        static void SendAndForget(IRemoteDevice remoteDevice, IPeerConnection peer, RTCIceCandidate cand)
+        {
+            remoteDevice
+                .SendIceCandidateAsync(peer.Id, cand)
+                .Forget($"Error when sending ICE candidate {cand} to device {remoteDevice}");
         }
     }
 }

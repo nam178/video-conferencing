@@ -14,11 +14,19 @@ void CONVENTION PeerConnectionClose(Wrappers::PeerConnection *peer_connection_pt
 }
 
 void CONVENTION PeerConnectionCreateAnswer(Wrappers::PeerConnection *peer_connection_ptr,
-                                           CreateAnswerCallback callback,
+                                           CreateSdpCallback callback,
                                            UserData user_data)
 {
     peer_connection_ptr->CreateAnswer(
-        Wrappers::Callback<Wrappers::CreateAnswerResult>{callback, user_data});
+        Wrappers::Callback<Wrappers::CreateSdpResult>{callback, user_data});
+}
+
+void CONVENTION PeerConnectionCreateOffer(Wrappers::PeerConnection *peer_connection_ptr,
+                                          CreateSdpCallback callback,
+                                          UserData user_data)
+{
+    peer_connection_ptr->CreateOffer(
+        Wrappers::Callback<Wrappers::CreateSdpResult>{callback, user_data});
 }
 
 void CONVENTION

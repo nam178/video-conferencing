@@ -87,10 +87,19 @@ namespace MediaServer.WebRtc.MediaRouting
                 peerConnectionObserver.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
                 peerConnectionObserver.RemoteTrackRemoved += _eventHandler.RemoteTrackRemoved;
 
+                // If this PeerConnection is for receiving, 
+                // create remote links for any existing remote tracks
+                if(videoClient.IsForReceiving(peerConnection))
+                {
+                    foreach(var track in peerConnection.Observer.RemoteTracks.Where(t => t.Track.TrackKind == MediaStreamTrack.Kind.Video))
+                    {
+                        OnRemoteTrackAdded(peerConnection, videoClient, track);
+                    }
+                }
                 // If this is the sending PeerConnection,
                 // it is used to send media out, therefore we'll create LocalLinks
                 // with other client's video sources.
-                if(false == videoClient.IsForReceiving(peerConnection))
+                else
                 {
                     foreach(var other in _videoClients
                         .OtherThan(videoClient)

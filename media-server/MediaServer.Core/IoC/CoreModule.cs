@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using MediaServer.Common.Threading;
+using MediaServer.Core.Adapters;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Core.Services.PeerConnection;
@@ -39,7 +40,7 @@ namespace MediaServer.Core.IoC
 
             // Factories
             builder.RegisterType<RoomFactory>().AsImplementedInterfaces();
-            builder.RegisterType<WebRtcInfra>().AsSelf();
+            builder.RegisterType<WebRtcInfraAdapter>().AsSelf();
         }
     }
 }
