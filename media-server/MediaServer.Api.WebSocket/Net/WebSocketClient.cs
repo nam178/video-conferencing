@@ -62,18 +62,11 @@ namespace MediaServer.Api.WebSocket.Net
         {
             if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 1)
                 return;
-            try
-            {
-                _outboundMessageQueue.Dispose();
-            }
-            catch { }
             using(WebSocketContext.WebSocket)
             {
                 try
                 {
-                    WebSocketContext.WebSocket
-                        .CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, "Server deliberately close the connection", CancellationToken.None)
-                        .Wait(TimeSpan.FromSeconds(5));
+                    _outboundMessageQueue.Dispose();
                 }
                 catch { }
             }
