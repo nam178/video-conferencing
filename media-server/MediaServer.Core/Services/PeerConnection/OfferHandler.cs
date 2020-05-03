@@ -104,6 +104,11 @@ namespace MediaServer.Core.Services.PeerConnection
                         await remoteDevice.SendSessionDescriptionAsync(peerConnection.Id, offer);
                         _logger.Info($"Re-negotiating offer sent to {peerConnection}.");
                     }
+                    catch(ObjectDisposedException ex)
+                    {
+                        _logger.Warn($"Failed re-negotiating due to PeerConnection closed, will terminate remote device. Err={ex.Message}");
+                        remoteDevice.Teminate();
+                    }
                     catch(IOException ex)
                     {
                         _logger.Warn($"Failed re-negotiating due to IO, will terminate remote device. Err={ex.Message}");

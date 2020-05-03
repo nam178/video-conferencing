@@ -56,9 +56,7 @@ namespace MediaServer.WebRtc.MediaRouting
                 {
                     videoSource = _videoClients.CreateVideoSource(videoClientId, trackQuality);
                     videoSource.VideoTrackSource = new PassiveVideoTrackSource();
-                    videoSource.VideoSinkAdapter = new VideoSinkAdapter(
-                        _peerConnectionFactory,
-                        videoSource.VideoTrackSource, false);
+                    videoSource.VideoSinkAdapter = new VideoSinkAdapter(videoSource.VideoTrackSource, false);
                     _logger.Info($"Created {videoSource}");
                     OnVideoSourceAdded(videoClient, videoSource, trackQuality);
                 }

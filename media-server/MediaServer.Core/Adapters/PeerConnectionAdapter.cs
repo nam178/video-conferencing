@@ -153,6 +153,10 @@ namespace MediaServer.Core.Adapters
 
         void RequireInitialised()
         {
+            if(Interlocked.CompareExchange(ref _disposed, 0, 0) == 1)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
             if(Interlocked.CompareExchange(ref _mediaRoutingStatus, 0, 0) == 0)
             {
                 throw new InvalidOperationException();

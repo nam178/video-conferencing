@@ -15,7 +15,10 @@ namespace MediaServer.WebRtc.Managed
 
         protected override bool ReleaseHandle()
         {
-            PassiveVideoTrackSourceInterop.Destroy(ref handle);
+            if(handle != IntPtr.Zero)
+            {
+                PassiveVideoTrackSourceInterop.Destroy(handle);
+            }
             return true;
         }
     }
