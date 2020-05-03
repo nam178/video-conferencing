@@ -12,8 +12,8 @@ namespace MediaServer.Core.Models
 {
     sealed class PeerConnectionAdapter : IPeerConnection
     {
-        readonly PeerConnectionObserver _nativeObserver;
-        readonly PeerConnection _nativePeerConnection;
+        readonly PeerConnectionObserver _peerConnectionObserverImpl;
+        readonly PeerConnection _peerConnectionImpl;
         readonly Guid _id = Guid.NewGuid();
         readonly object _syncRoot = new object();
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -23,6 +23,8 @@ namespace MediaServer.Core.Models
         public IRoom Room { get; }
 
         public IRemoteDevice Device { get; }
+
+        public Guid Id => _peerConnectionImpl.Id;
 
         public PeerConnectionAdapter(
             IRoom room,
@@ -45,9 +47,9 @@ namespace MediaServer.Core.Models
             }
             var config = new PeerConnectionConfig();
             config.IceServers.Add(iceServerInfo);
-            _nativeObserver = new PeerConnectionObserver();
-            _nativeObserver.IceCandidateAdded += IceCandidateAdded;
-            _nativePeerConnection = peerConnectionFactory.CreatePeerConnection(_nativeObserver, config);
+            _peerConnectionObserverImpl = new PeerConnectionObserver();
+            _peerConnectionObserverImpl.IceCandidateAdded += IceCandidateAdded;
+            _peerConnectionImpl = peerConnectionFactory.CreatePeerConnection(_peerConnectionObserverImpl, config);
         }
 
         int _initialised;
@@ -57,19 +59,19 @@ namespace MediaServer.Core.Models
             {
                 throw new InvalidOperationException();
             }
-            await _videoRouter.AddPeerConnectionAsync(Device.Id, _nativePeerConnection, _nativeObserver);
+            await _videoRouter.AddPeerConnectionAsync(Device.Id, _peerConnectionImpl, _peerConnectionObserverImpl);
         }
 
         public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
         {
             RequireInitialised();
-            return _nativePeerConnection.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
+            return _peerConnectionImpl.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
         }
 
         public async Task<RTCSessionDescription> CreateAnswerAsync()
         {
             RequireInitialised();
-            return await _nativePeerConnection.CreateAnswerAsync();
+            return await _peerConnectionImpl.CreateAnswerAsync();
         }
 
         public async Task SetLocalSessionDescriptionAsync(RTCSessionDescription localDescription)
@@ -77,7 +79,7 @@ namespace MediaServer.Core.Models
             RequireInitialised();
             // After generating answer, must set LocalSdp,
             // otherwise ICE candidates won't be gathered.
-            await _nativePeerConnection.SetLocalSessionDescriptionAsync(
+            await _peerConnectionImpl.SetLocalSessionDescriptionAsync(
                 localDescription.Type,
                 localDescription.Sdp);
         }
@@ -85,7 +87,7 @@ namespace MediaServer.Core.Models
         public void AddIceCandidate(RTCIceCandidate iceCandidate)
         {
             RequireInitialised();
-            _nativePeerConnection.AddIceCandidate(iceCandidate);
+            _peerConnectionImpl.AddIceCandidate(iceCandidate);
         }
 
         public void ObserveIceCandidate(Action<RTCIceCandidate> observer)
@@ -104,8 +106,8 @@ namespace MediaServer.Core.Models
         public async Task CloseAsync()
         {
             RequireInitialised();
-            await _videoRouter.RemovePeerConnectionAsync(Device.Id, _nativePeerConnection, _nativeObserver);
-            _nativePeerConnection.Close();
+            await _videoRouter.RemovePeerConnectionAsync(Device.Id, _peerConnectionImpl, _peerConnectionObserverImpl);
+            _peerConnectionImpl.Close();
         }
 
         int _disposed;
@@ -114,10 +116,10 @@ namespace MediaServer.Core.Models
             if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
             {
                 // Order matters! note that PeerConnection must be closed first by calling Close() above.
-                _nativePeerConnection.Dispose();
+                _peerConnectionImpl.Dispose();
                 // Observer later, cuz PeerConnection uses it
-                _nativeObserver.IceCandidateAdded -= IceCandidateAdded;
-                _nativeObserver.Dispose();
+                _peerConnectionObserverImpl.IceCandidateAdded -= IceCandidateAdded;
+                _peerConnectionObserverImpl.Dispose();
             }
         }
 

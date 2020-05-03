@@ -37,16 +37,18 @@ namespace MediaServer.Api.WebSocket.Net
 
         public Task SendSyncMessageAsync(SyncMessage message) => SendAsync("Sync", message);
 
-        public Task SendIceCandidateAsync(RTCIceCandidate candidate) => SendAsync("IceCandidate", candidate);
-
-        public Task SendSessionDescriptionAsync(RTCSessionDescription description)
+        public Task SendIceCandidateAsync(Guid peerConnectionId, RTCIceCandidate candidate)
         {
-            if(description.Type == "offer")
-                return SendAsync("Offer", description);
-            else if(description.Type == "answer")
-                return SendAsync("Answer", description);
+            return SendAsync("IceCandidate", new { candidate, peerConnectionId });
+        }
 
-            throw new ArgumentOutOfRangeException();
+        public Task SendSessionDescriptionAsync(Guid peerConnectionId, RTCSessionDescription description)
+        {
+            var args = new { sdp = description, peerConnectionId };
+            var command = "offer".Equals(description.Type, StringComparison.InvariantCultureIgnoreCase)
+                ? "Offer"
+                : "Answer";
+            return SendAsync(command, args);
         }
 
         public void Teminate() => WebSocketClient.Dispose();

@@ -2,6 +2,7 @@ import WebSocketClient from './websocket-client.js';
 import Logger from '../logging/logger.js'
 import Queue from '../utils/queue.js';
 import PeerConnectionBase from './peer-connection-base.js';
+import FatalErrorHandler from '../handlers/fatal-error-handler.js';
 
 export default class PeerConnectionSender extends PeerConnectionBase {
     /**
@@ -27,7 +28,7 @@ export default class PeerConnectionSender extends PeerConnectionBase {
      * @param {WebSocketClient} websocketClient 
      */
     constructor(websocketClient) {
-        super(websocketClient, new Logger('PeerConnectionManager'));
+        super(websocketClient, new Logger('PeerConnectionSender'));
         this._changeStreamAsync = this._changeStreamAsync.bind(this);
         this._handleRoomJoined = this._handleRoomJoined.bind(this);
         this._changeStreamQueue = new Queue('change-stream', this._changeStreamAsync);
@@ -74,7 +75,15 @@ export default class PeerConnectionSender extends PeerConnectionBase {
             // otherwise it will reject it.
             var tracks = newStream.getTracks();
             for (var i in tracks) {
-                await this._sendTrackInfoAsync(tracks[i].id, { quality: 'High', kind: tracks[i].kind });
+                try
+                {
+                    await this._sendTrackInfoAsync(tracks[i].id, { quality: 'High', kind: tracks[i].kind });
+                }
+                catch(err) {
+                    this.logger.error('Fatal error: ' + err);
+                    FatalErrorHandler.handle(err);
+                    return;
+                }
             }
             var senderCount = newStream.getTracks().length;
             newStream.getTracks().forEach(track => {

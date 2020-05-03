@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
-    sealed class RTCIceCandidateHandler : IHandler<IRemoteDevice, RTCIceCandidate>
+    sealed class RTCIceCandidateHandler : IRTCIceCandidateHandler
     {
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public Task HandleAsync(IRemoteDevice remoteDevice, RTCIceCandidate iceCandidate)
+        public Task AddCandidateAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCIceCandidate iceCandidate)
         {
             var peerConnection = remoteDevice.GetCustomData().PeerConnections.FirstOrDefault();
             if(null == peerConnection)

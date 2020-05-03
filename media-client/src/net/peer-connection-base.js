@@ -1,6 +1,6 @@
 import Logger from '../logging/logger.js';
 
-export default class PeerConnectionBase {
+export default class PeerConnectionBase extends EventTarget {
     /**
      * @return {WebSocketClient}
      */
@@ -10,6 +10,17 @@ export default class PeerConnectionBase {
      * @returns {Logger}
      */
     get logger() { return this._logger; }
+
+    /**
+     * Id of this PeerConnection, set by the server, will return in setAnswer()
+     * @returns {String}
+     */
+    get id() { return this._id; }
+
+    /**
+     * @param {String} value
+     */
+    set id(value) { return this._id = value;}
 
     /**
      * @var {Logger}
@@ -33,6 +44,7 @@ export default class PeerConnectionBase {
         if (this._peerConnection) {
             this._peerConnection.close();
         }
+        this.id = null;
         this._peerConnection = new RTCPeerConnection({
             sdpSemantics: 'unified-plan',
             iceServers: [
@@ -68,7 +80,6 @@ export default class PeerConnectionBase {
     _handleWebSocketMessage(e) {
         var commandName = `_on${e.detail.command}`;
         if (typeof this[commandName] != 'undefined') {
-            e.preventDefault();
             this._logger.debug(commandName, e.detail.args);
             this[commandName](e.detail.args);
         }
@@ -101,27 +112,40 @@ export default class PeerConnectionBase {
     }
 
     _sendIceCandidate(candidate) {
+        if(this.id == null) {
+            throw 'PeerConnection Id was not set';
+        }
         this._logger.log('Sending ice candidate', candidate);
         this.webSocketClient.queueMessageForSending('AddIceCandidate', {
             candidate: {
                 candidate: candidate.candidate,
                 sdpMid: candidate.sdpMid,
                 sdpMLineIndex: candidate.sdpMLineIndex
-            }
+            },
+            peerConnectionId: this.id
         });
     }
 
-    _onIceCandidate(iceCandidate) {
+    _onAnswer(args) {
+        if(this.id == null) {
+            this.id = args.peerConnectionId;
+        } else if(this.id != args.peerConnectionId) {
+            return;
+        }
+        this._setSdp(args.sdp);
+        this.dispatchEvent(new CustomEvent('negotiation-completed'));
+    }
+
+    _onIceCandidate(args) {
+        if(this.id != args.peerConnectionId) {
+            return;
+        }
         if (!this._peerConnection) {
             this._logger.warn('Received ICE candidate without PeerConnection');
             return;
         }
-        this._peerConnection.addIceCandidate(iceCandidate);
-        this._logger.debug('Remote ICE candidate received', iceCandidate);
-    }
-
-    _onAnswer(sdp) {
-        this._setSdp(sdp);
+        this._peerConnection.addIceCandidate(args.candidate);
+        this._logger.debug('Remote ICE candidate received', args);
     }
 
     _setSdp(sdp) {

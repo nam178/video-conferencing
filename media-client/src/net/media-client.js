@@ -3,6 +3,7 @@ import PeerConnectionSender from './peer-connection-sender.js';
 import ConferenceSettings from '../models/conference-settings.js';
 import InputDeviceManager from './input-device-manager.js';
 import UserInfo from '../models/user-info.js';
+import PeerConnectionReceiver from './peer-connection-receiver.js';
 
 export let NotSelectedInputDeviceId = -1;
 
@@ -26,6 +27,11 @@ export default class MediaClient extends EventTarget {
      * @var {PeerConnectionSender}
      */
     _peerConnectionSender;
+
+    /**
+     * @var {PeerConnectionReceiver}
+     */
+    _peerConnectionReceiver;
 
     /**
      * @var {InputDeviceManager}
@@ -122,6 +128,7 @@ export default class MediaClient extends EventTarget {
 
         this._webSocketClient = new WebSocketClient();
         this._peerConnectionSender = new PeerConnectionSender(this._webSocketClient);
+        this._peerConnectionReceiver = new PeerConnectionReceiver(this._webSocketClient, this._peerConnectionSender);
         this._webSocketClient.addEventListener('users', this._handleWebSocketClientUsersChange);
         this._webSocketClient.addEventListener('deviceidchange', this._handleMyNetworkDeviceIdChange);
         this._inputDeviceManager.addEventListener('streamchange', this._handleInputDeviceStreamChange);

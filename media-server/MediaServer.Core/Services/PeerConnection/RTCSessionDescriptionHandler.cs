@@ -1,5 +1,4 @@
-﻿using MediaServer.Common.Mediator;
-using MediaServer.Common.Threading;
+﻿using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
 using MediaServer.Models;
@@ -11,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
-    sealed class RTCSessionDescriptionHandler : IHandler<IRemoteDevice, RTCSessionDescription>
+    sealed class RTCSessionDescriptionHandler : IRTCSessionDescriptionHandler
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public async Task HandleAsync(IRemoteDevice remoteDevice, RTCSessionDescription request)
+        public async Task ReceiveSdpAsync(IRemoteDevice remoteDevice, RTCSessionDescription request)
         {
             Require.NotNull(request.Sdp);
             Require.NotNull(request.Type);
@@ -45,7 +44,7 @@ namespace MediaServer.Core.Services.PeerConnection
             // Create answer and send it.
             var answer = await peerConnection.CreateAnswerAsync();
             _logger.Info($"Answer {answer} created for {peerConnection}");
-            await remoteDevice.SendSessionDescriptionAsync(answer);
+            await remoteDevice.SendSessionDescriptionAsync(peerConnection.Id, answer);
             _logger.Info($"Answer sent for {peerConnection}");
 
             // SetLocalSessionDescriptionAsync() must be after SendSessionDescriptionAsync()
@@ -64,7 +63,7 @@ namespace MediaServer.Core.Services.PeerConnection
             // This is the first time is PeerConnection is created,
             // we'll add ICE candidate observer
             peerConnection.ObserveIceCandidate(ice => remoteDevice
-                .SendIceCandidateAsync(ice)
+                .SendIceCandidateAsync(peerConnection.Id, ice)
                 .Forget($"Error when sending ICE candidate {ice} to device {remoteDevice}"));
 
             return peerConnection;
