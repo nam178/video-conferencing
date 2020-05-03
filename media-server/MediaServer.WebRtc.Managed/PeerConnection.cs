@@ -189,9 +189,12 @@ namespace MediaServer.WebRtc.Managed
                 {
                     throw new ArgumentException($"Provided RtpSender not found");
                 }
-                t.RtpSender.Dispose();
-                t.Track.Dispose();
                 _localTracks.Remove(t);
+                using(t.RtpSender)
+                using(t.Track)
+                {
+                    PeerConnectionInterop.RemoveTrack(_handle, t.RtpSender.Handle);
+                }
             }
         }
 

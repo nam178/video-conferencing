@@ -21,6 +21,8 @@ namespace MediaServer.Core.Models
 
         Task<RTCSessionDescription> CreateAnswerAsync();
 
+        Task<RTCSessionDescription> CreateOfferAsync();
+
         Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description);
 
         Task SetLocalSessionDescriptionAsync(RTCSessionDescription description);

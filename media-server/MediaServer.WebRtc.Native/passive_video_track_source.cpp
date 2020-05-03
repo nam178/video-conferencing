@@ -67,9 +67,7 @@ absl::optional<bool> Video::PassiveVideoTrackSource::needs_denoising() const
 
 bool Video::PassiveVideoTrackSource::GetStats(Stats *stats)
 {
-    stats->input_width = 320;
-    stats->input_height = 320;
-    return true;
+    return false;
 }
 
 void Video::PassiveVideoTrackSource::PushVideoFrame(const VideoFrame &frame)

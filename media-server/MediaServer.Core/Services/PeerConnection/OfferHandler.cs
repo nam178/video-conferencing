@@ -6,6 +6,7 @@ using MediaServer.WebRtc.Managed;
 using NLog;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
@@ -75,11 +76,38 @@ namespace MediaServer.Core.Services.PeerConnection
 
             // This is the first time is PeerConnection is created,
             // we'll add ICE candidate observer
+            var _pendingRenegotationRequests = 0;
             peerConnection
                 .ObserveIceCandidate((peer, cand) => SendAndForget(remoteDevice, peer, cand))
-                .ObserveRenegotiationNeeded(peer =>
+                .ObserveRenegotiationNeeded(async peer =>
                 {
-                    throw new NotImplementedException();
+                    Interlocked.Increment(ref _pendingRenegotationRequests);
+
+                    // Throttle this handler a bit,
+                    // Multiple tracks may get added at one, we don't want to generate billion of sdps
+                    await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+                    // Newer request coming in, dropping this
+                    if(Interlocked.Decrement(ref _pendingRenegotationRequests) > 0)
+                    {
+                        _logger.Warn($"Multiple re-negotation triggerd for {peerConnection}, ignoring this one");
+                        return;
+                    }
+
+                    // Begin the actual re-negotation
+                    _logger.Trace($"Re-negotiating with {peerConnection}..");
+                    try
+                    {
+                        var offer = await peer.CreateOfferAsync();
+                        await peerConnection.SetLocalSessionDescriptionAsync(offer);
+                        await remoteDevice.SendSessionDescriptionAsync(peerConnection.Id, offer);
+                        _logger.Info($"Re-negotiating offer sent to {peerConnection}.");
+                    }
+                    catch(Exception ex)
+                    {
+                        _logger.Error(ex, "Failed re-negotiating, will terminate remote device");
+                        remoteDevice.Teminate();
+                    }
                 });
 
             return peerConnection;

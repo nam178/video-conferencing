@@ -180,7 +180,7 @@ std::unique_ptr<Wrappers::RtpSender> Wrappers::PeerConnection::AddTrack(
 
 void Wrappers::PeerConnection::RemoveTrack(Wrappers::RtpSender *rtp_sender)
 {
-    if(rtp_sender)
+    if(!rtp_sender)
     {
         RTC_LOG(LS_ERROR) << "rtp_sender is nullptr";
         throw new std::runtime_error("rtp_sender is nullptr");

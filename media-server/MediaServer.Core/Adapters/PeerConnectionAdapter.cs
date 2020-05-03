@@ -15,7 +15,6 @@ namespace MediaServer.Core.Adapters
     {
         readonly PeerConnectionObserver _peerConnectionObserverImpl;
         readonly PeerConnection _peerConnectionImpl;
-        readonly Guid _id = Guid.NewGuid();
         readonly object _syncRoot = new object();
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly VideoRouter _videoRouter;
@@ -69,6 +68,12 @@ namespace MediaServer.Core.Adapters
         public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
         {
             return _peerConnectionImpl.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
+        }
+
+        public async Task<RTCSessionDescription> CreateOfferAsync()
+        {
+            RequireInitialised();
+            return await _peerConnectionImpl.CreateOfferAsync();
         }
 
         public async Task<RTCSessionDescription> CreateAnswerAsync()
@@ -140,7 +145,7 @@ namespace MediaServer.Core.Adapters
             }
         }
 
-        public override string ToString() => $"[PeerConnectionAdapter Id={_id.ToString().Substring(0, 8)}]";
+        public override string ToString() => $"[PeerConnectionAdapter Id={Id.ToString().Substring(0, 8)}]";
 
         void IceCandidateAdded(object sender, EventArgs<RTCIceCandidate> e) => _iceCandidateObserver?.Invoke(this, e.Payload);
 
