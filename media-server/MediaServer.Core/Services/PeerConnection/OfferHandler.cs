@@ -80,29 +80,29 @@ namespace MediaServer.Core.Services.PeerConnection
             var _pendingRenegotationRequests = 0;
             peerConnection
                 .ObserveIceCandidate((peer, cand) => SendAndForget(remoteDevice, peer, cand))
-                .ObserveRenegotiationNeeded(async peer =>
+                .ObserveRenegotiationNeeded(async peer => 
                 {
                     Interlocked.Increment(ref _pendingRenegotationRequests);
 
-                    // Throttle this handler a bit,
-                    // Multiple tracks may get added at one, we don't want to generate billion of sdps
-                    await Task.Delay(TimeSpan.FromMilliseconds(500));
-
-                    // Newer request coming in, dropping this
-                    if(Interlocked.Decrement(ref _pendingRenegotationRequests) > 0)
-                    {
-                        _logger.Warn($"Multiple re-negotation triggerd for {peerConnection}, ignoring this one");
-                        return;
-                    }
-
                     // Begin the actual re-negotation
+                    // Must do this in a queue to avoid race between requests
                     _logger.Trace($"Re-negotiating with {peerConnection}..");
                     try
                     {
-                        var offer = await peer.CreateOfferAsync();
-                        await peerConnection.SetLocalSessionDescriptionAsync(offer);
-                        await remoteDevice.SendSessionDescriptionAsync(peerConnection.Id, offer);
-                        _logger.Info($"Re-negotiating offer sent to {peerConnection}.");
+                        await user.Room.RenegotiationQueue.ExecuteAsync(async delegate
+                        {
+                            // Newer request coming in, dropping this
+                            if(Interlocked.Decrement(ref _pendingRenegotationRequests) > 0)
+                            {
+                                _logger.Warn($"Multiple re-negotation triggerd for {peerConnection}, ignoring this one");
+                                return;
+                            }
+
+                            var offer = await peer.CreateOfferAsync();
+                            await peerConnection.SetLocalSessionDescriptionAsync(offer);
+                            await remoteDevice.SendSessionDescriptionAsync(peerConnection.Id, offer);
+                            _logger.Info($"Re-negotiating offer sent to {peerConnection}.");
+                        });
                     }
                     catch(ObjectDisposedException ex)
                     {

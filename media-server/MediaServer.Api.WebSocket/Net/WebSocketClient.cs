@@ -48,7 +48,7 @@ namespace MediaServer.Api.WebSocket.Net
                         CancellationToken.None);
                 });
             }
-            catch(WebSocketException ex)
+            catch(Exception ex) when (ex is WebSocketException || ex is ObjectDisposedException)
             {
                 throw new IOException("WebSocket error occured when sending message to remote client", ex);
             }

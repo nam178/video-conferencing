@@ -12,9 +12,8 @@ extern "C"
     EXPORT Video::PassiveVideoTrackSource *CONVENTION PassiveVideoTrackSourceCreate() noexcept;
 
     EXPORT void CONVENTION
-    PassiveVideoTrackSourceDestroy(Video::PassiveVideoTrackSource *video_track_source) noexcept;
-
+    PassiveVideoTrackSourceRelease(Video::PassiveVideoTrackSource *video_track_source) noexcept;
+    
     EXPORT void CONVENTION
-    PassiveVideoTrackSourcePushVideoFrame(Video::PassiveVideoTrackSource *video_track_source,
-                                          const VideoFrame &frame);
+    PassiveVideoTrackSourceAddRef(Video::PassiveVideoTrackSource *video_track_source) noexcept;
 }

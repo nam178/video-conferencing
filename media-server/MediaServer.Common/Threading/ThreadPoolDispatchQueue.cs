@@ -21,6 +21,14 @@ namespace MediaServer.Common.Threading
         readonly static ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly static AsyncLocal<bool> _workerThreadContext = new AsyncLocal<bool>();
 
+        public ThreadPoolDispatchQueue(bool started = false)
+        {
+            if(started)
+            {
+                Start();
+            }
+        }
+
         public void RequireState(int expectedState)
         {
             if(Interlocked.CompareExchange(ref _state, expectedState, expectedState) != expectedState)

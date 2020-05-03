@@ -9,6 +9,7 @@ namespace MediaServer.WebRtc.Managed
             : base(IntPtr.Zero, true)
         {
             SetHandle(PassiveVideoTrackSourceInterop.Create());
+            PassiveVideoTrackSourceInterop.AddRef(handle);
         }
 
         public override bool IsInvalid => handle == IntPtr.Zero;
@@ -17,7 +18,7 @@ namespace MediaServer.WebRtc.Managed
         {
             if(handle != IntPtr.Zero)
             {
-                PassiveVideoTrackSourceInterop.Destroy(handle);
+                PassiveVideoTrackSourceInterop.Release(handle);
             }
             return true;
         }

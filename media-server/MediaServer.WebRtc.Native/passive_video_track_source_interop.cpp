@@ -12,14 +12,13 @@ EXPORT Video::PassiveVideoTrackSource *CONVENTION PassiveVideoTrackSourceCreate(
 }
 
 EXPORT void CONVENTION
-PassiveVideoTrackSourceDestroy(Video::PassiveVideoTrackSource *video_track_source) noexcept
+PassiveVideoTrackSourceRelease(Video::PassiveVideoTrackSource *video_track_source) noexcept
 {
-    delete video_track_source;
+    video_track_source->Release();
 }
 
 EXPORT void CONVENTION
-PassiveVideoTrackSourcePushVideoFrame(Video::PassiveVideoTrackSource *video_track_source,
-                                      const VideoFrame &frame)
+PassiveVideoTrackSourceAddRef(Video::PassiveVideoTrackSource *video_track_source) noexcept
 {
-    static_cast<PassiveVideoTrackSource *>(video_track_source)->PushVideoFrame(frame);
+    video_track_source->AddRef();
 }
