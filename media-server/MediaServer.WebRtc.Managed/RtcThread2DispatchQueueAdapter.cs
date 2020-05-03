@@ -22,11 +22,11 @@ namespace MediaServer.WebRtc.Managed
                 try
                 {
                     task();
-                    taskCompletionSource.SetResult(true);
+                    Task.Run(() => taskCompletionSource.SetResult(true));
                 }
                 catch(Exception ex)
                 {
-                    taskCompletionSource.SetException(ex);
+                    Task.Run(() => taskCompletionSource.SetException(ex));
                 }
             }, null);
 
@@ -49,11 +49,11 @@ namespace MediaServer.WebRtc.Managed
                 try
                 {
                     var result = actionWithResult();
-                    taskCompletionSource.SetResult(result);
+                    Task.Run(() => taskCompletionSource.SetResult(result));
                 }
                 catch(Exception ex)
                 {
-                    taskCompletionSource.SetException(ex);
+                    Task.Run(() => taskCompletionSource.SetException(ex));
                 }
             }, null);
 

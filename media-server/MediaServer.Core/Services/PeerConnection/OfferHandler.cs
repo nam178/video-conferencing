@@ -80,7 +80,7 @@ namespace MediaServer.Core.Services.PeerConnection
             var _pendingRenegotationRequests = 0;
             peerConnection
                 .ObserveIceCandidate((peer, cand) => SendAndForget(remoteDevice, peer, cand))
-                .ObserveRenegotiationNeeded(async peer => 
+                .ObserveRenegotiationNeeded(async peer =>
                 {
                     Interlocked.Increment(ref _pendingRenegotationRequests);
 
@@ -104,15 +104,13 @@ namespace MediaServer.Core.Services.PeerConnection
                             _logger.Info($"Re-negotiating offer sent to {peerConnection}.");
                         });
                     }
-                    catch(ObjectDisposedException ex)
+                    catch(Exception ex) when(ex is ObjectDisposedException || ex is TaskCanceledException || ex is InvalidOperationException)
                     {
                         _logger.Warn($"Failed re-negotiating due to PeerConnection closed, will terminate remote device. Err={ex.Message}");
-                        remoteDevice.Teminate();
                     }
                     catch(IOException ex)
                     {
                         _logger.Warn($"Failed re-negotiating due to IO, will terminate remote device. Err={ex.Message}");
-                        remoteDevice.Teminate();
                     }
                     catch(Exception ex)
                     {

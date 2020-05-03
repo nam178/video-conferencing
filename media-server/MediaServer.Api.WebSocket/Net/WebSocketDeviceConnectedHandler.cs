@@ -53,7 +53,7 @@ namespace MediaServer.Api.WebSocket.Net
                     }
                     // When the WebSocketClient is disposed
                     // by some other thread, it will throw InvalidOperationException
-                    catch(InvalidOperationException ex)
+                    catch(Exception ex) when (ex is InvalidOperationException || ex is WebSocketException)
                     {
                         throw new IOException(ex.Message, ex);
                     }

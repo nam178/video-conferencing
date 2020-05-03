@@ -262,10 +262,13 @@ namespace MediaServer.WebRtc.Managed
                     return;
                 _pendingTasks.Remove(pendingTask);
             }
-            if(result.Success)
-                pendingTask.Source.TrySetResult(new RTCSessionDescription { Sdp = result.Sdp, Type = result.SdpType });
-            else
-                pendingTask.Source.TrySetException(new CreateAnswerFailedException(result.ErrorMessage ?? string.Empty));
+            Task.Run(delegate
+            {
+                if(result.Success)
+                    pendingTask.Source.TrySetResult(new RTCSessionDescription { Sdp = result.Sdp, Type = result.SdpType });
+                else
+                    pendingTask.Source.TrySetException(new CreateAnswerFailedException(result.ErrorMessage ?? string.Empty));
+            });
         }
 
         void CompletePendingTask(PendingTask<bool> pendingTask, bool sucess, string errorMessage)
@@ -276,11 +279,14 @@ namespace MediaServer.WebRtc.Managed
                     return;
                 _pendingTasks.Remove(pendingTask);
             }
-            if(sucess)
-                pendingTask.Source.TrySetResult(true);
-            else
-                pendingTask.Source.TrySetException(
-                    new SetSessionDescriptionFailedException(errorMessage ?? string.Empty));
+            Task.Run(delegate
+            {
+                if(sucess)
+                    pendingTask.Source.TrySetResult(true);
+                else
+                    pendingTask.Source.TrySetException(
+                        new SetSessionDescriptionFailedException(errorMessage ?? string.Empty));
+            });
         }
     }
 }

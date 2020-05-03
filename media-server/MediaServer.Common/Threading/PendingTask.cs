@@ -19,7 +19,13 @@ namespace MediaServer.Common.Threading
             Source = source ?? throw new ArgumentNullException(nameof(source));
         }
 
-        public void Cancel() => Source.TrySetException(new TaskCanceledException());
+        public void Cancel()
+        {
+            System.Threading.Tasks.Task.Run(delegate
+            {
+                Source.TrySetException(new TaskCanceledException());
+            });
+        }
 
         public static implicit operator PendingTask<T>(TaskCompletionSource<T> x) => new PendingTask<T>(x);
         public static implicit operator TaskCompletionSource<T>(PendingTask<T> y) => y.Source;
