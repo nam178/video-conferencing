@@ -5,6 +5,7 @@ using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using NLog;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ namespace MediaServer.Core.Services.PeerConnection
             // Create new PeerConnection
             if(null == peerConnection)
             {
-               
+
                 peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User, request);
                 // Save
                 deviceData.PeerConnections.Add(peerConnection);
@@ -103,6 +104,11 @@ namespace MediaServer.Core.Services.PeerConnection
                         await remoteDevice.SendSessionDescriptionAsync(peerConnection.Id, offer);
                         _logger.Info($"Re-negotiating offer sent to {peerConnection}.");
                     }
+                    catch(IOException ex)
+                    {
+                        _logger.Warn($"Failed re-negotiating due to IO, will terminate remote device. Err={ex.Message}");
+                        remoteDevice.Teminate();
+                    }
                     catch(Exception ex)
                     {
                         _logger.Error(ex, "Failed re-negotiating, will terminate remote device");
@@ -117,6 +123,7 @@ namespace MediaServer.Core.Services.PeerConnection
         {
             remoteDevice
                 .SendIceCandidateAsync(peer.Id, cand)
+                .Mute<IOException>()
                 .Forget($"Error when sending ICE candidate {cand} to device {remoteDevice}");
         }
     }

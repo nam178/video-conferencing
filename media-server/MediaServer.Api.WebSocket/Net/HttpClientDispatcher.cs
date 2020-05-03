@@ -1,9 +1,8 @@
-﻿using MediaServer.Api.WebSocket.Errors;
-using MediaServer.Common.Mediator;
+﻿using MediaServer.Common.Mediator;
 using NLog;
 using System;
+using System.IO;
 using System.Net;
-using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 namespace MediaServer.Api.WebSocket.Net
@@ -41,7 +40,7 @@ namespace MediaServer.Api.WebSocket.Net
                     }
                 }
             }
-            catch(Exception ex) when(ex is WebSocketException || ex is WebSocketClientDisposedException)
+            catch(IOException ex)
             {
                 _logger.Warn($"WebSocket Error Device={remoteDevice}, Err{ex.Message}");
             }

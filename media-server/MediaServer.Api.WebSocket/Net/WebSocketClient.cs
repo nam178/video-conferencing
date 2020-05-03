@@ -1,6 +1,6 @@
-﻿using MediaServer.Api.WebSocket.Errors;
-using MediaServer.Common.Threading;
+﻿using MediaServer.Common.Threading;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.WebSockets;
 using System.Threading;
@@ -32,18 +32,26 @@ namespace MediaServer.Api.WebSocket.Net
                 ?? throw new ArgumentNullException(nameof(webSocketContext));
         }
 
-        public Task SendAsync(string message)
+        public async Task SendAsync(string message)
         {
             if(Interlocked.CompareExchange(ref _disposed, 0, 0) == 1)
-                throw new WebSocketClientDisposedException($"message could not be sent because {this} is closed");
-            return _outboundMessageQueue.ExecuteAsync(async delegate
+                throw new IOException($"message could not be sent because {this} is closed");
+
+            try
             {
-                await WebSocketContext.WebSocket.SendAsync(
-                    new System.ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(message)),
-                    WebSocketMessageType.Text,
-                    true,
-                    CancellationToken.None);
-            });
+                await _outboundMessageQueue.ExecuteAsync(async delegate
+                {
+                    await WebSocketContext.WebSocket.SendAsync(
+                        new System.ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(message)),
+                        WebSocketMessageType.Text,
+                        true,
+                        CancellationToken.None);
+                });
+            }
+            catch(WebSocketException ex)
+            {
+                throw new IOException("WebSocket error occured when sending message to remote client", ex);
+            }
         }
 
         public override string ToString() => $"[WebSocketClient {_name}]";
