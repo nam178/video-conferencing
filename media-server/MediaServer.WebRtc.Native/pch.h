@@ -16,7 +16,6 @@
 // Common stuff
 #include "call_back.h"
 #include "string_helper.h"
-#include "pointer_helper.h"
 
 #include "result.h"
 

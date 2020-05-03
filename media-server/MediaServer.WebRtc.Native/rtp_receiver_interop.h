@@ -4,18 +4,13 @@
 
 extern "C"
 {
-    using RtpReceiverInterfacePtr = void *;
-    // Pointer to Wrappers::RtpReceiver
-    using RtpReceiverWrapperPtr = void *;
-    // Pointer to either Wrappers::AudioTrack or Wrappers::VideoTrack
-    using TrackWrapeprPtr = void *;
+    EXPORT webrtc::RtpReceiverInterface *CONVENTION
+    RtpReceiverGetRtpReceiverInterface(Wrappers::RtpReceiver *rtp_receiver_ptr);
 
-    EXPORT webrtc::RtpReceiverInterface* CONVENTION
-    RtpReceiverGetRtpReceiverInterface(RtpReceiverWrapperPtr rtp_receiver_ptr);
-
-    EXPORT void CONVENTION RtpReceiverDestroy(RtpReceiverWrapperPtr rtp_receiver_ptr);
+    EXPORT void CONVENTION RtpReceiverDestroy(Wrappers::RtpReceiver *rtp_receiver_ptr);
 
     // Get the track associated with this RtpReceiver.
     // Note that the managed code will take ownership.
-    EXPORT TrackWrapeprPtr CONVENTION RtpReceiverGetTrack(RtpReceiverWrapperPtr rtp_receiver_ptr);
+    EXPORT Wrappers::MediaStreamTrack *CONVENTION
+    RtpReceiverGetTrack(Wrappers::RtpReceiver *rtp_receiver_ptr);
 }

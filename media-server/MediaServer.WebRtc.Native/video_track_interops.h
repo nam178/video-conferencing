@@ -4,7 +4,11 @@
 
 extern "C"
 {
-    EXPORT void CONVENTION VideoTrackAddSink(void *video_track, void *video_sink_interface);
+    EXPORT void CONVENTION
+    VideoTrackAddSink(Wrappers::VideoTrack *video_track,
+                      rtc::VideoSinkInterface<webrtc::VideoFrame> *video_sink_interface);
 
-    EXPORT void CONVENTION VideoTrackRemoveSink(void *video_track, void *video_sink_interface);
+    EXPORT void CONVENTION
+    VideoTrackRemoveSink(Wrappers::VideoTrack *video_track,
+                         rtc::VideoSinkInterface<webrtc::VideoFrame> *video_sink_interface);
 }

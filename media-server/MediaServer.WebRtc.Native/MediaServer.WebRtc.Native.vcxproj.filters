@@ -167,9 +167,6 @@
     <ClInclude Include="peer_connection_factory.h">
       <Filter>wrappers\peer_connection</Filter>
     </ClInclude>
-    <ClInclude Include="pointer_helper.h">
-      <Filter>misc</Filter>
-    </ClInclude>
     <ClInclude Include="noop_audio_device_module.h">
       <Filter>noop_audio</Filter>
     </ClInclude>

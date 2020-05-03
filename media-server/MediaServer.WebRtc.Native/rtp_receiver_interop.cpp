@@ -4,12 +4,12 @@
 #include "rtp_receiver_interop.h"
 
 webrtc::RtpReceiverInterface *CONVENTION
-RtpReceiverGetRtpReceiverInterface(RtpReceiverWrapperPtr rtp_receiver_ptr)
+RtpReceiverGetRtpReceiverInterface(Wrappers::RtpReceiver *rtp_receiver_ptr)
 {
-    return StaticCastOrThrow<Wrappers::RtpReceiver>(rtp_receiver_ptr)->GetRtpReceiverInterface();
+    return rtp_receiver_ptr->GetRtpReceiverInterface();
 }
 
-void CONVENTION RtpReceiverDestroy(RtpReceiverWrapperPtr rtp_receiver_ptr)
+void CONVENTION RtpReceiverDestroy(Wrappers::RtpReceiver *rtp_receiver_ptr)
 {
     if(rtp_receiver_ptr)
     {
@@ -17,7 +17,7 @@ void CONVENTION RtpReceiverDestroy(RtpReceiverWrapperPtr rtp_receiver_ptr)
     }
 }
 
-TrackWrapeprPtr CONVENTION RtpReceiverGetTrack(RtpReceiverWrapperPtr rtp_receiver_ptr)
+Wrappers::MediaStreamTrack *CONVENTION RtpReceiverGetTrack(Wrappers::RtpReceiver *rtp_receiver_ptr)
 {
-    return StaticCastOrThrow<Wrappers::RtpReceiver>(rtp_receiver_ptr)->GetTrack().release();
+    return rtp_receiver_ptr->GetTrack().release();
 }

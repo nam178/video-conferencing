@@ -14,10 +14,6 @@ namespace Wrappers
 // or before this observer is added into PeerConnection
 class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
 {
-    using CandidateListPtr = const void *;
-    using RtpReceiverWrapperPtr = void *;
-    using RtpReceiverPtr = void *;
-
   public:
     PeerConnectionObserver();
 
@@ -41,17 +37,19 @@ class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
     // if the name is confusing,
     // this occurs when an ice candidate is added.
     void SetIceCandidateCallback(Callback<IceCandidate> &&callback) noexcept;
-    void SetIceCandidatesRemovedCallback(Callback<CandidateListPtr> &&callback) noexcept;
-    void SetRemoteTrackAddedCallback(Callback<RtpReceiverWrapperPtr> &&callback) noexcept;
-    void SetRemoteTrackRemovedCallback(Callback<RtpReceiverPtr> &&callback) noexcept;
+    void SetIceCandidatesRemovedCallback(
+        Callback<const std::vector<cricket::Candidate> *> &&callback) noexcept;
+    void SetRemoteTrackAddedCallback(Callback<Wrappers::RtpReceiver *> &&callback) noexcept;
+    void SetRemoteTrackRemovedCallback(
+        Callback<webrtc::RtpReceiverInterface *> &&callback) noexcept;
 
   private:
     Callback<> _renegotiation_needed_callback{};
     Callback<IceGatheringState> _ice_gathering_state_changed_callback{};
     Callback<IceConnectionState> _ice_connection_change_callback{};
     Callback<IceCandidate> _ice_candidate_callback{};
-    Callback<CandidateListPtr> _ice_candidates_removed_callback{};
-    Callback<RtpReceiverWrapperPtr> _remote_track_added_callback{};
-    Callback<RtpReceiverPtr> _remote_track_removed_callback{};
+    Callback<const std::vector<cricket::Candidate> *> _ice_candidates_removed_callback{};
+    Callback<Wrappers::RtpReceiver *> _remote_track_added_callback{};
+    Callback<webrtc::RtpReceiverInterface *> _remote_track_removed_callback{};
 };
 } // namespace Wrappers

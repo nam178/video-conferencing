@@ -6,13 +6,12 @@
 
 extern "C"
 {
-    using MediaStreamTrackWrapperPtr = void *;
     using IdString = const char *;
 
-    EXPORT void CONVENTION MediaStreamTrackDestroy(MediaStreamTrackWrapperPtr media_stream_track);
+    EXPORT void CONVENTION MediaStreamTrackDestroy(Wrappers::MediaStreamTrack *media_stream_track);
 
-    EXPORT IdString CONVENTION MediaStreamTrackId(MediaStreamTrackWrapperPtr media_stream_track);
+    EXPORT IdString CONVENTION MediaStreamTrackId(Wrappers::MediaStreamTrack *media_stream_track);
 
     EXPORT bool CONVENTION
-    MediaStreamTrackIsAudioTrack(MediaStreamTrackWrapperPtr media_stream_track);
+    MediaStreamTrackIsAudioTrack(Wrappers::MediaStreamTrack *media_stream_track);
 }

@@ -8,19 +8,16 @@ using namespace Wrappers;
 
 extern "C"
 {
-    using PeerConnectionObserverIntPtr = void *;
     using UserData = void *;
-    using CandidateListPtr = const void *;
-    using RtpReceiverWrapperPtr = void *;
-    using RtpReceiverPtr = void *;
 
     using RenegotiationNeededCallback = void(CONVENTION *)(UserData);
     using IceGatheringStateChangedCallback = void(CONVENTION *)(UserData, IceGatheringState);
     using IceConnectionChangeCallback = void(CONVENTION *)(UserData, IceConnectionState);
     using IceCandidateCallback = void(CONVENTION *)(UserData, IceCandidate);
-    using IceCandidatesRemovedCallback = void(CONVENTION *)(UserData, CandidateListPtr);
-    using RemoteTrackAddedCallback = void(CONVENTION *)(UserData, RtpReceiverWrapperPtr);
-    using RemoteTrackRemovedCallback = void(CONVENTION *)(UserData, RtpReceiverPtr);
+    using IceCandidatesRemovedCallback =
+        void(CONVENTION *)(UserData, const std::vector<cricket::Candidate> *);
+    using RemoteTrackAddedCallback = void(CONVENTION *)(UserData, Wrappers::RtpReceiver *);
+    using RemoteTrackRemovedCallback = void(CONVENTION *)(UserData, webrtc::RtpReceiverInterface *);
 
     struct PeerConnectionObserverCallbacks
     {
@@ -33,37 +30,37 @@ extern "C"
         RemoteTrackRemovedCallback _remote_track_removed_callback{};
     };
 
-    EXPORT Wrappers::PeerConnectionObserver* CONVENTION PeerConnectionObserverCreate();
+    EXPORT Wrappers::PeerConnectionObserver *CONVENTION PeerConnectionObserverCreate();
 
     EXPORT void CONVENTION
-    PeerConnectionObserverDestroy(PeerConnectionObserverIntPtr peer_connection_observer_ptr);
+    PeerConnectionObserverDestroy(Wrappers::PeerConnectionObserver *peer_connection_observer_ptr);
 
     EXPORT void CONVENTION PeerConnectionObserverSetRenegotiationNeededCallback(
-        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
         RenegotiationNeededCallback call_back,
         UserData user_data);
     EXPORT void CONVENTION PeerConnectionObserverSetIceGatheringStateChangedCallback(
-        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
         IceGatheringStateChangedCallback call_back,
         UserData user_data);
     EXPORT void CONVENTION PeerConnectionObserverSetIceConnectionChangeCallback(
-        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
         IceConnectionChangeCallback call_back,
         UserData user_data);
     EXPORT void CONVENTION PeerConnectionObserverSetIceCandidateCallback(
-        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
         IceCandidateCallback call_back,
         UserData user_data);
     EXPORT void CONVENTION PeerConnectionObserverSetIceCandidatesRemovedCallback(
-        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
         IceCandidatesRemovedCallback call_back,
         UserData user_data);
     EXPORT void CONVENTION PeerConnectionObserverSetRemoteTrackAddedCallback(
-        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
         RemoteTrackAddedCallback call_back,
         UserData user_data);
     EXPORT void CONVENTION PeerConnectionObserverSetRemoteTrackRemovedCallback(
-        PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+        Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
         RemoteTrackRemovedCallback call_back,
         UserData user_data);
 }
