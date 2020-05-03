@@ -9,9 +9,9 @@ namespace MediaServer.Api.WebSocket.CommandHandlers
 {
     sealed class AddIceCandidateHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.AddIceCandidate>
     {
-        readonly IRTCIceCandidateHandler _iceCandidateHandler;
+        readonly IIceCandidateHandler _iceCandidateHandler;
 
-        public AddIceCandidateHandler(IRTCIceCandidateHandler iceCandidateHandler)
+        public AddIceCandidateHandler(IIceCandidateHandler iceCandidateHandler)
         {
             _iceCandidateHandler = iceCandidateHandler
                 ?? throw new System.ArgumentNullException(nameof(iceCandidateHandler));
@@ -24,7 +24,7 @@ namespace MediaServer.Api.WebSocket.CommandHandlers
 
             // This command has no response, 
             // just pass direcrlt through the service to handle it
-            return _iceCandidateHandler.AddCandidateAsync(remoteDeivce, args.PeerConnectionId, args.Candidate);
+            return _iceCandidateHandler.AddAsync(remoteDeivce, args.PeerConnectionId, args.Candidate);
         }
     }
 }

@@ -20,31 +20,46 @@ export default class PeerConnectionBase extends EventTarget {
     /**
      * @param {String} value
      */
-    set id(value) { return this._id = value;}
+    set id(value) { this._id = value;}
 
     /**
      * @var {Logger}
      */
     _logger = null;
 
+    /**
+     * @var {RTCIceCandidate[]}
+     */
+    _pendingIceCandidates = [];
+
     constructor(websocketClient, logger) {
         if (!websocketClient) {
             throw 'Must specify webSocketClient';
         }
+        super();
         this._handleWebSocketMessage = this._handleWebSocketMessage.bind(this);
         this._webSocketClient = websocketClient;
-        this._webSocketClient.addEventListener('message', this._handleWebSocketMessage);
+        
         this._logger = logger;
+    }
+
+    startListeningToWebSocketEvents() {
+        this._webSocketClient.addEventListener('message', this._handleWebSocketMessage);
+    }
+
+    stopListeningToWebSocketEvents() {
+        this._webSocketClient.removeEventListener('message', this._handleWebSocketMessage);
     }
 
     /**
      * WebSocket connection must be ready first
      */
     restart() {
+        this.logger.warn('Restarting..');
         if (this._peerConnection) {
             this._peerConnection.close();
         }
-        this.id = null;
+        this._pendingIceCandidates = [];
         this._peerConnection = new RTCPeerConnection({
             sdpSemantics: 'unified-plan',
             iceServers: [
@@ -66,7 +81,7 @@ export default class PeerConnectionBase extends EventTarget {
         });
         this._peerConnection.addEventListener("negotiationneeded", () => {
             this._logger.warn('re-negotiation needed');
-            this._sendOfferAsync();
+            this.sendOfferAsync();
         }, false);
         this._peerConnection.addEventListener('track', e => {
             this._logger.info('Received remote stream', e);
@@ -74,18 +89,17 @@ export default class PeerConnectionBase extends EventTarget {
             // document.getElementById('remote_video').srcObject = e.streams[0];
         });
         this._logger.log('PeerConnection initialised');
-        this._changeStream(null, this._localMediaStreamForSending);
     }
 
     _handleWebSocketMessage(e) {
         var commandName = `_on${e.detail.command}`;
         if (typeof this[commandName] != 'undefined') {
-            this._logger.debug(commandName, e.detail.args);
+            this._logger.debug(`Executing method ${commandName} with args=`, e.detail.args);
             this[commandName](e.detail.args);
         }
     }
 
-    async _sendOfferAsync() {
+    async sendOfferAsync() {
         // Generate a token to prevent race condition when this method
         // is called multiple times and the async continuation below
         // race with each other:
@@ -107,13 +121,17 @@ export default class PeerConnectionBase extends EventTarget {
             offer: {
                 type: offer.type,
                 sdp: offer.sdp
-            }
+            },
+            peerConnectionId: this.id
         });
     }
 
     _sendIceCandidate(candidate) {
+        // If id was not set, that means offer still being processed,
+        // we will wait a bit and try again later
         if(this.id == null) {
-            throw 'PeerConnection Id was not set';
+            this._pendingIceCandidates.push(candidate);
+            return;
         }
         this._logger.log('Sending ice candidate', candidate);
         this.webSocketClient.queueMessageForSending('AddIceCandidate', {
@@ -134,6 +152,11 @@ export default class PeerConnectionBase extends EventTarget {
         }
         this._setSdp(args.sdp);
         this.dispatchEvent(new CustomEvent('negotiation-completed'));
+
+        // Flush pending ice candidates
+        this._pendingIceCandidates.forEach(ice => this._sendIceCandidate(ice));
+        this.logger.info(`Flushed ${this._pendingIceCandidates.length} pending ICE candidates`);
+        this._pendingIceCandidates = [];
     }
 
     _onIceCandidate(args) {

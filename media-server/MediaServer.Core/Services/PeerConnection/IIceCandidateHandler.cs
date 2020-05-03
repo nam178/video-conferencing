@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
-    public interface IRTCIceCandidateHandler
+    public interface IIceCandidateHandler
     {
-        Task AddCandidateAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCIceCandidate iceCandidate);
+        Task AddAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCIceCandidate iceCandidate);
     }
 }

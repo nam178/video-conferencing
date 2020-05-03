@@ -95,7 +95,7 @@ export default class WebSocketClient extends EventTarget
         // Message
         this.webSocket.addEventListener('message', (e) => {
             var response = JSON.parse(e.data);
-            this.logger.log('Message', response);
+            this.logger.log('Received Message: ', response);
             var commandName = `_on${response.command}`;
             // Do we have a handler? If so, invoke the handler,
             // otherwise trigger an event for externals

@@ -33,8 +33,8 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<JoinRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<DeviceDisconnectionRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<SendSyncMessageRequestHandler>().AsImplementedInterfaces();
-            builder.RegisterType<RTCIceCandidateHandler>().AsImplementedInterfaces();
-            builder.RegisterType<RTCSessionDescriptionHandler>().AsImplementedInterfaces();
+            builder.RegisterType<IceCandidateHandler>().AsImplementedInterfaces();
+            builder.RegisterType<OfferHandler>().AsImplementedInterfaces();
             builder.RegisterType<SetTrackQualityRequestHandler>().AsImplementedInterfaces();
 
             // Factories

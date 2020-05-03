@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
-    sealed class RTCSessionDescriptionHandler : IRTCSessionDescriptionHandler
+    sealed class OfferHandler : IOfferHandler
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public async Task ReceiveSdpAsync(IRemoteDevice remoteDevice, RTCSessionDescription request)
+        public async Task HandleAsync(IRemoteDevice remoteDevice, Guid? peerConnectionId, RTCSessionDescription request)
         {
             Require.NotNull(request.Sdp);
             Require.NotNull(request.Type);
@@ -26,10 +26,17 @@ namespace MediaServer.Core.Services.PeerConnection
                 throw new UnauthorizedAccessException();
             }
 
-            var peerConnection = deviceData.PeerConnections.FirstOrDefault();
-            // If no PeerConnection for this device, create one
+            // Try to find the existing PeerConnection to update it
+            IPeerConnection peerConnection = null;
+            if(peerConnectionId != null)
+            {
+                peerConnection = deviceData.PeerConnections.FirstOrDefault(p => p.Id == peerConnectionId);
+            }
+
+            // Otherwise, create a new one
             if(null == peerConnection)
             {
+                // Create new PeerConnection
                 peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User);
                 // Save
                 deviceData.PeerConnections.Add(peerConnection);

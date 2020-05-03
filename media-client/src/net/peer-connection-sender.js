@@ -33,13 +33,24 @@ export default class PeerConnectionSender extends PeerConnectionBase {
         this._handleRoomJoined = this._handleRoomJoined.bind(this);
         this._changeStreamQueue = new Queue('change-stream', this._changeStreamAsync);
         this.webSocketClient.addEventListener('room', this._handleRoomJoined);
+        // The sender always listen to WebSocket events
+        this.startListeningToWebSocketEvents();
     }
 
     _handleRoomJoined() {
+        this.dispatchEvent(new CustomEvent('negotiation-started'));
+
+        // Restart the id, this is an indication to the server that we are starting new PeerConnection,
+        // instead of updating SDP for an existing one.
+        this.id = null;
+        
         // Everytime we join a room, restart the PeerConnection
         // This is due to the life time of a PeerConnection 
         // always associated with the life time of the WebSocket connection
         this.restart();
+
+        // Start sending the stream
+        this._changeStream(null, this._localMediaStreamForSending);
     }
 
     _changeStream(oldStream, newStream) {
