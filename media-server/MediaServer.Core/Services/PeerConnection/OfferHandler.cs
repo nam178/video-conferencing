@@ -80,16 +80,16 @@ namespace MediaServer.Core.Services.PeerConnection
             var _pendingRenegotationRequests = 0;
             peerConnection
                 .ObserveIceCandidate((peer, cand) => SendAndForget(remoteDevice, peer, cand))
-                .ObserveRenegotiationNeeded(async peer =>
+                .ObserveRenegotiationNeeded(peer =>
                 {
                     Interlocked.Increment(ref _pendingRenegotationRequests);
 
                     // Begin the actual re-negotation
                     // Must do this in a queue to avoid race between requests
                     _logger.Trace($"Re-negotiating with {peerConnection}..");
-                    try
+                    user.Room.RenegotiationQueue.ExecuteAsync(async delegate
                     {
-                        await user.Room.RenegotiationQueue.ExecuteAsync(async delegate
+                        try
                         {
                             // Newer request coming in, dropping this
                             if(Interlocked.Decrement(ref _pendingRenegotationRequests) > 0)
@@ -105,25 +105,24 @@ namespace MediaServer.Core.Services.PeerConnection
                             // so the sdp processed by remote peer before they process ICE candidates,
                             // those generated from SetLocalSessionDescriptionAsync();
                             remoteDevice.EnqueueSessionDescription(peerConnection.Id, offer);
-                            
+
                             // then send candidates later so they processed after the SDP is processed.
                             await peerConnection.SetLocalSessionDescriptionAsync(offer);
                             _logger.Info($"Re-negotiating offer sent to {peerConnection}.");
-                        });
-                    }
-                    catch(Exception ex) when(ex is ObjectDisposedException || ex is TaskCanceledException || ex is InvalidOperationException)
-                    {
-                        _logger.Warn($"Failed re-negotiating due to PeerConnection closed, will terminate remote device. Err={ex.Message}");
-                    }
-                    catch(IOException ex)
-                    {
-                        _logger.Warn($"Failed re-negotiating due to IO, will terminate remote device. Err={ex.Message}");
-                    }
-                    catch(Exception ex)
-                    {
-                        _logger.Error(ex, "Failed re-negotiating, will terminate remote device");
-                        remoteDevice.Teminate();
-                    }
+                        }
+                        catch(Exception ex) when(ex is ObjectDisposedException || ex is TaskCanceledException || ex is InvalidOperationException)
+                        {
+                            _logger.Warn($"Failed re-negotiating due to PeerConnection closed, will terminate remote device. Err={ex.Message}");
+                        }
+                        catch(IOException ex)
+                        {
+                            _logger.Warn($"Failed re-negotiating due to IO, will terminate remote device. Err={ex.Message}");
+                        }
+                        catch(Exception ex)
+                        {
+                            _logger.Error(ex, "Unexpected error while re-negotiating");
+                        }
+                    });
                 });
 
             return peerConnection;
