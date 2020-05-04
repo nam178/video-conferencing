@@ -9,7 +9,7 @@ namespace MediaServer.WebRtc.MediaRouting
     {
         readonly VideoTrack _track;
         readonly RtpSender _rtpSender;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public PeerConnection TargetPeerConnection { get; }
 
@@ -29,9 +29,10 @@ namespace MediaServer.WebRtc.MediaRouting
             TargetPeerConnection = targetPeerConnection;
             VideoSource = videoSource;
 
-            // Create track and own it
+            // Create tracks, for simplicity, the stream id MUST be the same as the video client ID.
+            // This is very important, so that the remote clients know which track belongs to which client.
             var trackId = Guid.NewGuid();
-            var streamId = Guid.NewGuid();
+            var streamId = videoSource.VideoClient.Id;
             _track = peerConnectionFactory.CreateVideoTrack(trackId.ToString(), videoSource.VideoTrackSource);
 
             // Add track to peer

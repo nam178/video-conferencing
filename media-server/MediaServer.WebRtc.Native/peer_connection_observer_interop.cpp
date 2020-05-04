@@ -9,74 +9,70 @@ Wrappers::PeerConnectionObserver *CONVENTION PeerConnectionObserverCreate()
 }
 
 void CONVENTION
-PeerConnectionObserverDestroy(PeerConnectionObserverIntPtr peer_connection_observer_ptr)
+PeerConnectionObserverDestroy(Wrappers::PeerConnectionObserver *peer_connection_observer_ptr)
 {
-    delete static_cast<Wrappers::PeerConnectionObserver *>(peer_connection_observer_ptr);
+    delete peer_connection_observer_ptr;
 }
 
 void CONVENTION PeerConnectionObserverSetRenegotiationNeededCallback(
-    PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+    Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
     RenegotiationNeededCallback call_back,
     UserData user_data)
 {
-    StaticCastOrThrow<PeerConnectionObserver>(peer_connection_observer_ptr)
-        ->SetRenegotiationNeededCallback(Callback<>{std::move(call_back), user_data});
+    peer_connection_observer_ptr->SetRenegotiationNeededCallback(
+        Callback<>{std::move(call_back), user_data});
 }
 
 void CONVENTION PeerConnectionObserverSetRemoteTrackAddedCallback(
-    PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+    Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
     RemoteTrackAddedCallback call_back,
     UserData user_data)
 {
-    StaticCastOrThrow<PeerConnectionObserver>(peer_connection_observer_ptr)
-        ->SetRemoteTrackAddedCallback(
-            Callback<RtpReceiverWrapperPtr>{std::move(call_back), user_data});
+    peer_connection_observer_ptr->SetRemoteTrackAddedCallback(
+        Callback<Wrappers::RtpReceiver *>{std::move(call_back), user_data});
 }
 
 void CONVENTION PeerConnectionObserverSetRemoteTrackRemovedCallback(
-    PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+    Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
     RemoteTrackRemovedCallback call_back,
     UserData user_data)
 {
-    StaticCastOrThrow<PeerConnectionObserver>(peer_connection_observer_ptr)
-        ->SetRemoteTrackRemovedCallback(Callback<RtpReceiverPtr>{std::move(call_back), user_data});
+    peer_connection_observer_ptr->SetRemoteTrackRemovedCallback(
+        Callback<webrtc::RtpReceiverInterface *>{std::move(call_back), user_data});
 }
 
 void CONVENTION PeerConnectionObserverSetIceGatheringStateChangedCallback(
-    PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+    Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
     IceGatheringStateChangedCallback call_back,
     UserData user_data)
 {
-    StaticCastOrThrow<PeerConnectionObserver>(peer_connection_observer_ptr)
-        ->SetIceGatheringStateChangedCallback(
-            Callback<IceGatheringState>{std::move(call_back), user_data});
+    peer_connection_observer_ptr->SetIceGatheringStateChangedCallback(
+        Callback<IceGatheringState>{std::move(call_back), user_data});
 }
 
 void CONVENTION PeerConnectionObserverSetIceCandidatesRemovedCallback(
-    PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+    Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
     IceCandidatesRemovedCallback call_back,
     UserData user_data)
 {
-    StaticCastOrThrow<PeerConnectionObserver>(peer_connection_observer_ptr)
-        ->SetIceCandidatesRemovedCallback(
-            Callback<CandidateListPtr>{std::move(call_back), user_data});
+    peer_connection_observer_ptr->SetIceCandidatesRemovedCallback(
+        Callback<const std::vector<cricket::Candidate> *>{std::move(call_back), user_data});
 }
 
 void CONVENTION PeerConnectionObserverSetIceCandidateCallback(
-    PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+    Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
     IceCandidateCallback call_back,
     UserData user_data)
 {
-    StaticCastOrThrow<PeerConnectionObserver>(peer_connection_observer_ptr)
-        ->SetIceCandidateCallback(Callback<IceCandidate>{std::move(call_back), user_data});
+    peer_connection_observer_ptr->SetIceCandidateCallback(
+        Callback<IceCandidate>{std::move(call_back), user_data});
 }
 
 void CONVENTION PeerConnectionObserverSetIceConnectionChangeCallback(
-    PeerConnectionObserverIntPtr peer_connection_observer_ptr,
+    Wrappers::PeerConnectionObserver *peer_connection_observer_ptr,
     IceConnectionChangeCallback call_back,
     UserData user_data)
 {
-    StaticCastOrThrow<PeerConnectionObserver>(peer_connection_observer_ptr)
-        ->SetIceConnectionChangeCallback(
-            Callback<IceConnectionState>{std::move(call_back), user_data});
+    peer_connection_observer_ptr->SetIceConnectionChangeCallback(
+        Callback<IceConnectionState>{std::move(call_back), user_data});
 }

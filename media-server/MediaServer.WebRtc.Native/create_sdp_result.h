@@ -2,7 +2,7 @@
 
 namespace Wrappers
 {
-struct CreateAnswerResult
+struct CreateSdpResult
 {
     // Whenever the sdp was created or not
     // If sdp was created, _sdp_type and _sdp should be set.

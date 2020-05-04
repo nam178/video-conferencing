@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "create_answer_result.h"
+#include "create_sdp_result.h"
 #include "rtp_sender.h"
 
 using Success = bool;
@@ -20,10 +20,13 @@ class PeerConnection final
     // This PeerConnection then takes ownership of said pointer.
     PeerConnection(rtc::scoped_refptr<webrtc::PeerConnectionInterface> &&peer_connection_interface);
 
+    // Create an offer, will be executed in signalling thread by the lib
+    void CreateOffer(Callback<Wrappers::CreateSdpResult> &&callback);
+
     // Create answer to an sdp offer.
     // the callback will be called on the signalling thread in theory.
     // The callback owns the SessionDescriptionInterface*
-    void CreateAnswer(Callback<Wrappers::CreateAnswerResult> &&callback);
+    void CreateAnswer(Callback<Wrappers::CreateSdpResult> &&callback);
 
     // Completely kill this, implementation maps to native PeerConnection Close()
     void Close();

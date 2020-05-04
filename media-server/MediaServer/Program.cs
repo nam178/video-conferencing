@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using MediaServer.Core.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +7,7 @@ using NLog;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaServerConsole
@@ -16,6 +16,7 @@ namespace MediaServerConsole
     {
         static async Task Main(string[] args)
         {
+            ThreadPool.SetMinThreads(32, 32);
             LogManager.LoadConfiguration(Path.Combine(Assembly.GetEntryAssembly().Location, "..", "nlog.config"));
             LogManager.GetCurrentClassLogger().Info("Welcome");
             try

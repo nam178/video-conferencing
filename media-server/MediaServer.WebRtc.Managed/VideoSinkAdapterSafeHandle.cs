@@ -5,12 +5,10 @@ namespace MediaServer.WebRtc.Managed
 {
     sealed class VideoSinkAdapterSafeHandle : SafeHandle
     {
-        public VideoSinkAdapterSafeHandle(
-            PeerConnectionFactorySafeHandle peerConnectionFactorySafeHandle,
-            PassiveVideoTrackSourceSafeHandle passiveVideoTrackSourceSafeHandle)
+        public VideoSinkAdapterSafeHandle(PassiveVideoTrackSourceSafeHandle passiveVideoTrackSourceSafeHandle)
             : base(IntPtr.Zero, true)
         {
-            SetHandle(VideoSinkAdapterInterops.Create(peerConnectionFactorySafeHandle, passiveVideoTrackSourceSafeHandle));
+            SetHandle(VideoSinkAdapterInterops.Create(passiveVideoTrackSourceSafeHandle));
         }
 
         public override bool IsInvalid => handle == IntPtr.Zero;

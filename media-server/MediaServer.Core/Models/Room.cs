@@ -53,6 +53,8 @@ namespace MediaServer.Models
 
         public RoomState State { get; private set; } = RoomState.JustCreated;
 
+        public IDispatchQueue RenegotiationQueue { get; } = new ThreadPoolDispatchQueue(started: true);
+
         public Room(RoomId id, IWebRtcInfra peerConnectionFactory)
         {
             Require.NotEmpty(id);

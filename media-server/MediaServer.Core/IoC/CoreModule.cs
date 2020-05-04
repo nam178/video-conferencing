@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using MediaServer.Common.Threading;
+using MediaServer.Core.Adapters;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Core.Services.PeerConnection;
@@ -33,13 +34,13 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<JoinRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<DeviceDisconnectionRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<SendSyncMessageRequestHandler>().AsImplementedInterfaces();
-            builder.RegisterType<RTCIceCandidateHandler>().AsImplementedInterfaces();
-            builder.RegisterType<RTCSessionDescriptionHandler>().AsImplementedInterfaces();
+            builder.RegisterType<IceCandidateHandler>().AsImplementedInterfaces();
+            builder.RegisterType<OfferHandler>().AsImplementedInterfaces();
             builder.RegisterType<SetTrackQualityRequestHandler>().AsImplementedInterfaces();
 
             // Factories
             builder.RegisterType<RoomFactory>().AsImplementedInterfaces();
-            builder.RegisterType<WebRtcInfra>().AsSelf();
+            builder.RegisterType<WebRtcInfraAdapter>().AsSelf();
         }
     }
 }

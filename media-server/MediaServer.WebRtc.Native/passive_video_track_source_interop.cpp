@@ -6,21 +6,19 @@
 using namespace webrtc;
 using namespace Video;
 
-EXPORT PassiveVideoTrackSourceIntPtr CONVENTION PassiveVideoTrackSourceCreate() noexcept
+EXPORT Video::PassiveVideoTrackSource *CONVENTION PassiveVideoTrackSourceCreate() noexcept
 {
     return new PassiveVideoTrackSource();
 }
 
 EXPORT void CONVENTION
-PassiveVideoTrackSourceDestroy(PassiveVideoTrackSourceIntPtr &video_track_source_ref) noexcept
+PassiveVideoTrackSourceRelease(Video::PassiveVideoTrackSource *video_track_source) noexcept
 {
-    delete video_track_source_ref;
-    video_track_source_ref = nullptr;
+    video_track_source->Release();
 }
 
 EXPORT void CONVENTION
-PassiveVideoTrackSourcePushVideoFrame(PassiveVideoTrackSourceIntPtr video_track_source,
-                                      const VideoFrame &frame)
+PassiveVideoTrackSourceAddRef(Video::PassiveVideoTrackSource *video_track_source) noexcept
 {
-    static_cast<PassiveVideoTrackSource *>(video_track_source)->PushVideoFrame(frame);
+    video_track_source->AddRef();
 }

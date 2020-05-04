@@ -15,15 +15,21 @@ namespace MediaServer.Core.Models
 
         public IRemoteDevice Device { get; }
 
-        Task InitialiseAsync();
+        public Guid Id { get; }
+
+        Task StartMediaRoutingAsync();
 
         Task<RTCSessionDescription> CreateAnswerAsync();
+
+        Task<RTCSessionDescription> CreateOfferAsync();
 
         Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description);
 
         Task SetLocalSessionDescriptionAsync(RTCSessionDescription description);
 
-        void ObserveIceCandidate(Action<RTCIceCandidate> observer);
+        IPeerConnection ObserveIceCandidate(Action<IPeerConnection, RTCIceCandidate> observer);
+
+        IPeerConnection ObserveRenegotiationNeeded(Action<IPeerConnection> observer);
 
         void AddIceCandidate(RTCIceCandidate iceCandidate);
 

@@ -1,8 +1,7 @@
-﻿using MediaServer.Api.WebSocket.Errors;
-using MediaServer.Common.Mediator;
+﻿using MediaServer.Common.Mediator;
 using MediaServer.Common.Utils;
-using MediaServer.Models;
 using System;
+using System.IO;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -54,9 +53,9 @@ namespace MediaServer.Api.WebSocket.Net
                     }
                     // When the WebSocketClient is disposed
                     // by some other thread, it will throw InvalidOperationException
-                    catch(InvalidOperationException ex)
+                    catch(Exception ex) when (ex is InvalidOperationException || ex is WebSocketException)
                     {
-                        throw new WebSocketClientDisposedException(ex.Message);
+                        throw new IOException(ex.Message, ex);
                     }
 
                     if(tmp.MessageType == WebSocketMessageType.Close)

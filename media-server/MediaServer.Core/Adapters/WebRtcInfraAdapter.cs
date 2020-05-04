@@ -1,13 +1,14 @@
 ﻿using MediaServer.Common.Threading;
+using MediaServer.Core.Models;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using MediaServer.WebRtc.MediaRouting;
 using System;
 using System.Threading;
 
-namespace MediaServer.Core.Models
+namespace MediaServer.Core.Adapters
 {
-    sealed class WebRtcInfra : IWebRtcInfra
+    sealed class WebRtcInfraAdapter : IWebRtcInfra
     {
         readonly PeerConnectionFactory _peerConnectionFactory;
 
@@ -34,9 +35,9 @@ namespace MediaServer.Core.Models
             }
         }
 
-        public WebRtcInfra()
+        public WebRtcInfraAdapter()
         {
-            _peerConnectionFactory = new WebRtc.Managed.PeerConnectionFactory();
+            _peerConnectionFactory = new PeerConnectionFactory();
         }
 
         int _initialised = 0;

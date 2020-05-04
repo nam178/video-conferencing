@@ -16,13 +16,16 @@ namespace MediaServer.WebRtc.Managed
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public delegate void CreateAnswerResultCallback(IntPtr userData, CreateAnswerResult result);
+        public delegate void CreateSdpResultCallback(IntPtr userData, CreateAnswerResult result);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         public delegate void SetSessionDescriptionCallback(IntPtr userData, [MarshalAs(UnmanagedType.I1)]bool success, string errorMessage);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionCreateAnswer")]
-        public static extern void CreateAnswer(PeerConnectionSafeHandle peerConnectionSafeHandle, CreateAnswerResultCallback callback, IntPtr userData);
+        public static extern void CreateAnswer(PeerConnectionSafeHandle peerConnectionSafeHandle, CreateSdpResultCallback callback, IntPtr userData);
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionCreateOffer")]
+        public static extern void CreateOffer(PeerConnectionSafeHandle peerConnectionSafeHandle, CreateSdpResultCallback callback, IntPtr userData);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionClose")]
         public static extern void Close(PeerConnectionSafeHandle native);

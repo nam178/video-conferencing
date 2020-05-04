@@ -2,14 +2,13 @@
 
 #include "pch.h"
 
+#include "passive_video_track_source.h"
+#include "peer_connection_factory.h"
+#include "peer_connection_observer.h"
 #include "video_track.h"
 
 extern "C"
 {
-    using PeerConnectionFactoryPtr = void *;
-    using PeerConnectionObserverRawPointer = void *;
-    using PassiveVideoTrackSourcePtr = void *;
-
     struct IceServerConfig
     {
         const char *_comma_seperated_urls{};
@@ -21,26 +20,27 @@ extern "C"
     EXPORT Wrappers::PeerConnectionFactory *CONVENTION PeerConnectionFactoryCreate();
 
     // Call Initialize() on an instance of PeerConnectionFactory
-    EXPORT void CONVENTION PeerConnectionFactoryInitialize(PeerConnectionFactoryPtr instance);
+    EXPORT void CONVENTION
+    PeerConnectionFactoryInitialize(Wrappers::PeerConnectionFactory *instance);
 
     // Call TearDown() on an instance of PeerConnectionFactory
-    EXPORT void CONVENTION PeerConnectionFactoryTearDown(PeerConnectionFactoryPtr instance);
+    EXPORT void CONVENTION PeerConnectionFactoryTearDown(Wrappers::PeerConnectionFactory *instance);
 
     // Release/delete the memory occupied by an instance of PeerConnectionFactory
     // Make sure you call TearDown() first
-    EXPORT void CONVENTION PeerConnectionFactoryDestroy(PeerConnectionFactoryPtr instance);
+    EXPORT void CONVENTION PeerConnectionFactoryDestroy(Wrappers::PeerConnectionFactory *instance);
 
     EXPORT Wrappers::PeerConnection *CONVENTION PeerConnectionFactoryCreatePeerConnection(
-        PeerConnectionFactoryPtr peer_connection_factory,
+        Wrappers::PeerConnectionFactory *peer_connection_factory,
         IceServerConfig *ice_servers,
         int32_t ice_server_length,
-        PeerConnectionObserverRawPointer peer_connection_observer);
+        Wrappers::PeerConnectionObserver *peer_connection_observer);
 
     EXPORT Wrappers::VideoTrack *CONVENTION
-    PeerConnectionFactoryCreateVideoTrack(PeerConnectionFactoryPtr peer_connection_factory,
-                                          PassiveVideoTrackSourcePtr passive_video_track_souce_ptr,
+    PeerConnectionFactoryCreateVideoTrack(Wrappers::PeerConnectionFactory *peer_connection_factory,
+                                          Video::PassiveVideoTrackSource *passive_video_track_souce,
                                           const char *track_name);
 
     EXPORT Wrappers::RtcThread *PeerConnectionFactoryGetSignallingThread(
-        PeerConnectionFactoryPtr peer_connection_factory_ptr);
+        Wrappers::PeerConnectionFactory *peer_connection_factory);
 }

@@ -110,9 +110,6 @@
     <ClInclude Include="call_back.h">
       <Filter>wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="create_answer_result.h">
-      <Filter>wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="ice_candidate.h">
       <Filter>wrappers</Filter>
     </ClInclude>
@@ -170,9 +167,6 @@
     <ClInclude Include="peer_connection_factory.h">
       <Filter>wrappers\peer_connection</Filter>
     </ClInclude>
-    <ClInclude Include="pointer_helper.h">
-      <Filter>misc</Filter>
-    </ClInclude>
     <ClInclude Include="noop_audio_device_module.h">
       <Filter>noop_audio</Filter>
     </ClInclude>
@@ -220,6 +214,9 @@
     </ClInclude>
     <ClInclude Include="rtp_sender_interop.h">
       <Filter>wrappers\interops</Filter>
+    </ClInclude>
+    <ClInclude Include="create_sdp_result.h">
+      <Filter>wrappers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

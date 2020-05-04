@@ -2,16 +2,15 @@
 using MediaServer.Api.WebSocket.Net;
 using MediaServer.Common.Mediator;
 using MediaServer.Core.Services.PeerConnection;
-using MediaServer.Models;
 using System.Threading.Tasks;
 
 namespace MediaServer.Api.WebSocket.CommandHandlers
 {
     sealed class SetTrackInfoCommandHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.SetTrackInfo>
     {
-        readonly IHandler<IRemoteDevice, SetTrackQualityRequest> _service;
+        readonly ISetTrackQualityRequestHandler _service;
 
-        public SetTrackInfoCommandHandler(IHandler<IRemoteDevice, SetTrackQualityRequest> service)
+        public SetTrackInfoCommandHandler(ISetTrackQualityRequestHandler service)
         {
             _service = service ?? throw new System.ArgumentNullException(nameof(service));
         }

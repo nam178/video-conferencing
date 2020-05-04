@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "create_answer_result.h"
+#include "create_sdp_result.h"
 #include "media_stream_track.h"
 
 extern "C"
@@ -10,7 +10,7 @@ extern "C"
     using UserData = void *;
     using Success = bool;
     using ErrorMessage = const char *;
-    using CreateAnswerCallback = void(CONVENTION *)(UserData, Wrappers::CreateAnswerResult);
+    using CreateSdpCallback = void(CONVENTION *)(UserData, Wrappers::CreateSdpResult);
     using SetRemoteSessionDescriptionCallback = void(CONVENTION *)(UserData, Success, ErrorMessage);
 
     EXPORT void CONVENTION PeerConnectionDestroy(Wrappers::PeerConnection *peer_connection_ptr);
@@ -18,8 +18,12 @@ extern "C"
     EXPORT void CONVENTION PeerConnectionClose(Wrappers::PeerConnection *peer_connection_ptr);
 
     EXPORT void CONVENTION PeerConnectionCreateAnswer(Wrappers::PeerConnection *peer_connection_ptr,
-                                                      CreateAnswerCallback callback,
+                                                      CreateSdpCallback callback,
                                                       UserData user_data);
+
+    EXPORT void CONVENTION PeerConnectionCreateOffer(Wrappers::PeerConnection *peer_connection_ptr,
+                                                     CreateSdpCallback callback,
+                                                     UserData user_data);
 
     EXPORT void CONVENTION
     PeerConnectionSetRemoteSessionDescription(Wrappers::PeerConnection *peer_connection_ptr,

@@ -34,8 +34,8 @@ namespace MediaServer.WebRtc.Managed
                 Handle,
                 interopIceServers,
                 interopIceServers.Count(),
-                observer.Native
-                ));
+                observer.Native),
+                observer);
         }
 
         public void Initialize()

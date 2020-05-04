@@ -13,17 +13,17 @@ Wrappers::PeerConnectionFactory *CONVENTION PeerConnectionFactoryCreate()
     return new Wrappers::PeerConnectionFactory();
 }
 
-void CONVENTION PeerConnectionFactoryInitialize(PeerConnectionFactoryPtr instance)
+void CONVENTION PeerConnectionFactoryInitialize(Wrappers::PeerConnectionFactory *instance)
 {
-    StaticCastOrThrow<Wrappers::PeerConnectionFactory>(instance)->Initialize();
+    instance->Initialize();
 }
 
-void CONVENTION PeerConnectionFactoryTearDown(PeerConnectionFactoryPtr instance)
+void CONVENTION PeerConnectionFactoryTearDown(Wrappers::PeerConnectionFactory *instance)
 {
-    StaticCastOrThrow<Wrappers::PeerConnectionFactory>(instance)->TearDown();
+    instance->TearDown();
 }
 
-void CONVENTION PeerConnectionFactoryDestroy(PeerConnectionFactoryPtr instance)
+void CONVENTION PeerConnectionFactoryDestroy(Wrappers::PeerConnectionFactory *instance)
 {
     if(instance)
     {
@@ -60,11 +60,11 @@ webrtc::PeerConnectionInterface::IceServers ConvertToIceServersList(IceServerCon
     return serverList;
 }
 
-EXPORT Wrappers::PeerConnection *CONVENTION
-PeerConnectionFactoryCreatePeerConnection(PeerConnectionFactoryPtr peer_connection_factory,
-                                          IceServerConfig *ice_servers,
-                                          int32_t ice_server_length,
-                                          PeerConnectionObserverRawPointer peer_connection_observer)
+EXPORT Wrappers::PeerConnection *CONVENTION PeerConnectionFactoryCreatePeerConnection(
+    Wrappers::PeerConnectionFactory *peer_connection_factory,
+    IceServerConfig *ice_servers,
+    int32_t ice_server_length,
+    Wrappers::PeerConnectionObserver *peer_connection_observer)
 {
     webrtc::PeerConnectionInterface::RTCConfiguration rtc_config{};
 
@@ -76,40 +76,33 @@ PeerConnectionFactoryCreatePeerConnection(PeerConnectionFactoryPtr peer_connecti
         webrtc::PeerConnectionInterface::BundlePolicy::kBundlePolicyMaxCompat;
     rtc_config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
 
-    auto observer = StaticCastOrThrow<webrtc::PeerConnectionObserver>(peer_connection_observer);
-
-    webrtc::PeerConnectionDependencies dependencies(observer);
+    webrtc::PeerConnectionDependencies dependencies(peer_connection_observer);
 
     auto peer_connection =
-        StaticCastOrThrow<Wrappers::PeerConnectionFactory>(peer_connection_factory)
-            ->GetPeerConnectionFactory()
-            ->CreatePeerConnection(rtc_config, std::move(dependencies));
+        peer_connection_factory->GetPeerConnectionFactory()->CreatePeerConnection(
+            rtc_config, std::move(dependencies));
 
     return new Wrappers::PeerConnection(std::move(peer_connection));
 }
 
 Wrappers::VideoTrack *CONVENTION
-PeerConnectionFactoryCreateVideoTrack(PeerConnectionFactoryPtr peer_connection_factory,
-                                      PassiveVideoTrackSourcePtr passive_video_track_souce_ptr,
+PeerConnectionFactoryCreateVideoTrack(Wrappers::PeerConnectionFactory *peer_connection_factory,
+                                      Video::PassiveVideoTrackSource *passive_video_track_souce,
                                       const char *track_name)
 {
-    auto factory = StaticCastOrThrow<Wrappers::PeerConnectionFactory>(peer_connection_factory)
-                       ->GetPeerConnectionFactory();
+    auto factory = peer_connection_factory->GetPeerConnectionFactory();
     if(!factory)
     {
         RTC_LOG(LS_ERROR, "peer_connection_factory is null");
         throw new std::runtime_error("peer_connection_factory is null ");
     }
-    auto passive_video_track_source =
-        StaticCastOrThrow<Video::PassiveVideoTrackSource>(passive_video_track_souce_ptr);
 
     return new Wrappers::VideoTrack(
-        factory->CreateVideoTrack(track_name, passive_video_track_source));
+        factory->CreateVideoTrack(track_name, passive_video_track_souce));
 }
 
 Wrappers::RtcThread *PeerConnectionFactoryGetSignallingThread(
-    PeerConnectionFactoryPtr peer_connection_factory_ptr)
+    Wrappers::PeerConnectionFactory *peer_connection_factory_ptr)
 {
-    return StaticCastOrThrow<Wrappers::PeerConnectionFactory>(peer_connection_factory_ptr)
-        ->GetSignallingThreadWrapper();
+    return peer_connection_factory_ptr->GetSignallingThreadWrapper();
 }

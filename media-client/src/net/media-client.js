@@ -1,8 +1,9 @@
 import WebSocketClient from './websocket-client.js';
-import PeerConnectionManager from './peer-connection-manager.js';
+import PeerConnectionSender from './peer-connection-sender.js';
 import ConferenceSettings from '../models/conference-settings.js';
 import InputDeviceManager from './input-device-manager.js';
 import UserInfo from '../models/user-info.js';
+import PeerConnectionReceiver from './peer-connection-receiver.js';
 
 export let NotSelectedInputDeviceId = -1;
 
@@ -23,9 +24,14 @@ export default class MediaClient extends EventTarget {
     _webSocketClient;
 
     /**
-     * @var {PeerConnectionManager}
+     * @var {PeerConnectionSender}
      */
-    _peerConnectionManager;
+    _peerConnectionSender;
+
+    /**
+     * @var {PeerConnectionReceiver}
+     */
+    _peerConnectionReceiver;
 
     /**
      * @var {InputDeviceManager}
@@ -121,7 +127,8 @@ export default class MediaClient extends EventTarget {
         this._handleMyNetworkDeviceIdChange = this._handleMyNetworkDeviceIdChange.bind(this);
 
         this._webSocketClient = new WebSocketClient();
-        this._peerConnectionManager = new PeerConnectionManager(this._webSocketClient);
+        this._peerConnectionSender = new PeerConnectionSender(this._webSocketClient);
+        this._peerConnectionReceiver = new PeerConnectionReceiver(this._webSocketClient, this._peerConnectionSender);
         this._webSocketClient.addEventListener('users', this._handleWebSocketClientUsersChange);
         this._webSocketClient.addEventListener('deviceidchange', this._handleMyNetworkDeviceIdChange);
         this._inputDeviceManager.addEventListener('streamchange', this._handleInputDeviceStreamChange);
@@ -170,7 +177,7 @@ export default class MediaClient extends EventTarget {
     }
 
     _handleInputDeviceStreamChange(e) {
-        this._peerConnectionManager.localMediaStreamForSending = this._inputDeviceManager.stream;
+        this._peerConnectionSender.localMediaStreamForSending = this._inputDeviceManager.stream;
         this._rebuildStreams();
     }
 

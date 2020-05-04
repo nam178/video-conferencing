@@ -43,14 +43,14 @@ namespace MediaServer.Models
         /// </summary>
         /// <param name="candidate">The ICE candidate genrated from this server</param>
         /// <returns></returns>
-        Task SendIceCandidateAsync(RTCIceCandidate candidate);
+        Task SendIceCandidateAsync(Guid peerConnectionId, RTCIceCandidate candidate);
 
         /// <summary>
         /// Send the specified SDP to the remote peer
         /// </summary>
         /// <param name="description">Could be either offer or answer</param>
         /// <returns></returns>
-        Task SendSessionDescriptionAsync(RTCSessionDescription description);
+        Task SendSessionDescriptionAsync(Guid peerConnectionId, RTCSessionDescription description);
 
         /// <summary>
         /// Terminate the connection with this device.

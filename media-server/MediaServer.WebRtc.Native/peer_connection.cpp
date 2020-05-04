@@ -9,6 +9,48 @@ using SetFunction =
     void (webrtc::PeerConnectionInterface::*)(webrtc::SetSessionDescriptionObserver *observer,
                                               webrtc::SessionDescriptionInterface *);
 
+std::function<void(Result<webrtc::SessionDescriptionInterface *>)> ConvertCallbackToLambda(
+    Wrappers::Callback<Wrappers::CreateSdpResult> &&callback)
+{
+    return [callback{std::move(callback)}](Result<webrtc::SessionDescriptionInterface *> result) {
+        if(result._success)
+        {
+            // Get sdp_type
+            auto sdp_type_str_ptr = webrtc::SdpTypeToString(result._result->GetType());
+            auto sdp_type_str = std::string(sdp_type_str_ptr);
+            Utils::StringHelper::EnsureNullTerminatedCString(sdp_type_str);
+
+            // Get sdp
+            std::string sdp_str;
+            if(!result._result->ToString(&sdp_str))
+            {
+                callback({
+                    false,
+                    "Failed converting sdp to string",
+                    nullptr,
+                    nullptr,
+                });
+                return;
+            }
+            Utils::StringHelper::EnsureNullTerminatedCString(sdp_str);
+
+            // CreateSdpCallback
+            callback({true, nullptr, sdp_type_str.c_str(), sdp_str.c_str()});
+        }
+        else
+        {
+            std::string error_message(result._error_message);
+            Utils::StringHelper::EnsureNullTerminatedCString(error_message);
+            callback({
+                false,
+                error_message.c_str(),
+                nullptr,
+                nullptr,
+            });
+        }
+    };
+}
+
 void InvokeMethod(rtc::scoped_refptr<webrtc::PeerConnectionInterface> peer_connection_interface,
                   SetFunction function,
                   const char *sdp_type,
@@ -51,7 +93,7 @@ Wrappers::PeerConnection::PeerConnection(
 {
 }
 
-void Wrappers::PeerConnection::CreateAnswer(Callback<Wrappers::CreateAnswerResult> &&callback)
+void Wrappers::PeerConnection::CreateOffer(Callback<Wrappers::CreateSdpResult> &&callback)
 {
     const webrtc::PeerConnectionInterface::RTCOfferAnswerOptions opts{};
 
@@ -59,46 +101,22 @@ void Wrappers::PeerConnection::CreateAnswer(Callback<Wrappers::CreateAnswerResul
     // By looking at the source,
     // PeerConnectionInterface takes owner ship of CreateSessionDescriptionObserver
     // see struct CreateSessionDescriptionRequest in the source.
-    _peer_connection_interface->CreateAnswer(
-        new Wrappers::CreateSessionDescriptionObserver(
-            [callback](Result<webrtc::SessionDescriptionInterface *> result) {
-                if(result._success)
-                {
-                    // Get sdp_type
-                    auto sdp_type_str_ptr = webrtc::SdpTypeToString(result._result->GetType());
-                    auto sdp_type_str = std::string(sdp_type_str_ptr);
-                    Utils::StringHelper::EnsureNullTerminatedCString(sdp_type_str);
+    _peer_connection_interface->CreateOffer(new Wrappers::CreateSessionDescriptionObserver(
+                                                ConvertCallbackToLambda(std::move(callback))),
+                                            opts);
+}
 
-                    // Get sdp
-                    std::string sdp_str;
-                    if(!result._result->ToString(&sdp_str))
-                    {
-                        callback({
-                            false,
-                            "Failed converting sdp to string",
-                            nullptr,
-                            nullptr,
-                        });
-                        return;
-                    }
-                    Utils::StringHelper::EnsureNullTerminatedCString(sdp_str);
+void Wrappers::PeerConnection::CreateAnswer(Callback<Wrappers::CreateSdpResult> &&callback)
+{
+    const webrtc::PeerConnectionInterface::RTCOfferAnswerOptions opts{};
 
-                    // CreateAnswerCallback
-                    callback({true, nullptr, sdp_type_str.c_str(), sdp_str.c_str()});
-                }
-                else
-                {
-                    std::string error_message(result._error_message);
-                    Utils::StringHelper::EnsureNullTerminatedCString(error_message);
-                    callback({
-                        false,
-                        error_message.c_str(),
-                        nullptr,
-                        nullptr,
-                    });
-                }
-            }),
-        opts);
+    // Notes
+    // By looking at the source,
+    // PeerConnectionInterface takes owner ship of CreateSessionDescriptionObserver
+    // see struct CreateSessionDescriptionRequest in the source.
+    _peer_connection_interface->CreateAnswer(new Wrappers::CreateSessionDescriptionObserver(
+                                                 ConvertCallbackToLambda(std::move(callback))),
+                                             opts);
 }
 
 void Wrappers::PeerConnection::Close()
@@ -144,8 +162,9 @@ void Wrappers::PeerConnection::LocalSessionDescription(const char *sdp_type,
                  callback);
 }
 
-std::unique_ptr<Wrappers::RtpSender> Wrappers::PeerConnection::AddTrack(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
-                                        const std::vector<std::string> &stream_ids)
+std::unique_ptr<Wrappers::RtpSender> Wrappers::PeerConnection::AddTrack(
+    rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
+    const std::vector<std::string> &stream_ids)
 {
 
     std::unique_ptr<Wrappers::RtpSender> result{};
@@ -161,7 +180,7 @@ std::unique_ptr<Wrappers::RtpSender> Wrappers::PeerConnection::AddTrack(rtc::sco
 
 void Wrappers::PeerConnection::RemoveTrack(Wrappers::RtpSender *rtp_sender)
 {
-    if(rtp_sender)
+    if(!rtp_sender)
     {
         RTC_LOG(LS_ERROR) << "rtp_sender is nullptr";
         throw new std::runtime_error("rtp_sender is nullptr");

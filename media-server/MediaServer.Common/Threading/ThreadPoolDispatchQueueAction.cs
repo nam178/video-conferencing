@@ -27,11 +27,11 @@ namespace MediaServer.Common.Threading
             catch(Exception ex)
             {
                 _logger.Error(ex);
-                _src.SetException(ex);
+                Task.Run(() => _src.SetException(ex));
                 return Task.CompletedTask;
             }
 
-            _src.SetResult(true);
+            Task.Run(() => _src.SetResult(true));
             return Task.CompletedTask;
         }
     }

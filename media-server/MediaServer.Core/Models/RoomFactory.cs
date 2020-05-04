@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using MediaServer.Core.Adapters;
 using MediaServer.Models;
 using System;
 
@@ -13,6 +14,6 @@ namespace MediaServer.Core.Models
             _lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
         }
 
-        public IRoom Create(RoomId id) => new Room(id, _lifetimeScope.Resolve<WebRtcInfra>());
+        public IRoom Create(RoomId id) => new Room(id, _lifetimeScope.Resolve<WebRtcInfraAdapter>());
     }
 }

@@ -28,9 +28,3 @@ void Wrappers::CreateSessionDescriptionObserver::OnFailure(const std::string &er
 {
     _callback_lambda(Result<webrtc::SessionDescriptionInterface *>{nullptr, false, error.c_str()});
 }
-
-Wrappers::CreateSessionDescriptionObserver::~CreateSessionDescriptionObserver()
-{
-    // confirm that this breakpoint gets hit
-    ;
-}

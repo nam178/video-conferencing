@@ -8,18 +8,24 @@ namespace MediaServer.Common.Threading
 {
     public sealed class ThreadPoolDispatchQueue : IDispatchQueue, IDisposable
     {
-        const int MaxPendingTasks = 16;
-
         const int STATE_NOT_STARTED = 0;
         const int STATE_STARTED = 1;
         const int STATE_DISPOSED = 2;
 
         int _state = STATE_NOT_STARTED;
 
-        readonly BlockingCollection<ThreadPoolDispatchQueueTask> _pendingTasks = new BlockingCollection<ThreadPoolDispatchQueueTask>(MaxPendingTasks);
+        readonly BlockingCollection<ThreadPoolDispatchQueueTask> _pendingTasks = new BlockingCollection<ThreadPoolDispatchQueueTask>();
         readonly CancellationTokenSource _cancelSource = new CancellationTokenSource();
         readonly static ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly static AsyncLocal<bool> _workerThreadContext = new AsyncLocal<bool>();
+
+        public ThreadPoolDispatchQueue(bool started = false)
+        {
+            if(started)
+            {
+                Start();
+            }
+        }
 
         public void RequireState(int expectedState)
         {

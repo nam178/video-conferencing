@@ -11,6 +11,10 @@ class PassiveVideoTrackSource : public rtc::RefCountedObject<webrtc::VideoTrackS
 {
   public:
     PassiveVideoTrackSource();
+    ~PassiveVideoTrackSource()
+    {
+        ;
+    }
 
     // Push a frame into this source
     // Must be invoked on worker thread
