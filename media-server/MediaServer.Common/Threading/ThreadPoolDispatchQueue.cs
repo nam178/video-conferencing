@@ -17,7 +17,8 @@ namespace MediaServer.Common.Threading
         readonly BlockingCollection<ThreadPoolDispatchQueueTask> _pendingTasks = new BlockingCollection<ThreadPoolDispatchQueueTask>();
         readonly CancellationTokenSource _cancelSource = new CancellationTokenSource();
         readonly static ILogger _logger = LogManager.GetCurrentClassLogger();
-        readonly static AsyncLocal<bool> _workerThreadContext = new AsyncLocal<bool>();
+        readonly static AsyncLocal<Guid> _asyncLocalQueueId = new AsyncLocal<Guid>();
+        readonly Guid _queueId = Guid.NewGuid();
 
         public ThreadPoolDispatchQueue(bool started = false)
         {
@@ -41,12 +42,12 @@ namespace MediaServer.Common.Threading
                 throw new ArgumentNullException(nameof(task));
             RequireState(STATE_STARTED);
 
-            // If we are in the context of worker thread,
-            // Just execute the task immediately, no need to dispatch
-            if(_workerThreadContext.Value)
+            // This will cause dead lock, 
+            // a task executing in this queue trying to wait for 
+            // another task also scheduled into this queue.
+            if(_asyncLocalQueueId.Value == _queueId)
             {
-                task();
-                return Task.CompletedTask;
+                throw new InvalidProgramException();
             }
 
             // Queue this action to be executed in a later time
@@ -61,11 +62,12 @@ namespace MediaServer.Common.Threading
                 throw new ArgumentNullException(nameof(asyncTask));
             RequireState(STATE_STARTED);
 
-            // If we are in the context of worker thread,
-            // Just execute the task immediately, no need to dispatch
-            if(_workerThreadContext.Value)
+            // This will cause dead lock, 
+            // a task executing in this queue trying to wait for 
+            // another task also scheduled into this queue.
+            if(_asyncLocalQueueId.Value == _queueId)
             {
-                return asyncTask();
+                throw new InvalidProgramException();
             }
 
             // Queue this task to be executed at a later time
@@ -84,11 +86,12 @@ namespace MediaServer.Common.Threading
                 throw new ArgumentNullException(nameof(asyncTaskWithResult));
             RequireState(STATE_STARTED);
 
-            // If we are in the context of worker thread,
-            // Just execute the task immediately, no need to dispatch
-            if(_workerThreadContext.Value)
+            // This will cause dead lock, 
+            // a task executing in this queue trying to wait for 
+            // another task also scheduled into this queue.
+            if(_asyncLocalQueueId.Value == _queueId)
             {
-                return asyncTaskWithResult();
+                throw new InvalidProgramException();
             }
 
             // Queue this task to be executed at a later time
@@ -103,11 +106,12 @@ namespace MediaServer.Common.Threading
                 throw new ArgumentNullException(nameof(actionWithResult));
             RequireState(STATE_STARTED);
 
-            // If we are in the context of worker thread,
-            // Just execute the task immediately, no need to dispatch
-            if(_workerThreadContext.Value)
+            // This will cause dead lock, 
+            // a task executing in this queue trying to wait for 
+            // another task also scheduled into this queue.
+            if(_asyncLocalQueueId.Value == _queueId)
             {
-                return Task.FromResult(actionWithResult());
+                throw new InvalidProgramException();
             }
 
             // Queue this task to be executed at a later time
@@ -152,7 +156,7 @@ namespace MediaServer.Common.Threading
 
         async Task TaskExecutionThread()
         {
-            _workerThreadContext.Value = true;
+            _asyncLocalQueueId.Value = _queueId;
 
             using(_pendingTasks)
             using(_cancelSource)
