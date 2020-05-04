@@ -98,9 +98,16 @@ namespace MediaServer.Core.Services.PeerConnection
                                 return;
                             }
 
+                            // Order important here: generate offer first.
                             var offer = await peer.CreateOfferAsync();
-                            await peerConnection.SetLocalSessionDescriptionAsync(offer);
+
+                            // Then send the SDP before SetLocalSessionDescription, 
+                            // so the sdp processed by remote peer before they process ICE candidates,
+                            // those generated from SetLocalSessionDescriptionAsync();
                             await remoteDevice.SendSessionDescriptionAsync(peerConnection.Id, offer);
+                            
+                            // then send candidates later so they processed after the SDP is processed.
+                            await peerConnection.SetLocalSessionDescriptionAsync(offer);
                             _logger.Info($"Re-negotiating offer sent to {peerConnection}.");
                         });
                     }
