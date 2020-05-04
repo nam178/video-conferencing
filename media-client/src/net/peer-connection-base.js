@@ -85,8 +85,9 @@ export default class PeerConnectionBase extends EventTarget {
         }, false);
         this._peerConnection.addEventListener('track', e => {
             this._logger.info('Received remote stream', e);
-            // TODO: update tracks
-            // document.getElementById('remote_video').srcObject = e.streams[0];
+            if(this._onRemoteStream) {
+                this._onRemoteStream(e);
+            }
         });
         this._logger.log('PeerConnection initialised');
     }
@@ -175,7 +176,7 @@ export default class PeerConnectionBase extends EventTarget {
             return;
         }
         this._peerConnection.setRemoteDescription(sdp);
-        this._logger.info('Remote SDP received');
+        this._logger.info('Remote SDP received and set');
     }
 
     _handleWebSocketMessage(e) {

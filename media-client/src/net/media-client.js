@@ -4,6 +4,8 @@ import ConferenceSettings from '../models/conference-settings.js';
 import InputDeviceManager from './input-device-manager.js';
 import UserInfo from '../models/user-info.js';
 import PeerConnectionReceiver from './peer-connection-receiver.js';
+import StreamIndex from '../models/stream-index'
+import Logger from '../logging/logger.js';
 
 export let NotSelectedInputDeviceId = -1;
 
@@ -47,6 +49,16 @@ export default class MediaClient extends EventTarget {
      * @var {Boolean}
      */
     _isInitialised = false;
+
+    /**
+     * @var {StreamIndex}
+     */
+    _streamIndex = new StreamIndex();
+
+    /**
+     * @var {Logger}
+     */
+    _logger = new Logger('MediaClient');
 
     /**
      * @returns {String}
@@ -125,13 +137,15 @@ export default class MediaClient extends EventTarget {
         this._handleWebSocketClientUsersChange = this._handleWebSocketClientUsersChange.bind(this);
         this._handleInputDeviceStreamChange = this._handleInputDeviceStreamChange.bind(this);
         this._handleMyNetworkDeviceIdChange = this._handleMyNetworkDeviceIdChange.bind(this);
+        this._rebuildStreams = this._rebuildStreams.bind(this);
 
         this._webSocketClient = new WebSocketClient();
         this._peerConnectionSender = new PeerConnectionSender(this._webSocketClient);
-        this._peerConnectionReceiver = new PeerConnectionReceiver(this._webSocketClient, this._peerConnectionSender);
+        this._peerConnectionReceiver = new PeerConnectionReceiver(this._webSocketClient, this._peerConnectionSender, this._streamIndex);
         this._webSocketClient.addEventListener('users', this._handleWebSocketClientUsersChange);
         this._webSocketClient.addEventListener('deviceidchange', this._handleMyNetworkDeviceIdChange);
         this._inputDeviceManager.addEventListener('streamchange', this._handleInputDeviceStreamChange);
+        this._streamIndex.addEventListener('changed', this._rebuildStreams);
     }
 
     /**
@@ -191,9 +205,10 @@ export default class MediaClient extends EventTarget {
             u.devices.forEach(device => {
                 this._streams[device.id] = device.id == this._webSocketClient.deviceId
                     ? this._inputDeviceManager.stream
-                    : null // todo - insert other peers' streams here
+                    : this._streamIndex.get(device.id)
             });
         });
+        this._logger.info('Streams updated', this._streams);
         this.dispatchEvent(new CustomEvent('streams'));
     }
 
