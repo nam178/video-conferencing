@@ -33,7 +33,7 @@ namespace MediaServer.Api.WebSocket.Net
             _logger.Trace($"Command {command}, Args={JsonConvert.SerializeObject(args)} sent to device {this}");
         }
 
-        public override string ToString() => $"[WebSocketClientRemoteDevice {WebSocketClient}]";
+        public override string ToString() => $"[WebSocketClientRemoteDevice Id={Id.ToString().Substring(0, 8)} {WebSocketClient}]";
 
         public Task SendSyncMessageAsync(SyncMessage message) => SendAsync("Sync", message);
 
