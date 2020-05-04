@@ -55,7 +55,7 @@ namespace MediaServer.Core.Services.PeerConnection
             // Create answer and send it.
             var answer = await peerConnection.CreateAnswerAsync();
             _logger.Info($"Answer {answer} created for {peerConnection}");
-            await remoteDevice.SendSessionDescriptionAsync(peerConnection.Id, answer);
+            remoteDevice.EnqueueSessionDescription(peerConnection.Id, answer);
             _logger.Info($"Answer sent for {peerConnection}");
 
             // SetLocalSessionDescriptionAsync() must be after SendSessionDescriptionAsync()
@@ -104,7 +104,7 @@ namespace MediaServer.Core.Services.PeerConnection
                             // Then send the SDP before SetLocalSessionDescription, 
                             // so the sdp processed by remote peer before they process ICE candidates,
                             // those generated from SetLocalSessionDescriptionAsync();
-                            await remoteDevice.SendSessionDescriptionAsync(peerConnection.Id, offer);
+                            remoteDevice.EnqueueSessionDescription(peerConnection.Id, offer);
                             
                             // then send candidates later so they processed after the SDP is processed.
                             await peerConnection.SetLocalSessionDescriptionAsync(offer);
@@ -131,10 +131,7 @@ namespace MediaServer.Core.Services.PeerConnection
 
         static void SendAndForget(IRemoteDevice remoteDevice, IPeerConnection peer, RTCIceCandidate cand)
         {
-            remoteDevice
-                .SendIceCandidateAsync(peer.Id, cand)
-                .Mute<IOException>()
-                .Forget($"Error when sending ICE candidate {cand} to device {remoteDevice}");
+            remoteDevice.EnqueueIceCandidate(peer.Id, cand);
         }
     }
 }

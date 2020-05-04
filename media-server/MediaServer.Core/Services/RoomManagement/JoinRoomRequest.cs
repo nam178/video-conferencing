@@ -1,6 +1,6 @@
 ﻿using MediaServer.Core.Models;
 
-namespace MediaServer.Core.Services.RoomManager
+namespace MediaServer.Core.Services.RoomManagement
 {
     public sealed class JoinRoomRequest
     {

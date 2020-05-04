@@ -1,23 +1,22 @@
-﻿using MediaServer.Common.Mediator;
-using MediaServer.Models;
+﻿using MediaServer.Models;
 using NLog;
 using System;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.RoomManager
+namespace MediaServer.Core.Services.RoomManagement
 {
-    sealed class DeviceDisconnectionRequestHandler : IHandler<IRemoteDevice, DeviceDisconnectionRequest>
+    sealed class DeviceDisconnector : IDeviceDisconnector
     {
-        readonly IHandler<SendSyncMessageRequest> _statusUpdateSender;
+        readonly ISyncMessenger _syncMessenger;
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public DeviceDisconnectionRequestHandler(IHandler<SendSyncMessageRequest> statusUpdateSender)
+        public DeviceDisconnector(ISyncMessenger syncMessenger)
         {
-            _statusUpdateSender = statusUpdateSender
-                ?? throw new ArgumentNullException(nameof(statusUpdateSender));
+            _syncMessenger = syncMessenger
+                ?? throw new ArgumentNullException(nameof(syncMessenger));
         }
 
-        public async Task HandleAsync(IRemoteDevice remoteDevice, DeviceDisconnectionRequest request)
+        public async Task DisconnectDeviceAsync(IRemoteDevice remoteDevice)
         {
             var deviceData = remoteDevice.GetCustomData();
 
@@ -55,10 +54,7 @@ namespace MediaServer.Core.Services.RoomManager
             // Send status update so devices can update their UIs
             if(deviceData.Room != null)
             {
-                await _statusUpdateSender.HandleAsync(new SendSyncMessageRequest
-                {
-                    Room = deviceData.Room
-                });
+                await _syncMessenger.SendAsync(deviceData.Room);
             }
         }
     }

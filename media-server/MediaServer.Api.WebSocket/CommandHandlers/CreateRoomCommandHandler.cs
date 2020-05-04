@@ -1,9 +1,9 @@
 ﻿using MediaServer.Common.Mediator;
 using MediaServer.Core.Models;
-using MediaServer.Core.Services.ServerManager;
 using MediaServer.Models;
 using MediaServer.Api.WebSocket.Net;
 using System.Threading.Tasks;
+using MediaServer.Core.Services.RoomManagement;
 
 namespace MediaServer.Api.WebSocket.CommandHandlers
 {

@@ -7,14 +7,14 @@ using NLog;
 using System;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.ServerManager
+namespace MediaServer.Core.Services.RoomManagement
 {
     sealed class NewRoomRequestHandler : IMapper<IRemoteDevice, NewRoomRequest, RoomId>
     {
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;
         readonly IRoomFactory _roomFactory;
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public NewRoomRequestHandler(
             IDispatchQueue centralDispatchQueue,

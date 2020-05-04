@@ -20,7 +20,7 @@ export default class PeerConnectionBase extends EventTarget {
     /**
      * @param {String} value
      */
-    set id(value) { this._id = value;}
+    set id(value) { this._id = value; }
 
     /**
      * @var {Logger}
@@ -39,7 +39,7 @@ export default class PeerConnectionBase extends EventTarget {
         super();
         this._handleWebSocketMessage = this._handleWebSocketMessage.bind(this);
         this._webSocketClient = websocketClient;
-        
+
         this._logger = logger;
     }
 
@@ -91,14 +91,6 @@ export default class PeerConnectionBase extends EventTarget {
         this._logger.log('PeerConnection initialised');
     }
 
-    _handleWebSocketMessage(e) {
-        var commandName = `_on${e.detail.command}`;
-        if (typeof this[commandName] != 'undefined') {
-            this._logger.debug(`Executing method ${commandName} with args=`, e.detail.args);
-            this[commandName](e.detail.args);
-        }
-    }
-
     async sendOfferAsync() {
         // Generate a token to prevent race condition when this method
         // is called multiple times and the async continuation below
@@ -129,7 +121,7 @@ export default class PeerConnectionBase extends EventTarget {
     _sendIceCandidate(candidate) {
         // If id was not set, that means offer still being processed,
         // we will wait a bit and try again later
-        if(this.id == null) {
+        if (this.id == null) {
             this._pendingIceCandidates.push(candidate);
             return;
         }
@@ -145,9 +137,9 @@ export default class PeerConnectionBase extends EventTarget {
     }
 
     _onAnswer(args) {
-        if(this.id == null) {
+        if (this.id == null) {
             this.id = args.peerConnectionId;
-        } else if(this.id != args.peerConnectionId) {
+        } else if (this.id != args.peerConnectionId) {
             return;
         }
         this._setSdp(args.sdp);
@@ -159,8 +151,14 @@ export default class PeerConnectionBase extends EventTarget {
         this._pendingIceCandidates = [];
     }
 
+    _onOffer(args) {
+        if (this.id == args.peerConnectionId) {
+            this._setSdp(args.sdp);
+        }
+    }
+
     _onIceCandidate(args) {
-        if(this.id != args.peerConnectionId) {
+        if (this.id != args.peerConnectionId) {
             return;
         }
         if (!this._peerConnection) {
@@ -178,5 +176,13 @@ export default class PeerConnectionBase extends EventTarget {
         }
         this._peerConnection.setRemoteDescription(sdp);
         this._logger.info('Remote SDP received');
+    }
+
+    _handleWebSocketMessage(e) {
+        var commandName = `_on${e.detail.command}`;
+        if (typeof this[commandName] != 'undefined') {
+            this._logger.debug(`Executing method ${commandName} with args=`, e.detail.args);
+            this[commandName](e.detail.args);
+        }
     }
 }

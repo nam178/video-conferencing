@@ -4,8 +4,7 @@ using MediaServer.Core.Adapters;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.Core.Services.PeerConnection;
-using MediaServer.Core.Services.RoomManager;
-using MediaServer.Core.Services.ServerManager;
+using MediaServer.Core.Services.RoomManagement;
 
 namespace MediaServer.Core.IoC
 {
@@ -32,8 +31,8 @@ namespace MediaServer.Core.IoC
             // Handlers
             builder.RegisterType<NewRoomRequestHandler>().AsImplementedInterfaces();
             builder.RegisterType<JoinRoomRequestHandler>().AsImplementedInterfaces();
-            builder.RegisterType<DeviceDisconnectionRequestHandler>().AsImplementedInterfaces();
-            builder.RegisterType<SendSyncMessageRequestHandler>().AsImplementedInterfaces();
+            builder.RegisterType<DeviceDisconnector>().AsImplementedInterfaces();
+            builder.RegisterType<SyncMessenger>().AsImplementedInterfaces();
             builder.RegisterType<IceCandidateHandler>().AsImplementedInterfaces();
             builder.RegisterType<OfferHandler>().AsImplementedInterfaces();
             builder.RegisterType<SetTrackQualityRequestHandler>().AsImplementedInterfaces();

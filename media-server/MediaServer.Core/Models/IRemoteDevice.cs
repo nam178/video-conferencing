@@ -36,21 +36,21 @@ namespace MediaServer.Models
         /// <param name="message"></param>
         /// <exception cref="System.Exception">When network error or things like that occurs</exception>
         /// <returns></returns>
-        Task SendSyncMessageAsync(SyncMessage message);
+        void EnqueueMessage(SyncMessage message);
 
         /// <summary>
         /// Send the
         /// </summary>
         /// <param name="candidate">The ICE candidate genrated from this server</param>
         /// <returns></returns>
-        Task SendIceCandidateAsync(Guid peerConnectionId, RTCIceCandidate candidate);
+        void EnqueueIceCandidate(Guid peerConnectionId, RTCIceCandidate candidate);
 
         /// <summary>
         /// Send the specified SDP to the remote peer
         /// </summary>
         /// <param name="description">Could be either offer or answer</param>
         /// <returns></returns>
-        Task SendSessionDescriptionAsync(Guid peerConnectionId, RTCSessionDescription description);
+        void EnqueueSessionDescription(Guid peerConnectionId, RTCSessionDescription description);
 
         /// <summary>
         /// Terminate the connection with this device.

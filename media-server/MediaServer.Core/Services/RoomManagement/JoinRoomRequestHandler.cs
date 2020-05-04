@@ -8,22 +8,22 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.RoomManager
+namespace MediaServer.Core.Services.RoomManagement
 {
     sealed class JoinRoomRequestHandler : IMapper<IRemoteDevice, JoinRoomRequest, GenericResponse>
     {
         readonly IRoomRepository _roomRepository;
-        readonly IHandler<SendSyncMessageRequest> _statusUpdateSender;
-        readonly static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ISyncMessenger _syncMessenger;
+        readonly static ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public JoinRoomRequestHandler(
             IRoomRepository roomRepository,
-            IHandler<SendSyncMessageRequest> statusUpdateSender)
+            ISyncMessenger syncMessenger)
         {
             _roomRepository = roomRepository
                 ?? throw new ArgumentNullException(nameof(roomRepository));
-            _statusUpdateSender = statusUpdateSender 
-                ?? throw new ArgumentNullException(nameof(statusUpdateSender));
+            _syncMessenger = syncMessenger
+                ?? throw new ArgumentNullException(nameof(syncMessenger));
         }
 
         public async Task<GenericResponse> HandleAsync(IRemoteDevice remoteDevice, JoinRoomRequest request)
@@ -56,10 +56,7 @@ namespace MediaServer.Core.Services.RoomManager
             await deviceData.Room.VideoRouter.AddVideoClientAsync(remoteDevice.Id);
 
             // Broadcast the status update
-            await _statusUpdateSender.HandleAsync(new SendSyncMessageRequest
-            {
-                Room = room
-            });
+            await _syncMessenger.SendAsync(room);
             return GenericResponse.SuccessResponse();
         }
 

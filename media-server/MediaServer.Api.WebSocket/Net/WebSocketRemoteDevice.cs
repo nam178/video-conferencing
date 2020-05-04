@@ -35,20 +35,23 @@ namespace MediaServer.Api.WebSocket.Net
 
         public override string ToString() => $"[WebSocketClientRemoteDevice Id={Id.ToString().Substring(0, 8)} {WebSocketClient}]";
 
-        public Task SendSyncMessageAsync(SyncMessage message) => SendAsync("Sync", message);
-
-        public Task SendIceCandidateAsync(Guid peerConnectionId, RTCIceCandidate candidate)
+        public void EnqueueMessage(SyncMessage message)
         {
-            return SendAsync("IceCandidate", new { candidate, peerConnectionId });
+            _ = SendAsync("Sync", message);
         }
 
-        public Task SendSessionDescriptionAsync(Guid peerConnectionId, RTCSessionDescription description)
+        public void EnqueueIceCandidate(Guid peerConnectionId, RTCIceCandidate candidate)
+        {
+            _ = SendAsync("IceCandidate", new { candidate, peerConnectionId });
+        }
+
+        public void EnqueueSessionDescription(Guid peerConnectionId, RTCSessionDescription description)
         {
             var args = new { sdp = description, peerConnectionId };
             var command = "offer".Equals(description.Type, StringComparison.InvariantCultureIgnoreCase)
                 ? "Offer"
                 : "Answer";
-            return SendAsync(command, args);
+            _ = SendAsync(command, args);
         }
 
         public void Teminate() => WebSocketClient.Dispose();
