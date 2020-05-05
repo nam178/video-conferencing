@@ -30,8 +30,10 @@ int32_t NoopVideo::Decoder::NoopVideoDecoder::Decode(const EncodedImage &input_i
     // TODO need to modify EncodedImage to steal the buffer.
     uint8_t *buffer = static_cast<uint8_t *>(malloc(input_image.size()));
     std::memcpy(buffer, input_image.data(), input_image.size());
-    auto input_image_copy =
-        std::make_unique<EncodedImage>(buffer, input_image.size(), input_image.capacity());
+
+    auto input_image_copy = std::make_unique<EncodedImage>(input_image);
+    input_image_copy->set_buffer(buffer, input_image.capacity());
+    input_image_copy->set_size(input_image.size());
 
     // Then find the NAL units and
     // Create RTP fragments from those NAL units
