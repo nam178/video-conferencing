@@ -53,19 +53,14 @@
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/data_channel_interface.h"
-// #include "api/mediaconstraintsinterface.h"
 #include "api/media_stream_interface.h"
 #include "api/peer_connection_interface.h"
 #include "api/rtp_sender_interface.h"
 #include "api/transport/bitrate_settings.h"
 #include "api/video/i420_buffer.h"
-// #include "api/videotracksourceproxy.h"
 #include "media/engine/internal_decoder_factory.h"
 #include "media/engine/internal_encoder_factory.h"
 #include "media/engine/multiplex_codec_factory.h"
-// #include "media/engine/webrtcvideocapturerfactory.h"
-// #include "media/engine/webrtcvideodecoderfactory.h"
-// #include "media/engine/webrtcvideoencoderfactory.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/audio_processing/include/audio_processing.h"
 #include "modules/video_capture/video_capture_factory.h"
@@ -75,26 +70,5 @@
 #include "libyuv.h"
 
 #include "not_supported_exception.h"
-
-// UWP wrappers
-#if defined(WINUWP)
-
-// Stop WinRT from polluting the global namespace
-// https://developercommunity.visualstudio.com/content/problem/859178/asyncinfoh-defines-the-error-symbol-at-global-name.html
-#define _HIDE_GLOBAL_ASYNC_STATUS 1
-
-#include <winrt/windows.applicationmodel.core.h>
-
-#include "impl_org_webRtc_EventQueue.h"
-#include "impl_org_webRtc_VideoCapturer.h"
-#include "impl_org_webRtc_VideoCapturerCreationParameters.h"
-#include "impl_org_webRtc_VideoDeviceInfo.h"
-#include "impl_org_webRtc_VideoFormat.h"
-#include "impl_org_webRtc_WebRtcFactory.h"
-#include "impl_org_webRtc_WebRtcFactoryConfiguration.h"
-#include "impl_org_webRtc_WebRtcLib.h"
-#include "impl_org_webRtc_WebRtcLibConfiguration.h"
-
-#endif  // defined(WINUWP)
 
 #pragma warning(pop)

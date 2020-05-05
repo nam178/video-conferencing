@@ -77,7 +77,6 @@
     <ClCompile Include="video_sink_adapter.cpp">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="thread_sync.cpp" />
     <ClCompile Include="video_sink_adapter_interop.cpp">
       <Filter>video</Filter>
     </ClCompile>
@@ -95,6 +94,9 @@
     </ClCompile>
     <ClCompile Include="rtp_sender_interop.cpp">
       <Filter>wrappers\interops</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_sync.cpp">
+      <Filter>misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,6 +220,7 @@
     <ClInclude Include="create_sdp_result.h">
       <Filter>wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="foo.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

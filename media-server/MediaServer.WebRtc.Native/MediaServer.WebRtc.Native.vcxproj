@@ -84,7 +84,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>strmiids.lib;Msdmo.lib;dmoguids.lib;wmcodecdspuuid.lib;Secur32.lib;winmm.lib;Ole32.lib;Evr.lib;mfreadwrite.lib;mf.lib;mfuuid.lib;mfplat.lib;mfplay.lib;webrtc.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(WebRTCCoreRepoPath)\out\$(Configuration);$(WebRTCCoreRepoPath)\out\$(Configuration)\obj;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WebRTCCoreRepoPath)\out\$(Configuration);$(WebRTCCoreRepoPath)\out\$(Configuration)\obj\api;$(WebRTCCoreRepoPath)\out\$(Configuration)\obj;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
