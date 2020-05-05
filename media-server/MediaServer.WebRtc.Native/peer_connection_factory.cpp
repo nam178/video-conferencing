@@ -41,7 +41,7 @@ void Wrappers::PeerConnectionFactory::Initialize()
     _signalling_thread_wrapper.reset(new Wrappers::RtcThread(_signalling_thread.get()));
 
     // Set log level here
-    // rtc::LogMessage::LogToDebug(rtc::LS_ERROR);
+    rtc::LogMessage::LogToDebug(rtc::LS_ERROR);
 
     // Create PeerConnectionFactory
     _peer_connection_factory = webrtc::CreatePeerConnectionFactory(
