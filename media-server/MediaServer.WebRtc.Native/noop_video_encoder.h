@@ -26,6 +26,8 @@ class NoopVideoEncoder : public VideoEncoder
     {
         EncoderInfo result{};
         auto scaling_settings = VideoEncoder::ScalingSettings(VideoEncoder::ScalingSettings::kOff);
+        result.supports_native_handle = true;
+        result.supports_simulcast = false;
         result.has_trusted_rate_controller = true;
         result.scaling_settings = scaling_settings;
         return result;
