@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
-    public interface IOfferHandler
+    public interface IAnswerHandler
     {
-        Task HandleAsync(IRemoteDevice remoteDevice, RTCSessionDescription request);
+        Task HandleAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCSessionDescription answer);
     }
 }

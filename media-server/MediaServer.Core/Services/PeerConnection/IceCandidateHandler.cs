@@ -11,7 +11,7 @@ namespace MediaServer.Core.Services.PeerConnection
     {
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public Task AddAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCIceCandidate iceCandidate)
+        public async Task AddAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCIceCandidate iceCandidate)
         {
             var peerConnection = remoteDevice.GetCustomData().PeerConnections.FirstOrDefault(p => p.Id == peerConnectionId);
             if(null == peerConnection)
@@ -20,10 +20,17 @@ namespace MediaServer.Core.Services.PeerConnection
                     $"Could not find PeerConnection with Id {peerConnectionId} in {remoteDevice}"
                     );
             }
-            peerConnection.AddIceCandidate(iceCandidate);
-            _logger.Trace($"Ice candidate {iceCandidate} added to {peerConnection}");
+            
+            if(null == peerConnection.Room)
+            {
+                throw new InvalidProgramException();
+            }
 
-            return Task.CompletedTask;
+            await peerConnection.Room.RenegotiationQueue.ExecuteAsync(delegate
+            {
+                peerConnection.AddIceCandidate(iceCandidate);
+                _logger.Trace($"Ice candidate {iceCandidate} added to {peerConnection}");
+            });
         }
     }
 }

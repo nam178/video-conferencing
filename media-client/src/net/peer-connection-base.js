@@ -152,10 +152,32 @@ export default class PeerConnectionBase extends EventTarget {
         this._pendingIceCandidates = [];
     }
 
-    _onOffer(args) {
-        if (this.id == args.peerConnectionId) {
-            this._setSdp(args.sdp);
+    async _onOffer(args) {
+        if (this.id != args.peerConnectionId) {
+            return;
         }
+        this._setSdp(args.sdp);
+         // Generate a token to prevent race condition when this method
+        // is called multiple times and the async continuation below
+        // race with each other:
+        var token2 = {};
+        this._token2 = token2;
+        var answer = await this._peerConnection.createAnswer();
+        this._logger.info('Generated answer', answer);
+        await this._peerConnection.setLocalDescription(answer);
+        // If there is newer token,
+        // cancel this;
+        if (this._token2 != token2) {
+            return;
+        }
+        // Send the generated sdp to the server
+        this.webSocketClient.queueMessageForSending('SetAnswer', {
+            answer: {
+                type: answer.type,
+                sdp: answer.sdp
+            },
+            peerConnectionId: this.id
+        });
     }
 
     _onIceCandidate(args) {

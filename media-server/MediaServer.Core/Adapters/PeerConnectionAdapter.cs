@@ -58,6 +58,7 @@ namespace MediaServer.Core.Adapters
         int _mediaRoutingStatus;
         public async Task StartMediaRoutingAsync()
         {
+            MustNotDisposed();
             if(Interlocked.CompareExchange(ref _mediaRoutingStatus, 1, 0) != 0)
             {
                 throw new InvalidOperationException();
@@ -67,24 +68,25 @@ namespace MediaServer.Core.Adapters
 
         public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
         {
+            MustNotDisposed();
             return _peerConnectionImpl.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
         }
 
         public async Task<RTCSessionDescription> CreateOfferAsync()
         {
-            RequireInitialised();
+            MustNotDisposed();
             return await _peerConnectionImpl.CreateOfferAsync();
         }
 
         public async Task<RTCSessionDescription> CreateAnswerAsync()
         {
-            RequireInitialised();
+            MustNotDisposed();
             return await _peerConnectionImpl.CreateAnswerAsync();
         }
 
         public async Task SetLocalSessionDescriptionAsync(RTCSessionDescription localDescription)
         {
-            RequireInitialised();
+            MustNotDisposed();
             // After generating answer, must set LocalSdp,
             // otherwise ICE candidates won't be gathered.
             await _peerConnectionImpl.SetLocalSessionDescriptionAsync(
@@ -94,13 +96,13 @@ namespace MediaServer.Core.Adapters
 
         public void AddIceCandidate(RTCIceCandidate iceCandidate)
         {
-            RequireInitialised();
+            MustNotDisposed();
             _peerConnectionImpl.AddIceCandidate(iceCandidate);
         }
 
         public IPeerConnection ObserveIceCandidate(Action<IPeerConnection, RTCIceCandidate> observer)
         {
-            RequireInitialised();
+            MustNotDisposed();
             lock(_syncRoot)
             {
                 if(_iceCandidateObserver != null)
@@ -114,7 +116,7 @@ namespace MediaServer.Core.Adapters
 
         public IPeerConnection ObserveRenegotiationNeeded(Action<IPeerConnection> observer)
         {
-            RequireInitialised();
+            MustNotDisposed();
             lock(_syncRoot)
             {
                 if(_renegotationNeededObserver != null)
@@ -126,7 +128,7 @@ namespace MediaServer.Core.Adapters
 
         public async Task CloseAsync()
         {
-            RequireInitialised();
+            MustNotDisposed();
             await _videoRouter.RemovePeerConnectionAsync(Device.Id, _peerConnectionImpl, _peerConnectionObserverImpl);
             _peerConnectionImpl.Close();
         }
@@ -151,15 +153,11 @@ namespace MediaServer.Core.Adapters
 
         void RenegotationNeeded(object sender, EventArgs e) => _renegotationNeededObserver?.Invoke(this);
 
-        void RequireInitialised()
+        void MustNotDisposed()
         {
             if(Interlocked.CompareExchange(ref _disposed, 0, 0) == 1)
             {
                 throw new ObjectDisposedException(GetType().Name);
-            }
-            if(Interlocked.CompareExchange(ref _mediaRoutingStatus, 0, 0) == 0)
-            {
-                throw new InvalidOperationException();
             }
         }
     }

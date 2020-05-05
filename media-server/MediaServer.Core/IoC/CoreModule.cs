@@ -36,6 +36,8 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<IceCandidateHandler>().AsImplementedInterfaces();
             builder.RegisterType<OfferHandler>().AsImplementedInterfaces();
             builder.RegisterType<SetTrackQualityRequestHandler>().AsImplementedInterfaces();
+            builder.RegisterType<RenegotationHandler>().AsImplementedInterfaces();
+            builder.RegisterType<AnswerHandler>().AsImplementedInterfaces();
 
             // Factories
             builder.RegisterType<RoomFactory>().AsImplementedInterfaces();
