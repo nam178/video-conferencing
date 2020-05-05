@@ -14,7 +14,7 @@ NoopVideoFrameBuffer::NoopVideoFrameBuffer(
 
 NoopVideoFrameBuffer::~NoopVideoFrameBuffer()
 {
-    free(_original->_buffer);
+    free(_original->data());
 }
 
 webrtc::VideoFrameBuffer::Type NoopVideoFrameBuffer::type() const

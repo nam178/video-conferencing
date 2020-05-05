@@ -4,6 +4,7 @@
 #include "noop_video_decoder_factory.h"
 #include "noop_video_encoder_factory.h"
 #include "peer_connection_factory.h"
+#include "api/create_peerconnection_factory.h"
 
 const uint8_t INIT_STATE_NONE = 0;
 const uint8_t INIT_STATE_INITIALISED = 1;
@@ -40,7 +41,7 @@ void Wrappers::PeerConnectionFactory::Initialize()
     _signalling_thread_wrapper.reset(new Wrappers::RtcThread(_signalling_thread.get()));
 
     // Set log level here
-    rtc::LogMessage::LogToDebug(rtc::LS_ERROR);
+    // rtc::LogMessage::LogToDebug(rtc::LS_ERROR);
 
     // Create PeerConnectionFactory
     _peer_connection_factory = webrtc::CreatePeerConnectionFactory(

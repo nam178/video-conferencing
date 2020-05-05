@@ -19,8 +19,3 @@ void Wrappers::SetRemoteSessionDescriptionObserver::OnFailure(RTCError error)
 {
     _callback_lambda(false, error.message());
 }
-
-void Wrappers::SetRemoteSessionDescriptionObserver::OnFailure(const std::string &error)
-{
-    _callback_lambda(false, error.c_str());
-}

@@ -34,8 +34,7 @@ int32_t NoopVideo::Encoder::NoopVideoEncoder::RegisterEncodeCompleteCallback(
 }
 
 int32_t NoopVideo::Encoder::NoopVideoEncoder::Encode(const VideoFrame &frame,
-                                                     const webrtc::CodecSpecificInfo *,
-                                                     const std::vector<FrameType> *frame_types)
+                                                     const std::vector<VideoFrameType> *frame_types)
 {
     if(!_callback)
     {
@@ -58,17 +57,8 @@ bool NoopVideo::Encoder::NoopVideoEncoder::SupportsNativeHandle() const
     return true;
 }
 
-int32_t NoopVideo::Encoder::NoopVideoEncoder::SetRateAllocation(
-    const VideoBitrateAllocation &allocation,
-    uint32_t framerate)
+void NoopVideo::Encoder::NoopVideoEncoder::SetRates(const RateControlParameters &parameters)
 {
-    return WEBRTC_VIDEO_CODEC_OK;
-}
-
-int32_t NoopVideo::Encoder::NoopVideoEncoder::SetChannelParameters(uint32_t packet_loss,
-                                                                   int64_t rtt)
-{
-    return WEBRTC_VIDEO_CODEC_OK;
 }
 
 int32_t NoopVideo::Encoder::NoopVideoEncoder::Release()

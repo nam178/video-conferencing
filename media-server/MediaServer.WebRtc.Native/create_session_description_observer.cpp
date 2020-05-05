@@ -23,8 +23,3 @@ void Wrappers::CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError erro
     _callback_lambda(
         Result<webrtc::SessionDescriptionInterface *>{nullptr, false, error.message()});
 }
-
-void Wrappers::CreateSessionDescriptionObserver::OnFailure(const std::string &error)
-{
-    _callback_lambda(Result<webrtc::SessionDescriptionInterface *>{nullptr, false, error.c_str()});
-}

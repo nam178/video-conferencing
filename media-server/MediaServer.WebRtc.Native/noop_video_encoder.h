@@ -19,17 +19,20 @@ class NoopVideoEncoder : public VideoEncoder
     virtual int32_t RegisterEncodeCompleteCallback(EncodedImageCallback *callback) override;
     virtual int32_t Release() override;
     virtual int32_t Encode(const VideoFrame &frame,
-                           const CodecSpecificInfo *codec_specific_info,
-                          const std::vector<FrameType> *frame_types) override;
+                           const std::vector<VideoFrameType> *frame_types) override;
     virtual bool SupportsNativeHandle() const;
-    virtual int32_t SetRateAllocation(const VideoBitrateAllocation &allocation,
-                                      uint32_t framerate) override;
+    virtual void SetRates(const RateControlParameters &parameters) override;
+    virtual EncoderInfo GetEncoderInfo() const override
+    {
+        EncoderInfo result{};
+        auto scaling_settings = VideoEncoder::ScalingSettings(VideoEncoder::ScalingSettings::kOff);
+        result.has_trusted_rate_controller = true;
+        result.scaling_settings = scaling_settings;
+        return result;
+    };
 
   private:
     EncodedImageCallback *_callback;
     static CodecSpecificInfo _codec_specificInfo;
-
-    // Inherited via VideoEncoder
-    virtual int32_t SetChannelParameters(uint32_t packet_loss, int64_t rtt) override;
 };
 } // namespace NoopVideo::Encoder

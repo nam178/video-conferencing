@@ -35,9 +35,9 @@ class PeerConnectionFactory final
 
   private:
     std::atomic<uint8_t> _initialized_state = {0};
-    std::unique_ptr<rtc::Thread> _network_thread = std::make_unique<rtc::Thread>();
-    std::unique_ptr<rtc::Thread> _signalling_thread = std::make_unique<rtc::Thread>();
-    std::unique_ptr<rtc::Thread> _worker_thread = std::make_unique<rtc::Thread>();
+    std::unique_ptr<rtc::Thread> _network_thread;
+    std::unique_ptr<rtc::Thread> _signalling_thread;
+    std::unique_ptr<rtc::Thread> _worker_thread;
     std::unique_ptr<Wrappers::RtcThread> _signalling_thread_wrapper{};
 
     scoped_refptr<PeerConnectionFactoryInterface> _peer_connection_factory = {};

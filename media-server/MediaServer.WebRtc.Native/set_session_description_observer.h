@@ -19,7 +19,6 @@ class SetRemoteSessionDescriptionObserver final
     // implements webrtc::SetSessionDescriptionObserver
     virtual void OnSuccess() override;
     virtual void OnFailure(RTCError error) override;
-    virtual void OnFailure(const std::string &error) override;
 
   private:
     std::function<void(Success, ErrorMessage)> _callback_lambda;

@@ -65,7 +65,7 @@
     <OutDir>..\bin\Win32\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>..\build\MediaServer.WebRtc.Native\Win32\$(PlatformTarget)\$(Configuration)\</IntDir>
     <TargetName>MediaServer.WebRtc.Native</TargetName>
-    <WebRTCCoreRepoPath>C:\webrtc-uwp-sdk\webrtc-uwp-sdk\webrtc\xplatform\webrtc</WebRTCCoreRepoPath>
+    <WebRTCCoreRepoPath>C:\wc\src</WebRTCCoreRepoPath>
   </PropertyGroup>
   <ItemGroup>
     <NativeUnityPluginSourceFiles Include="$(OutDir)\Microsoft.MixedReality.WebRTC.Native.dll;$(OutDir)\Microsoft.MixedReality.WebRTC.Native.pdb" />
@@ -84,14 +84,14 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>strmiids.lib;Msdmo.lib;dmoguids.lib;wmcodecdspuuid.lib;Secur32.lib;winmm.lib;Ole32.lib;Evr.lib;mfreadwrite.lib;mf.lib;mfuuid.lib;mfplat.lib;mfplay.lib;webrtc.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(WebRTCCoreRepoPath)\out\webrtc_win_$(PlatformTarget)_$(Configuration);$(WebRTCCoreRepoPath)\out\webrtc_win_$(PlatformTarget)_$(Configuration)\obj;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WebRTCCoreRepoPath)\out\$(Configuration);$(WebRTCCoreRepoPath)\out\$(Configuration)\obj;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
