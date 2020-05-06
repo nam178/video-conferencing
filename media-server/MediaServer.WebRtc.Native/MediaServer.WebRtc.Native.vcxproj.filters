@@ -98,7 +98,12 @@
     <ClCompile Include="thread_sync.cpp">
       <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="rtp_transceiver.cpp" />
+    <ClCompile Include="rtp_transceiver_interops.cpp">
+      <Filter>wrappers\interops</Filter>
+    </ClCompile>
+    <ClCompile Include="rtp_transceiver.cpp">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -223,6 +228,9 @@
     </ClInclude>
     <ClInclude Include="rtp_transceiver.h">
       <Filter>wrappers\peer_connection</Filter>
+    </ClInclude>
+    <ClInclude Include="rtp_transceiver_interops.h">
+      <Filter>wrappers\interops</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

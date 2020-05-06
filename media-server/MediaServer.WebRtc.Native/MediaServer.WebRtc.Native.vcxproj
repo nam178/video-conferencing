@@ -120,6 +120,7 @@
     <ClInclude Include="rtp_sender.h" />
     <ClInclude Include="rtp_sender_interop.h" />
     <ClInclude Include="rtp_transceiver.h" />
+    <ClInclude Include="rtp_transceiver_interops.h" />
     <ClInclude Include="thread_sync.h" />
     <ClInclude Include="video_sink_adapter.h" />
     <ClInclude Include="video_sink_adapter_interop.h" />
@@ -186,6 +187,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="peer_connection_factory.cpp" />
+    <ClCompile Include="rtp_transceiver_interops.cpp" />
     <ClCompile Include="set_session_description_observer.cpp" />
     <ClCompile Include="thread_sync.cpp" />
     <ClCompile Include="video_sink_adapter.cpp" />
