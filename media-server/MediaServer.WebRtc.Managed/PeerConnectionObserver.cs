@@ -21,7 +21,7 @@ namespace MediaServer.WebRtc.Managed
         readonly IceCandidatesRemovedCallback _iceCandidatesRemovedCallback = IceCandidatesRemovedCallback;
         readonly RemoteTrackAddedCallback _remoteTrackAddedCallback = RemoteTrackAddedCallback;
         readonly RemoteTrackRemovedCallback _remoteTrackRemovedCallback = RemoteTrackRemovedCallback;
-        readonly List<RtpReceiver> _rtpReceivers = new List<RtpReceiver>();
+        readonly List<RtpTransceiver> _rtpTransceivers = new List<RtpTransceiver>();
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public event EventHandler<EventArgs<RTCIceCandidate>> IceCandidateAdded;
@@ -29,10 +29,10 @@ namespace MediaServer.WebRtc.Managed
         public event EventHandler<EventArgs<RTCIceGatheringState>> IceGatheringStateChanged;
         public event EventHandler<EventArgs> RenegotiationNeeded;
         public event EventHandler<EventArgs<RtpReceiver>> RemoteTrackRemoved;
-        public event EventHandler<EventArgs<RtpReceiver>> RemoteTrackAdded;
+        public event EventHandler<EventArgs<RtpTransceiver>> RemoteTrackAdded;
         public event EventHandler<EventArgs<IntPtr>> IceCandidatesRemoved;
 
-        public IReadOnlyList<RtpReceiver> RemoteTracks => _rtpReceivers;
+        public IReadOnlyList<RtpTransceiver> RemoteTracks => _rtpTransceivers;
 
         public PeerConnectionObserver()
         {
@@ -49,17 +49,17 @@ namespace MediaServer.WebRtc.Managed
             SetRemoteTrackRemovedCallback(Native, _remoteTrackRemovedCallback, userData);
         }
 
-        void OnHandleRemoveTrackAdded(IntPtr rtpReceiverWrapperPtr) // signalling thread
+        void OnHandleRemoveTrackAdded(IntPtr rtpTransceiverPtr) // signalling thread
         {
             CheckDisposed();
 
-            // Take ownership of the new RtpReceiver 
-            var receiver = new RtpReceiver(rtpReceiverWrapperPtr);
-            _rtpReceivers.Add(receiver);
+            // Take ownership of the new RtpTransceiver 
+            var transceiver = new RtpTransceiver(rtpTransceiverPtr);
+            _rtpTransceivers.Add(transceiver);
 
             // Trigger event
-            RemoteTrackAdded?.Invoke(this, new EventArgs<RtpReceiver>(receiver));
-            _logger.Debug($"Remote track added: {receiver}");
+            RemoteTrackAdded?.Invoke(this, new EventArgs<RtpTransceiver>(transceiver));
+            _logger.Debug($"Remote track added: {transceiver}");
         }
 
         void OnHandleRemoveTrackRemoved(IntPtr rtpReceiverPtr) // signalling thread
@@ -68,12 +68,12 @@ namespace MediaServer.WebRtc.Managed
 
             // Find the RTP Receiver wrappers that manages this native webRTC rtpReceiverPtr
             // and destroy them.
-            foreach(var receiver in _rtpReceivers.Where(r => r.GetRtpReceiverInterface() == rtpReceiverPtr).ToList())
+            foreach(var receiver in _rtpTransceivers.Where(r => r.GetRtpReceiverInterface() == rtpReceiverPtr).ToList())
             {
                 using(receiver)
                 {
                     RemoteTrackRemoved?.Invoke(this, new EventArgs<RtpReceiver>(receiver));
-                    _rtpReceivers.Remove(receiver);
+                    _rtpTransceivers.Remove(receiver);
                     _logger.Debug($"Remote track removed: {receiver}");
                 }
             }
@@ -136,7 +136,7 @@ namespace MediaServer.WebRtc.Managed
         {
             if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
             {
-                foreach(var t in _rtpReceivers)
+                foreach(var t in _rtpTransceivers)
                 {
                     t.Dispose();
                 }

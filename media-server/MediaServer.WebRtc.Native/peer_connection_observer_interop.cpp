@@ -29,7 +29,7 @@ void CONVENTION PeerConnectionObserverSetRemoteTrackAddedCallback(
     UserData user_data)
 {
     peer_connection_observer_ptr->SetRemoteTrackAddedCallback(
-        Callback<Wrappers::RtpReceiver *>{std::move(call_back), user_data});
+        Callback<Wrappers::RtpTransceiver *>{std::move(call_back), user_data});
 }
 
 void CONVENTION PeerConnectionObserverSetRemoteTrackRemovedCallback(

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --open --hot --mode development --history-api-fallback --env.environment=dev",
+    "start": "webpack-dev-server --host 0.0.0.0 --open --hot --mode development --history-api-fallback --env.environment=dev",
     "build": "FOO=BAR webpack --mode production --env.environment=prod"
   },
   "author": "",

@@ -67,7 +67,7 @@ void Wrappers::PeerConnectionObserver::SetIceCandidatesRemovedCallback(
 }
 
 void Wrappers::PeerConnectionObserver::SetRemoteTrackAddedCallback(
-    Callback<Wrappers::RtpReceiver *> &&callback) noexcept
+    Callback<Wrappers::RtpTransceiver *> &&callback) noexcept
 {
     _remote_track_added_callback = std::move(callback);
 }
@@ -167,9 +167,7 @@ void Wrappers::PeerConnectionObserver::OnTrack(
 {
     if(_remote_track_added_callback)
     {
-        // Let the unmanaged code take the ownership
-        // of the new RtpReceiver wrapper
-        auto tmp = new Wrappers::RtpReceiver(std::move(transceiver->receiver()));
+        auto tmp = new Wrappers::RtpTransceiver(std::move(transceiver));
         _remote_track_added_callback(tmp);
     }
 }

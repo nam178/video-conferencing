@@ -16,7 +16,7 @@ extern "C"
     using IceCandidateCallback = void(CONVENTION *)(UserData, IceCandidate);
     using IceCandidatesRemovedCallback =
         void(CONVENTION *)(UserData, const std::vector<cricket::Candidate> *);
-    using RemoteTrackAddedCallback = void(CONVENTION *)(UserData, Wrappers::RtpReceiver *);
+    using RemoteTrackAddedCallback = void(CONVENTION *)(UserData, Wrappers::RtpTransceiver *);
     using RemoteTrackRemovedCallback = void(CONVENTION *)(UserData, webrtc::RtpReceiverInterface *);
 
     struct PeerConnectionObserverCallbacks

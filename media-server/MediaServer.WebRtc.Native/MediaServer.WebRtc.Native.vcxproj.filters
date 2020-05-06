@@ -98,6 +98,7 @@
     <ClCompile Include="thread_sync.cpp">
       <Filter>misc</Filter>
     </ClCompile>
+    <ClCompile Include="rtp_transceiver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -220,7 +221,9 @@
     <ClInclude Include="create_sdp_result.h">
       <Filter>wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="foo.h" />
+    <ClInclude Include="rtp_transceiver.h">
+      <Filter>wrappers\peer_connection</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

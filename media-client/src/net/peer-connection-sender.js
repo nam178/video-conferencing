@@ -40,10 +40,6 @@ export default class PeerConnectionSender extends PeerConnectionBase {
     _handleRoomJoined() {
         this.dispatchEvent(new CustomEvent('negotiation-started'));
 
-        // Restart the id, this is an indication to the server that we are starting new PeerConnection,
-        // instead of updating SDP for an existing one.
-        this.id = null;
-        
         // Everytime we join a room, restart the PeerConnection
         // This is due to the life time of a PeerConnection 
         // always associated with the life time of the WebSocket connection

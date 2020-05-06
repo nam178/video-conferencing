@@ -29,7 +29,7 @@ namespace MediaServer.WebRtc.Managed
         public delegate void IceCandidatesRemovedCallback(IntPtr userData, IntPtr candidates);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public delegate void RemoteTrackAddedCallback(IntPtr userData, IntPtr rtpReceiverWrapperPtr);
+        public delegate void RemoteTrackAddedCallback(IntPtr userData, IntPtr rtpTransceiverPtr);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         public delegate void RemoteTrackRemovedCallback(IntPtr userData, IntPtr rtpReceiverPtr);

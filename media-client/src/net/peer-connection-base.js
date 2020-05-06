@@ -56,6 +56,7 @@ export default class PeerConnectionBase extends EventTarget {
      */
     restart() {
         this.logger.warn('Restarting..');
+        this.id = null;
         if (this._peerConnection) {
             this._peerConnection.close();
         }
