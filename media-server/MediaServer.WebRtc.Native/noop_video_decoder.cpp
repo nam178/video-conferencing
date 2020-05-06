@@ -70,12 +70,12 @@ int32_t NoopVideo::Decoder::NoopVideoDecoder::Decode(const EncodedImage &input_i
 
     _callback->Decoded(result);
 
-    // Request keyframe every 30 frames
+    // Request keyframe every 90 frames
     _propagation_cnt++;
-    if(_propagation_cnt >= 30)
+    if(_propagation_cnt >= 90)
     {
         _propagation_cnt = 0;
-        return WEBRTC_VIDEO_CODEC_ERROR;
+        return WEBRTC_VIDEO_CODEC_OK_REQUEST_KEYFRAME;
     }
     // Request key frame when we reach the threashold
     return WEBRTC_VIDEO_CODEC_OK;
