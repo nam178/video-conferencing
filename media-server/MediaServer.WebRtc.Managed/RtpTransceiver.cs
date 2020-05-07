@@ -1,43 +1,32 @@
 ﻿using System;
-using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace MediaServer.WebRtc.Managed
 {
-
-    sealed class RtpTransceiverSafeHandle : SafeHandle
-    {
-        public RtpTransceiverSafeHandle(IntPtr handle) : base(IntPtr.Zero, true)
-        {
-            SetHandle(handle);
-        }
-
-        public override bool IsInvalid => IntPtr.Zero == handle;
-
-        protected override bool ReleaseHandle()
-        {
-            if(handle != IntPtr.Zero)
-            {
-                RtpTransceiverInterops.Destroy(handle);
-            }
-            return true;
-        }
-    }
-
-    static class RtpTransceiverInterops
-    {
-        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "RtpTransceiverDestroy")]
-        public static extern void Destroy(IntPtr native);
-
-        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "RtpTransceiverGetSender")]
-        public static extern IntPtr GetSender(RtpTransceiverSafeHandle rtpTransceiver);
-
-        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "RtpTransceiverGetReceiver")]
-        public static extern IntPtr GetReceiver(RtpTransceiverSafeHandle rtpTransceiver);
-    }
-
     public sealed class RtpTransceiver : IDisposable
     {
+        readonly RtpReceiver _receiver;
+        readonly RtpSender _sender;
+
         internal RtpTransceiverSafeHandle Handle { get; }
+
+        public RtpReceiver Receiver
+        {
+            get
+            {
+                DisposeCheck();
+                return _receiver;
+            }
+        }
+
+        public RtpSender Sender
+        {
+            get
+            {
+                DisposeCheck();
+                return _sender;
+            }
+        }
 
         public RtpTransceiver(IntPtr native)
         {
@@ -46,8 +35,27 @@ namespace MediaServer.WebRtc.Managed
                 throw new ArgumentException();
             }
             Handle = new RtpTransceiverSafeHandle(native);
+            _receiver = new RtpReceiver(RtpTransceiverInterops.GetReceiver(Handle));
+            _sender = new RtpSender(RtpTransceiverInterops.GetSender(Handle));
         }
 
-        public void Dispose() => Handle.Dispose();
+        void DisposeCheck()
+        {
+            if(Interlocked.CompareExchange(ref _disposed, 0, 0) == 1)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
+        }
+
+        int _disposed;
+        public void Dispose()
+        {
+            if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
+            {
+                Receiver.Dispose();
+                Sender.Dispose();
+                Handle.Dispose();
+            }
+        }
     }
 }

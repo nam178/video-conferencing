@@ -22,13 +22,13 @@ namespace MediaServer.WebRtc.Managed
         readonly RemoteTrackAddedCallback _remoteTrackAddedCallback = RemoteTrackAddedCallback;
         readonly RemoteTrackRemovedCallback _remoteTrackRemovedCallback = RemoteTrackRemovedCallback;
         readonly List<RtpTransceiver> _rtpTransceivers = new List<RtpTransceiver>();
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public event EventHandler<EventArgs<RTCIceCandidate>> IceCandidateAdded;
         public event EventHandler<EventArgs<RTCIceConnectionState>> IceConnectionStateChanged;
         public event EventHandler<EventArgs<RTCIceGatheringState>> IceGatheringStateChanged;
         public event EventHandler<EventArgs> RenegotiationNeeded;
-        public event EventHandler<EventArgs<RtpReceiver>> RemoteTrackRemoved;
+        public event EventHandler<EventArgs<RtpTransceiver>> RemoteTrackRemoved;
         public event EventHandler<EventArgs<RtpTransceiver>> RemoteTrackAdded;
         public event EventHandler<EventArgs<IntPtr>> IceCandidatesRemoved;
 
@@ -66,17 +66,15 @@ namespace MediaServer.WebRtc.Managed
         {
             CheckDisposed();
 
-            // Find the RTP Receiver wrappers that manages this native webRTC rtpReceiverPtr
-            // and destroy them.
-            foreach(var receiver in _rtpTransceivers.Where(r => r.GetRtpReceiverInterface() == rtpReceiverPtr).ToList())
+            // Transceiver never gets removed.
+            // We'll just find the transceiver for this track and trigger the event
+            var transceiver = _rtpTransceivers.FirstOrDefault(r => r.Receiver.GetRtpReceiverInterface() == rtpReceiverPtr);
+            if(null == transceiver)
             {
-                using(receiver)
-                {
-                    RemoteTrackRemoved?.Invoke(this, new EventArgs<RtpReceiver>(receiver));
-                    _rtpTransceivers.Remove(receiver);
-                    _logger.Debug($"Remote track removed: {receiver}");
-                }
+                throw new InvalidProgramException("Transceiver not found");
             }
+
+            RemoteTrackRemoved?.Invoke(this, new EventArgs<RtpTransceiver>(transceiver));
         }
 
         static void IceCandidateCallback(IntPtr userData, IceCandidate iceCandidate)
