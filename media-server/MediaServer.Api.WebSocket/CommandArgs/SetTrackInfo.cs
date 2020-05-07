@@ -13,6 +13,6 @@ namespace MediaServer.Api.WebSocket.CommandArgs
         public MediaQuality Quality { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public MediaStreamTrack.TrackKind Kind { get; set; }
+        public MediaKind Kind { get; set; }
     }
 }
