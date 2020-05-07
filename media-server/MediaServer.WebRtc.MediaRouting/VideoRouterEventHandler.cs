@@ -48,7 +48,7 @@ namespace MediaServer.WebRtc.MediaRouting
 
             try
             {
-                _videoRouter.OnRemoteTrackAdded(peerConnection, videoClient, e.Payload);
+                _videoRouter.OnRemoteTrackAdded(videoClient, peerConnection, e.Payload);
             }
             catch(Exception ex)
             {

@@ -87,18 +87,21 @@ namespace MediaServer.WebRtc.MediaRouting
 
             return _signallingThread.ExecuteAsync(delegate
             {
-                // This PeerConnection must be added 
-                // right before it is created, therefore it must has no remote tracks
-                if(peerConnection.Observer.RemoteTracks.Count > 0)
-                {
-                    throw new InvalidProgramException
-                    ("PeerConnection must be added to the VideoRouter right before it is created");
-                }
-
                 // Add PeerConnection into VideoClient
                 var videoClient = _videoClients.Get(videoClientId);
+                if(videoClient.PeerConnections.Contains(peerConnection))
+                {
+                    throw new InvalidProgramException($"{peerConnection} already added into {videoClient}");
+                }
                 videoClient.PeerConnections.Add(peerConnection);
                 _logger.Info($"Added {peerConnection} into {videoClient}, total PeerConnections for this client={videoClient.PeerConnections.Count}");
+
+                // This PeerConnection must be added 
+                // right before it is created, therefore it must has no remote tracks
+                foreach(var remoteTrack in peerConnection.Observer.RemoteTracks)
+                {
+                    OnRemoteTrackAdded(videoClient, peerConnection, remoteTrack);
+                }
 
                 // Start listening to it for track events
                 peerConnection.Observer.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
@@ -197,7 +200,7 @@ namespace MediaServer.WebRtc.MediaRouting
         /// </summary>
         /// <remarks>Must be called from signalling thread, right after the track is added.</remarks>
         /// <returns></returns>
-        internal void OnRemoteTrackAdded(PeerConnection peerConnection, VideoClient videoClient, RtpTransceiver transceiver)
+        internal void OnRemoteTrackAdded(VideoClient videoClient, PeerConnection peerConnection, RtpTransceiver transceiver)
         {
             _signallingThread.EnsureCurrentThread();
             Require.NotNull(peerConnection);

@@ -16,8 +16,8 @@ namespace MediaServer.Core.Adapters
         readonly PeerConnectionObserver _peerConnectionObserverImpl;
         readonly PeerConnection _peerConnectionImpl;
         readonly object _syncRoot = new object();
-        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly VideoRouter _videoRouter;
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         Action<IPeerConnection, RTCIceCandidate> _iceCandidateObserver;
         Action<IPeerConnection> _renegotationNeededObserver;
 
@@ -40,7 +40,7 @@ namespace MediaServer.Core.Adapters
                 throw new ArgumentNullException(nameof(stunUrls));
             Room = room ?? throw new ArgumentNullException(nameof(room));
             Device = device ?? throw new ArgumentNullException(nameof(device));
-            _videoRouter = videoRouter 
+            _videoRouter = videoRouter
                 ?? throw new ArgumentNullException(nameof(videoRouter));
             var iceServerInfo = new PeerConnectionConfig.IceServerInfo();
             foreach(var url in stunUrls)
@@ -55,15 +55,32 @@ namespace MediaServer.Core.Adapters
             _peerConnectionImpl = peerConnectionFactory.CreatePeerConnection(_peerConnectionObserverImpl, config);
         }
 
-        public async Task InitializeAsync()
+        int _addedToRouterState;
+
+        enum AddedToRouterState : int
         {
-            await _videoRouter.AddPeerConnectionAsync(Device.Id, _peerConnectionImpl); 
+            NotAdded = 0,
+            Added = 1,
+            Removed = 2
         }
 
-        public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
+        public async Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
         {
             MustNotDisposed();
-            return _peerConnectionImpl.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
+            await _peerConnectionImpl.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
+
+            // As per webRTC example, the answerer will SetRemoteSessionDescription() first,
+            // then followed by AddTrack();
+            //
+            // and AddPeerConnectionAsync() will call AddTrack() under the hood,
+            // therefore we call AddPeerConnectionAsync() right after SetRemoteSessionDescription();
+            if(Interlocked.CompareExchange(
+                ref _addedToRouterState,
+                (int)AddedToRouterState.Added,
+                (int)AddedToRouterState.NotAdded) == (int)AddedToRouterState.NotAdded)
+            {
+                await _videoRouter.AddPeerConnectionAsync(Device.Id, _peerConnectionImpl);
+            }
         }
 
         public async Task<RTCSessionDescription> CreateOfferAsync()
@@ -123,7 +140,13 @@ namespace MediaServer.Core.Adapters
         public async Task CloseAsync()
         {
             MustNotDisposed();
-            await _videoRouter.RemovePeerConnectionAsync(Device.Id, _peerConnectionImpl, _peerConnectionObserverImpl);
+            if(Interlocked.CompareExchange(
+                ref _addedToRouterState,
+                (int)AddedToRouterState.Removed,
+                (int)AddedToRouterState.Added) == (int)AddedToRouterState.Added)
+            {
+                await _videoRouter.RemovePeerConnectionAsync(Device.Id, _peerConnectionImpl, _peerConnectionObserverImpl);
+            }
             _peerConnectionImpl.Close();
         }
 

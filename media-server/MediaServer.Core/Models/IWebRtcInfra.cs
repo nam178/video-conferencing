@@ -24,6 +24,6 @@ namespace MediaServer.Core.Models
 
         void Initialize();
 
-        Task<IPeerConnection> CreatePeerConnectionAsnc(IRemoteDevice remoteDevice, IRoom room);
+        IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, IRoom room);
     }
 }

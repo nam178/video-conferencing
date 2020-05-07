@@ -60,7 +60,7 @@ namespace MediaServer.Core.Services.PeerConnection
 
         async Task<IPeerConnection> CreatePeerConnection(IRemoteDevice remoteDevice, User user, RTCSessionDescription remoteSdp)
         {
-            var peerConnection = await user.Room.CreatePeerConnectionAsync(remoteDevice);
+            var peerConnection = user.Room.CreatePeerConnection(remoteDevice);
             _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
 
             await peerConnection.SetRemoteSessionDescriptionAsync(remoteSdp);

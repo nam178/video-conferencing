@@ -52,6 +52,6 @@ namespace MediaServer.Models
         /// </summary>
         /// <param name="remoteDevice"></param>
         /// <returns></returns>
-        Task<IPeerConnection> CreatePeerConnectionAsync(IRemoteDevice remoteDevice);
+        IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice);
     }
 }
