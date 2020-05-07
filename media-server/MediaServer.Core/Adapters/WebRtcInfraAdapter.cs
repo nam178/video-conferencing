@@ -5,6 +5,7 @@ using MediaServer.WebRtc.Managed;
 using MediaServer.WebRtc.MediaRouting;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaServer.Core.Adapters
 {
@@ -12,8 +13,8 @@ namespace MediaServer.Core.Adapters
     {
         readonly PeerConnectionFactory _peerConnectionFactory;
 
-        IDispatchQueue _signallingThread;
-        public IDispatchQueue SignallingThread
+        IThread _signallingThread;
+        public IThread SignallingThread
         {
             get
             {
@@ -55,7 +56,7 @@ namespace MediaServer.Core.Adapters
             }
         }
 
-        public IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, IRoom room)
+        public async Task<IPeerConnection> CreatePeerConnectionAsnc(IRemoteDevice remoteDevice, IRoom room)
         {
             RequireInitialised();
             if(remoteDevice is null)
@@ -68,12 +69,14 @@ namespace MediaServer.Core.Adapters
             {
                 throw new ApplicationException("STUN_URLS environment variable has not been set");
             }
-            return new PeerConnectionAdapter(
+            var adapter = new PeerConnectionAdapter(
+                _peerConnectionFactory,
+                _videoRouter,
                 room,
                 remoteDevice,
-                _peerConnectionFactory,
-                new[] { stunUrls },
-                _videoRouter);
+                new[] { stunUrls });
+            await adapter.InitializeAsync();
+            return adapter;
         }
 
         void RequireInitialised()

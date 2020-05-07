@@ -9,6 +9,6 @@ namespace MediaServer.Core.Services.PeerConnection
 
         public MediaQuality TrackQuality { get; set; }
 
-        public MediaStreamTrack.TrackKind Kind { get; set; }
+        public MediaKind Kind { get; set; }
     }
 }

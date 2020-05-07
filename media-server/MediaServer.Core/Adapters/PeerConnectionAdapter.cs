@@ -18,7 +18,6 @@ namespace MediaServer.Core.Adapters
         readonly object _syncRoot = new object();
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly VideoRouter _videoRouter;
-
         Action<IPeerConnection, RTCIceCandidate> _iceCandidateObserver;
         Action<IPeerConnection> _renegotationNeededObserver;
 
@@ -29,11 +28,11 @@ namespace MediaServer.Core.Adapters
         public Guid Id => _peerConnectionImpl.Id;
 
         public PeerConnectionAdapter(
+            PeerConnectionFactory peerConnectionFactory,
+            VideoRouter videoRouter,
             IRoom room,
             IRemoteDevice device,
-            PeerConnectionFactory peerConnectionFactory,
-            IReadOnlyList<string> stunUrls,
-            VideoRouter videoRouter)
+            IReadOnlyList<string> stunUrls)
         {
             if(peerConnectionFactory is null)
                 throw new ArgumentNullException(nameof(peerConnectionFactory));
@@ -41,7 +40,8 @@ namespace MediaServer.Core.Adapters
                 throw new ArgumentNullException(nameof(stunUrls));
             Room = room ?? throw new ArgumentNullException(nameof(room));
             Device = device ?? throw new ArgumentNullException(nameof(device));
-            _videoRouter = videoRouter ?? throw new ArgumentNullException(nameof(videoRouter));
+            _videoRouter = videoRouter 
+                ?? throw new ArgumentNullException(nameof(videoRouter));
             var iceServerInfo = new PeerConnectionConfig.IceServerInfo();
             foreach(var url in stunUrls)
             {
@@ -55,15 +55,9 @@ namespace MediaServer.Core.Adapters
             _peerConnectionImpl = peerConnectionFactory.CreatePeerConnection(_peerConnectionObserverImpl, config);
         }
 
-        int _mediaRoutingStatus;
-        public async Task StartMediaRoutingAsync()
+        public async Task InitializeAsync()
         {
-            MustNotDisposed();
-            if(Interlocked.CompareExchange(ref _mediaRoutingStatus, 1, 0) != 0)
-            {
-                throw new InvalidOperationException();
-            }
-            await _videoRouter.AddPeerConnectionAsync(Device.Id, _peerConnectionImpl, _peerConnectionObserverImpl);
+            await _videoRouter.AddPeerConnectionAsync(Device.Id, _peerConnectionImpl); 
         }
 
         public Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)

@@ -1,6 +1,7 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Models;
 using MediaServer.WebRtc.MediaRouting;
+using System.Threading.Tasks;
 
 namespace MediaServer.Core.Models
 {
@@ -14,7 +15,7 @@ namespace MediaServer.Core.Models
         /// </summary>
         /// <remarks>This is the same signalling thread with the room</remarks>
         /// <exception cref="System.InvalidOperationException">When this PeerConnectionFactory has not been initialised</exception>
-        IDispatchQueue SignallingThread { get; }
+        IThread SignallingThread { get; }
 
         /// <summary>
         /// The VideoRouter, use this to route video between video clients.
@@ -23,6 +24,6 @@ namespace MediaServer.Core.Models
 
         void Initialize();
 
-        IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, IRoom room);
+        Task<IPeerConnection> CreatePeerConnectionAsnc(IRemoteDevice remoteDevice, IRoom room);
     }
 }

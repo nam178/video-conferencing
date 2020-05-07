@@ -17,8 +17,6 @@ namespace MediaServer.Core.Models
 
         public Guid Id { get; }
 
-        Task StartMediaRoutingAsync();
-
         Task<RTCSessionDescription> CreateAnswerAsync();
 
         Task<RTCSessionDescription> CreateOfferAsync();

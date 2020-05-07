@@ -49,9 +49,9 @@ namespace MediaServer.WebRtc.MediaRouting
             {
                 for(var i = 0; i < kv.Value.PeerConnections.Count; i++)
                 {
-                    if(kv.Value.PeerConnections[i].PeerConnectionObserver == observer)
+                    if(kv.Value.PeerConnections[i].Observer == observer)
                     {
-                        peerConnection = kv.Value.PeerConnections[i].PeerConnection;
+                        peerConnection = kv.Value.PeerConnections[i];
                         return kv.Value;
                     }
                 }

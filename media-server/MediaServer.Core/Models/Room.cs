@@ -5,6 +5,7 @@ using MediaServer.Core.Repositories;
 using MediaServer.WebRtc.MediaRouting;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaServer.Models
 {
@@ -76,12 +77,12 @@ namespace MediaServer.Models
             State = RoomState.Ok;
         }
 
-        public IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice)
+        public Task<IPeerConnection> CreatePeerConnectionAsync(IRemoteDevice remoteDevice)
         {
             if(remoteDevice is null)
                 throw new ArgumentNullException(nameof(remoteDevice));
             CheckState();
-            return _infra.CreatePeerConnection(remoteDevice, this);
+            return _infra.CreatePeerConnectionAsnc(remoteDevice, this);
         }
 
         public override string ToString() => $"[Room Id={Id}]";

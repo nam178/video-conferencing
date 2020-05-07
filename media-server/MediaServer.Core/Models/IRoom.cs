@@ -2,6 +2,7 @@
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
 using MediaServer.WebRtc.MediaRouting;
+using System.Threading.Tasks;
 
 namespace MediaServer.Models
 {
@@ -51,6 +52,6 @@ namespace MediaServer.Models
         /// </summary>
         /// <param name="remoteDevice"></param>
         /// <returns></returns>
-        IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice);
+        Task<IPeerConnection> CreatePeerConnectionAsync(IRemoteDevice remoteDevice);
     }
 }

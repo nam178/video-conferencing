@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediaServer.WebRtc.Managed;
+using System;
 using System.Collections.Generic;
 
 namespace MediaServer.WebRtc.MediaRouting
@@ -9,7 +10,7 @@ namespace MediaServer.WebRtc.MediaRouting
 
         public Dictionary<MediaQuality, VideoSource> VideoSources { get; } = new Dictionary<MediaQuality, VideoSource>();
 
-        public List<PeerConnectionEntry> PeerConnections = new List<PeerConnectionEntry>();
+        public List<PeerConnection> PeerConnections = new List<PeerConnection>();
 
         public MediaQuality DesiredVideoQuality => MediaQuality.High; // todo - support multiple quality streams
 

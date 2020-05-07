@@ -56,15 +56,11 @@ namespace MediaServer.Core.Services.PeerConnection
                 await peerConnection.SetLocalSessionDescriptionAsync(answer);
                 _logger.Info($"Local description {answer} set for {peerConnection}");
             });
-
-            // Since now this PeerConnection is ready, 
-            // it can then be used for media routing
-            await peerConnection.StartMediaRoutingAsync();
         }
 
         async Task<IPeerConnection> CreatePeerConnection(IRemoteDevice remoteDevice, User user, RTCSessionDescription remoteSdp)
         {
-            var peerConnection = user.Room.CreatePeerConnection(remoteDevice);
+            var peerConnection = await user.Room.CreatePeerConnectionAsync(remoteDevice);
             _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
 
             await peerConnection.SetRemoteSessionDescriptionAsync(remoteSdp);

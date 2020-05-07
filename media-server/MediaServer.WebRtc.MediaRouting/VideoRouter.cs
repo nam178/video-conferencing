@@ -40,7 +40,7 @@ namespace MediaServer.WebRtc.MediaRouting
             });
         }
 
-        public Task Prepare(Guid videoClientId, MediaQuality mediaQuality, MediaKind mediaKind, string transceiverMid)
+        public Task PrepareAsync(Guid videoClientId, MediaQuality mediaQuality, MediaKind mediaKind, string transceiverMid)
         {
             Require.NotEmpty(videoClientId);
             Require.NotNullOrWhiteSpace(transceiverMid);
@@ -51,8 +51,17 @@ namespace MediaServer.WebRtc.MediaRouting
 
             return _signallingThread.ExecuteAsync(delegate
             {
-                // Prepare the source for this quality, if it was not created
+                // Prepare() must be called before any 
+                // PeerConnection is made for this client.
                 var videoClient = _videoClients.Get(videoClientId);
+                if(videoClient.PeerConnections.Count > 0)
+                {
+                    throw new InvalidProgramException(
+                        $"Prepare must be called before creating any " +
+                        $"PeerConnections with the client {videoClient}");
+                }
+
+                // Prepare the source for this quality, if it was not created
                 var videoSource = videoClient.VideoSources.ContainsKey(mediaQuality)
                     ? videoClient.VideoSources[mediaQuality]
                     : null;
@@ -72,22 +81,28 @@ namespace MediaServer.WebRtc.MediaRouting
             });
         }
 
-        public Task AddPeerConnectionAsync(
-            Guid videoClientId,
-            PeerConnection peerConnection,
-            PeerConnectionObserver peerConnectionObserver)
+        public Task AddPeerConnectionAsync(Guid videoClientId, PeerConnection peerConnection)
         {
+            Require.NotNull(peerConnection);
+
             return _signallingThread.ExecuteAsync(delegate
             {
+                // This PeerConnection must be added 
+                // right before it is created, therefore it must has no remote tracks
+                if(peerConnection.Observer.RemoteTracks.Count > 0)
+                {
+                    throw new InvalidProgramException
+                    ("PeerConnection must be added to the VideoRouter right before it is created");
+                }
+
                 // Add PeerConnection into VideoClient
                 var videoClient = _videoClients.Get(videoClientId);
-                var peerConnectionEntry = new PeerConnectionEntry(peerConnection, peerConnectionObserver);
-                videoClient.PeerConnections.Add(peerConnectionEntry);
+                videoClient.PeerConnections.Add(peerConnection);
                 _logger.Info($"Added {peerConnection} into {videoClient}, total PeerConnections for this client={videoClient.PeerConnections.Count}");
 
                 // Start listening to it for track events
-                peerConnectionObserver.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
-                peerConnectionObserver.RemoteTrackRemoved += _eventHandler.RemoteTrackRemoved;
+                peerConnection.Observer.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
+                peerConnection.Observer.RemoteTrackRemoved += _eventHandler.RemoteTrackRemoved;
 
                 // Link this PeerConnection with any existing local VideoSources
                 foreach(var other in _videoClients
@@ -127,8 +142,8 @@ namespace MediaServer.WebRtc.MediaRouting
 
                 // Remove this PeerConnection from VideoClient
                 var videoClient = _videoClients.Get(videoClientId);
-                var removed = videoClient.PeerConnections.RemoveAll(entry => entry.PeerConnection == peerConnection);
-                if(removed == 0)
+                var removed = videoClient.PeerConnections.Remove(peerConnection);
+                if(!removed)
                     throw new InvalidProgramException("PeerConnection did not removed from memory");
                 _logger.Info($"Removed {peerConnection} from {videoClient}, remaining PeerConnections for this client={videoClient.PeerConnections.Count}");
             });
@@ -234,7 +249,7 @@ namespace MediaServer.WebRtc.MediaRouting
                 var localVideoLink = new LocalVideoLink(
                     _peerConnectionFactory,
                     videoSource,
-                    otherVideoClient.PeerConnections[0].PeerConnection);
+                    otherVideoClient.PeerConnections[0]);
                 _localVideoLinks.Add(localVideoLink);
                 _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
             }
