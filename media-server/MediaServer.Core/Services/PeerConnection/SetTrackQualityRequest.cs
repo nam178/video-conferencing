@@ -7,8 +7,8 @@ namespace MediaServer.Core.Services.PeerConnection
     {
         public string TrackId { get; set; }
 
-        public TrackQuality TrackQuality { get; set; }
+        public MediaQuality TrackQuality { get; set; }
 
-        public MediaStreamTrack.Kind Kind { get; set; }
+        public MediaStreamTrack.TrackKind Kind { get; set; }
     }
 }

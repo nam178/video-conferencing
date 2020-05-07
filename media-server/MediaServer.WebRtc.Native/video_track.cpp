@@ -2,7 +2,7 @@
 
 #include "video_track.h"
 
-Wrappers::VideoTrack::VideoTrack(
+Shim::VideoTrack::VideoTrack(
     rtc::scoped_refptr<webrtc::VideoTrackInterface> &&video_track_interface)
     : _video_track_interface(video_track_interface)
 {
@@ -13,17 +13,17 @@ Wrappers::VideoTrack::VideoTrack(
     }
 }
 
-void Wrappers::VideoTrack::AddSink(rtc::VideoSinkInterface<webrtc::VideoFrame> *video_sink)
+void Shim::VideoTrack::AddSink(rtc::VideoSinkInterface<webrtc::VideoFrame> *video_sink)
 {
     _video_track_interface->AddOrUpdateSink(video_sink, rtc::VideoSinkWants{});
 }
 
-void Wrappers::VideoTrack::RemoveSink(rtc::VideoSinkInterface<webrtc::VideoFrame> *video_sink)
+void Shim::VideoTrack::RemoveSink(rtc::VideoSinkInterface<webrtc::VideoFrame> *video_sink)
 {
     _video_track_interface->RemoveSink(video_sink);
 }
 
-webrtc::MediaStreamTrackInterface *Wrappers::VideoTrack::GetMediaStreamTrack() const
+webrtc::MediaStreamTrackInterface *Shim::VideoTrack::GetMediaStreamTrack() const
 {
     return _video_track_interface.get();
 }

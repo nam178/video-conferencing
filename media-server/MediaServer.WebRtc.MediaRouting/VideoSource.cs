@@ -6,27 +6,30 @@ namespace MediaServer.WebRtc.MediaRouting
     sealed class VideoSource
     {
         /// <summary>
-        /// The remote track that this source expects to receive.
+        /// The remote transceiver that this source expects to receive.
         /// </summary>
-        public string ExpectedTrackId { get; set; }
+        public string ExpectedTransceiverMid { get; set; }
 
         /// <summary>
         /// The VideoClient that owns this source
         /// </summary>
         public VideoClient VideoClient { get; }
 
-        public TrackQuality TrackQuality { get; }
+        /// <summary>
+        /// Quality of this source
+        /// </summary>
+        public MediaQuality Quality { get; }
 
-        public VideoSource(VideoClient videoClient, TrackQuality trackQuality)
+        public VideoSource(VideoClient videoClient, MediaQuality quality)
         {
             VideoClient = videoClient ?? throw new ArgumentNullException(nameof(videoClient));
-            TrackQuality = trackQuality;
+            Quality = quality;
         }
 
         public PassiveVideoTrackSource VideoTrackSource { get; set; }
 
         public VideoSinkAdapter VideoSinkAdapter { get; set; }
 
-        public override string ToString() => $"[VideoSource {VideoClient.Id.ToString().Substring(0, 8)}-{TrackQuality}]";
+        public override string ToString() => $"[VideoSource {VideoClient.Id.ToString().Substring(0, 8)}-{Quality}]";
     }
 }

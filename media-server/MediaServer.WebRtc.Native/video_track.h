@@ -4,7 +4,7 @@
 
 #include "media_stream_track.h"
 
-namespace Wrappers
+namespace Shim
 {
 class VideoTrack : public MediaStreamTrack
 {
@@ -22,4 +22,4 @@ class VideoTrack : public MediaStreamTrack
     // Inherited via MediaStreamTrack
     virtual webrtc::MediaStreamTrackInterface *GetMediaStreamTrack() const override;
 };
-} // namespace Wrappers
+} // namespace Shim

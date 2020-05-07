@@ -20,11 +20,11 @@ std::unique_ptr<rtc::Thread> CreateThread(const std::string &name,
     return tmp;
 }
 
-Wrappers::PeerConnectionFactory::PeerConnectionFactory()
+Shim::PeerConnectionFactory::PeerConnectionFactory()
 {
 }
 
-void Wrappers::PeerConnectionFactory::Initialize()
+void Shim::PeerConnectionFactory::Initialize()
 {
     // Initialization guard
     uint8_t _expected{INIT_STATE_NONE};
@@ -38,7 +38,7 @@ void Wrappers::PeerConnectionFactory::Initialize()
         std::move(CreateThread("WebRTC networking thread", &rtc::Thread::CreateWithSocketServer));
     _worker_thread = std::move(CreateThread("WebRTC worker thread", &rtc::Thread::Create));
     _signalling_thread = std::move(CreateThread("WebRTC signaling thread", &rtc::Thread::Create));
-    _signalling_thread_wrapper.reset(new Wrappers::RtcThread(_signalling_thread.get()));
+    _signalling_thread_wrapper.reset(new Shim::RtcThread(_signalling_thread.get()));
 
     // Set log level here
     rtc::LogMessage::LogToDebug(rtc::LS_ERROR);
@@ -57,7 +57,7 @@ void Wrappers::PeerConnectionFactory::Initialize()
         nullptr);
 }
 
-void Wrappers::PeerConnectionFactory::TearDown()
+void Shim::PeerConnectionFactory::TearDown()
 {
     uint8_t _expected{INIT_STATE_INITIALISED};
     if(_initialized_state.compare_exchange_strong(_expected, INIT_STATE_TORN_DOWN))
@@ -70,7 +70,7 @@ void Wrappers::PeerConnectionFactory::TearDown()
     }
 }
 
-PeerConnectionFactoryInterface *Wrappers::PeerConnectionFactory::GetPeerConnectionFactory() const
+PeerConnectionFactoryInterface *Shim::PeerConnectionFactory::GetPeerConnectionFactory() const
 {
     if(_initialized_state.load() != INIT_STATE_INITIALISED)
     {
@@ -79,22 +79,22 @@ PeerConnectionFactoryInterface *Wrappers::PeerConnectionFactory::GetPeerConnecti
     return _peer_connection_factory.get();
 }
 
-rtc::Thread *Wrappers::PeerConnectionFactory::GetNetworkingThread() const
+rtc::Thread *Shim::PeerConnectionFactory::GetNetworkingThread() const
 {
     return _network_thread.get();
 }
 
-rtc::Thread *Wrappers::PeerConnectionFactory::GetWorkerThread() const
+rtc::Thread *Shim::PeerConnectionFactory::GetWorkerThread() const
 {
     return _worker_thread.get();
 }
 
-rtc::Thread *Wrappers::PeerConnectionFactory::GetSignallingThread() const
+rtc::Thread *Shim::PeerConnectionFactory::GetSignallingThread() const
 {
     return _signalling_thread.get();
 }
 
-Wrappers::RtcThread *Wrappers::PeerConnectionFactory::GetSignallingThreadWrapper() const
+Shim::RtcThread *Shim::PeerConnectionFactory::GetSignallingThreadWrapper() const
 {
     if(!_signalling_thread_wrapper)
     {

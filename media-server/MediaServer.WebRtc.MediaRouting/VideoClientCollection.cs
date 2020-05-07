@@ -25,7 +25,7 @@ namespace MediaServer.WebRtc.MediaRouting
             return videoClient;
         }
 
-        public VideoSource CreateVideoSource(Guid videoClientId, TrackQuality trackQuality)
+        public VideoSource CreateVideoSource(Guid videoClientId, MediaQuality trackQuality)
         {
             ThrowWhenKeyNotExist(videoClientId);
             if(_indexByVideoClientId[videoClientId].VideoSources.ContainsKey(trackQuality))

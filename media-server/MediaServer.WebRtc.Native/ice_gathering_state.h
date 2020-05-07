@@ -4,7 +4,7 @@
 
 extern "C"
 {
-    namespace Wrappers
+    namespace Shim
     {
     enum class IceGatheringState : int32_t
     {
@@ -12,5 +12,5 @@ extern "C"
         Gathering = 1,
         Complete = 2,
     };
-    } // namespace Wrappers
+    } // namespace Shim
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediaServer.WebRtc.Managed;
+using System;
 using System.Threading.Tasks;
 
 namespace MediaServer.WebRtc.MediaRouting
@@ -11,18 +12,14 @@ namespace MediaServer.WebRtc.MediaRouting
         /// </summary>
         /// <param name="videoClientId"></param>
         /// <remarks>Can be called from any thread, will dispatch to the signalling thread</remarks>
-        /// <returns></returns>
         Task AddVideoClientAsync(Guid videoClientId);
 
         /// <summary>
         /// Notify this router that a track will be added into it with specified quality.
         /// </summary>
         /// <param name="videoClientId">The video client in which the track will be added</param>
-        /// <param name="trackQuality"></param>
-        /// <param name="trackId"></param>
         /// <remarks>Can be called from any thread, will be switched to the signalling thread.</remarks>
-        /// <returns></returns>
-        Task PepareTrackAsync(Guid videoClientId, TrackQuality trackQuality, string trackId);
+        Task Prepare(Guid videoClientId, MediaQuality trackQuality, MediaKind kind, string trackId);
 
         /// <summary>
         /// Notify this router that a video client has left the current routing.
@@ -30,7 +27,6 @@ namespace MediaServer.WebRtc.MediaRouting
         /// </summary>
         /// <param name="videoClientId"></param>
         /// <remarks>Can be called from any thread</remarks>
-        /// <returns></returns>
         Task RemoveVideoClientAsync(Guid videoClientId);
     }
 }

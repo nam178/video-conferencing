@@ -3,7 +3,7 @@
 #include "export.h"
 #include "pch.h"
 
-namespace Wrappers
+namespace Shim
 {
 template <typename... Args> struct Callback
 {
@@ -26,4 +26,4 @@ template <typename... Args> struct Callback
         }
     }
 };
-} // namespace Wrappers
+} // namespace Shim

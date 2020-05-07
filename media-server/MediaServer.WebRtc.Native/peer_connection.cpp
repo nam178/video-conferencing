@@ -10,7 +10,7 @@ using SetFunction =
                                               webrtc::SessionDescriptionInterface *);
 
 std::function<void(Result<webrtc::SessionDescriptionInterface *>)> ConvertCallbackToLambda(
-    Wrappers::Callback<Wrappers::CreateSdpResult> &&callback)
+    Shim::Callback<Shim::CreateSdpResult> &&callback)
 {
     return [callback{std::move(callback)}](Result<webrtc::SessionDescriptionInterface *> result) {
         if(result._success)
@@ -55,7 +55,7 @@ void InvokeMethod(rtc::scoped_refptr<webrtc::PeerConnectionInterface> peer_conne
                   SetFunction function,
                   const char *sdp_type,
                   const char *sdp,
-                  Wrappers::Callback<Success, ErrorMessage> callback)
+                  Shim::Callback<Success, ErrorMessage> callback)
 {
 
     auto sdp_type_enum = webrtc::SdpTypeFromString(sdp_type);
@@ -80,20 +80,20 @@ void InvokeMethod(rtc::scoped_refptr<webrtc::PeerConnectionInterface> peer_conne
         }
     };
 
-    auto observer = new Wrappers::SetRemoteSessionDescriptionObserver(std::move(callback_lambda));
+    auto observer = new Shim::SetRemoteSessionDescriptionObserver(std::move(callback_lambda));
     auto session_description =
         webrtc::CreateSessionDescription(sdp_type_enum.value(), sdp).release();
 
     (peer_connection_interface.get()->*function)(observer, session_description);
 }
 
-Wrappers::PeerConnection::PeerConnection(
+Shim::PeerConnection::PeerConnection(
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> &&peer_connection_interface)
     : _peer_connection_interface(std::move(peer_connection_interface))
 {
 }
 
-void Wrappers::PeerConnection::CreateOffer(Callback<Wrappers::CreateSdpResult> &&callback)
+void Shim::PeerConnection::CreateOffer(Callback<Shim::CreateSdpResult> &&callback)
 {
     const webrtc::PeerConnectionInterface::RTCOfferAnswerOptions opts{};
 
@@ -101,12 +101,12 @@ void Wrappers::PeerConnection::CreateOffer(Callback<Wrappers::CreateSdpResult> &
     // By looking at the source,
     // PeerConnectionInterface takes owner ship of CreateSessionDescriptionObserver
     // see struct CreateSessionDescriptionRequest in the source.
-    _peer_connection_interface->CreateOffer(new Wrappers::CreateSessionDescriptionObserver(
+    _peer_connection_interface->CreateOffer(new Shim::CreateSessionDescriptionObserver(
                                                 ConvertCallbackToLambda(std::move(callback))),
                                             opts);
 }
 
-void Wrappers::PeerConnection::CreateAnswer(Callback<Wrappers::CreateSdpResult> &&callback)
+void Shim::PeerConnection::CreateAnswer(Callback<Shim::CreateSdpResult> &&callback)
 {
     const webrtc::PeerConnectionInterface::RTCOfferAnswerOptions opts{};
 
@@ -114,17 +114,17 @@ void Wrappers::PeerConnection::CreateAnswer(Callback<Wrappers::CreateSdpResult> 
     // By looking at the source,
     // PeerConnectionInterface takes owner ship of CreateSessionDescriptionObserver
     // see struct CreateSessionDescriptionRequest in the source.
-    _peer_connection_interface->CreateAnswer(new Wrappers::CreateSessionDescriptionObserver(
+    _peer_connection_interface->CreateAnswer(new Shim::CreateSessionDescriptionObserver(
                                                  ConvertCallbackToLambda(std::move(callback))),
                                              opts);
 }
 
-void Wrappers::PeerConnection::Close()
+void Shim::PeerConnection::Close()
 {
     _peer_connection_interface->Close();
 }
 
-bool Wrappers::PeerConnection::AddIceCandiate(const char *sdp_mid,
+bool Shim::PeerConnection::AddIceCandiate(const char *sdp_mid,
                                               int sdp_mline_index,
                                               const char *sdp,
                                               std::string &out_error)
@@ -140,7 +140,7 @@ bool Wrappers::PeerConnection::AddIceCandiate(const char *sdp_mid,
     _peer_connection_interface->AddIceCandidate(ice_candidate);
 }
 
-void Wrappers::PeerConnection::RemoteSessionDescription(const char *sdp_type,
+void Shim::PeerConnection::RemoteSessionDescription(const char *sdp_type,
                                                         const char *sdp,
                                                         Callback<Success, ErrorMessage> callback)
 {
@@ -151,7 +151,7 @@ void Wrappers::PeerConnection::RemoteSessionDescription(const char *sdp_type,
                  callback);
 }
 
-void Wrappers::PeerConnection::LocalSessionDescription(const char *sdp_type,
+void Shim::PeerConnection::LocalSessionDescription(const char *sdp_type,
                                                        const char *sdp,
                                                        Callback<Success, ErrorMessage> callback)
 {
@@ -162,23 +162,23 @@ void Wrappers::PeerConnection::LocalSessionDescription(const char *sdp_type,
                  callback);
 }
 
-std::unique_ptr<Wrappers::RtpSender> Wrappers::PeerConnection::AddTrack(
+std::unique_ptr<Shim::RtpSender> Shim::PeerConnection::AddTrack(
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
     const std::vector<std::string> &stream_ids)
 {
 
-    std::unique_ptr<Wrappers::RtpSender> result{};
+    std::unique_ptr<Shim::RtpSender> result{};
     auto add_track_result = _peer_connection_interface->AddTrack(track, stream_ids);
     if(!add_track_result.ok())
     {
         RTC_LOG(LS_ERROR) << "Failed adding track into PeerConnection";
         return result;
     }
-    result.reset(new Wrappers::RtpSender(std::move(add_track_result.value())));
+    result.reset(new Shim::RtpSender(std::move(add_track_result.value())));
     return result;
 }
 
-void Wrappers::PeerConnection::RemoveTrack(Wrappers::RtpSender *rtp_sender)
+void Shim::PeerConnection::RemoveTrack(Shim::RtpSender *rtp_sender)
 {
     if(!rtp_sender)
     {
@@ -192,7 +192,7 @@ void Wrappers::PeerConnection::RemoveTrack(Wrappers::RtpSender *rtp_sender)
     }
 }
 
-webrtc::PeerConnectionInterface *Wrappers::PeerConnection::GetPeerConnectionInterface()
+webrtc::PeerConnectionInterface *Shim::PeerConnection::GetPeerConnectionInterface()
 {
     return _peer_connection_interface.get();
 }

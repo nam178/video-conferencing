@@ -4,7 +4,7 @@
 
 using namespace webrtc;
 
-namespace Wrappers
+namespace Shim
 {
 using Success = bool;
 using ErrorMessage = const char *;
@@ -23,4 +23,4 @@ class SetRemoteSessionDescriptionObserver final
   private:
     std::function<void(Success, ErrorMessage)> _callback_lambda;
 };
-} // namespace Wrappers
+} // namespace Shim

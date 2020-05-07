@@ -7,18 +7,11 @@ namespace MediaServer.WebRtc.MediaRouting
     {
         public Guid Id { get; }
 
-        public Dictionary<TrackQuality, VideoSource> VideoSources { get; } = new Dictionary<TrackQuality, VideoSource>();
+        public Dictionary<MediaQuality, VideoSource> VideoSources { get; } = new Dictionary<MediaQuality, VideoSource>();
 
         public List<PeerConnectionEntry> PeerConnections = new List<PeerConnectionEntry>();
 
-        public TrackQuality DesiredVideoQuality => TrackQuality.High; // todo - support multiple quality streams
-
-        public bool IsForReceiving(Managed.PeerConnection peerConnection)
-        {
-            // The primary PeerConnection simply 
-            // the first one added for this device
-            return PeerConnections.Count > 0 && PeerConnections[0].PeerConnection == peerConnection;
-        }
+        public MediaQuality DesiredVideoQuality => MediaQuality.High; // todo - support multiple quality streams
 
         public VideoClient(Guid id)
         {

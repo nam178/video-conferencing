@@ -1,6 +1,6 @@
 ﻿namespace MediaServer.WebRtc.MediaRouting
 {
-    public enum TrackQuality
+    public enum MediaQuality
     {
         High,
         Mid,

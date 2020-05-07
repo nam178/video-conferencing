@@ -3,7 +3,7 @@
 #include "peer_connection_observer.h"
 #include "string_helper.h"
 
-using namespace Wrappers;
+using namespace Shim;
 
 IceGatheringState IceGatheringStateFrom(
     webrtc::PeerConnectionInterface::IceGatheringState ice_gathering_state)
@@ -42,59 +42,59 @@ IceConnectionState IceConnectionStateFrom(
     return (IceConnectionState)ice_connection_state;
 }
 
-void Wrappers::PeerConnectionObserver::SetIceGatheringStateChangedCallback(
+void Shim::PeerConnectionObserver::SetIceGatheringStateChangedCallback(
     Callback<IceGatheringState> &&callback) noexcept
 {
     _ice_gathering_state_changed_callback = std::move(callback);
 }
 
-void Wrappers::PeerConnectionObserver::SetIceConnectionChangeCallback(
+void Shim::PeerConnectionObserver::SetIceConnectionChangeCallback(
     Callback<IceConnectionState> &&callback) noexcept
 {
     _ice_connection_change_callback = std::move(callback);
 }
 
-void Wrappers::PeerConnectionObserver::SetIceCandidateCallback(
+void Shim::PeerConnectionObserver::SetIceCandidateCallback(
     Callback<IceCandidate> &&callback) noexcept
 {
     _ice_candidate_callback = std::move(callback);
 }
 
-void Wrappers::PeerConnectionObserver::SetIceCandidatesRemovedCallback(
+void Shim::PeerConnectionObserver::SetIceCandidatesRemovedCallback(
     Callback<const std::vector<cricket::Candidate> *> &&callback) noexcept
 {
     _ice_candidates_removed_callback = std::move(callback);
 }
 
-void Wrappers::PeerConnectionObserver::SetRemoteTrackAddedCallback(
-    Callback<Wrappers::RtpTransceiver *> &&callback) noexcept
+void Shim::PeerConnectionObserver::SetRemoteTrackAddedCallback(
+    Callback<Shim::RtpTransceiver *> &&callback) noexcept
 {
     _remote_track_added_callback = std::move(callback);
 }
 
-void Wrappers::PeerConnectionObserver::SetRemoteTrackRemovedCallback(
+void Shim::PeerConnectionObserver::SetRemoteTrackRemovedCallback(
     Callback<webrtc::RtpReceiverInterface *> &&callback) noexcept
 {
     _remote_track_removed_callback = std::move(callback);
 }
 
-void Wrappers::PeerConnectionObserver::OnSignalingChange(
+void Shim::PeerConnectionObserver::OnSignalingChange(
     webrtc::PeerConnectionInterface::SignalingState new_state)
 {
     RTC_LOG(LS_INFO) << "signaling state changed: SignalingState(" << new_state << ")";
 }
 
-void Wrappers::PeerConnectionObserver::OnDataChannel(
+void Shim::PeerConnectionObserver::OnDataChannel(
     rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel)
 {
     RTC_LOG(LS_INFO) << "data channel created";
 }
 
-Wrappers::PeerConnectionObserver::PeerConnectionObserver()
+Shim::PeerConnectionObserver::PeerConnectionObserver()
 {
 }
 
-void Wrappers::PeerConnectionObserver::OnRenegotiationNeeded()
+void Shim::PeerConnectionObserver::OnRenegotiationNeeded()
 {
     if(_renegotiation_needed_callback)
     {
@@ -102,7 +102,7 @@ void Wrappers::PeerConnectionObserver::OnRenegotiationNeeded()
     }
 }
 
-void Wrappers::PeerConnectionObserver::OnIceGatheringChange(
+void Shim::PeerConnectionObserver::OnIceGatheringChange(
     webrtc::PeerConnectionInterface::IceGatheringState new_state)
 {
     if(_ice_gathering_state_changed_callback)
@@ -111,7 +111,7 @@ void Wrappers::PeerConnectionObserver::OnIceGatheringChange(
     }
 }
 
-void Wrappers::PeerConnectionObserver::OnIceConnectionChange(
+void Shim::PeerConnectionObserver::OnIceConnectionChange(
     webrtc::PeerConnectionInterface::IceConnectionState new_state)
 {
     if(_ice_connection_change_callback)
@@ -120,7 +120,7 @@ void Wrappers::PeerConnectionObserver::OnIceConnectionChange(
     }
 }
 
-void Wrappers::PeerConnectionObserver::OnIceCandidate(
+void Shim::PeerConnectionObserver::OnIceCandidate(
     const webrtc::IceCandidateInterface *ice_candidate)
 {
     if(_ice_candidate_callback)
@@ -142,37 +142,37 @@ void Wrappers::PeerConnectionObserver::OnIceCandidate(
         // Notes that the char* will be deleted by the parent
         // string above
         _ice_candidate_callback(
-            Wrappers::IceCandidate{sdp.c_str(), sdp_mid.c_str(), ice_candidate->sdp_mline_index()});
+            Shim::IceCandidate{sdp.c_str(), sdp_mid.c_str(), ice_candidate->sdp_mline_index()});
     }
 }
 
-void Wrappers::PeerConnectionObserver::SetRenegotiationNeededCallback(
+void Shim::PeerConnectionObserver::SetRenegotiationNeededCallback(
     Callback<> &&callback) noexcept
 {
     _renegotiation_needed_callback = std::move(callback);
 }
 
-bool Contains(std::vector<Wrappers::RtpReceiver *> collection,
+bool Contains(std::vector<Shim::RtpReceiver *> collection,
               rtc::scoped_refptr<webrtc::RtpReceiverInterface> value)
 {
     return collection.end() !=
            std::find_if(
-               collection.begin(), collection.end(), [value](const Wrappers::RtpReceiver *val) {
+               collection.begin(), collection.end(), [value](const Shim::RtpReceiver *val) {
                    return val->GetRtpReceiverInterface() == value.get();
                });
 }
 
-void Wrappers::PeerConnectionObserver::OnTrack(
+void Shim::PeerConnectionObserver::OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver)
 {
     if(_remote_track_added_callback)
     {
-        auto tmp = new Wrappers::RtpTransceiver(std::move(transceiver));
+        auto tmp = new Shim::RtpTransceiver(std::move(transceiver));
         _remote_track_added_callback(tmp);
     }
 }
 
-void Wrappers::PeerConnectionObserver::OnRemoveTrack(
+void Shim::PeerConnectionObserver::OnRemoveTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver)
 {
     if(_remote_track_removed_callback)
@@ -181,7 +181,7 @@ void Wrappers::PeerConnectionObserver::OnRemoveTrack(
     }
 }
 
-void Wrappers::PeerConnectionObserver::OnIceCandidatesRemoved(
+void Shim::PeerConnectionObserver::OnIceCandidatesRemoved(
     const std::vector<cricket::Candidate> &candidates)
 {
     if(_ice_candidates_removed_callback)

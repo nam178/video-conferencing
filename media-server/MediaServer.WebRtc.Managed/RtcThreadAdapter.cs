@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 
 namespace MediaServer.WebRtc.Managed
 {
-    public sealed class RtcThread2DispatchQueueAdapter : IDispatchQueue
+    public sealed class RtcThreadAdapter : IThread
     {
         readonly RtcThread _original;
 
-        public RtcThread2DispatchQueueAdapter(RtcThread original)
+        public bool IsCurrent => _original.IsCurrent;
+
+        public RtcThreadAdapter(RtcThread original)
         {
             _original = original ?? throw new ArgumentNullException(nameof(original));
         }

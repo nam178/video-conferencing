@@ -5,15 +5,9 @@ namespace MediaServer.WebRtc.Managed
 {
     public abstract class MediaStreamTrack : IDisposable
     {
-        public enum Kind
-        {
-            Audio,
-            Video
-        }
-
         internal MediaStreamTrackSafeHandle Handle { get; }
 
-        public Kind TrackKind => MediaStreamTrackInterop.IsAudioTrack(Handle) ? Kind.Audio : Kind.Video;
+        public MediaKind Kind => MediaStreamTrackInterop.IsAudioTrack(Handle) ? MediaKind.Audio : MediaKind.Video;
 
         public string Id { get; private set; }
 

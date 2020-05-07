@@ -2,13 +2,13 @@
 
 #include "create_session_description_observer.h"
 
-Wrappers::CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
+Shim::CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
     std::function<void(Result<webrtc::SessionDescriptionInterface *>)> &&callback_lambda)
     : _callback_lambda(callback_lambda)
 {
 }
 
-void Wrappers::CreateSessionDescriptionObserver::OnSuccess(
+void Shim::CreateSessionDescriptionObserver::OnSuccess(
     webrtc::SessionDescriptionInterface *desc)
 {
     // as per documentation, we own SessionDescriptionInterface,
@@ -18,7 +18,7 @@ void Wrappers::CreateSessionDescriptionObserver::OnSuccess(
     _callback_lambda(Result<webrtc::SessionDescriptionInterface *>{desc, true});
 }
 
-void Wrappers::CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error)
+void Shim::CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error)
 {
     _callback_lambda(
         Result<webrtc::SessionDescriptionInterface *>{nullptr, false, error.message()});

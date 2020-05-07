@@ -8,11 +8,11 @@
 
 extern "C"
 {
-    EXPORT void CONVENTION RtpTransceiverDestroy(Wrappers::RtpTransceiver *transceiver);
+    EXPORT void CONVENTION RtpTransceiverDestroy(Shim::RtpTransceiver *transceiver);
 
-    EXPORT Wrappers::RtpSender *CONVENTION
-    RtpTransceiverGetSender(Wrappers::RtpTransceiver *transceiver);
+    EXPORT Shim::RtpSender *CONVENTION
+    RtpTransceiverGetSender(Shim::RtpTransceiver *transceiver);
 
-    EXPORT Wrappers::RtpReceiver *CONVENTION
-    RtpTransceiverGetReceiver(Wrappers::RtpTransceiver *transceiver);
+    EXPORT Shim::RtpReceiver *CONVENTION
+    RtpTransceiverGetReceiver(Shim::RtpTransceiver *transceiver);
 }

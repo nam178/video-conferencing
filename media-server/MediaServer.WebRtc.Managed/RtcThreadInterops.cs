@@ -10,5 +10,9 @@ namespace MediaServer.WebRtc.Managed
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "RtcThreadPost")]
         public static extern void Post(IntPtr rtcThread, Handler handler, IntPtr userData);
+
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "RtcThreadIsCurrent")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool IsCurrent(IntPtr rtcThread);
     }
 }

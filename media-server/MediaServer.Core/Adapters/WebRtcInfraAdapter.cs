@@ -46,7 +46,7 @@ namespace MediaServer.Core.Adapters
             if(Interlocked.CompareExchange(ref _initialised, 1, 0) == 0)
             {
                 _peerConnectionFactory.Initialize();
-                _signallingThread = new RtcThread2DispatchQueueAdapter(_peerConnectionFactory.SignallingThread);
+                _signallingThread = new RtcThreadAdapter(_peerConnectionFactory.SignallingThread);
                 _videoRouter = new VideoRouter(_signallingThread, _peerConnectionFactory);
             }
             else

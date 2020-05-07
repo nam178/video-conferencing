@@ -2,21 +2,21 @@
 
 #include "rtp_transceiver.h"
 
-Wrappers::RtpTransceiver::RtpTransceiver(
+Shim::RtpTransceiver::RtpTransceiver(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> &&transceiver)
     : _transceiver(std::move(transceiver))
 {
 
-    _receiver.reset(new Wrappers::RtpReceiver(transceiver->receiver()));
-    _sender.reset(new Wrappers::RtpSender(transceiver->sender()));
+    _receiver.reset(new Shim::RtpReceiver(transceiver->receiver()));
+    _sender.reset(new Shim::RtpSender(transceiver->sender()));
 }
 
-Wrappers::RtpReceiver *Wrappers::RtpTransceiver::Receiver()
+Shim::RtpReceiver *Shim::RtpTransceiver::Receiver()
 {
     return _receiver.get();
 }
 
-Wrappers::RtpSender *Wrappers::RtpTransceiver::Sender()
+Shim::RtpSender *Shim::RtpTransceiver::Sender()
 {
     return _sender.get();
 }

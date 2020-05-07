@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace Wrappers
+namespace Shim
 {
 class RtcThread : rtc::MessageHandler
 {
@@ -13,6 +13,9 @@ class RtcThread : rtc::MessageHandler
     // Post a callback to be executed on the thread
     void Post(Callback<> &&callback);
 
+    // Check whenever the current thread is this thread
+    bool IsCurrent();
+
   private:
     rtc::Thread *_thread;
 
@@ -22,10 +25,10 @@ class RtcThread : rtc::MessageHandler
     class CallbackMessageData : public rtc::MessageData
     {
       public:
-        CallbackMessageData(Wrappers::Callback<> &&callback) : _callback(callback)
+        CallbackMessageData(Shim::Callback<> &&callback) : _callback(callback)
         {
         }
-        Wrappers::Callback<> GetCallback()
+        Shim::Callback<> GetCallback()
         {
             return _callback;
         }
@@ -35,7 +38,7 @@ class RtcThread : rtc::MessageHandler
         }
 
       private:
-        Wrappers::Callback<> _callback;
+        Shim::Callback<> _callback;
     };
 };
-} // namespace Wrappers
+} // namespace Shim

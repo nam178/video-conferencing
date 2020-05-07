@@ -2,12 +2,12 @@
 
 #include "rtp_sender.h"
 
-Wrappers::RtpSender::RtpSender(rtc::scoped_refptr<webrtc::RtpSenderInterface> native)
+Shim::RtpSender::RtpSender(rtc::scoped_refptr<webrtc::RtpSenderInterface> native)
     : _native(native)
 {
 }
 
-webrtc::RtpSenderInterface *Wrappers::RtpSender::Native()
+webrtc::RtpSenderInterface *Shim::RtpSender::Native()
 {
     return _native.get();
 }

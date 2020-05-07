@@ -27,52 +27,52 @@
       <Filter>noop_video</Filter>
     </ClCompile>
     <ClCompile Include="peer_connection_factory_interop.cpp">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClCompile>
     <ClCompile Include="peer_connection_observer_interop.cpp">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClCompile>
     <ClCompile Include="peer_connection_interop.cpp">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClCompile>
     <ClCompile Include="rtp_transceiver_interop.cpp">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClCompile>
     <ClCompile Include="create_session_description_observer.cpp">
-      <Filter>wrappers\observers</Filter>
+      <Filter>shim\observers</Filter>
     </ClCompile>
     <ClCompile Include="peer_connection_observer.cpp">
-      <Filter>wrappers\observers</Filter>
+      <Filter>shim\observers</Filter>
     </ClCompile>
     <ClCompile Include="peer_connection.cpp">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="peer_connection_factory.cpp">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="set_session_description_observer.cpp">
-      <Filter>wrappers\observers</Filter>
+      <Filter>shim\observers</Filter>
     </ClCompile>
     <ClCompile Include="noop_audio_device_module.cpp">
       <Filter>noop_audio</Filter>
     </ClCompile>
     <ClCompile Include="video_track.cpp">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="rtp_receiver.cpp">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="rtp_receiver_interop.cpp">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClCompile>
     <ClCompile Include="media_stream_track.cpp">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="media_stream_track_interop.cpp">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="audio_track.cpp">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="video_sink_adapter.cpp">
       <Filter>video</Filter>
@@ -81,28 +81,28 @@
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="rtc_thread.cpp">
-      <Filter>wrappers</Filter>
+      <Filter>shim</Filter>
     </ClCompile>
     <ClCompile Include="rtc_thread_interops.cpp">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClCompile>
     <ClCompile Include="video_track_interops.cpp">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClCompile>
     <ClCompile Include="rtp_sender.cpp">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="rtp_sender_interop.cpp">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClCompile>
     <ClCompile Include="thread_sync.cpp">
       <Filter>misc</Filter>
     </ClCompile>
     <ClCompile Include="rtp_transceiver_interops.cpp">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClCompile>
     <ClCompile Include="rtp_transceiver.cpp">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,16 +116,16 @@
     <ClInclude Include="export.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="call_back.h">
-      <Filter>wrappers</Filter>
+      <Filter>shim</Filter>
     </ClInclude>
     <ClInclude Include="ice_candidate.h">
-      <Filter>wrappers</Filter>
+      <Filter>shim</Filter>
     </ClInclude>
     <ClInclude Include="ice_connection_state.h">
-      <Filter>wrappers</Filter>
+      <Filter>shim</Filter>
     </ClInclude>
     <ClInclude Include="ice_gathering_state.h">
-      <Filter>wrappers</Filter>
+      <Filter>shim</Filter>
     </ClInclude>
     <ClInclude Include="not_supported_exception.h">
       <Filter>noop_video</Filter>
@@ -152,52 +152,52 @@
       <Filter>noop_video</Filter>
     </ClInclude>
     <ClInclude Include="peer_connection_observer_interop.h">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClInclude>
     <ClInclude Include="peer_connection_factory_interop.h">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClInclude>
     <ClInclude Include="peer_connection_interop.h">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClInclude>
     <ClInclude Include="rtp_transceiver_interop.h">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClInclude>
     <ClInclude Include="create_session_description_observer.h">
-      <Filter>wrappers\observers</Filter>
+      <Filter>shim\observers</Filter>
     </ClInclude>
     <ClInclude Include="peer_connection_observer.h">
-      <Filter>wrappers\observers</Filter>
+      <Filter>shim\observers</Filter>
     </ClInclude>
     <ClInclude Include="peer_connection.h">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClInclude>
     <ClInclude Include="peer_connection_factory.h">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClInclude>
     <ClInclude Include="noop_audio_device_module.h">
       <Filter>noop_audio</Filter>
     </ClInclude>
     <ClInclude Include="set_session_description_observer.h">
-      <Filter>wrappers\observers</Filter>
+      <Filter>shim\observers</Filter>
     </ClInclude>
     <ClInclude Include="rtp_receiver.h">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClInclude>
     <ClInclude Include="video_track.h">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClInclude>
     <ClInclude Include="rtp_receiver_interop.h">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClInclude>
     <ClInclude Include="media_stream_track.h">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClInclude>
     <ClInclude Include="media_stream_track_interop.h">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClInclude>
     <ClInclude Include="audio_track.h">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClInclude>
     <ClInclude Include="video_sink_adapter.h">
       <Filter>video</Filter>
@@ -209,28 +209,28 @@
       <Filter>video</Filter>
     </ClInclude>
     <ClInclude Include="video_track_interops.h">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClInclude>
     <ClInclude Include="rtc_thread.h">
-      <Filter>wrappers</Filter>
+      <Filter>shim</Filter>
     </ClInclude>
     <ClInclude Include="rtc_thread_interops.h">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClInclude>
     <ClInclude Include="rtp_sender.h">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClInclude>
     <ClInclude Include="rtp_sender_interop.h">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClInclude>
     <ClInclude Include="create_sdp_result.h">
-      <Filter>wrappers</Filter>
+      <Filter>shim</Filter>
     </ClInclude>
     <ClInclude Include="rtp_transceiver.h">
-      <Filter>wrappers\peer_connection</Filter>
+      <Filter>shim\peer_connection</Filter>
     </ClInclude>
     <ClInclude Include="rtp_transceiver_interops.h">
-      <Filter>wrappers\interops</Filter>
+      <Filter>shim\interops</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -243,23 +243,23 @@
     <Filter Include="misc">
       <UniqueIdentifier>{199f8c2d-c921-4c5a-bbf2-ed5a0f4e854c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="wrappers">
-      <UniqueIdentifier>{834550d2-8830-48b9-bae4-5382e27a08c6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="wrappers\observers">
-      <UniqueIdentifier>{d8211f08-75a7-4bba-aa61-6e76970885fe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="wrappers\peer_connection">
-      <UniqueIdentifier>{2ada02e8-c6dc-4d50-89da-fa498673670f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="noop_audio">
       <UniqueIdentifier>{9e1557b4-ff96-46ce-836e-f5bd1d99cc09}</UniqueIdentifier>
     </Filter>
-    <Filter Include="wrappers\interops">
-      <UniqueIdentifier>{839919e9-cc17-4d81-b000-dfec8e93c925}</UniqueIdentifier>
-    </Filter>
     <Filter Include="video">
       <UniqueIdentifier>{cb7cbb6b-1fc6-468d-90ef-daae27c47907}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shim">
+      <UniqueIdentifier>{834550d2-8830-48b9-bae4-5382e27a08c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shim\observers">
+      <UniqueIdentifier>{d8211f08-75a7-4bba-aa61-6e76970885fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shim\peer_connection">
+      <UniqueIdentifier>{2ada02e8-c6dc-4d50-89da-fa498673670f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shim\interops">
+      <UniqueIdentifier>{839919e9-cc17-4d81-b000-dfec8e93c925}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

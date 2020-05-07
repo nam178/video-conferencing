@@ -2,7 +2,7 @@
 
 #include "rtp_transceiver_interops.h"
 
-void CONVENTION RtpTransceiverDestroy(Wrappers::RtpTransceiver *transceiver)
+void CONVENTION RtpTransceiverDestroy(Shim::RtpTransceiver *transceiver)
 {
     if(transceiver)
     {
@@ -10,12 +10,12 @@ void CONVENTION RtpTransceiverDestroy(Wrappers::RtpTransceiver *transceiver)
     }
 }
 
-Wrappers::RtpSender *CONVENTION RtpTransceiverGetSender(Wrappers::RtpTransceiver *transceiver)
+Shim::RtpSender *CONVENTION RtpTransceiverGetSender(Shim::RtpTransceiver *transceiver)
 {
     return transceiver->Sender();
 }
 
-Wrappers::RtpReceiver *CONVENTION RtpTransceiverGetReceiver(Wrappers::RtpTransceiver *transceiver)
+Shim::RtpReceiver *CONVENTION RtpTransceiverGetReceiver(Shim::RtpTransceiver *transceiver)
 {
     return transceiver->Receiver();
 }

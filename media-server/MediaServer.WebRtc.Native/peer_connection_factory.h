@@ -7,7 +7,7 @@
 using namespace webrtc;
 using namespace rtc;
 
-namespace Wrappers
+namespace Shim
 {
 // Responsible for the setup and tear down of the PeerConnectionFactory.
 // Designed to be used one per room.
@@ -31,15 +31,15 @@ class PeerConnectionFactory final
     rtc::Thread *GetNetworkingThread() const;
     rtc::Thread *GetWorkerThread() const;
     rtc::Thread *GetSignallingThread() const;
-    Wrappers::RtcThread *GetSignallingThreadWrapper() const;
+    Shim::RtcThread *GetSignallingThreadWrapper() const;
 
   private:
     std::atomic<uint8_t> _initialized_state = {0};
     std::unique_ptr<rtc::Thread> _network_thread;
     std::unique_ptr<rtc::Thread> _signalling_thread;
     std::unique_ptr<rtc::Thread> _worker_thread;
-    std::unique_ptr<Wrappers::RtcThread> _signalling_thread_wrapper{};
+    std::unique_ptr<Shim::RtcThread> _signalling_thread_wrapper{};
 
     scoped_refptr<PeerConnectionFactoryInterface> _peer_connection_factory = {};
 };
-} // namespace Wrappers
+} // namespace Shim

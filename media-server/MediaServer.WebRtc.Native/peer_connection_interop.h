@@ -10,46 +10,46 @@ extern "C"
     using UserData = void *;
     using Success = bool;
     using ErrorMessage = const char *;
-    using CreateSdpCallback = void(CONVENTION *)(UserData, Wrappers::CreateSdpResult);
+    using CreateSdpCallback = void(CONVENTION *)(UserData, Shim::CreateSdpResult);
     using SetRemoteSessionDescriptionCallback = void(CONVENTION *)(UserData, Success, ErrorMessage);
 
-    EXPORT void CONVENTION PeerConnectionDestroy(Wrappers::PeerConnection *peer_connection_ptr);
+    EXPORT void CONVENTION PeerConnectionDestroy(Shim::PeerConnection *peer_connection_ptr);
 
-    EXPORT void CONVENTION PeerConnectionClose(Wrappers::PeerConnection *peer_connection_ptr);
+    EXPORT void CONVENTION PeerConnectionClose(Shim::PeerConnection *peer_connection_ptr);
 
-    EXPORT void CONVENTION PeerConnectionCreateAnswer(Wrappers::PeerConnection *peer_connection_ptr,
+    EXPORT void CONVENTION PeerConnectionCreateAnswer(Shim::PeerConnection *peer_connection_ptr,
                                                       CreateSdpCallback callback,
                                                       UserData user_data);
 
-    EXPORT void CONVENTION PeerConnectionCreateOffer(Wrappers::PeerConnection *peer_connection_ptr,
+    EXPORT void CONVENTION PeerConnectionCreateOffer(Shim::PeerConnection *peer_connection_ptr,
                                                      CreateSdpCallback callback,
                                                      UserData user_data);
 
     EXPORT void CONVENTION
-    PeerConnectionSetRemoteSessionDescription(Wrappers::PeerConnection *peer_connection_ptr,
+    PeerConnectionSetRemoteSessionDescription(Shim::PeerConnection *peer_connection_ptr,
                                               const char *sdp_type,
                                               const char *sdp,
                                               SetRemoteSessionDescriptionCallback callback,
                                               UserData user_data);
 
     EXPORT void CONVENTION
-    PeerConnectionSetLocalSessionDescription(Wrappers::PeerConnection *peer_connection_ptr,
+    PeerConnectionSetLocalSessionDescription(Shim::PeerConnection *peer_connection_ptr,
                                              const char *sdp_type,
                                              const char *sdp,
                                              SetRemoteSessionDescriptionCallback callback,
                                              UserData user_data);
 
     EXPORT bool CONVENTION
-    PeerConnectionAddIceCandidate(Wrappers::PeerConnection *peer_connection_ptr,
+    PeerConnectionAddIceCandidate(Shim::PeerConnection *peer_connection_ptr,
                                   const char *sdp_mid,
                                   int32_t sdp_mline_index,
                                   const char *sdp);
 
-    EXPORT Wrappers::RtpSender *CONVENTION
-    PeerConnectionAddTrack(Wrappers::PeerConnection *peer_connection,
-                           Wrappers::MediaStreamTrack *media_stream_track,
+    EXPORT Shim::RtpSender *CONVENTION
+    PeerConnectionAddTrack(Shim::PeerConnection *peer_connection,
+                           Shim::MediaStreamTrack *media_stream_track,
                            const char *stream_id);
 
-    EXPORT void CONVENTION PeerConnectionRemoveTrack(Wrappers::PeerConnection *peer_connection,
-                                                     Wrappers::RtpSender *rtp_sender);
+    EXPORT void CONVENTION PeerConnectionRemoveTrack(Shim::PeerConnection *peer_connection,
+                                                     Shim::RtpSender *rtp_sender);
 }

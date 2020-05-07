@@ -4,7 +4,7 @@
 
 extern "C"
 {
-    namespace Wrappers
+    namespace Shim
     {
     enum class IceConnectionState : int32_t
     {
@@ -17,5 +17,5 @@ extern "C"
         IceConnectionClosed = 6,
         IceConnectionMax = 7
     };
-    } // namespace Wrappers
+    } // namespace Shim
 }

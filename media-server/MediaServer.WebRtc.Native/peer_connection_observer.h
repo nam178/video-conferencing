@@ -8,7 +8,7 @@
 #include "rtp_receiver.h"
 #include "rtp_transceiver.h"
 
-namespace Wrappers
+namespace Shim
 {
 // Not thread safe,
 // Designed so all methods must be called on signalling thread,
@@ -40,7 +40,7 @@ class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
     void SetIceCandidateCallback(Callback<IceCandidate> &&callback) noexcept;
     void SetIceCandidatesRemovedCallback(
         Callback<const std::vector<cricket::Candidate> *> &&callback) noexcept;
-    void SetRemoteTrackAddedCallback(Callback<Wrappers::RtpTransceiver *> &&callback) noexcept;
+    void SetRemoteTrackAddedCallback(Callback<Shim::RtpTransceiver *> &&callback) noexcept;
     void SetRemoteTrackRemovedCallback(
         Callback<webrtc::RtpReceiverInterface *> &&callback) noexcept;
 
@@ -50,7 +50,7 @@ class PeerConnectionObserver final : public webrtc::PeerConnectionObserver
     Callback<IceConnectionState> _ice_connection_change_callback{};
     Callback<IceCandidate> _ice_candidate_callback{};
     Callback<const std::vector<cricket::Candidate> *> _ice_candidates_removed_callback{};
-    Callback<Wrappers::RtpTransceiver *> _remote_track_added_callback{};
+    Callback<Shim::RtpTransceiver *> _remote_track_added_callback{};
     Callback<webrtc::RtpReceiverInterface *> _remote_track_removed_callback{};
 };
-} // namespace Wrappers
+} // namespace Shim

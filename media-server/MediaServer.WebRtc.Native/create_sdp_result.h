@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Wrappers
+namespace Shim
 {
 struct CreateSdpResult
 {
@@ -16,4 +16,4 @@ struct CreateSdpResult
     const char *_sdp_type = nullptr;
     const char *_sdp = nullptr;
 };
-} // namespace Wrappers
+} // namespace Shim

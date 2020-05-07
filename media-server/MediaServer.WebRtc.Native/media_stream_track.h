@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace Wrappers
+namespace Shim
 {
 class MediaStreamTrack
 {
@@ -31,4 +31,4 @@ class MediaStreamTrack
     std::mutex _mutex{};
     std::string _id{};
 };
-}; // namespace Wrappers
+}; // namespace Shim

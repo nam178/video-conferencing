@@ -8,7 +8,7 @@
 using Success = bool;
 using ErrorMessage = const char *;
 
-namespace Wrappers
+namespace Shim
 {
 // manages the smart pointer to the libWebRTC peer connection
 // so it won't get destroyed
@@ -21,12 +21,12 @@ class PeerConnection final
     PeerConnection(rtc::scoped_refptr<webrtc::PeerConnectionInterface> &&peer_connection_interface);
 
     // Create an offer, will be executed in signalling thread by the lib
-    void CreateOffer(Callback<Wrappers::CreateSdpResult> &&callback);
+    void CreateOffer(Callback<Shim::CreateSdpResult> &&callback);
 
     // Create answer to an sdp offer.
     // the callback will be called on the signalling thread in theory.
     // The callback owns the SessionDescriptionInterface*
-    void CreateAnswer(Callback<Wrappers::CreateSdpResult> &&callback);
+    void CreateAnswer(Callback<Shim::CreateSdpResult> &&callback);
 
     // Completely kill this, implementation maps to native PeerConnection Close()
     void Close();
@@ -51,11 +51,11 @@ class PeerConnection final
 
     // Add and remove local tracks,
     // and return the rtp sender associated with this track
-    std::unique_ptr<Wrappers::RtpSender> AddTrack(
+    std::unique_ptr<Shim::RtpSender> AddTrack(
         rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
         const std::vector<std::string> &stream_ids);
 
-    void RemoveTrack(Wrappers::RtpSender *rtp_sender);
+    void RemoveTrack(Shim::RtpSender *rtp_sender);
 
     // get the raw pointer to the underlying native
     // PeerConnectionInterface
@@ -64,4 +64,4 @@ class PeerConnection final
   private:
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> _peer_connection_interface;
 };
-} // namespace Wrappers
+} // namespace Shim

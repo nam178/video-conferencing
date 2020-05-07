@@ -10,9 +10,9 @@ namespace MediaServer.Api.WebSocket.CommandArgs
         public string TrackId { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public TrackQuality Quality { get; set; }
+        public MediaQuality Quality { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public MediaStreamTrack.Kind Kind { get; set; }
+        public MediaStreamTrack.TrackKind Kind { get; set; }
     }
 }

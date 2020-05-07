@@ -4,7 +4,7 @@
 
 #include "media_stream_track.h"
 
-namespace Wrappers
+namespace Shim
 {
 class RtpReceiver
 {
@@ -22,4 +22,4 @@ class RtpReceiver
   private:
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> _rtp_receiver;
 };
-} // namespace Wrappers
+} // namespace Shim

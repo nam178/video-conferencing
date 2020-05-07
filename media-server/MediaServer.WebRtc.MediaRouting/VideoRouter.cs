@@ -11,7 +11,7 @@ namespace MediaServer.WebRtc.MediaRouting
     public sealed class VideoRouter : IVideoRouter
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        readonly IDispatchQueue _signallingThread;
+        readonly IThread _signallingThread;
         readonly PeerConnectionFactory _peerConnectionFactory;
         readonly VideoClientCollection _videoClients = new VideoClientCollection();
         readonly VideoRouterEventHandler _eventHandler;
@@ -19,14 +19,14 @@ namespace MediaServer.WebRtc.MediaRouting
         readonly RemoteVideoLinkCollection _remoteVideoLinks = new RemoteVideoLinkCollection();
 
         public VideoRouter(
-            IDispatchQueue signallingThread,
+            IThread signallingThread,
             PeerConnectionFactory peerConnectionFactory)
         {
             _signallingThread = signallingThread
                 ?? throw new ArgumentNullException(nameof(signallingThread));
             _peerConnectionFactory = peerConnectionFactory
                 ?? throw new ArgumentNullException(nameof(peerConnectionFactory));
-            _eventHandler = new VideoRouterEventHandler(this, _videoClients);
+            _eventHandler = new VideoRouterEventHandler(_signallingThread, this, _videoClients);
         }
 
         public Task AddVideoClientAsync(Guid videoClientId)
@@ -40,31 +40,35 @@ namespace MediaServer.WebRtc.MediaRouting
             });
         }
 
-        public Task PepareTrackAsync(Guid videoClientId, TrackQuality trackQuality, string trackId)
+        public Task Prepare(Guid videoClientId, MediaQuality mediaQuality, MediaKind mediaKind, string transceiverMid)
         {
             Require.NotEmpty(videoClientId);
-            Require.NotNullOrWhiteSpace(trackId);
+            Require.NotNullOrWhiteSpace(transceiverMid);
+
+            // Ignore audio tracks for now
+            if(mediaKind == MediaKind.Audio)
+                return Task.CompletedTask;
 
             return _signallingThread.ExecuteAsync(delegate
             {
                 // Prepare the source for this quality, if it was not created
                 var videoClient = _videoClients.Get(videoClientId);
-                var videoSource = videoClient.VideoSources.ContainsKey(trackQuality)
-                    ? videoClient.VideoSources[trackQuality]
+                var videoSource = videoClient.VideoSources.ContainsKey(mediaQuality)
+                    ? videoClient.VideoSources[mediaQuality]
                     : null;
                 if(null == videoSource)
                 {
-                    videoSource = _videoClients.CreateVideoSource(videoClientId, trackQuality);
+                    videoSource = _videoClients.CreateVideoSource(videoClientId, mediaQuality);
                     videoSource.VideoTrackSource = new PassiveVideoTrackSource();
                     videoSource.VideoSinkAdapter = new VideoSinkAdapter(videoSource.VideoTrackSource, false);
                     _logger.Info($"Created {videoSource}");
-                    OnVideoSourceAdded(videoClient, videoSource, trackQuality);
+                    OnVideoSourceAdded(videoClient, videoSource, mediaQuality);
                 }
 
                 // Flag this source to say it should be 
                 // linked with the provided track
-                videoSource.ExpectedTrackId = trackId;
-                _logger.Info($"Associated {videoSource} with track {trackId}");
+                videoSource.ExpectedTransceiverMid = transceiverMid;
+                _logger.Info($"Associated {videoSource} with transceiver mid {transceiverMid}");
             });
         }
 
@@ -85,31 +89,17 @@ namespace MediaServer.WebRtc.MediaRouting
                 peerConnectionObserver.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
                 peerConnectionObserver.RemoteTrackRemoved += _eventHandler.RemoteTrackRemoved;
 
-                // If this PeerConnection is for receiving, 
-                // create remote links for any existing remote tracks
-                if(videoClient.IsForReceiving(peerConnection))
+                // Link this PeerConnection with any existing local VideoSources
+                foreach(var other in _videoClients
+                    .OtherThan(videoClient)
+                    .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredVideoQuality)))
                 {
-                    foreach(var track in peerConnection.Observer.RemoteTracks.Where(t => t.Track.TrackKind == MediaStreamTrack.Kind.Video))
-                    {
-                        OnRemoteTrackAdded(peerConnection, videoClient, track);
-                    }
-                }
-                // If this is the sending PeerConnection,
-                // it is used to send media out, therefore we'll create LocalLinks
-                // with other client's video sources.
-                else
-                {
-                    foreach(var other in _videoClients
-                        .OtherThan(videoClient)
-                        .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredVideoQuality)))
-                    {
-                        var localVideoLink = new LocalVideoLink(
-                            _peerConnectionFactory,
-                            other.VideoSources[videoClient.DesiredVideoQuality],
-                            peerConnection);
-                        _localVideoLinks.Add(localVideoLink);
-                        _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
-                    }
+                    var localVideoLink = new LocalVideoLink(
+                        _peerConnectionFactory,
+                        other.VideoSources[videoClient.DesiredVideoQuality],
+                        peerConnection);
+                    _localVideoLinks.Add(localVideoLink);
+                    _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
                 }
             });
         }
@@ -150,7 +140,6 @@ namespace MediaServer.WebRtc.MediaRouting
             {
                 // Remove the video sources
                 var videoClient = _videoClients.Get(videoClientId);
-
                 if(videoClient.PeerConnections.Count > 0)
                     throw new InvalidProgramException("VideoClient's PeerConnections were not removed");
 
@@ -193,22 +182,27 @@ namespace MediaServer.WebRtc.MediaRouting
         /// </summary>
         /// <remarks>Must be called from signalling thread, right after the track is added.</remarks>
         /// <returns></returns>
-        internal void OnRemoteTrackAdded(PeerConnection peerConnection, VideoClient videoClient, RtpReceiver rtpReceiver)
+        internal void OnRemoteTrackAdded(PeerConnection peerConnection, VideoClient videoClient, RtpTransceiver transceiver)
         {
-            if(peerConnection is null)
-                throw new ArgumentNullException(nameof(peerConnection));
-            VideoRouterThrowHelper.WhenInvalidVideoTrack(rtpReceiver);
+            _signallingThread.EnsureCurrentThread();
+            Require.NotNull(peerConnection);
+            VideoRouterThrowHelper.WhenInvalidReceiver(transceiver);
+
+            // Ignore audio tracks for now
+            if(transceiver.Receiver.Track.Kind == MediaKind.Audio)
+                return;
 
             // What's the video source that this track should be connected to?
+            var transceiverMid = transceiver.Mid;
             var videoSource = videoClient.VideoSources
-                .FirstOrDefault(kv => string.Equals(kv.Value.ExpectedTrackId, rtpReceiver.Track.Id, StringComparison.InvariantCultureIgnoreCase))
+                .FirstOrDefault(kv => string.Equals(kv.Value.ExpectedTransceiverMid, transceiverMid, StringComparison.InvariantCultureIgnoreCase))
                 .Value;
             if(null == videoSource)
-                throw new InvalidOperationException($"Track quality for track {rtpReceiver.Track.Id} has not been set");
+                throw new InvalidOperationException($"Could not find VideoSource for transceiver {transceiver}");
 
-            VideoRouterThrowHelper.WhenSourceIsEmpty(videoSource, rtpReceiver);
+            VideoRouterThrowHelper.WhenSourceIsEmpty(videoSource, transceiver.Receiver);
 
-            var remoteVideoLink = new RemoteVideoLink(peerConnection, videoSource, rtpReceiver);
+            var remoteVideoLink = new RemoteVideoLink(peerConnection, videoSource, transceiver.Receiver);
             _remoteVideoLinks.AddOrUpdate(remoteVideoLink);
             _logger.Info($"Added {remoteVideoLink} into {_remoteVideoLinks}");
         }
@@ -218,32 +212,31 @@ namespace MediaServer.WebRtc.MediaRouting
         /// </summary>
         /// <remarks>Must be called from signalling thread, right before the track is removed</remarks>
         /// <returns></returns>
-        internal void OnRemoteTrackRemoved(RtpReceiver rtpReceiver)
+        internal void OnRemoteTrackRemoved(RtpTransceiver transceiver)
         {
-            VideoRouterThrowHelper.WhenInvalidVideoTrack(rtpReceiver);
+            _signallingThread.EnsureCurrentThread();
+            VideoRouterThrowHelper.WhenInvalidReceiver(transceiver);
 
-            _remoteVideoLinks.RemoveByRemoteTrack(rtpReceiver);
-            _logger.Info($"Removed {rtpReceiver} from {_remoteVideoLinks}");
+            _remoteVideoLinks.RemoveByRemoteTrack(transceiver.Receiver);
+            _logger.Info($"Removed {transceiver.Receiver} from {_remoteVideoLinks}");
         }
 
-        void OnVideoSourceAdded(VideoClient videoClient, VideoSource videoSource, TrackQuality quality)
+        void OnVideoSourceAdded(VideoClient videoClient, VideoSource videoSource, MediaQuality mediaQuality)
         {
+            _signallingThread.EnsureCurrentThread();
+
             // As new video source is added, 
             // we'll have to connect this source to any existing sending-PeerConnection
             foreach(var otherVideoClient in _videoClients
                 .OtherThan(videoClient)
-                .Where(other => other.DesiredVideoQuality == quality
-                    && other.PeerConnections.Count > 1))
+                .Where(other => other.DesiredVideoQuality == mediaQuality && other.PeerConnections.Count > 0))
             {
-                foreach(var peerConnection in otherVideoClient.PeerConnections.Where(p => false == otherVideoClient.IsForReceiving(p.PeerConnection)))
-                {
-                    var localVideoLink = new LocalVideoLink(
-                        _peerConnectionFactory,
-                        videoSource,
-                        peerConnection.PeerConnection);
-                    _localVideoLinks.Add(localVideoLink);
-                    _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
-                }
+                var localVideoLink = new LocalVideoLink(
+                    _peerConnectionFactory,
+                    videoSource,
+                    otherVideoClient.PeerConnections[0].PeerConnection);
+                _localVideoLinks.Add(localVideoLink);
+                _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
             }
         }
     }

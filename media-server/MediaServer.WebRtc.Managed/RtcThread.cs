@@ -8,7 +8,9 @@ namespace MediaServer.WebRtc.Managed
     public sealed class RtcThread
     {
         readonly IntPtr _handle; // Don't disposed this, as the unmanaged code owns the thread
-        readonly ILogger _logger;
+        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public bool IsCurrent => RtcThreadInterops.IsCurrent(_handle);
 
         public RtcThread(IntPtr intPtr)
         {

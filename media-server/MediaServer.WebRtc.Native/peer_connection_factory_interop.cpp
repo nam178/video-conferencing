@@ -8,26 +8,26 @@
 #include "peer_connection_interop.h"
 #include "video_track.h"
 
-Wrappers::PeerConnectionFactory *CONVENTION PeerConnectionFactoryCreate()
+Shim::PeerConnectionFactory *CONVENTION PeerConnectionFactoryCreate()
 {
-    return new Wrappers::PeerConnectionFactory();
+    return new Shim::PeerConnectionFactory();
 }
 
-void CONVENTION PeerConnectionFactoryInitialize(Wrappers::PeerConnectionFactory *instance)
+void CONVENTION PeerConnectionFactoryInitialize(Shim::PeerConnectionFactory *instance)
 {
     instance->Initialize();
 }
 
-void CONVENTION PeerConnectionFactoryTearDown(Wrappers::PeerConnectionFactory *instance)
+void CONVENTION PeerConnectionFactoryTearDown(Shim::PeerConnectionFactory *instance)
 {
     instance->TearDown();
 }
 
-void CONVENTION PeerConnectionFactoryDestroy(Wrappers::PeerConnectionFactory *instance)
+void CONVENTION PeerConnectionFactoryDestroy(Shim::PeerConnectionFactory *instance)
 {
     if(instance)
     {
-        delete static_cast<Wrappers::PeerConnectionFactory *>(instance);
+        delete static_cast<Shim::PeerConnectionFactory *>(instance);
     }
 }
 
@@ -60,11 +60,11 @@ webrtc::PeerConnectionInterface::IceServers ConvertToIceServersList(IceServerCon
     return serverList;
 }
 
-EXPORT Wrappers::PeerConnection *CONVENTION PeerConnectionFactoryCreatePeerConnection(
-    Wrappers::PeerConnectionFactory *peer_connection_factory,
+EXPORT Shim::PeerConnection *CONVENTION PeerConnectionFactoryCreatePeerConnection(
+    Shim::PeerConnectionFactory *peer_connection_factory,
     IceServerConfig *ice_servers,
     int32_t ice_server_length,
-    Wrappers::PeerConnectionObserver *peer_connection_observer)
+    Shim::PeerConnectionObserver *peer_connection_observer)
 {
     webrtc::PeerConnectionInterface::RTCConfiguration rtc_config{};
 
@@ -82,11 +82,11 @@ EXPORT Wrappers::PeerConnection *CONVENTION PeerConnectionFactoryCreatePeerConne
         peer_connection_factory->GetPeerConnectionFactory()->CreatePeerConnection(
             rtc_config, std::move(dependencies));
 
-    return new Wrappers::PeerConnection(std::move(peer_connection));
+    return new Shim::PeerConnection(std::move(peer_connection));
 }
 
-Wrappers::VideoTrack *CONVENTION
-PeerConnectionFactoryCreateVideoTrack(Wrappers::PeerConnectionFactory *peer_connection_factory,
+Shim::VideoTrack *CONVENTION
+PeerConnectionFactoryCreateVideoTrack(Shim::PeerConnectionFactory *peer_connection_factory,
                                       Video::PassiveVideoTrackSource *passive_video_track_souce,
                                       const char *track_name)
 {
@@ -97,12 +97,12 @@ PeerConnectionFactoryCreateVideoTrack(Wrappers::PeerConnectionFactory *peer_conn
         throw new std::runtime_error("peer_connection_factory is null ");
     }
 
-    return new Wrappers::VideoTrack(
+    return new Shim::VideoTrack(
         factory->CreateVideoTrack(track_name, passive_video_track_souce));
 }
 
-Wrappers::RtcThread *PeerConnectionFactoryGetSignallingThread(
-    Wrappers::PeerConnectionFactory *peer_connection_factory_ptr)
+Shim::RtcThread *PeerConnectionFactoryGetSignallingThread(
+    Shim::PeerConnectionFactory *peer_connection_factory_ptr)
 {
     return peer_connection_factory_ptr->GetSignallingThreadWrapper();
 }

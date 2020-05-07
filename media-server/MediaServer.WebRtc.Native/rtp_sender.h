@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace Wrappers
+namespace Shim
 {
 class RtpSender
 {
@@ -14,4 +14,4 @@ class RtpSender
   private:
     rtc::scoped_refptr<webrtc::RtpSenderInterface> _native;
 };
-} // namespace Wrappers
+} // namespace Shim

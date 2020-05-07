@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace MediaServer.WebRtc.Managed
@@ -18,6 +19,8 @@ namespace MediaServer.WebRtc.Managed
                 return _receiver;
             }
         }
+
+        public string Mid => Marshal.PtrToStringAnsi(RtpTransceiverInterops.Mid(Handle));
 
         public RtpSender Sender
         {
@@ -57,5 +60,7 @@ namespace MediaServer.WebRtc.Managed
                 Handle.Dispose();
             }
         }
+
+        public override string ToString() => $"[RtpTransceiver mid={Mid}]";
     }
 }

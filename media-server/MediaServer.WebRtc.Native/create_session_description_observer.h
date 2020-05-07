@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace Wrappers
+namespace Shim
 {
 // Generic observer, allows you to supply a callback.
 class CreateSessionDescriptionObserver final
@@ -20,4 +20,4 @@ class CreateSessionDescriptionObserver final
   private:
     std::function<void(Result<webrtc::SessionDescriptionInterface *>)> _callback_lambda;
 };
-} // namespace Wrappers
+} // namespace Shim

@@ -2,11 +2,11 @@
 
 #include "media_stream_track.h"
 
-Wrappers::MediaStreamTrack::MediaStreamTrack()
+Shim::MediaStreamTrack::MediaStreamTrack()
 {
 }
 
-const char *Wrappers::MediaStreamTrack::Id()
+const char *Shim::MediaStreamTrack::Id()
 {
     {
         // Copy the id here so we can return it to managed code
@@ -27,17 +27,17 @@ const char *Wrappers::MediaStreamTrack::Id()
     return _id.c_str();
 }
 
-bool Wrappers::MediaStreamTrack::IsAudioTrack()
+bool Shim::MediaStreamTrack::IsAudioTrack()
 {
     return GetMediaStreamTrack()->kind() == webrtc::MediaStreamTrackInterface::kAudioKind;
 }
 
-bool Wrappers::MediaStreamTrack::Enabled()
+bool Shim::MediaStreamTrack::Enabled()
 {
     return GetMediaStreamTrack()->enabled();
 }
 
-void Wrappers::MediaStreamTrack::Enabled(bool value)
+void Shim::MediaStreamTrack::Enabled(bool value)
 {
     GetMediaStreamTrack()->set_enabled(value);
 };

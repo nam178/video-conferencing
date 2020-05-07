@@ -50,3 +50,8 @@ void CONVENTION RtpTransceiverInterfaceReceiverAddOrUpdateSink(void *rtp_transce
         throw new std::runtime_error("unknown track type " + track_kind);
     }
 }
+
+const char *CONVENTION RtpTransceiverMid(Shim::RtpTransceiver *transceiver)
+{
+    return transceiver->Mid();
+}

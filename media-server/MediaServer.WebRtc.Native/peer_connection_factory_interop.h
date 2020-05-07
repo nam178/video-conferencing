@@ -17,30 +17,30 @@ extern "C"
     };
 
     // Create new isntance of PeerConnectionFactory
-    EXPORT Wrappers::PeerConnectionFactory *CONVENTION PeerConnectionFactoryCreate();
+    EXPORT Shim::PeerConnectionFactory *CONVENTION PeerConnectionFactoryCreate();
 
     // Call Initialize() on an instance of PeerConnectionFactory
     EXPORT void CONVENTION
-    PeerConnectionFactoryInitialize(Wrappers::PeerConnectionFactory *instance);
+    PeerConnectionFactoryInitialize(Shim::PeerConnectionFactory *instance);
 
     // Call TearDown() on an instance of PeerConnectionFactory
-    EXPORT void CONVENTION PeerConnectionFactoryTearDown(Wrappers::PeerConnectionFactory *instance);
+    EXPORT void CONVENTION PeerConnectionFactoryTearDown(Shim::PeerConnectionFactory *instance);
 
     // Release/delete the memory occupied by an instance of PeerConnectionFactory
     // Make sure you call TearDown() first
-    EXPORT void CONVENTION PeerConnectionFactoryDestroy(Wrappers::PeerConnectionFactory *instance);
+    EXPORT void CONVENTION PeerConnectionFactoryDestroy(Shim::PeerConnectionFactory *instance);
 
-    EXPORT Wrappers::PeerConnection *CONVENTION PeerConnectionFactoryCreatePeerConnection(
-        Wrappers::PeerConnectionFactory *peer_connection_factory,
+    EXPORT Shim::PeerConnection *CONVENTION PeerConnectionFactoryCreatePeerConnection(
+        Shim::PeerConnectionFactory *peer_connection_factory,
         IceServerConfig *ice_servers,
         int32_t ice_server_length,
-        Wrappers::PeerConnectionObserver *peer_connection_observer);
+        Shim::PeerConnectionObserver *peer_connection_observer);
 
-    EXPORT Wrappers::VideoTrack *CONVENTION
-    PeerConnectionFactoryCreateVideoTrack(Wrappers::PeerConnectionFactory *peer_connection_factory,
+    EXPORT Shim::VideoTrack *CONVENTION
+    PeerConnectionFactoryCreateVideoTrack(Shim::PeerConnectionFactory *peer_connection_factory,
                                           Video::PassiveVideoTrackSource *passive_video_track_souce,
                                           const char *track_name);
 
-    EXPORT Wrappers::RtcThread *PeerConnectionFactoryGetSignallingThread(
-        Wrappers::PeerConnectionFactory *peer_connection_factory);
+    EXPORT Shim::RtcThread *PeerConnectionFactoryGetSignallingThread(
+        Shim::PeerConnectionFactory *peer_connection_factory);
 }

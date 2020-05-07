@@ -15,14 +15,14 @@ namespace MediaServer.WebRtc.MediaRouting
             }
         }
 
-        public static void WhenInvalidVideoTrack(RtpReceiver rtpReceiver)
+        public static void WhenInvalidReceiver(RtpTransceiver transceiver)
         {
-            // Do not away this, as signalling thread not permitted to wait on room's thread.
-            // Connect this track with one of the source
-            if(string.IsNullOrWhiteSpace(rtpReceiver.Track.Id))
-                throw new ArgumentNullException($"Track id is null for RTP Receiver {rtpReceiver}, Track {rtpReceiver.Track}");
-            if(rtpReceiver.Track.TrackKind == MediaStreamTrack.Kind.Audio)
-                throw new ArgumentException($"Track {rtpReceiver.Track} is not a VideoTrack");
+            var track = transceiver.Receiver.Track;
+            if(track == null)
+                throw new InvalidProgramException("Track is NULL");
+
+            if(string.IsNullOrWhiteSpace(track.Id))
+                throw new ArgumentNullException($"Track id is null for {transceiver}, Track {transceiver.Receiver.Track}");
         }
     }
 }
