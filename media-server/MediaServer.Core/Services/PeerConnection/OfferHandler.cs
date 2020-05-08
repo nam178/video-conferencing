@@ -31,6 +31,8 @@ namespace MediaServer.Core.Services.PeerConnection
                 throw new UnauthorizedAccessException();
             }
 
+            // TODO: handle the case where PeerConnection already exist here.
+
             // Create new PeerConnection
             var peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User, offer);
             

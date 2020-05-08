@@ -25,6 +25,8 @@ namespace MediaServer.Core.Services.PeerConnection
                 {
                     // Order important here: generate offer first.
                     var offer = await peerConnection.CreateOfferAsync();
+                    
+                    // TODO: send track info here
 
                     // Then send the SDP before SetLocalSessionDescription, 
                     // so the sdp processed by remote peer before they process ICE candidates,

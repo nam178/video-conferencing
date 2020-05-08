@@ -39,7 +39,6 @@ export default class PeerConnectionBase extends EventTarget {
         super();
         this._handleWebSocketMessage = this._handleWebSocketMessage.bind(this);
         this._webSocketClient = websocketClient;
-
         this._logger = logger;
     }
 

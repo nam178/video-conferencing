@@ -3,9 +3,9 @@ using MediaServer.WebRtc.MediaRouting;
 
 namespace MediaServer.Core.Services.PeerConnection
 {
-    public sealed class SetTrackQualityRequest
+    public sealed class TransceiverInfo
     {
-        public string TrackId { get; set; }
+        public string TransceiverMid { get; set; }
 
         public MediaQuality TrackQuality { get; set; }
 

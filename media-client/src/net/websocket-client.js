@@ -1,6 +1,7 @@
 import Logger from '../logging/logger.js'
 import ConferenceSettings from '../models/conference-settings.js';
 import UserInfo from '../models/user-info.js';
+import FatalErrorHandler from '../handlers/fatal-error-handler'
 
 export default class WebSocketClient extends EventTarget
 {
@@ -60,7 +61,7 @@ export default class WebSocketClient extends EventTarget
         });
     }
 
-    queueMessageForSending(command, args) {
+    queueMessage(command, args) {
         this._messageQueue.push({
             command: command,
             args: args
@@ -109,12 +110,16 @@ export default class WebSocketClient extends EventTarget
         // Open
         this.webSocket.addEventListener('open', () => {
             this.logger.info(`Connected to ${webSocketEndpoint}`);
+            // Reset the message queue,
+            // as messages submited previously may no longer valid with the new context
+            // (we're re-connected, the server sees us as a new device)
+            this._messageQueue = [];
             this._authenticate();
         });
     }
 
     _authenticate() {
-        this.queueMessageForSending('Authenticate', {});
+        this.queueMessage('Authenticate', {});
     }
     
     _onAuthenticationSuccess(args) {
@@ -126,14 +131,14 @@ export default class WebSocketClient extends EventTarget
 
     _tryCreateRoom() {
         // Send a command to the server to create (if the room doesn't exist)
-        this.queueMessageForSending('CreateRoom', {
+        this.queueMessage('CreateRoom', {
             newRoomName: this.conferenceSettings.roomId
         });
     }
 
     _onRoomCreated(roomId) {
         this.logger.info(`Room created ${roomId}`);
-        this.queueMessageForSending('JoinRoom', {
+        this.queueMessage('JoinRoom', {
             roomId: roomId,
             username: this.conferenceSettings.username
         });
@@ -145,7 +150,7 @@ export default class WebSocketClient extends EventTarget
     }
 
     _onJoinRoomFailed(errorMessage) {
-        this._failFast(errorMessage);
+        FatalErrorHandler.failFast(`Failed joining room: ${errorMessage}`);
     }
     
     _onSync(syncMessage) {
@@ -160,11 +165,7 @@ export default class WebSocketClient extends EventTarget
             detail: this.users
         }));
     }
-
-    _failFast(errorMessage) {
-        this._initializeAsyncReject(errorMessage);
-    }
-
+    
     _sendHeartBeat() {
         if(this.webSocket.readyState == WebSocket.OPEN)
         {

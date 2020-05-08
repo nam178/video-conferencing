@@ -20,7 +20,7 @@ export default class PeerConnectionSender extends PeerConnectionBase {
     }
 
     /**
-     * @var {Queue}
+     * @type {Queue}
      */
     _changeStreamQueue;
 
@@ -80,18 +80,18 @@ export default class PeerConnectionSender extends PeerConnectionBase {
         if (newStream) {
             // Need to tell the server about the tracks that we're sending,
             // otherwise it will reject it.
-            var tracks = newStream.getTracks();
-            for (var i in tracks) {
-                try
-                {
-                    await this._sendTrackInfoAsync(tracks[i].id, { quality: 'High', kind: tracks[i].kind });
-                }
-                catch(err) {
-                    this.logger.error('Fatal error: ' + err);
-                    FatalErrorHandler.handle(err);
-                    return;
-                }
-            }
+            // var tracks = newStream.getTracks();
+            // for (var i in tracks) {
+            //     try
+            //     {
+            //         await this._sendTrackInfoAsync(tracks[i].id, { quality: 'High', kind: tracks[i].kind });
+            //     }
+            //     catch(err) {
+            //         this.logger.error('Fatal error: ' + err);
+            //         FatalErrorHandler.handle(err);
+            //         return;
+            //     }
+            // }
             var senderCount = newStream.getTracks().length;
             newStream.getTracks().forEach(track => {
                 var rtpSender = this._peerConnection.addTrack(track);
