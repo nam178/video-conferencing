@@ -3,13 +3,12 @@ import ConferenceSettings from '../models/conference-settings.js';
 import UserInfo from '../models/user-info.js';
 import FatalErrorHandler from '../handlers/fatal-error-handler'
 
-export default class WebSocketClient extends EventTarget
-{
+export default class WebSocketClient extends EventTarget {
     /**
      * @returns {Logger}
      */
-    get logger() { 
-        return this._logger; 
+    get logger() {
+        return this._logger;
     }
 
     /**
@@ -38,14 +37,12 @@ export default class WebSocketClient extends EventTarget
         super();
         this._sendHeartBeat = this._sendHeartBeat.bind(this);
         this._users = [];
-        this._messageQueue = [];
     }
 
     /**
      * @param {ConferenceSettings} conferenceSettings 
      */
-    async initializeAsync(conferenceSettings)
-    {
+    async initializeAsync(conferenceSettings) {
         this._logger = new Logger('WebSocketClient');
         this._logger.log(`Initializing WebSocket with settings=${JSON.stringify(conferenceSettings)}`)
         this._conferenceSettings = conferenceSettings;
@@ -62,20 +59,32 @@ export default class WebSocketClient extends EventTarget
     }
 
     queueMessage(command, args) {
-        this._messageQueue.push({
-            command: command,
-            args: args
-        });
-        this._tryFlueshQueue();
+        if (this.webSocket.readyState == WebSocket.OPEN) {
+            this.webSocket.send(JSON.stringify({
+                command: command,
+                args: args
+            }));
+            if (command != 'HeartBeat')
+                this.logger.log('WebSocket command sent', command, args);
+        }
+        else {
+            throw 'WebSocketNotOpen';
+        }
     }
 
-    _restart()
-    {
+    tryQueueMessage(command, args) {
+        if (this.webSocket.readyState == WebSocket.OPEN) {
+            this.queueMessage(command, args);
+            return true;
+        }
+        return false;
+    }
+
+    _restart() {
         // Close any existing WebSocket connections
-        if(this.webSocket 
-            && this.webSocket.readyState != WebSocket.CLOSING 
-            && this.webSocket.readyState != WebSocket.CLOSED)
-        {
+        if (this.webSocket
+            && this.webSocket.readyState != WebSocket.CLOSING
+            && this.webSocket.readyState != WebSocket.CLOSED) {
             this.webSocket.close();
         }
 
@@ -100,8 +109,7 @@ export default class WebSocketClient extends EventTarget
             var commandName = `_on${response.command}`;
             // Do we have a handler? If so, invoke the handler,
             // otherwise trigger an event for externals
-            if(typeof this[commandName] == 'undefined')
-            {
+            if (typeof this[commandName] == 'undefined') {
                 this.dispatchEvent(new CustomEvent('message', { detail: response }));
             }
             else
@@ -110,10 +118,6 @@ export default class WebSocketClient extends EventTarget
         // Open
         this.webSocket.addEventListener('open', () => {
             this.logger.info(`Connected to ${webSocketEndpoint}`);
-            // Reset the message queue,
-            // as messages submited previously may no longer valid with the new context
-            // (we're re-connected, the server sees us as a new device)
-            this._messageQueue = [];
             this._authenticate();
         });
     }
@@ -121,7 +125,7 @@ export default class WebSocketClient extends EventTarget
     _authenticate() {
         this.queueMessage('Authenticate', {});
     }
-    
+
     _onAuthenticationSuccess(args) {
         this.logger.info(`Authentication successful, devieId=${args.deviceId}`);
         this._tryCreateRoom();
@@ -152,11 +156,10 @@ export default class WebSocketClient extends EventTarget
     _onJoinRoomFailed(errorMessage) {
         FatalErrorHandler.failFast(`Failed joining room: ${errorMessage}`);
     }
-    
+
     _onSync(syncMessage) {
         var tmp = [];
-        for(var i in syncMessage.users)
-        {
+        for (var i in syncMessage.users) {
             tmp.push(new UserInfo(syncMessage.users[i]));
         }
         this._users = tmp;
@@ -165,33 +168,11 @@ export default class WebSocketClient extends EventTarget
             detail: this.users
         }));
     }
-    
+
     _sendHeartBeat() {
-        if(this.webSocket.readyState == WebSocket.OPEN)
-        {
-            this._send('HeartBeat', { timestamp: new Date().getTime()/1000 });
+        if (this.webSocket.readyState == WebSocket.OPEN) {
+            this.tryQueueMessage('HeartBeat', { timestamp: new Date().getTime() / 1000 });
         }
         setTimeout(this._sendHeartBeat, 5 * 1000);
-    }
-
-    _tryFlueshQueue() {
-        // Dump all the messages as long as the WS is open
-        while(this.webSocket.readyState == WebSocket.OPEN
-            && this._messageQueue.length > 0)
-        {
-            var message = this._messageQueue[0];
-            this._messageQueue = this._messageQueue.splice(1);
-            this._send(message.command, message.args);
-        }
-    }
-
-    _send(command, args)
-    {
-        this.webSocket.send(JSON.stringify({
-            command: command,
-            args: args
-        }));         
-        if(command != 'HeartBeat')
-            this.logger.log('WebSocket command sent', command, args);
     }
 }

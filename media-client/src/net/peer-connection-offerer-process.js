@@ -35,33 +35,54 @@ export class PeerConnectionOffererProcess extends WebSocketMessageHandler {
         // Begin the negotiation process by telling the server our transceiver mids
         // (Basically what we will send, for each transceiver)
         try {
-            await this._setTransceiversAsync();
+            await this._sendTransceiverMetadataAsync();
+
         } catch (err) {
-            FatalErrorHandler.err(`Failed sending track info ${err}`);
+            if(err == 'WebSocketError'){
+                // For WebSocket errors,
+                // the best way to handle this is to abort the process,
+                // because when WebSocket connection recovers, we will start a
+                //  new offer process from scratch anyways.
+                this.cancel();
+                return;
+            } else {
+                // For other fatal error, failfast.
+                FatalErrorHandler.err(`Failed sending track info ${err}`);
+            }
         }
 
+        // Cancellation check is necessary after each async call.
         if (this._cancelled) {
             return;
         }
 
-        // Then Offer first
+        // Then Offer
         var offer = await this._peerConnection.createOffer();
+
+        // Cancellation check is necessary after each async call.
         if (this._cancelled) {
             return;
         }
+
         // Send the generated sdp to the server
         // Notes - must do this before setLocalDescription()
         // because setLocalDescription() generates ICE candidates,
         // and we don't want to send ICE candidates before the SDP
-        this.webSocketClient.queueMessage('SetOffer', {
+        if(false == this.webSocketClient.tryQueueMessage('SetOffer', {
             offer: {
                 type: offer.type,
                 sdp: offer.sdp
             },
             peerConnectionId: this._peerConnectionId.hasValue ? this._peerConnectionId.value : null
-        });
+        })) {
+            // Again, for WebSocket errors, best way to handle this
+            // is to cancel the entire offer process. (See comment above)
+            this.cancel();
+            return;
+        }
         logger.info('Offer generated and sent', offer);
 
+        // Cancellation check is necessary after each async call.
         await this._peerConnection.setLocalDescription(offer);
         logger.info('Local description set', offer);
     }
@@ -83,7 +104,7 @@ export class PeerConnectionOffererProcess extends WebSocketMessageHandler {
         }
         if (this._cancelled)
             return;
-            
+
         this._peerConnection.setRemoteDescription(sdp);
         logger.info('Remote SDP received and set');
 
@@ -92,7 +113,7 @@ export class PeerConnectionOffererProcess extends WebSocketMessageHandler {
         this.stopListeningToWebSocketEvents();
     }
 
-    _setTransceiversAsync() {
+    _sendTransceiverMetadataAsync() {
         // Timeout - should be longer than the WebSocjet heartbeat timeout,
         // so that if there is connection issue,
         // the WebSocket restarts, better than fail fast.
@@ -112,13 +133,12 @@ export class PeerConnectionOffererProcess extends WebSocketMessageHandler {
                     };
                 });
 
-            this.webSocketClient.queueMessage('SetTransceivers', setTransceiverArgs);
+            if(false == this.webSocketClient.tryQueueMessage('SetTransceiversMetadata', setTransceiverArgs)){
+                reject('WebSocketError');
+            }
 
             // When timeout, reject the promise.
             window.setTimeout(() => {
-                if (this._cancelled) {
-                    return;
-                }
                 if (this._pendingSendTrackInfoResolve != null) {
                     this._pendingSendTrackInfoResolve = null;
                     reject('Timeout');
@@ -127,7 +147,7 @@ export class PeerConnectionOffererProcess extends WebSocketMessageHandler {
         });
     }
 
-    _onTrackInfoSet() {
+    _onTransceiversMetadataSet() {
         if (this._pendingSendTrackInfoResolve) {
             this._pendingSendTrackInfoResolve();
             this._pendingSendTrackInfoResolve = null;

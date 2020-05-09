@@ -1,9 +1,9 @@
 ﻿using MediaServer.WebRtc.Managed;
 using MediaServer.WebRtc.MediaRouting;
 
-namespace MediaServer.Core.Services.PeerConnection
+namespace MediaServer.Core.Common
 {
-    public sealed class TransceiverInfo
+    public sealed class TransceiverMetadata
     {
         public string TransceiverMid { get; set; }
 

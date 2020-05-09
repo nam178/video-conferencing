@@ -35,7 +35,7 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<SyncMessenger>().AsImplementedInterfaces();
             builder.RegisterType<IceCandidateHandler>().AsImplementedInterfaces();
             builder.RegisterType<OfferHandler>().AsImplementedInterfaces();
-            builder.RegisterType<SetTrackQualityRequestHandler>().AsImplementedInterfaces();
+            builder.RegisterType<TransceiverMetadataSetter>().AsImplementedInterfaces();
             builder.RegisterType<RenegotationHandler>().AsImplementedInterfaces();
             builder.RegisterType<AnswerHandler>().AsImplementedInterfaces();
 

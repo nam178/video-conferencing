@@ -25,15 +25,15 @@ namespace MediaServer.WebRtc.MediaRouting
             return videoClient;
         }
 
-        public VideoSource CreateVideoSource(Guid videoClientId, MediaQuality trackQuality)
+        public VideoSource CreateVideoSource(Guid videoClientId, MediaQuality mediaQuality)
         {
             ThrowWhenKeyNotExist(videoClientId);
-            if(_indexByVideoClientId[videoClientId].VideoSources.ContainsKey(trackQuality))
+            if(_indexByVideoClientId[videoClientId].VideoSources.ContainsKey(mediaQuality))
             {
                 throw new InvalidOperationException();
             }
-            var t = new VideoSource(_indexByVideoClientId[videoClientId], trackQuality);
-            _indexByVideoClientId[videoClientId].VideoSources[trackQuality] = t;
+            var t = new VideoSource(_indexByVideoClientId[videoClientId], mediaQuality);
+            _indexByVideoClientId[videoClientId].VideoSources[mediaQuality] = t;
             return t;
         }
 
