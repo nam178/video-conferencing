@@ -7,8 +7,8 @@ Shim::RtpTransceiver::RtpTransceiver(
     : _transceiver(std::move(transceiver))
 {
 
-    _receiver.reset(new Shim::RtpReceiver(transceiver->receiver()));
-    _sender.reset(new Shim::RtpSender(transceiver->sender()));
+    _receiver.reset(new Shim::RtpReceiver(_transceiver->receiver()));
+    _sender.reset(new Shim::RtpSender(_transceiver->sender()));
 }
 
 Shim::RtpReceiver *Shim::RtpTransceiver::Receiver()

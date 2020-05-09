@@ -110,7 +110,7 @@ export default class PeerConnectionBase extends EventTarget {
             return;
         }
         // Send the generated sdp to the server
-        this.webSocketClient.queueMessageForSending('SetOffer', {
+        this.webSocketClient.queueMessage('SetOffer', {
             offer: {
                 type: offer.type,
                 sdp: offer.sdp
@@ -127,7 +127,7 @@ export default class PeerConnectionBase extends EventTarget {
             return;
         }
         this._logger.log('Sending ice candidate', candidate);
-        this.webSocketClient.queueMessageForSending('AddIceCandidate', {
+        this.webSocketClient.queueMessage('AddIceCandidate', {
             candidate: {
                 candidate: candidate.candidate,
                 sdpMid: candidate.sdpMid,
@@ -171,7 +171,7 @@ export default class PeerConnectionBase extends EventTarget {
             return;
         }
         // Send the generated sdp to the server
-        this.webSocketClient.queueMessageForSending('SetAnswer', {
+        this.webSocketClient.queueMessage('SetAnswer', {
             answer: {
                 type: answer.type,
                 sdp: answer.sdp

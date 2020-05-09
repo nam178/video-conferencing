@@ -1,11 +1,10 @@
 import WebSocketClient from './websocket-client.js';
-import PeerConnectionSender from './peer-connection-sender.js';
 import ConferenceSettings from '../models/conference-settings.js';
 import InputDeviceManager from './input-device-manager.js';
 import UserInfo from '../models/user-info.js';
-import PeerConnectionReceiver from './peer-connection-receiver.js';
 import StreamIndex from '../models/stream-index'
 import Logger from '../logging/logger.js';
+import PeerConnectionController from './peer-connection-controller'
 
 export let NotSelectedInputDeviceId = -1;
 
@@ -21,32 +20,27 @@ export class InputDeviceManagerState {
  */
 export default class MediaClient extends EventTarget {
     /**
-     * @var {WebSocketClient}
+     * @type {WebSocketClient}
      */
     _webSocketClient;
 
     /**
-     * @var {PeerConnectionSender}
+     * @type {PeerConnectionController}
      */
-    _peerConnectionSender;
+    _peerConnectionController;
 
     /**
-     * @var {PeerConnectionReceiver}
-     */
-    _peerConnectionReceiver;
-
-    /**
-     * @var {InputDeviceManager}
+     * @type {InputDeviceManager}
      */
     _inputDeviceManager = new InputDeviceManager();
 
     /**
-     * @var {Object}
+     * @type {Object}
      */
     _streams = {};
 
     /**
-     * @var {Boolean}
+     * @type {Boolean}
      */
     _isInitialised = false;
 
@@ -140,8 +134,7 @@ export default class MediaClient extends EventTarget {
         this._rebuildStreams = this._rebuildStreams.bind(this);
 
         this._webSocketClient = new WebSocketClient();
-        this._peerConnectionSender = new PeerConnectionSender(this._webSocketClient);
-        this._peerConnectionReceiver = new PeerConnectionReceiver(this._webSocketClient, this._peerConnectionSender, this._streamIndex);
+        this._peerConnectionController = new PeerConnectionController(this._webSocketClient);
         this._webSocketClient.addEventListener('users', this._handleWebSocketClientUsersChange);
         this._webSocketClient.addEventListener('deviceidchange', this._handleMyNetworkDeviceIdChange);
         this._inputDeviceManager.addEventListener('streamchange', this._handleInputDeviceStreamChange);
@@ -191,7 +184,7 @@ export default class MediaClient extends EventTarget {
     }
 
     _handleInputDeviceStreamChange(e) {
-        this._peerConnectionSender.localMediaStreamForSending = this._inputDeviceManager.stream;
+        this._peerConnectionController.localStream = this._inputDeviceManager.stream;
         this._rebuildStreams();
     }
 

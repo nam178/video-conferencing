@@ -8,9 +8,9 @@ namespace MediaServer.Api.WebSocket.CommandArgs
 {
     sealed class SetTransceiversMetadata
     {
-        public TransceiverInfo[] Transceivers { get; set; }
+        public Transceiver[] Transceivers { get; set; }
 
-        public sealed class TransceiverInfo
+        public sealed class Transceiver
         {
             public string TransceiverMid { get; set; }
 
@@ -20,7 +20,7 @@ namespace MediaServer.Api.WebSocket.CommandArgs
             [JsonConverter(typeof(StringEnumConverter))]
             public MediaKind Kind { get; set; }
 
-            public static implicit operator TransceiverMetadata(TransceiverInfo transceiverInfo)
+            public static implicit operator TransceiverMetadata(Transceiver transceiverInfo)
             {
                 return new TransceiverMetadata
                 {

@@ -25,8 +25,8 @@ export default class Logger {
 
     write(method, args, color) {
         if (args.length > 1)
-            console[method](`%c[${this._name}] ${args[0]}`, `color:${color};`, args[1]);
+            console[method](`%c[${this._name}] [${method}] ${args[0]}`, `color:${color};`, args[1]);
         else
-            console[method](`%c[${this._name}] ${args[0]}`, `color:${color};`);
+            console[method](`%c[${this._name}] [${method}] ${args[0]}`, `color:${color};`);
     }
 }

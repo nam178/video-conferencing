@@ -45,6 +45,10 @@ namespace MediaServer.Core.Services.PeerConnection
                 peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User, offer);
             }
 
+            // Set remote offer
+            await peerConnection.SetRemoteSessionDescriptionAsync(offer);
+            _logger.Info($"Remote {offer} SDP set for {peerConnection}");
+
             // Save
             deviceData.PeerConnections.Add(peerConnection);
             remoteDevice.SetCustomData(deviceData);
@@ -73,9 +77,6 @@ namespace MediaServer.Core.Services.PeerConnection
         {
             var peerConnection = user.Room.CreatePeerConnection(remoteDevice);
             _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");
-
-            await peerConnection.SetRemoteSessionDescriptionAsync(remoteSdp);
-            _logger.Info($"Remote {remoteSdp} SDP set for {peerConnection}");
 
             // This is the first time is PeerConnection is created,
             // we'll add ICE candidate observer

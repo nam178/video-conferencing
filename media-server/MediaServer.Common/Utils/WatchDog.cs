@@ -2,6 +2,7 @@
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace MediaServer.Common.Utils
 {
@@ -14,10 +15,10 @@ namespace MediaServer.Common.Utils
 		readonly IClock _clock;
 
 		const int CheckIntervalSeconds = 3;
-		const int DefaultMaxSessionDuration = 15;
+		const int DefaultMaxSessionDurationRelease = 15;
+		const int DefaultMaxSessionDurationDebug = 120;
 
-		public TimeSpan MaxSessionDuration
-		{ get; set; } = TimeSpan.FromSeconds(DefaultMaxSessionDuration);
+		public TimeSpan MaxSessionDuration { get; set; } = TimeSpan.FromSeconds(Debugger.IsAttached ? DefaultMaxSessionDurationDebug : DefaultMaxSessionDurationRelease);
 
 		public WatchDog(ITimerFactory timerFactory, IClock clock)
 		{

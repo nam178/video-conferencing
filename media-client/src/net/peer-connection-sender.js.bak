@@ -106,7 +106,7 @@ export default class PeerConnectionSender extends PeerConnectionBase {
 
         return new Promise((resolve, reject) => {
             this._pendingSendTrackInfoResolve = resolve;
-            this.webSocketClient.queueMessageForSending('SetTrackInfo', {
+            this.webSocketClient.queueMessage('SetTrackInfo', {
                 ...trackProperties,
                 trackId: trackId
             });

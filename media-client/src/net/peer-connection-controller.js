@@ -2,8 +2,8 @@ import WebSocketClient from './websocket-client.js';
 import Logger from '../logging/logger.js'
 import FatalErrorHandler from '../handlers/fatal-error-handler.js';
 import WebSocketMessageHandler from './websocket-message-handler';
-import { PeerConnectionOffererProcess } from './peer-connection-offerer-process';
-import { PeerConnectionId } from './PeerConnectionId';
+import PeerConnectionOfferer from './peer-connection-offerer';
+import PeerConnectionId from './peer-connection-id';
 
 var logger = new Logger('PeerConnectionController');
 
@@ -73,50 +73,33 @@ function setStream(peerConnection, oldStream, newStream) {
     logger.debug('New local video track has been set', nextVideoTrack);
 }
 
-/**
- * @param {WebSocketClient} webSocketClient
- * @param {RTCIceCandidate} candidate
- * @param {PeerConnectionId} peerConnectionId
- */
-function sendIceCandidate(webSocketClient, candidate, peerConnectionId) {
-    webSocketClient.queueMessageForSending('AddIceCandidate', {
-        candidate: {
-            candidate: candidate.candidate,
-            sdpMid: candidate.sdpMid,
-            sdpMLineIndex: candidate.sdpMLineIndex
-        },
-        peerConnectionId: peerConnectionId
-    });
-    logger.log('Local ICE candidate sent', candidate);
-}
-
 export default class PeerConnectionController extends WebSocketMessageHandler {
 
     /** @type {RTCPeerConnection} */
     _peerConnection = null;
     /** @type {PeerConnectionId} */
     _peerConnectionId = null;
-    /** @type {PeerConnectionOffererProcess} */
-    _currentOffererProcess = null;
+    /** @type {PeerConnectionOfferer} */
+    _currentOfferer = null;
     /** @type {MediaStream} */
     _localStream = null;
 
     /**
      * @return {MediaStream}
      */
-    get localMediaStreamForSending() { return this._localStream; }
+    get localStream() { return this._localStream; }
 
     /**
      * @param {MediaStream} value
      */
-    set localMediaStreamForSending(value) {
+    set localStream(value) {
         var oldStream = this._localStream;
         this._localStream = value;
         setStream(this._peerConnection, oldStream, value);
     }
 
     constructor(webSocketClient) {
-        super(webSocketClient), 'PeerConnectionController';
+        super(webSocketClient, 'PeerConnectionController');
 
         // Listen to 'room' event -> _handleRoomJoined
         this._handleRoomJoined = this._handleRoomJoined.bind(this);
@@ -149,24 +132,9 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
         if (this._peerConnection) {
             this._peerConnection.close();
         }
-        this._pendingIceCandidates = [];
         this._peerConnection = new RTCPeerConnection({
             sdpSemantics: 'unified-plan',
             iceServers: [{ urls: STUN_URLS }]
-        });
-        this._peerConnection.addEventListener('icecandidate', e => {
-            logger.debug('Local ICE candidate generated', e);
-            if (e.candidate)
-                sendIceCandidate(this.webSocketClient, e.candidate, this.peerConnectionId);
-        });
-        this._peerConnection.addEventListener('iceconnectionstatechange', e => {
-            logger.debug('ice state change', e);
-            if (this._peerConnection.iceConnectionState === "failed" ||
-                this._peerConnection.iceConnectionState === "disconnected" ||
-                this._peerConnection.iceConnectionState === "closed") {
-                // TODO Handle ice connection failure
-                logger.error('TODO: handle ICE connection failure');
-            }
         });
         this._peerConnection.addEventListener("negotiationneeded", () => {
             logger.warn('re-negotiation needed, starting new offerer process..');
@@ -183,20 +151,23 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
 
     _startOfferProcess() {
         this._cancelAnyRunningOfferProcess();
-        this._currentOffererProcess = new PeerConnectionOffererProcess(this._peerConnection, this._peerConnectionId);
-        this._currentOffererProcess
+        this._currentOfferer = new PeerConnectionOfferer(
+            this._peerConnection,
+            this._peerConnectionId,
+            this.webSocketClient);
+        this._currentOfferer
             .startAsync()
             .catch(err => {
                 FatalErrorHandler.failFast(`Failed starting the Offerer process: ${err}`);
-                this.this._currentOffererProcess.cancel();
-                this._currentOffererProcess = null;
+                this._currentOfferer.cancel();
+                this._currentOfferer = null;
             });
     }
 
     _cancelAnyRunningOfferProcess() {
-        if (this._currentOffererProcess != null) {
-            this._currentOffererProcess.cancel();
-            this._currentOffererProcess = null;
+        if (this._currentOfferer != null) {
+            this._currentOfferer.cancel();
+            this._currentOfferer = null;
         }
     }
 }

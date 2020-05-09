@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using MediaServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,6 +31,7 @@ namespace MediaServerConsole
                     })
                     .ConfigureServices((context, services) =>
                     {
+                        services.AddHostedService<EnterNewLineService>();
                         services.AddOptions();
                     })
                     .ConfigureContainer<ContainerBuilder>(builder =>

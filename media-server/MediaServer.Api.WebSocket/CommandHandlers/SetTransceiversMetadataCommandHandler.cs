@@ -23,7 +23,7 @@ namespace MediaServer.Api.WebSocket.CommandHandlers
             Require.NotNull(args);
             Require.NotNull(args.Transceivers);
 
-            await _service.HandleAsync(remoteDevice, args.Transceivers.OfType<TransceiverMetadata>().ToArray());
+            await _service.HandleAsync(remoteDevice, args.Transceivers.Select(trans => (TransceiverMetadata)trans).ToArray());
             await remoteDevice.SendAsync("TransceiversMetadataSet", null);
         }
     }

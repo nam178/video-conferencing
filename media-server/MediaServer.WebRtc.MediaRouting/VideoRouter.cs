@@ -51,17 +51,8 @@ namespace MediaServer.WebRtc.MediaRouting
 
             return _signallingThread.ExecuteAsync(delegate
             {
-                // Prepare() must be called before any 
-                // PeerConnection is made for this client.
-                var videoClient = _videoClients.Get(videoClientId);
-                if(videoClient.PeerConnections.Count > 0)
-                {
-                    throw new InvalidProgramException(
-                        $"Prepare must be called before creating any " +
-                        $"PeerConnections with the client {videoClient}");
-                }
-
                 // Prepare the source for this quality, if it was not created
+                var videoClient = _videoClients.Get(videoClientId);
                 var videoSource = videoClient.VideoSources.ContainsKey(mediaQuality)
                     ? videoClient.VideoSources[mediaQuality]
                     : null;
