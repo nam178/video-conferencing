@@ -9,6 +9,7 @@ namespace Shim
 {
 class RtpTransceiver
 {
+
   public:
     RtpTransceiver(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> &&transceiver);
 
@@ -34,8 +35,8 @@ class RtpTransceiver
 
   private:
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> _transceiver;
-    Shim::RtpReceiver *_receiver{};// does not own, the managed code owns this
-    Shim::RtpSender *_sender{};    // does not own, the managed code owns this
+    Shim::RtpReceiver *_receiver{}; // does not own, the managed code owns this
+    Shim::RtpSender *_sender{};     // does not own, the managed code owns this
     std::string _mid{};
 };
 } // namespace Shim
