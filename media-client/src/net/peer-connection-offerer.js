@@ -11,6 +11,9 @@ var logger = new Logger('PeerConnectionOfferProcess');
  * @param {PeerConnectionId} peerConnectionId
  */
 function sendIceCandidate(webSocketClient, candidate, peerConnectionId) {
+    if (!peerConnectionId.hasValue) {
+        debugger;
+    }
     webSocketClient.queueMessage('AddIceCandidate', {
         candidate: {
             candidate: candidate.candidate,
@@ -52,16 +55,14 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         if (this._started) throw 'AlreadyStarted';
         this._started = true;
 
-        /** @type {RTCIceCandidate[]} */
-        var pendingIceCandidates = [];
         // Preparation: listen to ICE candidate events
         this._peerConnection.addEventListener('icecandidate', e => {
             logger.debug('Local ICE candidate generated', e);
             if (e.candidate) {
                 // We shouldn't be sending ICE candidates unless the offer has been sent,
                 // As ICE candidate can't be added (on the remote side) unless SDP is set.
-                if (pendingIceCandidates)
-                    pendingIceCandidates.push(e.candidate);
+                if (this._pendingIceCandidates)
+                    this._pendingIceCandidates.push(e.candidate);
                 else
                     sendIceCandidate(this.webSocketClient, e.candidate, this._peerConnectionId);
             }
@@ -81,7 +82,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         if (this._cancelled) {
             return;
         }
-        logger.info('[Step 1/5] Offer generated', offer);
+        logger.info('[Step 1/6] Offer generated', offer);
 
         // Step 2: Set Local Description.
         // This generates ICE candidates, however they are queued,
@@ -89,7 +90,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         await this._peerConnection.setLocalDescription(offer);
         if (this._cancelled)
             return;
-        logger.info('[Step 2/5] Local description set', offer);
+        logger.info('[Step 2/6] Local description set', offer);
 
         // Begin the negotiation process by telling the server our transceiver mids
         // (Basically what we will send, for each transceiver)
@@ -108,7 +109,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
                 FatalErrorHandler.err(`Failed sending track info ${err}`);
             }
         }
-        logger.info('[Step 3/5] transceiver metadata sent', offer);
+        logger.info('[Step 3/6] transceiver metadata sent', offer);
 
         // Send the generated sdp to the server
         // Notes - must do this before setLocalDescription()
@@ -126,12 +127,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
             this.cancel();
             return;
         }
-        logger.info('[Step 4/5] Offer sent', offer);
-
-        // Final step is to flush any pending ICE candidates
-        pendingIceCandidates.forEach(candidate => sendIceCandidate(this.webSocketClient, candidate, this._peerConnectionId));
-        logger.info(`[Step 5/5] Flushed ${pendingIceCandidates.length} ICE candidates`)
-        pendingIceCandidates = null;
+        logger.info('[Step 4/6] Offer sent', offer);
     }
 
     cancel() {
@@ -142,18 +138,29 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         this._cancelled = true;
     }
 
-    _onAnswer(args) {
+    async _onAnswer(args) {
         if (!this._peerConnectionId.hasValue) {
             this._peerConnectionId.value = args.peerConnectionId;
         }
         else if (this._peerConnectionId.value != args.peerConnectionId) {
             return;
         }
-        if (this._cancelled)
-            return;
+        if (this._cancelled) return;
 
-        this._peerConnection.setRemoteDescription(args.sdp);
-        logger.info('Remote SDP received and set');
+        try {
+            await this._peerConnection.setRemoteDescription(args.sdp);
+        }
+        catch (err) {
+            FatalErrorHandler.failFast(`Failed setting remote description`);
+        }
+
+        if (this._cancelled) return;
+        logger.info(`[Step 5/6] Received answer and remote SDP set=`);
+
+        // Final step is to flush any pending ICE candidates
+        this._pendingIceCandidates.forEach(candidate => sendIceCandidate(this.webSocketClient, candidate, this._peerConnectionId));
+        logger.info(`[Step 6/6] Flushed ${this._pendingIceCandidates.length} ICE candidates`)
+        this._pendingIceCandidates = null;
 
         // offer process completed,
         // automatically unsubscribe from WebSocket events

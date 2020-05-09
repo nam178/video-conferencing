@@ -151,22 +151,30 @@ export default class MediaClient extends EventTarget {
         }
         this._isInitialised = true;
 
-        // Init the WebSocket stuff first
-        await this._webSocketClient.initializeAsync(settings);
+        // First initialise device, 
+        // so that at the time we create PeerConnection, devices are ready,
+        // avoid extra negotations (when already finished negotiating then devices become ready)
+        try{
+             // Restore previous device selection preferences
+            var lastAudioDeviceId = localStorage.getItem('media_client_last_audio_device_id');
+            var lastVideoDeviceId = localStorage.getItem('media_client_last_video_device_id');
+            var lastAudioSinkId = localStorage.getItem('media_client_last_audio_sink_id');
+            if (lastAudioDeviceId)
+                this._inputDeviceManager.currentAudioInputDeviceId = lastAudioDeviceId;
+            if (lastVideoDeviceId)
+                this._inputDeviceManager.currentVideoInputDeviceId = lastVideoDeviceId;
+            if (lastAudioSinkId)
+                this._inputDeviceManager.selectedAudioSinkId = lastAudioSinkId;
 
-        // Restore previous device selection preferences
-        var lastAudioDeviceId = localStorage.getItem('media_client_last_audio_device_id');
-        var lastVideoDeviceId = localStorage.getItem('media_client_last_video_device_id');
-        var lastAudioSinkId = localStorage.getItem('media_client_last_audio_sink_id');
-        if (lastAudioDeviceId)
-            this._inputDeviceManager.currentAudioInputDeviceId = lastAudioDeviceId;
-        if (lastVideoDeviceId)
-            this._inputDeviceManager.currentVideoInputDeviceId = lastVideoDeviceId;
-        if (lastAudioSinkId)
-            this._inputDeviceManager.selectedAudioSinkId = lastAudioSinkId;
-
-        // Then initialise devices
-        await this._scanDevicesAsync();
+            await this._scanDevicesAsync();
+        }
+        finally
+        {
+            // Then initialise network connections (always, even
+            // when intialising devices fail, i.e. user can still join
+            // the room and watch without no devices)
+            await this._webSocketClient.initializeAsync(settings);
+        }
     }
 
     /**
@@ -231,7 +239,7 @@ export default class MediaClient extends EventTarget {
         this._inputDeviceManagerState = InputDeviceManagerState.Scanning;
         this.dispatchEvent(new CustomEvent('device-scanning-started'));
         try {
-            await this._inputDeviceManager.refreshAsync();
+            await this._inputDeviceManager.requestAccessToDevicesAsync();
             this._inputDeviceManagerState = InputDeviceManagerState.Ok;
         }
         catch (err) {

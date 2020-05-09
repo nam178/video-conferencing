@@ -1,4 +1,3 @@
-import WebSocketClient from './websocket-client.js';
 import Logger from '../logging/logger.js'
 import FatalErrorHandler from '../handlers/fatal-error-handler.js';
 import WebSocketMessageHandler from './websocket-message-handler';
@@ -50,7 +49,7 @@ function replaceTrack(peerConnection, prevTrack, nextTrack) {
  */
 function setStream(peerConnection, oldStream, newStream) {
     if (peerConnection == null) {
-        throw new 'ChangeStreamCalledWhilePeerConnectionIsNull';
+        throw 'SetStreamCalledWhilePeerConnectionIsNull';
     }
     // PeerConnection exists but its stream has not changed?
     // Early exit.
@@ -58,7 +57,7 @@ function setStream(peerConnection, oldStream, newStream) {
         logger.debug('Stream not changed, ignoring the change.');
         return;
     }
-    logger.debug('Local media stream changed, updating PeerConnection..');
+    logger.info('Local media stream changed, updating PeerConnection..');
 
     // If there is existing stream, we will REPLACE transceiver's tracks
     var prevAudioTrack = getFirstTrackOrNull(oldStream, 'audio');
@@ -95,7 +94,12 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
     set localStream(value) {
         var oldStream = this._localStream;
         this._localStream = value;
-        setStream(this._peerConnection, oldStream, value);
+        if(this._peerConnection)
+        {
+            // TODO dont call this immediately if offer is running
+            setStream(this._peerConnection, oldStream, value);
+        }
+            
     }
 
     constructor(webSocketClient) {

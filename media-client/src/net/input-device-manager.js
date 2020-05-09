@@ -56,10 +56,15 @@ export default class InputDeviceManager extends EventTarget {
     static NotSelectedDeviceId() { return -1; }
 
     /**
+     * Call this to request device permission. If completes successfully, 
+     * The stream property becomes available to read. (otherwise it's null).
+     * 
+     * On failture, this method throws exception.
+     * 
      * Designed so can be called multiple items to re-initialise;
      * Must be called at least once before using;
      */
-    refreshAsync() {
+    requestAccessToDevicesAsync() {
         // Stop any running track
         if (this.stream) {
             this.stream.getTracks().forEach(track => track.stop());
