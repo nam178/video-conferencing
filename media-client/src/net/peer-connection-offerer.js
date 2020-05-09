@@ -44,10 +44,28 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
     /** @type {RTCIceCandidate[]} */
     _pendingIceCandidates = [];
 
+    /** @type {Boolean} */
+    _isCompleted = false;
+
+    /** @type {Function} */
+    _completionCallbacks = [];
+
+    get isCompleted() { return this._isCompleted; }
+
     constructor(peerConnection, peerConnectionId, webSocketClient) {
         super(webSocketClient, logger);
         this._peerConnection = peerConnection;
         this._peerConnectionId = peerConnectionId;
+    }
+
+    onComplete(callback) {
+        if(this._isCompleted) {
+            throw 'AlreadyCompleted';
+        }
+        if(this._cancelled) {
+            throw 'AlreadyCancelled';
+        }
+        _completionCallbacks.push(callback);
     }
 
     async startAsync() {
@@ -165,6 +183,8 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         // offer process completed,
         // automatically unsubscribe from WebSocket events
         this.stopListeningToWebSocketEvents();
+        this._isCompleted = true;
+        this._completionCallbacks.forEach(f => f());
     }
 
     _sendTransceiverMetadataAsync() {

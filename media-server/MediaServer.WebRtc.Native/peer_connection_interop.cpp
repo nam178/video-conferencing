@@ -5,7 +5,7 @@
 
 void CONVENTION PeerConnectionDestroy(Shim::PeerConnection *peer_connection_ptr)
 {
-    delete static_cast<Shim::PeerConnection *>(peer_connection_ptr);
+    delete peer_connection_ptr;
 }
 
 void CONVENTION PeerConnectionClose(Shim::PeerConnection *peer_connection_ptr)

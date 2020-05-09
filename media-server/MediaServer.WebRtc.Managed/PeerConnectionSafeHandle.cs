@@ -10,7 +10,7 @@ namespace MediaServer.WebRtc.Managed
             SetHandle(handle);
         }
 
-        public override bool IsInvalid => handle != IntPtr.Zero;
+        public override bool IsInvalid => handle == IntPtr.Zero;
 
         protected override bool ReleaseHandle()
         {

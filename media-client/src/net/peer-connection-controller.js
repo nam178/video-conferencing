@@ -96,10 +96,15 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
         this._localStream = value;
         if(this._peerConnection)
         {
-            // TODO dont call this immediately if offer is running
-            setStream(this._peerConnection, oldStream, value);
+            if(this._currentOfferer && !this._currentOfferer.isCompleted) {
+                // There's some negotiation underway
+                // Wait for negotiation complete before changing the stream again,
+                // because changing the stream causes re-negotiation
+                this._currentOfferer.onComplete(() => setStream(this._peerConnection, oldStream, value));
+            } else {
+                setStream(this._peerConnection, oldStream, value);    
+            }
         }
-            
     }
 
     constructor(webSocketClient) {

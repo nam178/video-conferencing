@@ -55,8 +55,8 @@ namespace MediaServer.WebRtc.Managed
         {
             if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
             {
-                Receiver.Dispose();
-                Sender.Dispose();
+                _receiver.Dispose();
+                _sender.Dispose();
                 Handle.Dispose();
             }
         }

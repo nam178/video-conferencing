@@ -14,7 +14,7 @@ class RtpTransceiver
 
     const char *Mid()
     {
-        // Copy the mid locally so we can ensure it is null-terminated and 
+        // Copy the mid locally so we can ensure it is null-terminated and
         // to return to unmanaged code
         auto tmp = _transceiver->mid();
         if(tmp.has_value())
@@ -34,8 +34,8 @@ class RtpTransceiver
 
   private:
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> _transceiver;
-    std::unique_ptr<Shim::RtpReceiver> _receiver{};
-    std::unique_ptr<Shim::RtpSender> _sender{};
+    Shim::RtpReceiver *_receiver{};// does not own, the managed code owns this
+    Shim::RtpSender *_sender{};    // does not own, the managed code owns this
     std::string _mid{};
 };
 } // namespace Shim
