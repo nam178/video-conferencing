@@ -1,25 +1,14 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace MediaServer.WebRtc.Managed
 {
-    sealed class VideoSinkAdapterSafeHandle : SafeHandle
+    sealed class VideoSinkAdapterSafeHandle : SafeHandleBase
     {
         public VideoSinkAdapterSafeHandle(PassiveVideoTrackSourceSafeHandle passiveVideoTrackSourceSafeHandle)
-            : base(IntPtr.Zero, true)
+            : base(VideoSinkAdapterInterops.Create(passiveVideoTrackSourceSafeHandle))
         {
-            SetHandle(VideoSinkAdapterInterops.Create(passiveVideoTrackSourceSafeHandle));
         }
 
-        public override bool IsInvalid => handle == IntPtr.Zero;
-
-        protected override bool ReleaseHandle()
-        {
-            if(handle != IntPtr.Zero)
-            {
-                VideoSinkAdapterInterops.Destroy(handle);
-            }
-            return true;
-        }
+        protected override void ReleaseHandle(IntPtr handle) => VideoSinkAdapterInterops.Destroy(handle);
     }
 }

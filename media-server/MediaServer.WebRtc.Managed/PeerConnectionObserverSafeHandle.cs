@@ -1,25 +1,14 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace MediaServer.WebRtc.Managed
 {
-    sealed class PeerConnectionObserverSafeHandle : SafeHandle
+    sealed class PeerConnectionObserverSafeHandle : SafeHandleBase
     {
         public PeerConnectionObserverSafeHandle()
-            : base(IntPtr.Zero, true)
+            : base(PeerConnectionObserverInterop.Create())
         {
-            SetHandle(PeerConnectionObserverInterop.Create());
         }
 
-        public override bool IsInvalid => handle == IntPtr.Zero;
-
-        protected override bool ReleaseHandle()
-        {
-            if(handle != IntPtr.Zero)
-            {
-                PeerConnectionObserverInterop.Destroy(handle);
-            }
-            return true;
-        }
+        protected override void ReleaseHandle(IntPtr handle) => PeerConnectionObserverInterop.Destroy(handle);
     }
 }

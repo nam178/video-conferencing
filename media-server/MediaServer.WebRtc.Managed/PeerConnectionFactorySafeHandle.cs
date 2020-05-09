@@ -3,23 +3,13 @@ using System.Runtime.InteropServices;
 
 namespace MediaServer.WebRtc.Managed
 {
-    sealed class PeerConnectionFactorySafeHandle : SafeHandle
+    sealed class PeerConnectionFactorySafeHandle : SafeHandleBase
     {
         public PeerConnectionFactorySafeHandle()
-            : base(IntPtr.Zero, true)
+            : base(PeerConnectionFactoryInterop.Create())
         {
-            SetHandle(PeerConnectionFactoryInterop.Create());
         }
 
-        public override bool IsInvalid => handle != IntPtr.Zero;
-
-        protected override bool ReleaseHandle()
-        {
-            if(handle != IntPtr.Zero)
-            {
-                PeerConnectionFactoryInterop.Destroy(handle);
-            }
-            return true;
-        }
+        protected override void ReleaseHandle(IntPtr handle) => PeerConnectionFactoryInterop.Destroy(handle);
     }
 }

@@ -24,10 +24,7 @@ namespace MediaServer.WebRtc.Managed
                 Id = Marshal.PtrToStringAnsi(nativeIdString);
         }
 
-        public void Dispose()
-        {
-            Handle.Dispose();
-        }
+        public void Dispose() => Handle.Dispose();
 
         public override string ToString() => $"[{GetType().Name}, Id={Id.Substring(0, 8)}]";
     }

@@ -1,24 +1,13 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace MediaServer.WebRtc.Managed
 {
-    sealed class RtpSenderSafeHandle : SafeHandle
+    sealed class RtpSenderSafeHandle : SafeHandleBase
     {
-        public RtpSenderSafeHandle(IntPtr handle) : base(IntPtr.Zero, true)
+        public RtpSenderSafeHandle(IntPtr handle) : base(handle)
         {
-            SetHandle(handle);
         }
 
-        public override bool IsInvalid => handle == IntPtr.Zero;
-
-        protected override bool ReleaseHandle()
-        {
-            if(handle != IntPtr.Zero)
-            {
-                RtpSenderInterops.Destroy(handle);
-            }
-            return true;
-        }
+        protected override void ReleaseHandle(IntPtr handle) => RtpSenderInterops.Destroy(handle);
     }
 }
