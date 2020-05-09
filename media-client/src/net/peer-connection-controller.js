@@ -196,6 +196,7 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
     _cancelAnyRunningOfferProcess() {
         if (this._currentOffererProcess != null) {
             this._currentOffererProcess.cancel();
+            this._currentOffererProcess = null;
         }
     }
 }

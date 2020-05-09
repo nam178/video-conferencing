@@ -10,11 +10,11 @@ namespace MediaServer.Api.WebSocket.CommandHandlers
 {
     sealed class SetOfferCommandHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.SetOffer>
     {
-        readonly IOfferHandler _sdpHandler;
+        readonly IOfferHandler _offerHandler;
 
         public SetOfferCommandHandler(IOfferHandler offerHandler)
         {
-            _sdpHandler = offerHandler
+            _offerHandler = offerHandler
                 ?? throw new ArgumentNullException(nameof(offerHandler));
         }
 
@@ -24,7 +24,7 @@ namespace MediaServer.Api.WebSocket.CommandHandlers
             Require.NotNull(args.Offer.Type);
 
             // This command has no response, just pass that to RTC handler
-            return _sdpHandler.HandleAsync(remoteDevice, args.Offer);
+            return _offerHandler.HandleAsync(remoteDevice, args.PeerConnectionId, args.Offer);
         }
     }
 }

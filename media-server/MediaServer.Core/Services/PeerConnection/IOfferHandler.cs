@@ -7,6 +7,6 @@ namespace MediaServer.Core.Services.PeerConnection
 {
     public interface IOfferHandler
     {
-        Task HandleAsync(IRemoteDevice remoteDevice, RTCSessionDescription request);
+        Task HandleAsync(IRemoteDevice remoteDevice, Guid? peerConnectionId, RTCSessionDescription request);
     }
 }

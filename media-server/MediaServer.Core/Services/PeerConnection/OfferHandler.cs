@@ -4,6 +4,7 @@ using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using NLog;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.PeerConnection
@@ -19,7 +20,7 @@ namespace MediaServer.Core.Services.PeerConnection
                 ?? throw new ArgumentNullException(nameof(renegotationHandler));
         }
 
-        public async Task HandleAsync(IRemoteDevice remoteDevice, RTCSessionDescription offer)
+        public async Task HandleAsync(IRemoteDevice remoteDevice, Guid? peerConnectionId, RTCSessionDescription offer)
         {
             Require.NotNull(offer.Sdp);
             Require.NotNull(offer.Type);
@@ -31,11 +32,19 @@ namespace MediaServer.Core.Services.PeerConnection
                 throw new UnauthorizedAccessException();
             }
 
-            // TODO: handle the case where PeerConnection already exist here.
+            // Get or create new PeerConnection, depending on the client's requests
+            IPeerConnection peerConnection = null;
+            if(peerConnectionId != null)
+            {
+                peerConnection = deviceData.PeerConnections.First(p => p.Id == peerConnectionId.Value);
+            }
+            else
+            {
+                if(deviceData.PeerConnections.Count > 3)
+                    throw new InvalidOperationException($"Max 3 PeerConnection allowed per device");
+                peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User, offer);
+            }
 
-            // Create new PeerConnection
-            var peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User, offer);
-            
             // Save
             deviceData.PeerConnections.Add(peerConnection);
             remoteDevice.SetCustomData(deviceData);
@@ -50,7 +59,7 @@ namespace MediaServer.Core.Services.PeerConnection
                 // Send Answer
                 remoteDevice.EnqueueSessionDescription(peerConnection.Id, answer);
                 _logger.Info($"Answer sent for {peerConnection}");
-            
+
                 // Save the Answer locally
                 // SetLocalSessionDescriptionAsync() must be after SendSessionDescriptionAsync()
                 // because it SetLocalSessionDescriptionAsync() generates ICE candidates,
