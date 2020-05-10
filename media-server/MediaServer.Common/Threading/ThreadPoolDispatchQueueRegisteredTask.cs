@@ -14,21 +14,19 @@ namespace MediaServer.Common.Threading
             _taskFactory = taskFactory;
         }
 
-        public override Task ExecuteAsync()
+        public override async Task ExecuteAsync()
         {
             var originalTask = _taskFactory();
 
-            originalTask.ContinueWith(original =>
+            try
             {
-                if(original.Status == TaskStatus.RanToCompletion)
-                    _src.SetResult(original.Result);
-                else if(original.Exception?.InnerException != null)
-                    _src.SetException(original.Exception.InnerException);
-                else
-                    _src.SetCanceled();
-            });
-
-            return originalTask;
+                var result  = await originalTask;
+                _ = Task.Run(() => _src.SetResult(result));
+            }
+            catch(Exception ex)
+            {
+                _ = Task.Run(() => _src.SetException(ex));
+            }
         }
     }
 }
