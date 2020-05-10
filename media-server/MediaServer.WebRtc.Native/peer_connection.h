@@ -50,14 +50,6 @@ class PeerConnection final
                                  const char *sdp,
                                  Callback<Success, ErrorMessage> callback);
 
-    // Add and remove local tracks,
-    // and return the rtp sender associated with this track
-    std::unique_ptr<Shim::RtpSender> AddTrack(
-        rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
-        const std::vector<std::string> &stream_ids);
-
-    void RemoveTrack(Shim::RtpSender *rtp_sender);
-
     // get the raw pointer to the underlying native
     // PeerConnectionInterface
     webrtc::PeerConnectionInterface *GetPeerConnectionInterface();

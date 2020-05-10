@@ -43,12 +43,6 @@ namespace MediaServer.WebRtc.Managed
         [return: MarshalAs(UnmanagedType.I1)]
         public static extern bool AddIceCandidate(PeerConnectionSafeHandle handle, string sdpMid, int mLineIndex, string sdp);
 
-        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddTrack")]
-        public static extern IntPtr AddTrack(PeerConnectionSafeHandle handle, MediaStreamTrackSafeHandle mediaStreamTrackSafeHandle, string streamId);
-
-        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionRemoveTrack")]
-        public static extern void RemoveTrack(PeerConnectionSafeHandle handle, RtpSenderSafeHandle rtpSender);
-
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionGetTransceivers")]
         public static extern void GetTransceivers(PeerConnectionSafeHandle handle, out IntPtr outputArray, out int outputArraySize);
 

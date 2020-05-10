@@ -40,4 +40,16 @@ namespace MediaServer.WebRtc.Managed
             RtcThreadInterops.Post(_handle, actualHandler, GCHandleHelper.ToIntPtr(actualHandler));
         }
     }
+
+
+    public static class RtcThreadExtensions
+    {
+        public static void EnsureCurrentThread(this RtcThread thread)
+        {
+            if(!thread.IsCurrent)
+            {
+                throw new InvalidOperationException();
+            }
+        }
+    }
 }

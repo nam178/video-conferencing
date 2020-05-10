@@ -3,9 +3,9 @@ using MediaServer.Common.Utils;
 using MediaServer.WebRtc.Managed.Errors;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaServer.WebRtc.Managed
@@ -16,8 +16,9 @@ namespace MediaServer.WebRtc.Managed
     public class PeerConnection : IDisposable
     {
         readonly PeerConnectionSafeHandle _handle;
-        readonly List<(RtpSender RtpSender, MediaStreamTrack Track)> _localTracks = new List<(RtpSender RtpSender, MediaStreamTrack Track)>();
         readonly List<IPendingTask> _pendingTasks = new List<IPendingTask>();
+        readonly Dictionary<IntPtr, RtpTransceiver> _knownTransceivers = new Dictionary<IntPtr, RtpTransceiver>();
+        readonly RtcThread _signallingThread;
 
         public PeerConnectionObserver Observer { get; }
 
@@ -27,7 +28,6 @@ namespace MediaServer.WebRtc.Managed
         PeerConnectionInterop.CreateSdpResultCallback _createAnswerCallback;
         PeerConnectionInterop.SetSessionDescriptionCallback _setRemoteSessionDescCallback;
         PeerConnectionInterop.SetSessionDescriptionCallback _setLocalSessionDescCallback;
-        object _mutex = new object();
         bool _isClosed;
 
         /// <summary>
@@ -35,9 +35,11 @@ namespace MediaServer.WebRtc.Managed
         /// </summary>
         /// <param name="unmanagedPointer"></param>
         /// <param name="observer">Keep ref only, does not own observer</param>
-        internal PeerConnection(IntPtr unmanagedPointer, PeerConnectionObserver observer)
+        internal PeerConnection(IntPtr unmanagedPointer, PeerConnectionObserver observer, RtcThread signallingThread)
         {
             _handle = new PeerConnectionSafeHandle(unmanagedPointer);
+            _signallingThread = signallingThread
+                ?? throw new ArgumentNullException(nameof(signallingThread));
             Observer = observer;
         }
 
@@ -49,18 +51,16 @@ namespace MediaServer.WebRtc.Managed
         /// <exception cref="Errors.CreateAnswerFailedException" />
         public Task<RTCSessionDescription> CreateAnswerAsync()
         {
-            DisposeCheck();
+            SafetyCheck();
             var pendingTask = new PendingTask<RTCSessionDescription>();
-            lock(_mutex)
+            RequireCallbackNotSet(_createAnswerCallback);
+            _createAnswerCallback = new PeerConnectionInterop.CreateSdpResultCallback((userData, result) =>
             {
-                RequireCallbackNotSet(_createOfferCallback);
-                _createAnswerCallback = new PeerConnectionInterop.CreateSdpResultCallback((userData, result) =>
-                {
-                    _createAnswerCallback = null;
-                    CompletePendingTask(pendingTask, result);
-                });
-                _pendingTasks.Add(pendingTask);
-            }
+                _signallingThread.EnsureCurrentThread();
+                _createAnswerCallback = null;
+                CompletePendingTask(pendingTask, result);
+            });
+            _pendingTasks.Add(pendingTask);
             PeerConnectionInterop.CreateAnswer(_handle, _createAnswerCallback, IntPtr.Zero);
             return pendingTask.Task;
         }
@@ -72,18 +72,16 @@ namespace MediaServer.WebRtc.Managed
         /// <returns></returns>
         public Task<RTCSessionDescription> CreateOfferAsync()
         {
-            DisposeCheck();
+            SafetyCheck();
             var pendingTask = new PendingTask<RTCSessionDescription>();
-            lock(_mutex)
+            RequireCallbackNotSet(_createOfferCallback);
+            _createOfferCallback = new PeerConnectionInterop.CreateSdpResultCallback((userData, result) =>
             {
-                RequireCallbackNotSet(_createOfferCallback);
-                _createOfferCallback = new PeerConnectionInterop.CreateSdpResultCallback((userData, result) =>
-                {
-                    _createOfferCallback = null;
-                    CompletePendingTask(pendingTask, result);
-                });
-                _pendingTasks.Add(pendingTask);
-            }
+                _signallingThread.EnsureCurrentThread();
+                _createOfferCallback = null;
+                CompletePendingTask(pendingTask, result);
+            });
+            _pendingTasks.Add(pendingTask);
             PeerConnectionInterop.CreateOffer(_handle, _createOfferCallback, IntPtr.Zero);
             return pendingTask.Task;
         }
@@ -97,19 +95,17 @@ namespace MediaServer.WebRtc.Managed
         /// <returns></returns>
         public Task SetRemoteSessionDescriptionAsync(string type, string sdp)
         {
-            DisposeCheck();
+            SafetyCheck();
             var pendingTask = new PendingTask<bool>();
-            lock(_mutex)
-            {
-                RequireCallbackNotSet(_setRemoteSessionDescCallback);
-                _setRemoteSessionDescCallback = new PeerConnectionInterop.SetSessionDescriptionCallback(
-                    (userData, sucess, errorMessage) =>
-                    {
-                        _setRemoteSessionDescCallback = null;
-                        CompletePendingTask(pendingTask, sucess, errorMessage);
-                    });
-                _pendingTasks.Add(pendingTask);
-            }
+            RequireCallbackNotSet(_setRemoteSessionDescCallback);
+            _setRemoteSessionDescCallback = new PeerConnectionInterop.SetSessionDescriptionCallback(
+                (userData, sucess, errorMessage) =>
+                {
+                    _signallingThread.EnsureCurrentThread();
+                    _setRemoteSessionDescCallback = null;
+                    CompletePendingTask(pendingTask, sucess, errorMessage);
+                });
+            _pendingTasks.Add(pendingTask);
             PeerConnectionInterop.SetRemoteSessionDescription(_handle, type, sdp, _setRemoteSessionDescCallback, IntPtr.Zero);
             return pendingTask.Task;
         }
@@ -120,19 +116,17 @@ namespace MediaServer.WebRtc.Managed
         /// <exception cref="Errors.SetSessionDescriptionFailedException"></exception>
         public Task SetLocalSessionDescriptionAsync(string type, string sdp)
         {
-            DisposeCheck();
+            SafetyCheck();
             var pendingTask = new PendingTask<bool>();
-            lock(_mutex)
-            {
-                RequireCallbackNotSet(_setLocalSessionDescCallback);
-                _setLocalSessionDescCallback = new PeerConnectionInterop.SetSessionDescriptionCallback(
-                    (userData, sucess, errorMessage) =>
-                    {
-                        _setLocalSessionDescCallback = null;
-                        CompletePendingTask(pendingTask, sucess, errorMessage);
-                    });
-                _pendingTasks.Add(pendingTask);
-            }
+            RequireCallbackNotSet(_setLocalSessionDescCallback);
+            _setLocalSessionDescCallback = new PeerConnectionInterop.SetSessionDescriptionCallback(
+                (userData, sucess, errorMessage) =>
+                {
+                    _signallingThread.EnsureCurrentThread();
+                    _setLocalSessionDescCallback = null;
+                    CompletePendingTask(pendingTask, sucess, errorMessage);
+                });
+            _pendingTasks.Add(pendingTask);
             PeerConnectionInterop.SetLocalSessionDescription(_handle, type, sdp, _setLocalSessionDescCallback, IntPtr.Zero);
             return pendingTask.Task;
         }
@@ -143,7 +137,7 @@ namespace MediaServer.WebRtc.Managed
         /// <exception cref="Errors.AddIceCandidateFailedException"
         public void AddIceCandidate(RTCIceCandidate iceCandidate)
         {
-            DisposeCheck();
+            SafetyCheck();
             Require.NotEmpty(iceCandidate);
             if(false == PeerConnectionInterop.AddIceCandidate(
                 _handle,
@@ -156,98 +150,22 @@ namespace MediaServer.WebRtc.Managed
         }
 
         /// <summary>
-        /// Add the specified track into this PeerConnection's specified stream
-        /// </summary>
-        /// <param name="track"></param>
-        /// <param name="streamId">Id of the stream, doesn't have to exist</param>
-        /// <exception cref="AddTrackFailedException"></exception>
-        /// <remarks>Can be called from anythread, the libWebRTC will proxy to the correct thread</remarks>
-        /// <returns>RtpSender, this PeerConnection takes ownership</returns>
-        public RtpSender AddTrack(MediaStreamTrack track, Guid streamId)
-        {
-            DisposeCheck();
-            Require.NotNull(track);
-            Require.NotEmpty(streamId);
-            var rtpSenderPtr = PeerConnectionInterop.AddTrack(_handle, track.Handle, streamId.ToString());
-            if(rtpSenderPtr == IntPtr.Zero)
-            {
-                throw new AddTrackFailedException();
-            }
-            var rtpSender = new RtpSender(rtpSenderPtr);
-            lock(_mutex)
-            {
-                _localTracks.Add((rtpSender, track));
-            }
-            return rtpSender;
-        }
-
-        /// <summary>
-        /// Remove the specified track; The RtpSender and its associated media stream will be disposed.
-        /// </summary>
-        /// <param name="rtpSender">The track, represented by its RtpSender</param>
-        /// <remarks>Can be called from any thread, will be proxied to signalling thread by the lib.</remarks>
-        public void RemoveTrack(RtpSender rtpSender)
-        {
-            DisposeCheck();
-            lock(_mutex)
-            {
-                var t = _localTracks.Where(tmp => tmp.RtpSender == rtpSender).FirstOrDefault();
-                if(t.RtpSender == null)
-                {
-                    throw new ArgumentException($"Provided RtpSender not found");
-                }
-                _localTracks.Remove(t);
-                using(t.RtpSender)
-                using(t.Track)
-                {
-                    PeerConnectionInterop.RemoveTrack(_handle, t.RtpSender.Handle);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Get local tracks that were added to this PeerConnection.
-        /// </summary>
-        /// <returns>A copy of RTPSenders for local tracks</returns>
-        public RtpSender[] GetLocalTracks()
-        {
-            DisposeCheck();
-
-            lock(_mutex)
-            {
-                return _localTracks.Select(t => t.RtpSender).ToArray();
-            }
-        }
-
-        /// <summary>
         /// Close the native PeerConnection, 
         /// note that pending async operations such as the CreateAnswer() 
         /// method may still continue execute after the PeerConnection is closed.
         /// </summary>
         public void Close()
         {
-            DisposeCheck();
-
-            List<IPendingTask> pendingTasksToPrune;
-            lock(_mutex)
-            {
-                if(_isClosed)
-                    throw new InvalidOperationException("Already closed");
-                if(_localTracks.Count > 0)
-                    throw new InvalidOperationException(
-                        "All local tracks must be removed before closing PeerConnection");
-                _isClosed = true;
-                pendingTasksToPrune = _pendingTasks.ToList();
-                _pendingTasks.Clear();
-            }
-
-            pendingTasksToPrune.ForEach(l => l.Cancel());
+            SafetyCheck();
+            if(_isClosed)
+                throw new InvalidOperationException("Already closed");
+            _isClosed = true;
 
             PeerConnectionInterop.Close(_handle);
-        }
 
-        readonly Dictionary<IntPtr, RtpTransceiver> _knownTransceivers = new Dictionary<IntPtr, RtpTransceiver>();
-        readonly object _transceiversMutex = new object();
+            _pendingTasks.ToList().ForEach(l => l.Cancel());
+            _pendingTasks.Clear();
+        }
 
         /// <summary>
         /// Get a snapshot of all transceivers associated with this PeerConnection.
@@ -257,14 +175,11 @@ namespace MediaServer.WebRtc.Managed
         /// <returns></returns>
         public IReadOnlyList<RtpTransceiver> GetTransceivers()
         {
-            DisposeCheck();
+            SafetyCheck();
 
-            IntPtr nativeTransceiverArray;
-            int nativeTransceiverArraySize;
-            lock(_transceiversMutex)
-            {
-                PeerConnectionInterop.GetTransceivers(_handle, out nativeTransceiverArray, out nativeTransceiverArraySize);
-            }
+            PeerConnectionInterop.GetTransceivers(_handle,
+                out var nativeTransceiverArray,
+                out var nativeTransceiverArraySize);
 
             // When there is no transceivers,
             // The unmanaged code returns size = 0 and nativeTransceiverArray will be IntPtr.Zero,
@@ -276,10 +191,11 @@ namespace MediaServer.WebRtc.Managed
                     for(var i = 0; i < nativeTransceiverArraySize; i++)
                     {
                         var nativeTransceiverIntPtr = Marshal.ReadIntPtr(nativeTransceiverArray, i * IntPtr.Size);
-                        lock(_transceiversMutex)
+                        if(false == _knownTransceivers.ContainsKey(nativeTransceiverIntPtr))
                         {
-                            if(false == _knownTransceivers.ContainsKey(nativeTransceiverIntPtr))
-                                _knownTransceivers[nativeTransceiverIntPtr] = new RtpTransceiver(nativeTransceiverIntPtr);
+                            _knownTransceivers[nativeTransceiverIntPtr] = new RtpTransceiver(
+                                nativeTransceiverIntPtr,
+                                _signallingThread);
                         }
                     }
                 }
@@ -289,28 +205,22 @@ namespace MediaServer.WebRtc.Managed
                 }
             }
             // Return transceivers as a copy
-            lock(_transceiversMutex)
-            {
-                return _knownTransceivers.Values.ToList();
-            }
+            return _knownTransceivers.Values.ToList();
         }
 
         public RtpTransceiver AddTransceiver(MediaKind kind)
         {
-            DisposeCheck();
-
+            SafetyCheck();
             if(kind == MediaKind.Data)
                 throw new NotSupportedException();
+
             var transceiverPtr = PeerConnectionInterop.AddTransceiver(_handle, kind == MediaKind.Audio);
             if(transceiverPtr == IntPtr.Zero)
                 throw new AddTransceiverFailedException();
 
-            lock(_transceiversMutex)
-            {
-                var tmp = new RtpTransceiver(transceiverPtr);
-                _knownTransceivers.Add(transceiverPtr, tmp);
-                return tmp;
-            }
+            var tmp = new RtpTransceiver(transceiverPtr, _signallingThread);
+            _knownTransceivers.Add(transceiverPtr, tmp);
+            return tmp;
         }
 
         void RequireCallbackNotSet(object t)
@@ -323,12 +233,9 @@ namespace MediaServer.WebRtc.Managed
 
         void CompletePendingTask(PendingTask<RTCSessionDescription> pendingTask, PeerConnectionInterop.CreateAnswerResult result)
         {
-            lock(_mutex)
-            {
-                if(_isClosed)
-                    return;
-                _pendingTasks.Remove(pendingTask);
-            }
+            if(_isClosed)
+                return;
+            _pendingTasks.Remove(pendingTask);
             Task.Run(delegate
             {
                 if(result.Success)
@@ -340,12 +247,9 @@ namespace MediaServer.WebRtc.Managed
 
         void CompletePendingTask(PendingTask<bool> pendingTask, bool sucess, string errorMessage)
         {
-            lock(_mutex)
-            {
-                if(_isClosed)
-                    return;
-                _pendingTasks.Remove(pendingTask);
-            }
+            if(_isClosed)
+                return;
+            _pendingTasks.Remove(pendingTask);
             Task.Run(delegate
             {
                 if(sucess)
@@ -356,32 +260,28 @@ namespace MediaServer.WebRtc.Managed
             });
         }
 
-        void DisposeCheck()
+        void SafetyCheck()
         {
-            if(_disposed)
+            _signallingThread.EnsureCurrentThread();
+            if(Interlocked.CompareExchange(ref _disposed, 0, 0) == 1)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
         }
 
 
-        bool _disposed;
+        int _disposed;
         public void Dispose()
         {
-            lock(_mutex)
-            {
-                _disposed = true;
-                Debug.Assert(_localTracks.Count == 0); // All local tracks must be removed prior to disposing this PeerConection
-            }
-            lock(_transceiversMutex)
+            if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
             {
                 foreach(var transceiver in _knownTransceivers)
                 {
                     transceiver.Value.Dispose();
                 }
                 _knownTransceivers.Clear();
+                _handle.Dispose();
             }
-            _handle.Dispose();
         }
 
         public override string ToString() => $"[PeerConnection Id={Id.ToString().Substring(0, 8)}]";

@@ -2,6 +2,8 @@
 
 #include "pch.h"
 
+#include "media_stream_track.h"
+
 namespace Shim
 {
 class RtpSender
@@ -11,7 +13,14 @@ class RtpSender
 
     webrtc::RtpSenderInterface *Native();
 
+    // Not thread safe
+    void SetTrack(Shim::MediaStreamTrack *track);
+
+    // Not thread safe
+    Shim::MediaStreamTrack *GetTrack();
+
   private:
     rtc::scoped_refptr<webrtc::RtpSenderInterface> _native;
+    Shim::MediaStreamTrack *_track = nullptr;
 };
 } // namespace Shim

@@ -35,7 +35,8 @@ namespace MediaServer.WebRtc.Managed
                 interopIceServers,
                 interopIceServers.Count(),
                 observer.Native),
-                observer);
+                observer,
+                SignallingThread);
         }
 
         public void Initialize()

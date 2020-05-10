@@ -45,17 +45,17 @@ namespace MediaServer.Core.Services.PeerConnection
                 peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User, offer);
             }
 
-            // Set remote offer
-            await peerConnection.SetRemoteSessionDescriptionAsync(offer);
-            _logger.Info($"Remote {offer} SDP set for {peerConnection}");
-
             // Save
             deviceData.PeerConnections.Add(peerConnection);
             remoteDevice.SetCustomData(deviceData);
 
             // Then begin negotating
-            await deviceData.User.Room.RenegotiationQueue.ExecuteAsync(async delegate
+            await deviceData.User.Room.SignallingThread.ExecuteAsync(async delegate
             {
+                // Set remote offer
+                await peerConnection.SetRemoteSessionDescriptionAsync(offer);
+                _logger.Info($"Remote {offer} SDP set for {peerConnection}");
+
                 // Create Answer
                 var answer = await peerConnection.CreateAnswerAsync();
                 _logger.Info($"Answer {answer} created for {peerConnection}");

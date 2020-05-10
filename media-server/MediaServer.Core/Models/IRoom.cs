@@ -19,8 +19,6 @@ namespace MediaServer.Models
         /// <exception cref="System.InvalidOperationException">When the room is not initialised</exception>
         IDispatchQueue SignallingThread { get; }
 
-        IDispatchQueue RenegotiationQueue { get; }
-
         /// <summary>   
         /// The room id
         /// </summary>

@@ -19,7 +19,7 @@ namespace MediaServer.Core.Services.PeerConnection
             // Begin the actual re-negotation
             // Must do this in a queue to avoid race between requests
             _logger.Trace($"Re-negotiating with {peerConnection}..");
-            return peerConnection.Room.RenegotiationQueue.ExecuteAsync(async delegate
+            return peerConnection.Room.SignallingThread.ExecuteAsync(async delegate
             {
                 try
                 {
