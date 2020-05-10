@@ -52,3 +52,10 @@ void Shim::RtpSender::SetTrack(Shim::MediaStreamTrack *track)
     }
     _track = track;
 }
+
+void Shim::RtpSender::SetStreamId(const char *stream_id)
+{
+    std::vector<std::string> stream_ids{};
+    stream_ids.push_back(stream_id);
+    _native->SetStreams(stream_ids);
+}

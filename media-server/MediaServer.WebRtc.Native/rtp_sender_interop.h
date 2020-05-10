@@ -12,4 +12,6 @@ extern "C"
 
     EXPORT void CONVENTION RtpSenderSetTrack(Shim::RtpSender *rtp_sender,
                                              Shim::MediaStreamTrack *track);
+
+    EXPORT void CONVENTION RtpSenderSetStreamId(Shim::RtpSender *rtp_sender, const char *stream_id);
 };

@@ -101,11 +101,12 @@ namespace MediaServer.WebRtc.Managed
             _sender = new RtpSender(RtpTransceiverInterops.GetSender(Handle), signallingThread);
         }
 
-        public void ToBusyState(MediaStreamTrack track)
+        public void ToBusyState(MediaStreamTrack track, Guid streamId)
         {
             SafetyCheck();
             ThrowIfCurrentStateIsNot(ReusabilityState.Available);
             Sender.Track = track;
+            Sender.StreamId = streamId.ToString();
         }
 
         public void ToFrozenState()

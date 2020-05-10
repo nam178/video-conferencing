@@ -16,6 +16,8 @@ class RtpSender
     // Not thread safe
     void SetTrack(Shim::MediaStreamTrack *track);
 
+    void SetStreamId(const char *stream_id);
+
     // Not thread safe
     Shim::MediaStreamTrack *GetTrack();
 

@@ -12,10 +12,15 @@ void CONVENTION RtpSenderDestroy(Shim::RtpSender *rtp_sender)
 
 Shim::MediaStreamTrack *CONVENTION RtpSenderGetTrack(Shim::RtpSender *rtp_sender)
 {
-    rtp_sender->GetTrack();
+    return rtp_sender->GetTrack();
 }
 
 void CONVENTION RtpSenderSetTrack(Shim::RtpSender *rtp_sender, Shim::MediaStreamTrack *track)
 {
     rtp_sender->SetTrack(track);
+}
+
+void CONVENTION RtpSenderSetStreamId(Shim::RtpSender *rtp_sender, const char *stream_id)
+{
+    rtp_sender->SetStreamId(stream_id);
 }

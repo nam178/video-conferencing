@@ -8,6 +8,9 @@ namespace MediaServer.WebRtc.Managed
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "RtpSenderDestroy")]
         public static extern void Destroy(IntPtr rtpSenderPtr);
 
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "RtpSenderSetStreamId")]
+        public static extern void SetStreamId(RtpSenderSafeHandle handle, string value);
+
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "RtpSenderGetTrack")]
         public static extern IntPtr GetTrack(RtpSenderSafeHandle rptSender);
 

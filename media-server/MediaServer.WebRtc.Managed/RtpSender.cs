@@ -9,6 +9,15 @@ namespace MediaServer.WebRtc.Managed
 
         internal RtpSenderSafeHandle Handle { get; }
 
+        public string StreamId
+        {
+            set
+            {
+                _signallingThread.EnsureCurrentThread();
+                RtpSenderInterops.SetStreamId(Handle, value);
+            }
+        }
+
         MediaStreamTrack _track;
         public MediaStreamTrack Track
         {
@@ -28,7 +37,7 @@ namespace MediaServer.WebRtc.Managed
         public RtpSender(IntPtr rtpSenderPtr, RtcThread signallingThread)
         {
             Handle = new RtpSenderSafeHandle(rtpSenderPtr);
-            _signallingThread = signallingThread 
+            _signallingThread = signallingThread
                 ?? throw new ArgumentNullException(nameof(signallingThread));
         }
 

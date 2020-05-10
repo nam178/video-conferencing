@@ -8,8 +8,8 @@ namespace MediaServer.WebRtc.MediaRouting
     sealed class LocalVideoLink : IDisposable
     {
         readonly VideoTrack _track;
-        readonly RtpSender _rtpSender;
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        readonly RtpTransceiver _transceiver;
 
         public PeerConnection TargetPeerConnection { get; }
 
@@ -35,8 +35,26 @@ namespace MediaServer.WebRtc.MediaRouting
             var streamId = videoSource.VideoClient.Id;
             _track = peerConnectionFactory.CreateVideoTrack(trackId.ToString(), videoSource.VideoTrackSource);
 
+            // Find the first available transceiver,
+            // Or add a new one
+            var mediaKind = _track.Kind;
+            var transceivers = TargetPeerConnection.GetTransceivers();
+            _transceiver = null;
+            for(var i = 0; i < transceivers.Count; i++)
+            {
+                if(transceivers[i].ReusabilityState == ReusabilityState.Available
+                    && transceivers[i].MediaKind == mediaKind)
+                {
+                    _transceiver = transceivers[i];
+                    break;
+                }
+            }
+            _transceiver = _transceiver ?? TargetPeerConnection.AddTransceiver(mediaKind);
+
+            // Then set the tack
+            _transceiver.ToBusyState(_track, streamId);
+
             // Add track to peer
-            _rtpSender = TargetPeerConnection.AddTrack(_track, streamId);
             _logger.Debug($"Local track created {_track}");
         }
 
@@ -46,8 +64,7 @@ namespace MediaServer.WebRtc.MediaRouting
         {
             if(Interlocked.CompareExchange(ref _close, 1, 0) != 0)
                 throw new InvalidOperationException("Already Closed");
-
-            TargetPeerConnection.RemoveTrack(_rtpSender);
+            _transceiver.ToFrozenState();
         }
 
         public void Dispose()

@@ -36,8 +36,7 @@ namespace MediaServer.WebRtc.Managed
         }
 
         // notes
-        // C++ can't C# tasks, therefore these methods left unimplemented.
-
+        // C++ can't await C# tasks, therefore these methods left unimplemented.
         public Task ExecuteAsync(Func<Task> asyncTask) => throw new NotSupportedException();
 
         public Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> asyncTaskWithResult) => throw new NotSupportedException();
