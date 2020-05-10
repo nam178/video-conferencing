@@ -16,7 +16,7 @@ class RtpTransceiver
     const char *Mid()
     {
         // Copy the mid locally so we can ensure it is null-terminated and
-        // to return to unmanaged code
+        // to return to unmanaged_transceiver code
         auto tmp = _transceiver->mid();
         if(tmp.has_value())
         {

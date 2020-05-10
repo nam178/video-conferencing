@@ -17,16 +17,14 @@ void CONVENTION PeerConnectionCreateAnswer(Shim::PeerConnection *peer_connection
                                            CreateSdpCallback callback,
                                            UserData user_data)
 {
-    peer_connection_ptr->CreateAnswer(
-        Shim::Callback<Shim::CreateSdpResult>{callback, user_data});
+    peer_connection_ptr->CreateAnswer(Shim::Callback<Shim::CreateSdpResult>{callback, user_data});
 }
 
 void CONVENTION PeerConnectionCreateOffer(Shim::PeerConnection *peer_connection_ptr,
                                           CreateSdpCallback callback,
                                           UserData user_data)
 {
-    peer_connection_ptr->CreateOffer(
-        Shim::Callback<Shim::CreateSdpResult>{callback, user_data});
+    peer_connection_ptr->CreateOffer(Shim::Callback<Shim::CreateSdpResult>{callback, user_data});
 }
 
 void CONVENTION
@@ -66,10 +64,9 @@ bool CONVENTION PeerConnectionAddIceCandidate(Shim::PeerConnection *peer_connect
     return success;
 }
 
-Shim::RtpSender *CONVENTION
-PeerConnectionAddTrack(Shim::PeerConnection *peer_connection,
-                       Shim::MediaStreamTrack *media_stream_track,
-                       const char *stream_id)
+Shim::RtpSender *CONVENTION PeerConnectionAddTrack(Shim::PeerConnection *peer_connection,
+                                                   Shim::MediaStreamTrack *media_stream_track,
+                                                   const char *stream_id)
 {
     std::string stream_id_str(stream_id);
     std::vector<std::string> stream_ids{stream_id_str};
@@ -90,4 +87,17 @@ void CONVENTION PeerConnectionRemoveTrack(Shim::PeerConnection *peer_connection,
         throw new std::runtime_error("peer_connection is NULL");
     }
     peer_connection->RemoveTrack(rtp_sender);
+}
+
+void CONVENTION PeerConnectionGetTransceivers(Shim::PeerConnection *peer_connection,
+                                              Shim::RtpTransceiver ***transceivers,
+                                              int32_t *size)
+{
+    peer_connection->GetTransceivers(transceivers, size);
+}
+
+void CONVENTION PeerConnectionFreeGetTransceiversResult(Shim::PeerConnection *peer_connection,
+                                                        Shim::RtpTransceiver **transceivers)
+{
+    peer_connection->FreeGetTransceiversResult(transceivers);
 }

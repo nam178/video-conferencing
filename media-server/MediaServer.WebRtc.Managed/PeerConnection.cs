@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 namespace MediaServer.WebRtc.Managed
 {
     /// <summary>
-    /// 
     /// </summary>
     /// <remarks>This class is thread safe, due to some method is called from singalling threads, while other from device threads</remarks>
     public class PeerConnection : IDisposable

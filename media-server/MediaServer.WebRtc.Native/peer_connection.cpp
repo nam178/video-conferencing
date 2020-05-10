@@ -101,9 +101,9 @@ void Shim::PeerConnection::CreateOffer(Callback<Shim::CreateSdpResult> &&callbac
     // By looking at the source,
     // PeerConnectionInterface takes owner ship of CreateSessionDescriptionObserver
     // see struct CreateSessionDescriptionRequest in the source.
-    _peer_connection_interface->CreateOffer(new Shim::CreateSessionDescriptionObserver(
-                                                ConvertCallbackToLambda(std::move(callback))),
-                                            opts);
+    _peer_connection_interface->CreateOffer(
+        new Shim::CreateSessionDescriptionObserver(ConvertCallbackToLambda(std::move(callback))),
+        opts);
 }
 
 void Shim::PeerConnection::CreateAnswer(Callback<Shim::CreateSdpResult> &&callback)
@@ -114,9 +114,9 @@ void Shim::PeerConnection::CreateAnswer(Callback<Shim::CreateSdpResult> &&callba
     // By looking at the source,
     // PeerConnectionInterface takes owner ship of CreateSessionDescriptionObserver
     // see struct CreateSessionDescriptionRequest in the source.
-    _peer_connection_interface->CreateAnswer(new Shim::CreateSessionDescriptionObserver(
-                                                 ConvertCallbackToLambda(std::move(callback))),
-                                             opts);
+    _peer_connection_interface->CreateAnswer(
+        new Shim::CreateSessionDescriptionObserver(ConvertCallbackToLambda(std::move(callback))),
+        opts);
 }
 
 void Shim::PeerConnection::Close()
@@ -125,9 +125,9 @@ void Shim::PeerConnection::Close()
 }
 
 bool Shim::PeerConnection::AddIceCandiate(const char *sdp_mid,
-                                              int sdp_mline_index,
-                                              const char *sdp,
-                                              std::string &out_error)
+                                          int sdp_mline_index,
+                                          const char *sdp,
+                                          std::string &out_error)
 {
     webrtc::SdpParseError parse_error{};
     auto ice_candidate = webrtc::CreateIceCandidate(sdp_mid, sdp_mline_index, sdp, &parse_error);
@@ -141,8 +141,8 @@ bool Shim::PeerConnection::AddIceCandiate(const char *sdp_mid,
 }
 
 void Shim::PeerConnection::RemoteSessionDescription(const char *sdp_type,
-                                                        const char *sdp,
-                                                        Callback<Success, ErrorMessage> callback)
+                                                    const char *sdp,
+                                                    Callback<Success, ErrorMessage> callback)
 {
     InvokeMethod(_peer_connection_interface,
                  &webrtc::PeerConnectionInterface::SetRemoteDescription,
@@ -152,8 +152,8 @@ void Shim::PeerConnection::RemoteSessionDescription(const char *sdp_type,
 }
 
 void Shim::PeerConnection::LocalSessionDescription(const char *sdp_type,
-                                                       const char *sdp,
-                                                       Callback<Success, ErrorMessage> callback)
+                                                   const char *sdp,
+                                                   Callback<Success, ErrorMessage> callback)
 {
     InvokeMethod(_peer_connection_interface,
                  &webrtc::PeerConnectionInterface::SetLocalDescription,
@@ -195,4 +195,52 @@ void Shim::PeerConnection::RemoveTrack(Shim::RtpSender *rtp_sender)
 webrtc::PeerConnectionInterface *Shim::PeerConnection::GetPeerConnectionInterface()
 {
     return _peer_connection_interface.get();
+}
+
+void Shim::PeerConnection::GetTransceivers(Shim::RtpTransceiver ***transceiver, int32_t *size)
+{
+    // Get native transceivers
+    auto transceivers = _peer_connection_interface->GetTransceivers();
+
+    // Transceiver should never be deleted,
+    // We'll do one loop to check
+    std::unordered_set<webrtc::RtpTransceiverInterface *> transceivers_index{};
+    for(auto &tmp : transceivers)
+    {
+        transceivers_index.insert(tmp.get());
+    }
+    for(auto &pair : _last_known_transceivers)
+    {
+        if(transceivers_index.count(pair.first) == 0)
+        {
+            RTC_LOG(LS_ERROR) << "Transceiver was deleted?";
+            throw new std::runtime_error("Transceiver was deleted?");
+        }
+    }
+
+    // Second loop to create new RtpTransceiver
+    // This loop move/kill the smart pointers so do it after.
+    for(auto &transceiver_smart_ptr : transceivers)
+    {
+        auto transceiver_raw_ptr = transceiver_smart_ptr.get();
+        // This transceiver_smart_ptr is new to us, create an entry for it
+        if(_last_known_transceivers.count(transceiver_raw_ptr) == 0)
+        {
+            auto unmanaged_transceiver_ptr =
+                new Shim::RtpTransceiver(std::move(transceiver_smart_ptr));
+
+            _last_known_transceivers.insert(
+                std::pair<webrtc::RtpTransceiverInterface *, Shim::RtpTransceiver *>{
+                    transceiver_raw_ptr, unmanaged_transceiver_ptr});
+        }
+    }
+
+    // Finally output the result
+    *size = _last_known_transceivers.size();
+    *transceiver = new Shim::RtpTransceiver *[*size];
+}
+
+void Shim::PeerConnection::FreeGetTransceiversResult(Shim::RtpTransceiver **transceiver) const
+{
+    delete[] transceiver;
 }

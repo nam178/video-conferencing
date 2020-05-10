@@ -39,11 +39,10 @@ extern "C"
                                              SetRemoteSessionDescriptionCallback callback,
                                              UserData user_data);
 
-    EXPORT bool CONVENTION
-    PeerConnectionAddIceCandidate(Shim::PeerConnection *peer_connection_ptr,
-                                  const char *sdp_mid,
-                                  int32_t sdp_mline_index,
-                                  const char *sdp);
+    EXPORT bool CONVENTION PeerConnectionAddIceCandidate(Shim::PeerConnection *peer_connection_ptr,
+                                                         const char *sdp_mid,
+                                                         int32_t sdp_mline_index,
+                                                         const char *sdp);
 
     EXPORT Shim::RtpSender *CONVENTION
     PeerConnectionAddTrack(Shim::PeerConnection *peer_connection,
@@ -52,4 +51,12 @@ extern "C"
 
     EXPORT void CONVENTION PeerConnectionRemoveTrack(Shim::PeerConnection *peer_connection,
                                                      Shim::RtpSender *rtp_sender);
+
+    EXPORT void CONVENTION PeerConnectionGetTransceivers(Shim::PeerConnection *peer_connection,
+                                                         Shim::RtpTransceiver ***transceivers,
+                                                         int32_t *size);
+
+    EXPORT void CONVENTION
+    PeerConnectionFreeGetTransceiversResult(Shim::PeerConnection *peer_connection,
+                                            Shim::RtpTransceiver **transceivers);
 }

@@ -62,85 +62,17 @@ class PeerConnection final
     // PeerConnectionInterface
     webrtc::PeerConnectionInterface *GetPeerConnectionInterface();
 
-    void Register(RtpTransceiver::CreateUnmanagedInstanceFuncPtr create_unmanaged_transceiver_fnptr)
-    {
-        if(create_unmanaged_transceiver_fnptr == nullptr)
-        {
-            throw new std::invalid_argument("Argument is nullptr");
-        }
-        std::scoped_lock(_mutex);
-        _create_unmanaged_transceiver_fnptr = create_unmanaged_transceiver_fnptr;
-    }
+    // Get and rebuild known transceivers.
+    // Caller owns the RtpTransceiver, however it must manually call FreeGetTransceiversResult()
+    // to release the array used for the output.
+    // Not thread safe.
+    void GetTransceivers(Shim::RtpTransceiver ***transceiver, int32_t *size);
 
-    struct TransceiverEntry
-    {
-        TransceiverEntry(Shim::RtpTransceiver *transceiver, void *unmanaged)
-            : _rtpTransceiverShim(std::unique_ptr<Shim::RtpTransceiver>(transceiver))
-        {
-        }
-
-        std::unique_ptr<Shim::RtpTransceiver> _rtpTransceiverShim;
-        void *unmanaged;
-    };
-
-    void GetTransceivers()
-    {
-        // Get native transceivers and transceivers_index them.
-        auto transceivers = _peer_connection_interface->GetTransceivers();
-        std::unordered_set<webrtc::RtpTransceiverInterface *> transceivers_index{};
-        for(auto &tmp : transceivers)
-        {
-            transceivers_index.insert(tmp.get());
-        }
-
-        // Transceiver should never be deleted,
-        // We'll do one loop to checl
-        for(auto &pair : _last_known_transceivers)
-        {
-            if(transceivers_index.count(pair.first) == 0)
-            {
-                RTC_LOG(LS_ERROR) << "Transceiver was deleted?";
-                throw new std::runtime_error("Transceiver was deleted?");
-            }
-        }
-
-        // Second loop to create new RtpTransceiver
-        // This loop move/kill the smart pointers so do it after.
-        for(auto &smart_ptr : transceivers)
-        {
-            auto transceiver_raw_ptr = smart_ptr.get();
-            // This smart_ptr is new to us, create an entry for it
-            if(_last_known_transceivers.count(transceiver_raw_ptr) == 0)
-            {
-                RtpTransceiver::CreateUnmanagedInstanceFuncPtr tmp;
-                {
-                    std::scoped_lock(_mutex);
-                    tmp = _create_unmanaged_transceiver_fnptr;
-                }
-                if(!tmp)
-                {
-                    throw new std::runtime_error(
-                        "Unmanaged function pointer to create transceiver has not been registered");
-                }
-
-                auto unmanaged_transceiver_ptr = new Shim::RtpTransceiver(std::move(smart_ptr));
-                auto managed_transceiver_ptr = tmp(unmanaged_transceiver_ptr);
-
-                auto transceiver_entry = std::make_unique<TransceiverEntry>(
-                    unmanaged_transceiver_ptr, managed_transceiver_ptr);
-
-                _last_known_transceivers.insert(
-                    std::pair<webrtc::RtpTransceiverInterface *, std::unique_ptr<TransceiverEntry>>{
-                        transceiver_raw_ptr, std::move(transceiver_entry)});
-            }
-        }
-    }
-
+    // Free the memory allocated for the GetTransceivers() call above
+    void FreeGetTransceiversResult(Shim::RtpTransceiver **transceiver) const;
   private:
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> _peer_connection_interface;
-    std::unordered_map<webrtc::RtpTransceiverInterface *, std::unique_ptr<TransceiverEntry>>
+    std::unordered_map<webrtc::RtpTransceiverInterface *, Shim::RtpTransceiver *>
         _last_known_transceivers{};
-    RtpTransceiver::CreateUnmanagedInstanceFuncPtr _create_unmanaged_transceiver_fnptr = nullptr;
-    std::mutex _mutex{};
 };
 } // namespace Shim
