@@ -235,6 +235,7 @@ void Shim::PeerConnection::GetTransceivers(Shim::RtpTransceiver ***transceiver, 
         }
     }
 
+
     // Finally output the result
     *size = _last_known_transceivers.size();
     if(*size > 0)

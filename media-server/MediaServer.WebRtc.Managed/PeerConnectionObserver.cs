@@ -1,8 +1,6 @@
 ﻿using MediaServer.Common.Utils;
 using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using static MediaServer.WebRtc.Managed.PeerConnectionObserverInterop;
@@ -21,18 +19,13 @@ namespace MediaServer.WebRtc.Managed
         readonly IceCandidatesRemovedCallback _iceCandidatesRemovedCallback = IceCandidatesRemovedCallback;
         readonly RemoteTrackAddedCallback _remoteTrackAddedCallback = RemoteTrackAddedCallback;
         readonly RemoteTrackRemovedCallback _remoteTrackRemovedCallback = RemoteTrackRemovedCallback;
-        readonly List<RtpTransceiver> _rtpTransceivers = new List<RtpTransceiver>();
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public event EventHandler<EventArgs<RTCIceCandidate>> IceCandidateAdded;
         public event EventHandler<EventArgs<RTCIceConnectionState>> IceConnectionStateChanged;
         public event EventHandler<EventArgs<RTCIceGatheringState>> IceGatheringStateChanged;
         public event EventHandler<EventArgs> RenegotiationNeeded;
-        public event EventHandler<EventArgs<RtpTransceiver>> RemoteTrackRemoved;
-        public event EventHandler<EventArgs<RtpTransceiver>> RemoteTrackAdded;
         public event EventHandler<EventArgs<IntPtr>> IceCandidatesRemoved;
-
-        public IReadOnlyList<RtpTransceiver> RemoteTracks => _rtpTransceivers;
 
         public PeerConnectionObserver()
         {
@@ -47,34 +40,6 @@ namespace MediaServer.WebRtc.Managed
             SetIceCandidatesRemovedCallback(Native, _iceCandidatesRemovedCallback, userData);
             SetRemoteTrackAddedCallback(Native, _remoteTrackAddedCallback, userData);
             SetRemoteTrackRemovedCallback(Native, _remoteTrackRemovedCallback, userData);
-        }
-
-        void OnHandleRemoveTrackAdded(IntPtr rtpTransceiverPtr) // signalling thread
-        {
-            CheckDisposed();
-
-            // Take ownership of the new RtpTransceiver 
-            var transceiver = new RtpTransceiver(rtpTransceiverPtr);
-            _rtpTransceivers.Add(transceiver);
-
-            // Trigger event
-            RemoteTrackAdded?.Invoke(this, new EventArgs<RtpTransceiver>(transceiver));
-            _logger.Debug($"Remote track added: {transceiver}");
-        }
-
-        void OnHandleRemoveTrackRemoved(IntPtr rtpReceiverPtr) // signalling thread
-        {
-            CheckDisposed();
-
-            // Transceiver never gets removed.
-            // We'll just find the transceiver for this track and trigger the event
-            var transceiver = _rtpTransceivers.FirstOrDefault(r => r.Receiver.GetRtpReceiverInterface() == rtpReceiverPtr);
-            if(null == transceiver)
-            {
-                throw new InvalidProgramException("Transceiver not found");
-            }
-
-            RemoteTrackRemoved?.Invoke(this, new EventArgs<RtpTransceiver>(transceiver));
         }
 
         static void IceCandidateCallback(IntPtr userData, IceCandidate iceCandidate)
@@ -105,14 +70,12 @@ namespace MediaServer.WebRtc.Managed
 
         static void RemoteTrackRemovedCallback(IntPtr userData, IntPtr rtpReceiverPtr)
         {
-            var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source.OnHandleRemoveTrackRemoved(rtpReceiverPtr);
+            // nothing needed here yet
         }
 
         static void RemoteTrackAddedCallback(IntPtr userData, IntPtr rtpReceiverWrapperPtr)
         {
-            var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
-            source?.OnHandleRemoveTrackAdded(rtpReceiverWrapperPtr);
+            // nothing needed here yet
         }
 
         static void IceCandidatesRemovedCallback(IntPtr userData, IntPtr candidates)
@@ -134,11 +97,6 @@ namespace MediaServer.WebRtc.Managed
         {
             if(Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
             {
-                foreach(var t in _rtpTransceivers)
-                {
-                    t.Dispose();
-                }
-
                 Native.Dispose();
                 _handle.Free();
             }

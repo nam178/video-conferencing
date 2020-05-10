@@ -14,7 +14,6 @@ namespace MediaServer.WebRtc.MediaRouting
         readonly IThread _signallingThread;
         readonly PeerConnectionFactory _peerConnectionFactory;
         readonly VideoClientCollection _videoClients = new VideoClientCollection();
-        readonly VideoRouterEventHandler _eventHandler;
         readonly LocalVideoLinkCollection _localVideoLinks = new LocalVideoLinkCollection();
         readonly RemoteVideoLinkCollection _remoteVideoLinks = new RemoteVideoLinkCollection();
 
@@ -26,7 +25,6 @@ namespace MediaServer.WebRtc.MediaRouting
                 ?? throw new ArgumentNullException(nameof(signallingThread));
             _peerConnectionFactory = peerConnectionFactory
                 ?? throw new ArgumentNullException(nameof(peerConnectionFactory));
-            _eventHandler = new VideoRouterEventHandler(_signallingThread, this, _videoClients);
         }
 
         public Task AddVideoClientAsync(Guid videoClientId)
@@ -87,16 +85,14 @@ namespace MediaServer.WebRtc.MediaRouting
                 videoClient.PeerConnections.Add(peerConnection);
                 _logger.Info($"Added {peerConnection} into {videoClient}, total PeerConnections for this client={videoClient.PeerConnections.Count}");
 
-                // This PeerConnection must be added 
-                // right before it is created, therefore it must has no remote tracks
-                foreach(var remoteTrack in peerConnection.Observer.RemoteTracks)
+                // If this PeerConnetion has some existing transceivers,
+                // add them.
+                // TODO: listen for future transceivers and add them too, too lazy to implement this for now.
+                var currenTransceivers = peerConnection.GetTransceivers();
+                foreach(var transceiver in currenTransceivers)
                 {
-                    OnRemoteTrackAdded(videoClient, peerConnection, remoteTrack);
+                    OnRemoteTrackAdded(videoClient, peerConnection, transceiver);
                 }
-
-                // Start listening to it for track events
-                peerConnection.Observer.RemoteTrackAdded += _eventHandler.RemoteTrackAdded;
-                peerConnection.Observer.RemoteTrackRemoved += _eventHandler.RemoteTrackRemoved;
 
                 // Link this PeerConnection with any existing local VideoSources
                 foreach(var other in _videoClients
@@ -127,12 +123,6 @@ namespace MediaServer.WebRtc.MediaRouting
                 // Remove all video links that was created for this PeerConnetion's remote tracks
                 _remoteVideoLinks.RemoveByPeerConnection(peerConnection);
                 _logger.Info($"Removed all video links for {peerConnection} from {_remoteVideoLinks}");
-
-                // Here basically undo the things we did in AddPeerConnection(),
-                // in reverse order.
-                // No longer interested in its track events
-                peerConnectionObserver.RemoteTrackAdded -= _eventHandler.RemoteTrackAdded;
-                peerConnectionObserver.RemoteTrackRemoved -= _eventHandler.RemoteTrackRemoved;
 
                 // Remove this PeerConnection from VideoClient
                 var videoClient = _videoClients.Get(videoClientId);
@@ -217,7 +207,9 @@ namespace MediaServer.WebRtc.MediaRouting
         }
 
         /// <summary>
-        /// Notify this router that a remote track has been removed 
+        /// Notify this router that a remote track has been removed.
+        /// This is not currently being used.
+        /// We assume clients declare 2 transmiters for audio and video upfront, and will never change it.
         /// </summary>
         /// <remarks>Must be called from signalling thread, right before the track is removed</remarks>
         /// <returns></returns>
