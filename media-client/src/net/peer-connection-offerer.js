@@ -25,6 +25,24 @@ function sendIceCandidate(webSocketClient, candidate, peerConnectionId) {
     logger.log('Local ICE candidate sent', candidate);
 }
 
+/**
+ * @param {RTCPeerConnection} peerConnection 
+ * @returns {Object[]}
+ */
+function getTransceiverMetadata(peerConnection)
+{
+      // Tell the servers about the transceivers we have
+      return peerConnection.getTransceivers()
+        .filter(t => !!t.sender.track)
+        .map(function (t) {
+            return {
+                transceiverMid: t.mid,
+                quality: 'High', // TODO: multiple track qualities
+                kind: t.sender.track.kind
+            };
+        });
+}
+
 export default class PeerConnectionOfferer extends WebSocketMessageHandler {
     /**
      * @type {RTCPeerConnection}
@@ -100,7 +118,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         if (this._cancelled) {
             return;
         }
-        logger.info('[Step 1/6] Offer generated', offer);
+        logger.info('[Step 1/5] Offer generated', offer);
 
         // Step 2: Set Local Description.
         // This generates ICE candidates, however they are queued,
@@ -108,26 +126,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         await this._peerConnection.setLocalDescription(offer);
         if (this._cancelled)
             return;
-        logger.info('[Step 2/6] Local description set', offer);
-
-        // Begin the negotiation process by telling the server our transceiver mids
-        // (Basically what we will send, for each transceiver)
-        try {
-            await this._sendTransceiverMetadataAsync();
-        } catch (err) {
-            if (err == 'WebSocketError') {
-                // For WebSocket errors,
-                // the best way to handle this is to abort the process,
-                // because when WebSocket connection recovers, we will start a
-                //  new offer process from scratch anyways.
-                this.cancel();
-                return;
-            } else {
-                // For other fatal error, failfast.
-                FatalErrorHandler.err(`Failed sending track info ${err}`);
-            }
-        }
-        logger.info('[Step 3/6] transceiver metadata sent', offer);
+        logger.info('[Step 2/5] Local description set', offer);
 
         // Send the generated sdp to the server
         // Notes - must do this before setLocalDescription()
@@ -138,14 +137,15 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
                 type: offer.type,
                 sdp: offer.sdp
             },
-            peerConnectionId: this._peerConnectionId.hasValue ? this._peerConnectionId.value : null
+            peerConnectionId: this._peerConnectionId.hasValue ? this._peerConnectionId.value : null,
+            transceiverMetadata: getTransceiverMetadata(this._peerConnection)
         })) {
             // Again, for WebSocket errors, best way to handle this
             // is to cancel the entire offer process. (See comment above)
             this.cancel();
             return;
         }
-        logger.info('[Step 4/6] Offer sent', offer);
+        logger.info('[Step 3/5] Offer sent', offer);
     }
 
     cancel() {
@@ -173,11 +173,11 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         }
 
         if (this._cancelled) return;
-        logger.info(`[Step 5/6] Received answer and remote SDP set=`);
+        logger.info(`[Step 4/5] Received answer and remote SDP set`);
 
         // Final step is to flush any pending ICE candidates
         this._pendingIceCandidates.forEach(candidate => sendIceCandidate(this.webSocketClient, candidate, this._peerConnectionId));
-        logger.info(`[Step 6/6] Flushed ${this._pendingIceCandidates.length} ICE candidates`)
+        logger.info(`[Step 5/5] Flushed ${this._pendingIceCandidates.length} ICE candidates`)
         this._pendingIceCandidates = null;
 
         // offer process completed,
@@ -185,44 +185,6 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         this.stopListeningToWebSocketEvents();
         this._isCompleted = true;
         this._completionCallbacks.forEach(f => f());
-    }
-
-    _sendTransceiverMetadataAsync() {
-        // Timeout - should be longer than the WebSocjet heartbeat timeout,
-        // so that if there is connection issue,
-        // the WebSocket restarts, better than fail fast.
-        const timeout = 30 * 1000;
-
-        return new Promise((resolve, reject) => {
-            this._pendingSendTrackInfoResolve = resolve;
-
-            // Tell the servers about the transceivers we have
-            var setTransceiverArgs = this._peerConnection.getTransceivers()
-                .filter(t => !!t.sender.track)
-                .map(function (t) {
-                    return {
-                        transceiverMid: t.mid,
-                        quality: 'High', // TODO: multiple track qualities
-                        kind: t.sender.track.kind
-                    };
-                });
-
-            if (false == this.webSocketClient.tryQueueMessage('SetTransceiversMetadata', {
-                transceivers: setTransceiverArgs
-            })) {
-                reject('WebSocketError');
-            }
-
-            logger.info('Transceiver metadata sent', setTransceiverArgs);
-
-            // When timeout, reject the promise.
-            window.setTimeout(() => {
-                if (this._pendingSendTrackInfoResolve != null) {
-                    this._pendingSendTrackInfoResolve = null;
-                    reject('Timeout');
-                }
-            }, timeout);
-        });
     }
 
     _onTransceiversMetadataSet() {
