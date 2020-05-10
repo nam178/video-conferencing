@@ -25,7 +25,7 @@ namespace MediaServer.Core.Services.PeerConnection
                 throw new InvalidOperationException($"PeerConnection {peerConnectionId} does not exist for the device {remoteDevice}");
 
             // All good, can start negotiating
-            return deviceData.User.Room.RenegotiationQueue.ExecuteAsync(async delegate
+            return deviceData.User.Room.SignallingThread.ExecuteAsync(async delegate
             {
                 await peerConnection.SetRemoteSessionDescriptionAsync(answer);
             });

@@ -42,7 +42,7 @@ namespace MediaServer.Core.Services.PeerConnection
             {
                 if(deviceData.PeerConnections.Count > 3)
                     throw new InvalidOperationException($"Max 3 PeerConnection allowed per device");
-                peerConnection = await CreatePeerConnection(remoteDevice, deviceData.User, offer);
+                peerConnection = CreatePeerConnection(remoteDevice, deviceData.User, offer);
             }
 
             // Save
@@ -73,7 +73,7 @@ namespace MediaServer.Core.Services.PeerConnection
             });
         }
 
-        async Task<IPeerConnection> CreatePeerConnection(IRemoteDevice remoteDevice, User user, RTCSessionDescription remoteSdp)
+        IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, User user, RTCSessionDescription remoteSdp)
         {
             var peerConnection = user.Room.CreatePeerConnection(remoteDevice);
             _logger.Info($"PeerConnection created, user {user}, device {remoteDevice}");

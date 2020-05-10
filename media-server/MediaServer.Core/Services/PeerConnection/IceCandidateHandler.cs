@@ -26,7 +26,7 @@ namespace MediaServer.Core.Services.PeerConnection
                 throw new InvalidProgramException();
             }
 
-            await peerConnection.Room.RenegotiationQueue.ExecuteAsync(delegate
+            await peerConnection.Room.SignallingThread.ExecuteAsync(delegate
             {
                 peerConnection.AddIceCandidate(iceCandidate);
                 _logger.Trace($"Ice candidate {iceCandidate} added to {peerConnection}");

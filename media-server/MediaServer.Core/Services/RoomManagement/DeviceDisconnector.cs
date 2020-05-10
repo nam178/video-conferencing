@@ -1,6 +1,7 @@
 ﻿using MediaServer.Models;
 using NLog;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.RoomManagement
@@ -20,21 +21,29 @@ namespace MediaServer.Core.Services.RoomManagement
         {
             var deviceData = remoteDevice.GetCustomData();
 
-            // Remove associated PeerConnections
-            foreach(var peer in deviceData.PeerConnections)
-            {
-                using(peer)
-                {
-                    await peer.CloseAsync();
-                    _logger.Debug($"{peer} closed due to device disconnect, device {remoteDevice}");
-                }
-            }
-
-            // If this devie has joined a room,
-            // It also need to be removed from the router, so media no longer to/from to it.
             if(deviceData.Room != null)
             {
+                // Remove associated PeerConnections
+                await deviceData.Room.SignallingThread.ExecuteAsync(async delegate
+                {
+                    foreach(var peer in deviceData.PeerConnections)
+                    {
+                        using(peer)
+                        {
+                            await peer.CloseAsync();
+                            _logger.Debug($"{peer} closed due to device disconnect, device {remoteDevice}");
+                        }
+                    }
+                });
+                // Stop this device from sending data to ther devices
                 await deviceData.Room.VideoRouter.RemoveVideoClientAsync(remoteDevice.Id);
+            }
+            else
+            {
+                if(deviceData.PeerConnections.Any())
+                {
+                    throw new InvalidProgramException("Device NOT joined any room but somehow has PeerConnection");
+                }
             }
 
             // If this device associated with an user,
