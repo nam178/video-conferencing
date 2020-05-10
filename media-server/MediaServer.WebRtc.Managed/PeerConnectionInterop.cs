@@ -48,5 +48,11 @@ namespace MediaServer.WebRtc.Managed
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionRemoveTrack")]
         public static extern void RemoveTrack(PeerConnectionSafeHandle handle, RtpSenderSafeHandle rtpSender);
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionGetTransceivers")]
+        public static extern void GetTransceivers(PeerConnectionSafeHandle handle, out IntPtr outputArray, out int outputArraySize);
+        
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFreeGetTransceiversResult")]
+        public static extern void FreeGetTransceiversResult(PeerConnectionSafeHandle handle, IntPtr outputArray);
     }
 }

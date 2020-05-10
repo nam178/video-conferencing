@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace MediaServer.WebRtc.Managed
@@ -232,6 +233,52 @@ namespace MediaServer.WebRtc.Managed
             pendingTasksToPrune.ForEach(l => l.Cancel());
 
             PeerConnectionInterop.Close(_handle);
+        }
+
+        readonly Dictionary<IntPtr, RtpTransceiver> _knownTransceivers = new Dictionary<IntPtr, RtpTransceiver>();
+        readonly object _getTransceiversMutex = new object();
+
+        /// <summary>
+        /// Get a snapshot of all transceivers associated with this PeerConnection
+        /// </summary>
+        /// <remarks>This method is thread safe</remarks>
+        /// <returns></returns>
+        public IReadOnlyList<RtpTransceiver> GetTransceivers()
+        {
+            IntPtr nativeTransceiverArray;
+            int nativeTransceiverArraySize;
+            lock(_getTransceiversMutex)
+            {
+                PeerConnectionInterop.GetTransceivers(_handle, out nativeTransceiverArray, out nativeTransceiverArraySize);
+            }
+
+            // When there is no transceivers,
+            // The unmanaged code returns size = 0 and nativeTransceiverArray will be IntPtr.Zero,
+            // therefore we ignore that.
+            if(nativeTransceiverArraySize > 0)
+            {
+                try
+                {
+                    for(var i = 0; i < nativeTransceiverArraySize; i++)
+                    {
+                        var nativeTransceiverIntPtr = Marshal.ReadIntPtr(nativeTransceiverArray, nativeTransceiverArraySize * IntPtr.Size);
+                        lock(_getTransceiversMutex)
+                        {
+                            if(false == _knownTransceivers.ContainsKey(nativeTransceiverIntPtr))
+                                _knownTransceivers[nativeTransceiverIntPtr] = new RtpTransceiver(nativeTransceiverIntPtr);
+                        }
+                    }
+                }
+                finally
+                {
+                    PeerConnectionInterop.FreeGetTransceiversResult(_handle, nativeTransceiverArray);
+                }
+            }
+            // Return transceivers as a copy
+            lock(_getTransceiversMutex)
+            {
+                return _knownTransceivers.Values.ToList();
+            }
         }
 
         public void Dispose()

@@ -237,7 +237,10 @@ void Shim::PeerConnection::GetTransceivers(Shim::RtpTransceiver ***transceiver, 
 
     // Finally output the result
     *size = _last_known_transceivers.size();
-    *transceiver = new Shim::RtpTransceiver *[*size];
+    if(*size > 0)
+        *transceiver = new Shim::RtpTransceiver *[*size];
+    else
+        *transceiver = nullptr;
 }
 
 void Shim::PeerConnection::FreeGetTransceiversResult(Shim::RtpTransceiver **transceiver) const
