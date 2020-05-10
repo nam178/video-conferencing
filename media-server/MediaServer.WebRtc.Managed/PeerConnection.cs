@@ -236,7 +236,7 @@ namespace MediaServer.WebRtc.Managed
         }
 
         readonly Dictionary<IntPtr, RtpTransceiver> _knownTransceivers = new Dictionary<IntPtr, RtpTransceiver>();
-        readonly object _getTransceiversMutex = new object();
+        readonly object _transceiversMutex = new object();
 
         /// <summary>
         /// Get a snapshot of all transceivers associated with this PeerConnection
@@ -247,7 +247,7 @@ namespace MediaServer.WebRtc.Managed
         {
             IntPtr nativeTransceiverArray;
             int nativeTransceiverArraySize;
-            lock(_getTransceiversMutex)
+            lock(_transceiversMutex)
             {
                 PeerConnectionInterop.GetTransceivers(_handle, out nativeTransceiverArray, out nativeTransceiverArraySize);
             }
@@ -261,8 +261,8 @@ namespace MediaServer.WebRtc.Managed
                 {
                     for(var i = 0; i < nativeTransceiverArraySize; i++)
                     {
-                        var nativeTransceiverIntPtr = Marshal.ReadIntPtr(nativeTransceiverArray, nativeTransceiverArraySize * IntPtr.Size);
-                        lock(_getTransceiversMutex)
+                        var nativeTransceiverIntPtr = Marshal.ReadIntPtr(nativeTransceiverArray, i * IntPtr.Size);
+                        lock(_transceiversMutex)
                         {
                             if(false == _knownTransceivers.ContainsKey(nativeTransceiverIntPtr))
                                 _knownTransceivers[nativeTransceiverIntPtr] = new RtpTransceiver(nativeTransceiverIntPtr);
@@ -275,9 +275,30 @@ namespace MediaServer.WebRtc.Managed
                 }
             }
             // Return transceivers as a copy
-            lock(_getTransceiversMutex)
+            lock(_transceiversMutex)
             {
                 return _knownTransceivers.Values.ToList();
+            }
+        }
+
+        public RtpTransceiver AddTransceiver(MediaKind kind)
+        {
+            if(kind == MediaKind.Data)
+            {
+                throw new NotSupportedException();
+            }
+
+            var transceiverPtr = PeerConnectionInterop.AddTransceiver(_handle, kind == MediaKind.Audio);
+            if(transceiverPtr == IntPtr.Zero)
+            {
+                throw new AddTransceiverFailedException();
+            }
+
+            lock(_transceiversMutex)
+            {
+                var tmp = new RtpTransceiver(transceiverPtr);
+                _knownTransceivers.Add(transceiverPtr, tmp);
+                return tmp;
             }
         }
 

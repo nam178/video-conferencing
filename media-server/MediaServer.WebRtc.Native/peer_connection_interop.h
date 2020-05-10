@@ -59,4 +59,7 @@ extern "C"
     EXPORT void CONVENTION
     PeerConnectionFreeGetTransceiversResult(Shim::PeerConnection *peer_connection,
                                             Shim::RtpTransceiver **transceivers);
+
+    EXPORT Shim::RtpTransceiver *CONVENTION
+    PeerConnectionAddTransceiver(Shim::PeerConnection *peer_connection, bool is_audio_transceiver);
 }

@@ -2,7 +2,8 @@
 {
     public enum MediaKind
     {
-        Audio,
-        Video
+        Audio = 0,
+        Video = 1,
+        Data = 2
     }
 }

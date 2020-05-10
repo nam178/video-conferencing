@@ -32,6 +32,7 @@ class RtpTransceiver
 
     Shim::RtpReceiver *Receiver();
     Shim::RtpSender *Sender();
+    cricket::MediaType MediaKind();
 
   private:
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> _transceiver;

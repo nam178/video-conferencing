@@ -20,3 +20,8 @@ Shim::RtpSender *Shim::RtpTransceiver::Sender()
 {
     return _sender;
 }
+
+cricket::MediaType Shim::RtpTransceiver::MediaKind()
+{
+    return _transceiver->media_type();
+}

@@ -23,7 +23,7 @@ namespace MediaServer.WebRtc.Managed
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionCreateAnswer")]
         public static extern void CreateAnswer(PeerConnectionSafeHandle peerConnectionSafeHandle, CreateSdpResultCallback callback, IntPtr userData);
-        
+
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionCreateOffer")]
         public static extern void CreateOffer(PeerConnectionSafeHandle peerConnectionSafeHandle, CreateSdpResultCallback callback, IntPtr userData);
 
@@ -48,11 +48,14 @@ namespace MediaServer.WebRtc.Managed
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionRemoveTrack")]
         public static extern void RemoveTrack(PeerConnectionSafeHandle handle, RtpSenderSafeHandle rtpSender);
-        
+
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionGetTransceivers")]
         public static extern void GetTransceivers(PeerConnectionSafeHandle handle, out IntPtr outputArray, out int outputArraySize);
-        
+
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionFreeGetTransceiversResult")]
         public static extern void FreeGetTransceiversResult(PeerConnectionSafeHandle handle, IntPtr outputArray);
+
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddTransceiver")]
+        public static extern IntPtr AddTransceiver(PeerConnectionSafeHandle handle, [MarshalAs(UnmanagedType.I1)] bool isAudioTransceiver);
     }
 }

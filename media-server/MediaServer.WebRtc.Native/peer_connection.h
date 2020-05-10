@@ -70,6 +70,11 @@ class PeerConnection final
 
     // Free the memory allocated for the GetTransceivers() call above
     void FreeGetTransceiversResult(Shim::RtpTransceiver **transceiver) const;
+
+    // Add a new transceiver into this PeerConnection.
+    // The caller owns the returned transceiver.
+    Shim::RtpTransceiver *AddTransceiver(cricket::MediaType mediaType);
+
   private:
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> _peer_connection_interface;
     std::unordered_map<webrtc::RtpTransceiverInterface *, Shim::RtpTransceiver *>

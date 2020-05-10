@@ -14,4 +14,7 @@ extern "C"
                                                    void *audio_or_video_sink);
 
     EXPORT const char *CONVENTION RtpTransceiverMid(Shim::RtpTransceiver *transceiver);
+
+    EXPORT int32_t CONVENTION RtpTransceiverGetMediaKind(Shim::RtpTransceiver *transceiver);
+
 }

@@ -101,3 +101,11 @@ void CONVENTION PeerConnectionFreeGetTransceiversResult(Shim::PeerConnection *pe
 {
     peer_connection->FreeGetTransceiversResult(transceivers);
 }
+
+Shim::RtpTransceiver *CONVENTION PeerConnectionAddTransceiver(Shim::PeerConnection *peer_connection,
+                                                              bool is_audio_transceiver)
+{
+    return peer_connection->AddTransceiver(is_audio_transceiver
+                                               ? cricket::MediaType::MEDIA_TYPE_AUDIO
+                                               : cricket::MediaType::MEDIA_TYPE_VIDEO);
+}

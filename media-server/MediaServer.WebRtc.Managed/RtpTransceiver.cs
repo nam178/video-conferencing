@@ -22,6 +22,8 @@ namespace MediaServer.WebRtc.Managed
 
         public string Mid => Marshal.PtrToStringAnsi(RtpTransceiverInterops.Mid(Handle));
 
+        public MediaKind MediaKind => (MediaKind)RtpTransceiverInterops.GetMediaKind(Handle);
+
         public RtpSender Sender
         {
             get

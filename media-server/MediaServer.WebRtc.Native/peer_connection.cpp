@@ -238,7 +238,14 @@ void Shim::PeerConnection::GetTransceivers(Shim::RtpTransceiver ***transceiver, 
     // Finally output the result
     *size = _last_known_transceivers.size();
     if(*size > 0)
+    {
         *transceiver = new Shim::RtpTransceiver *[*size];
+        size_t i = 0;
+        for(auto &tmp : _last_known_transceivers)
+        {
+            (*transceiver)[i++] = tmp.second;
+        }
+    }
     else
         *transceiver = nullptr;
 }
@@ -246,4 +253,18 @@ void Shim::PeerConnection::GetTransceivers(Shim::RtpTransceiver ***transceiver, 
 void Shim::PeerConnection::FreeGetTransceiversResult(Shim::RtpTransceiver **transceiver) const
 {
     delete[] transceiver;
+}
+
+Shim::RtpTransceiver *Shim::PeerConnection::AddTransceiver(cricket::MediaType mediaType)
+{
+    auto result = _peer_connection_interface->AddTransceiver(mediaType);
+    if(result.ok())
+    {
+        return new Shim::RtpTransceiver(std::move(result.value()));
+    }
+    else
+    {
+        RTC_LOG(LS_ERROR) << "Failed adding transceiver: " << result.error().message();
+    }
+    return nullptr;
 }

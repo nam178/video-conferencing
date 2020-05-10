@@ -32,19 +32,6 @@
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
-  <!-- copy here 
-  <ItemGroup>
-    <ContentWithTargetPath Include="..\bin\Win32\x64\$(Configuration)\MediaServer.WebRtc.Native.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>MediaServer.WebRtc.Native.dll</TargetPath>
-    </ContentWithTargetPath>
-    <ContentWithTargetPath Include="..\bin\Win32\x64\$(Configuration)\MediaServer.WebRtc.Native.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>MediaServer.WebRtc.Native.pdb</TargetPath>
-    </ContentWithTargetPath>
-  </ItemGroup>
--->
-  
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
     <None Include="..\bin\Win32\x64\$(Configuration)\MediaServer.WebRtc.Native.dll">

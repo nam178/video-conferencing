@@ -55,3 +55,16 @@ const char *CONVENTION RtpTransceiverMid(Shim::RtpTransceiver *transceiver)
 {
     return transceiver->Mid();
 }
+
+int32_t CONVENTION RtpTransceiverGetMediaKind(Shim::RtpTransceiver *transceiver)
+{
+    switch(transceiver->MediaKind())
+    {
+    case cricket::MediaType::MEDIA_TYPE_AUDIO:
+        return 0;
+    case cricket::MediaType::MEDIA_TYPE_VIDEO:
+        return 1;
+    default:
+        return 2;
+    }
+}

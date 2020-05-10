@@ -40,7 +40,7 @@ namespace MediaServer.WebRtc.MediaRouting
                 throw new NullReferenceException(nameof(track));
 
             // TODO: handle audio tracks
-            if(track.Kind == MediaKind.Audio)
+            if(track.Kind != MediaKind.Video)
             {
                 _logger.Warn("Ignored an audio track");
                 return;
@@ -73,7 +73,7 @@ namespace MediaServer.WebRtc.MediaRouting
                 throw new NullReferenceException(nameof(track));
 
             // TODO: handle audio tracks
-            if(track.Kind == MediaKind.Audio)
+            if(track.Kind != MediaKind.Video)
             {
                 _logger.Warn("Ignored an audio track");
                 return;

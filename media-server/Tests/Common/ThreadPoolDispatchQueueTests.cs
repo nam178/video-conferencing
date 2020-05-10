@@ -9,33 +9,6 @@ namespace Tests.Common
     public class ThreadPoolDispatchQueueTests
     {
         [Fact]
-        public void ExecuteAsync_ProvidedTaskWaitsOnAnotherTask_NoDeadLock()
-        {
-            using var taskQueue = new ThreadPoolDispatchQueue();
-            using var manualResetEvent = new ManualResetEvent(false);
-
-            taskQueue.Start();
-
-            // First start a task
-            taskQueue.ExecuteAsync(async delegate
-            {
-                // This task then depends on another task,
-                // dispatched into the same queue.
-                // Normally this would cause dead lock,
-                // but we handled that by executing any task on the same async context immediately.
-                await taskQueue.ExecuteAsync(async delegate
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-                    manualResetEvent.Set();
-                });
-            });
-
-            // Wait max 60 seconds
-            // The task above must be completed within this provided time
-            Assert.True(manualResetEvent.WaitOne(TimeSpan.FromSeconds(60)));
-        }
-
-        [Fact]
         public void ExecuteAsync_ProvidedSyncrionousTask_TaskWillGetExecuted()
         {
             using var taskQueue = new ThreadPoolDispatchQueue();

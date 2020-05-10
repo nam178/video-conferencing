@@ -46,7 +46,7 @@ namespace MediaServer.WebRtc.MediaRouting
             Require.NotNullOrWhiteSpace(transceiverMid);
 
             // Ignore audio tracks for now
-            if(mediaKind == MediaKind.Audio)
+            if(mediaKind != MediaKind.Video)
                 return Task.CompletedTask;
 
             return _signallingThread.ExecuteAsync(delegate
@@ -198,7 +198,7 @@ namespace MediaServer.WebRtc.MediaRouting
             VideoRouterThrowHelper.WhenInvalidReceiver(transceiver);
 
             // Ignore audio tracks for now
-            if(transceiver.Receiver.Track.Kind == MediaKind.Audio)
+            if(transceiver.Receiver.Track.Kind != MediaKind.Video)
                 return;
 
             // What's the video source that this track should be connected to?
