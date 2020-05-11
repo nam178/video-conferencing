@@ -5,13 +5,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.Negotiation
+namespace MediaServer.Core.Services.Negotiation.Handlers
 {
     sealed class IceCandidateHandler : IIceCandidateHandler
     {
-        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        public async Task AddAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCIceCandidate iceCandidate)
+        public Task AddAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCIceCandidate iceCandidate)
         {
             var peerConnection = remoteDevice.GetCustomData().PeerConnections.FirstOrDefault(p => p.Id == peerConnectionId);
             if(null == peerConnection)
@@ -26,11 +24,8 @@ namespace MediaServer.Core.Services.Negotiation
                 throw new InvalidProgramException();
             }
 
-            await peerConnection.Room.SignallingThread.ExecuteAsync(delegate
-            {
-                peerConnection.AddIceCandidate(iceCandidate);
-                _logger.Trace($"Ice candidate {iceCandidate} added to {peerConnection}");
-            });
+            peerConnection.Room.NegotiationService.RemoteIceCandidateReceived(peerConnection, iceCandidate);
+            return Task.CompletedTask;
         }
     }
 }

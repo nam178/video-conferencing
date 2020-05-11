@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.Negotiation
+namespace MediaServer.Core.Services.Negotiation.Handlers
 {
     sealed class AnswerHandler : IAnswerHandler
     {

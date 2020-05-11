@@ -1,7 +1,7 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
-using MediaServer.Core.Services.Negotiation;
+using MediaServer.Core.Services.Negotiation.MessageQueue;
 using MediaServer.WebRtc.MediaRouting;
 using System.Threading.Tasks;
 

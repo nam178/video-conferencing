@@ -2,7 +2,7 @@ using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
-using MediaServer.Core.Services.Negotiation;
+using MediaServer.Core.Services.Negotiation.MessageQueue;
 using MediaServer.WebRtc.MediaRouting;
 using System;
 using System.Collections.Generic;
@@ -62,7 +62,7 @@ namespace MediaServer.Models
         public Room(
             RoomId id,
             IWebRtcInfra peerConnectionFactory,
-            IEnumerable<INegotiationMessageSubscriber> negotiationMessages)
+            IEnumerable<IMessageSubscriber> negotiationMessages)
         {
             Require.NotEmpty(id);
             _infra = peerConnectionFactory

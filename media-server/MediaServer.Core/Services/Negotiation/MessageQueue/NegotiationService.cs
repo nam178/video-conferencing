@@ -3,7 +3,7 @@ using MediaServer.Core.Models;
 using MediaServer.WebRtc.Managed;
 using System.Collections.Generic;
 
-namespace MediaServer.Core.Services.Negotiation
+namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
     sealed class NegotiationService : INegotiationService
     {
@@ -11,7 +11,7 @@ namespace MediaServer.Core.Services.Negotiation
 
         public NegotiationService(
             IThread signallingThread,
-            IEnumerable<INegotiationMessageSubscriber> subscribers)
+            IEnumerable<IMessageSubscriber> subscribers)
         {
             if(signallingThread is null)
                 throw new System.ArgumentNullException(nameof(signallingThread));
@@ -20,11 +20,16 @@ namespace MediaServer.Core.Services.Negotiation
             _negotiationQueue = new NegotiationQueue(subscribers, signallingThread);
         }
 
+        public void RemoteIceCandidateReceived(IPeerConnection peerConnection, RTCIceCandidate candidate)
+        {
+            _negotiationQueue.Enqueue(new IceCandidateMessage(peerConnection, candidate));
+        }
+
         public void RemoteSessionDescriptionReceived(
             IPeerConnection peerConnection,
             RTCSessionDescription remoteSessionDescription)
         {
-            _negotiationQueue.Enqueue(new SessionDescriptionMessage(peerConnection, remoteSessionDescription));
+            _negotiationQueue.Enqueue(new SdpMessage(peerConnection, remoteSessionDescription));
         }
 
         public void RenegotiationRequired(IPeerConnection peerConnection)

@@ -1,6 +1,6 @@
 ﻿using Autofac;
 using MediaServer.Core.Adapters;
-using MediaServer.Core.Services.Negotiation;
+using MediaServer.Core.Services.Negotiation.MessageQueue;
 using MediaServer.Models;
 using System;
 using System.Collections.Generic;
@@ -19,6 +19,6 @@ namespace MediaServer.Core.Models
         public IRoom Create(RoomId id) => new Room(
             id, 
             _lifetimeScope.Resolve<WebRtcInfraAdapter>(),
-            _lifetimeScope.Resolve<IEnumerable<INegotiationMessageSubscriber>>());
+            _lifetimeScope.Resolve<IEnumerable<IMessageSubscriber>>());
     }
 }

@@ -5,15 +5,15 @@ using MediaServer.WebRtc.Managed;
 using NLog;
 using System;
 
-namespace MediaServer.Core.Services.Negotiation
+namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
-    sealed class RenegotiationMessageSubscriber : INegotiationMessageSubscriber
+    sealed class RenegotiationMessageSubscriber : IMessageSubscriber
     {
         readonly static ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public bool CanHandle(NegotiationMessage message) => message is RenegotiationMessage;
+        public bool CanHandle(Message message) => message is RenegotiationMessage;
 
-        public void Handle(NegotiationMessage message, Observer completionCallback)
+        public void Handle(Message message, Observer completionCallback)
         {
             var peerConnection = message.PeerConnection;
             _logger.Debug($"[Renegotiation Step 0/3] Re-negotiating with {peerConnection}..");

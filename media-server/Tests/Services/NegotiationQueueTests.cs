@@ -1,7 +1,7 @@
 ﻿using MediaServer.Common.Patterns;
 using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
-using MediaServer.Core.Services.Negotiation;
+using MediaServer.Core.Services.Negotiation.MessageQueue;
 using Moq;
 using System;
 using System.Threading;
@@ -12,13 +12,13 @@ namespace Tests.Services
 {
     public class NegotiationQueueTests : IDisposable
     {
-        readonly Mock<INegotiationMessageSubscriber> _mockSubscriber = new Mock<INegotiationMessageSubscriber>();
+        readonly Mock<IMessageSubscriber> _mockSubscriber = new Mock<IMessageSubscriber>();
         readonly Mock<IThread> _mockSignallingThread = new Mock<IThread>();
         readonly NegotiationQueue _queue;
 
         public NegotiationQueueTests()
         {
-            _queue = new NegotiationQueue(new INegotiationMessageSubscriber[]
+            _queue = new NegotiationQueue(new IMessageSubscriber[]
             {
                 _mockSubscriber.Object,
             }, _mockSignallingThread.Object);
@@ -31,7 +31,7 @@ namespace Tests.Services
                     _ = Task.Run(() => action(u));
                 });
             _mockSubscriber
-                .Setup(x => x.CanHandle(It.IsAny<NegotiationMessage>()))
+                .Setup(x => x.CanHandle(It.IsAny<Message>()))
                 .Returns(true);
         }
 
@@ -41,7 +41,7 @@ namespace Tests.Services
             _queue.Stop();
             Assert.Throws<InvalidOperationException>(delegate
             {
-                _queue.Enqueue(new NegotiationMessage(Mock.Of<IPeerConnection>()));
+                _queue.Enqueue(new Message(Mock.Of<IPeerConnection>()));
             });
         }
 
@@ -55,13 +55,13 @@ namespace Tests.Services
             {
                 var wh = new ManualResetEvent(false);
                 _mockSubscriber
-                    .Setup(x => x.Handle(It.IsAny<NegotiationMessage>(), It.IsAny<Observer>()))
-                    .Callback<NegotiationMessage, Observer>((m, observer) =>
+                    .Setup(x => x.Handle(It.IsAny<Message>(), It.IsAny<Observer>()))
+                    .Callback<Message, Observer>((m, observer) =>
                     {
                         observer.Success();
                         wh.Set();
                     });
-                _queue.Enqueue(new NegotiationMessage(Mock.Of<IPeerConnection>()));
+                _queue.Enqueue(new Message(Mock.Of<IPeerConnection>()));
 
                 Assert.True(wh.WaitOne(TimeSpan.FromSeconds(15)));
             }
@@ -74,13 +74,13 @@ namespace Tests.Services
             var secondMessageSubmitted = new ManualResetEvent(false);
             var secondMessageProcessingEnded = new ManualResetEvent(false);
             var p = Mock.Of<IPeerConnection>();
-            var m1 = new NegotiationMessage(p);
-            var m2 = new NegotiationMessage(p);
+            var m1 = new Message(p);
+            var m2 = new Message(p);
 
             // Mock processing first message:
             _mockSubscriber
                 .Setup(x => x.Handle(m1, It.IsAny<Observer>()))
-                .Callback<NegotiationMessage, Observer>((m, observer) =>
+                .Callback<Message, Observer>((m, observer) =>
                 {
                     // Signal to indicate that the first message has begun processing
                     firstMessageProcessingStart.Set();
@@ -99,7 +99,7 @@ namespace Tests.Services
             // Mock processing second message
             _mockSubscriber
                 .Setup(x => x.Handle(m2, It.IsAny<Observer>()))
-                .Callback<NegotiationMessage, Observer>((m, observer) =>
+                .Callback<Message, Observer>((m, observer) =>
                 {
                     observer.Success();
                     secondMessageProcessingEnded.Set();
@@ -123,14 +123,14 @@ namespace Tests.Services
         {
             var m1Processed = new ManualResetEvent(false);
             var m2Processed = new ManualResetEvent(false);
-            var m1 = new NegotiationMessage(Mock.Of<IPeerConnection>());
-            var m2 = new NegotiationMessage(Mock.Of<IPeerConnection>());
+            var m1 = new Message(Mock.Of<IPeerConnection>());
+            var m2 = new Message(Mock.Of<IPeerConnection>());
             var m1ProcessingStarted = false;
 
             // Mock processing first message:
             _mockSubscriber
-                .Setup(x => x.Handle(It.IsAny<NegotiationMessage>(), It.IsAny<Observer>()))
-                .Callback<NegotiationMessage, Observer>(async (msg, observer) =>
+                .Setup(x => x.Handle(It.IsAny<Message>(), It.IsAny<Observer>()))
+                .Callback<Message, Observer>(async (msg, observer) =>
                 {
                     if(msg == m1)
                         m1ProcessingStarted = true;

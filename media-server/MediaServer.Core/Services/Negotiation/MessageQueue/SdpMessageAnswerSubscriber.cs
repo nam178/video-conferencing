@@ -2,23 +2,23 @@
 using NLog;
 using System;
 
-namespace MediaServer.Core.Services.Negotiation
+namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
-    sealed class AnswerMessageSubscriber : INegotiationMessageSubscriber
+    sealed class SdpMessageAnswerSubscriber : IMessageSubscriber
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public bool CanHandle(NegotiationMessage message)
+        public bool CanHandle(Message message)
         {
-            return (message is SessionDescriptionMessage)
+            return message is SdpMessage
                 && "answer".Equals(
-                    ((SessionDescriptionMessage)message).SessionDescription.Type,
+                    ((SdpMessage)message).SessionDescription.Type,
                     StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public void Handle(NegotiationMessage message, Observer completionCallback)
+        public void Handle(Message message, Observer completionCallback)
         {
-            var sdp = ((SessionDescriptionMessage)message).SessionDescription;
+            var sdp = ((SdpMessage)message).SessionDescription;
             var observer = new Observer()
                 .OnError(completionCallback)
                 .OnSuccess(delegate
