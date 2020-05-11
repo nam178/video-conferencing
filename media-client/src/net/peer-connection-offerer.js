@@ -121,17 +121,16 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         logger.info('[Step 1/5] Offer generated', offer);
 
         // Step 2: Set Local Description.
-        // This generates ICE candidates, however they are queued,
-        // and they won't be send after the remote SDP is set.
+        // This generates ICE candidates, however they will be queued,
+        // as sending ICE candidates must be done after SDP is set.
         await this._peerConnection.setLocalDescription(offer);
         if (this._cancelled)
             return;
         logger.info('[Step 2/5] Local description set', offer);
 
-        // Send the generated sdp to the server
-        // Notes - must do this before setLocalDescription()
-        // because setLocalDescription() generates ICE candidates,
-        // and we don't want to send ICE candidates before the SDP
+        // Send the generated sdp to the server.
+        // Must do this after setLocalDescription, because the transceiver mids are null
+        // until we call setLocalDescription();
         if (false == this.webSocketClient.tryQueueMessage('SetOffer', {
             offer: {
                 type: offer.type,
