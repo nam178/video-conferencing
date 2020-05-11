@@ -282,11 +282,11 @@ namespace MediaServer.WebRtc.Managed
 
         void SafetyCheck()
         {
-            _signallingThread.EnsureCurrentThread();
             if(Interlocked.CompareExchange(ref _disposed, 0, 0) == 1)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+            _signallingThread.EnsureCurrentThread();
         }
 
         void Complete(

@@ -1,10 +1,13 @@
 ﻿using MediaServer.Common.Patterns;
+using NLog;
 using System;
 
 namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
     sealed class IceCandidateMessageSubscriber : IMessageSubscriber
     {
+        readonly static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public bool CanHandle(Message message) => (message is IceCandidateMessage);
 
         public void Handle(Message message, Observer completionCallback)
@@ -22,6 +25,10 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                 {
                     completionCallback.Error(
                         $"{nameof(message.PeerConnection.AddIceCandidate)} failed: {ex.Message}");
+                    if(!(ex is ObjectDisposedException))
+                    {
+                        _logger.Error(ex);
+                    }
                     return;
                 }
             }
@@ -37,6 +44,10 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                 {
                     completionCallback.Error(
                         $"{nameof(message.PeerConnection.AddIceCandidate)} failed: {ex.Message}");
+                    if(!(ex is ObjectDisposedException))
+                    {
+                        _logger.Error(ex);
+                    }
                     return;
                 }
             }

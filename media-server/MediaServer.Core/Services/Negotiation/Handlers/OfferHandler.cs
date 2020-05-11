@@ -43,7 +43,7 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
             remoteDevice.SetCustomData(deviceData);
 
             // Let the negotiation service handle the rest
-            deviceData.User.Room.NegotiationService.EnqueueRemoteSdpMessage(peerConnection, offer);
+            deviceData.User.Room.NegotiationService.EnqueueRemoteOfferMessage(peerConnection, offer);
             return Task.CompletedTask;
         }
 

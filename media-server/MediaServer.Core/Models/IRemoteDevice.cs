@@ -54,7 +54,14 @@ namespace MediaServer.Models
         /// </summary>
         /// <param name="description">Could be either offer or answer</param>
         /// <returns></returns>
-        void EnqueueSessionDescription(Guid peerConnectionId, RTCSessionDescription description);
+        void EnqueueAnswer(Guid peerConnectionId, RTCSessionDescription description);
+
+        /// <summary>
+        /// Send the specified SDP to the remote peer
+        /// </summary>
+        /// <param name="description">Could be either offer or answer</param>
+        /// <returns></returns>
+        void EnqueueOffer(Guid peerConnectionId, Guid offerId, RTCSessionDescription description);
 
         /// <summary>
         /// Terminate the connection with this device.

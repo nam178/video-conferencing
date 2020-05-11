@@ -12,13 +12,13 @@ namespace MediaServer.Api.WebSocket.CommandHandlers
 
         public SetAnswerCommandHandler(IAnswerHandler answerHandler)
         {
-            _answerHandler = answerHandler 
+            _answerHandler = answerHandler
                 ?? throw new System.ArgumentNullException(nameof(answerHandler));
         }
 
-        public Task HandleAsync(IWebSocketRemoteDevice arg1, SetAnswer arg2)
+        public Task HandleAsync(IWebSocketRemoteDevice device, SetAnswer args)
         {
-            return _answerHandler.HandleAsync(arg1, arg2.PeerConnectionId, arg2.Answer);
+            return _answerHandler.HandleAsync(device, args.PeerConnectionId, args.OfferId, args.Answer);
         }
     }
 }

@@ -27,6 +27,10 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             catch(Exception ex)
             {
                 completionCallback.Error($"{nameof(peerConnection.CreateOffer)} failed: {ex.Message}");
+                if(!(ex is ObjectDisposedException))
+                {
+                    _logger.Error(ex);
+                }
             }
         }
 
@@ -40,12 +44,16 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     // those generated from SetLocalSessionDescriptionAsync();
                     try
                     {
-                        peerConnection.Device.EnqueueSessionDescription(peerConnection.Id, offer);
+                        peerConnection.Device.EnqueueOffer(peerConnection.Id, peerConnection.LastOfferId, offer);
                         _logger.Debug($"[Renegotiation Step 1/3] Offer generated and sent for {peerConnection}.");
                     }
                     catch(Exception ex)
                     {
-                        completionCallback.Error($"{nameof(IRemoteDevice.EnqueueSessionDescription)} failed: {ex.Message}");
+                        completionCallback.Error($"{nameof(IRemoteDevice.EnqueueOffer)} failed: {ex.Message}");
+                        if(!(ex is ObjectDisposedException))
+                        {
+                            _logger.Error(ex);
+                        }
                         return;
                     }
 
@@ -58,6 +66,10 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     catch(Exception ex)
                     {
                         completionCallback.Error($"{nameof(peerConnection.SetLocalSessionDescription)} failed: {ex.Message}");
+                        if(!(ex is ObjectDisposedException))
+                        {
+                            _logger.Error(ex);
+                        }
                     }
                 });
 

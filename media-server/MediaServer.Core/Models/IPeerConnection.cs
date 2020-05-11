@@ -16,6 +16,8 @@ namespace MediaServer.Core.Models
 
         public Guid Id { get; }
 
+        public Guid LastOfferId { get; }
+
         void CreateAnswer(Observer<RTCSessionDescription> observer);
 
         void CreateOffer(Observer<RTCSessionDescription> observer);

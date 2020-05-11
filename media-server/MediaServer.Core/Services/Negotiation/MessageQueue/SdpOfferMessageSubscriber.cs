@@ -6,21 +6,15 @@ using System;
 
 namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
-    sealed class SdpMessageOfferSubscriber : IMessageSubscriber
+    sealed class SdpOfferMessageSubscriber : IMessageSubscriber
     {
         static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public bool CanHandle(Message message)
-        {
-            return message is SdpMessage
-                && "offer".Equals(
-                    ((SdpMessage)message).SessionDescription.Type,
-                    StringComparison.InvariantCultureIgnoreCase);
-        }
+        public bool CanHandle(Message message) => message is SdpOfferMessage;
 
         public void Handle(Message message, Observer completionCallback) // signalling thread
         {
-            var sdp = ((SdpMessage)message).SessionDescription;
+            var sdp = ((SdpOfferMessage)message).SessionDescription;
             var observer = GetRemoteSessionDescriptionObserver(message, completionCallback, sdp);
 
             // Step 1: SetRemoteSessionDescription
@@ -31,6 +25,10 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             catch(Exception ex)
             {
                 completionCallback.Error($"{nameof(message.PeerConnection.SetRemoteSessionDescription)} failed: {ex.Message}");
+                if(!(ex is ObjectDisposedException))
+                {
+                    _logger.Error(ex);
+                }
             }
 
         }
@@ -50,6 +48,10 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     catch(Exception ex)
                     {
                         completionCallback.Error($"{nameof(message.PeerConnection.CreateAnswer)} failed: {ex.Message}");
+                        if(!(ex is ObjectDisposedException))
+                        {
+                            _logger.Error(ex);
+                        }
                     }
                 });
 
@@ -61,12 +63,16 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     // Step 3: Send Answer + SetLocalSessionDescription
                     try
                     {
-                        message.PeerConnection.Device.EnqueueSessionDescription(message.PeerConnection.Id, answer);
+                        message.PeerConnection.Device.EnqueueAnswer(message.PeerConnection.Id, answer);
                         _logger.Debug($"[Negotiation Step 2/3] Answer {answer} created and sent for {message.PeerConnection}");
                     }
                     catch(Exception ex)
                     {
-                        completionCallback.Error($"{nameof(IRemoteDevice.EnqueueSessionDescription)} failed: {ex.Message}");
+                        completionCallback.Error($"{nameof(IRemoteDevice.EnqueueAnswer)} failed: {ex.Message}");
+                        if(!(ex is ObjectDisposedException))
+                        {
+                            _logger.Error(ex);
+                        }
                         return;
                     }
 
@@ -81,6 +87,10 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     catch(Exception ex)
                     {
                         completionCallback.Error($"{nameof(message.PeerConnection.SetLocalSessionDescription)} failed: {ex.Message}");
+                        if(!(ex is ObjectDisposedException))
+                        {
+                            _logger.Error(ex);
+                        }
                     }
                 });
 

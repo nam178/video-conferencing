@@ -44,8 +44,8 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<WebRtcInfraAdapter>().AsSelf();
 
             // Negotiation service
-            builder.RegisterType<SdpMessageOfferSubscriber>().AsImplementedInterfaces();
-            builder.RegisterType<SdpMessageAnswerSubscriber>().AsImplementedInterfaces();
+            builder.RegisterType<SdpOfferMessageSubscriber>().AsImplementedInterfaces();
+            builder.RegisterType<SdpAnswerMessageSubscriber>().AsImplementedInterfaces();
             builder.RegisterType<RenegotiationMessageSubscriber>().AsImplementedInterfaces();
             builder.RegisterType<IceCandidateMessageSubscriber>().AsImplementedInterfaces();
         }

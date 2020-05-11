@@ -4,7 +4,6 @@ using MediaServer.WebRtc.Managed;
 using NLog;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MediaServer.WebRtc.MediaRouting
 {
@@ -229,6 +228,11 @@ namespace MediaServer.WebRtc.MediaRouting
                 _localVideoLinks.Add(localVideoLink);
                 _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
             }
+        }
+
+        public void ClearFrozenTransceivers(Guid videoClientId, Guid peerConnectionId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

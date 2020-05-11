@@ -1,6 +1,7 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.WebRtc.Managed;
+using System;
 using System.Collections.Generic;
 
 namespace MediaServer.Core.Services.Negotiation.MessageQueue
@@ -14,9 +15,9 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             IEnumerable<IMessageSubscriber> subscribers)
         {
             if(signallingThread is null)
-                throw new System.ArgumentNullException(nameof(signallingThread));
+                throw new ArgumentNullException(nameof(signallingThread));
             if(subscribers is null)
-                throw new System.ArgumentNullException(nameof(subscribers));
+                throw new ArgumentNullException(nameof(subscribers));
             _negotiationQueue = new NegotiationQueue(subscribers, signallingThread);
         }
 
@@ -25,16 +26,21 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             _negotiationQueue.Enqueue(new IceCandidateMessage(peerConnection, candidate, false));
         }
 
+        public void EnqueueRemoteAnswerMessage(IPeerConnection peerConnection, Guid offerId, RTCSessionDescription remoteSessionDescription)
+        {
+            _negotiationQueue.Enqueue(new SdpAnswerMessage(peerConnection, remoteSessionDescription, offerId));
+        }
+
         public void EnqueueRemoteIceCandidate(IPeerConnection peerConnection, RTCIceCandidate candidate)
         {
             _negotiationQueue.Enqueue(new IceCandidateMessage(peerConnection, candidate, true));
         }
 
-        public void EnqueueRemoteSdpMessage(
+        public void EnqueueRemoteOfferMessage(
             IPeerConnection peerConnection,
             RTCSessionDescription remoteSessionDescription)
         {
-            _negotiationQueue.Enqueue(new SdpMessage(peerConnection, remoteSessionDescription));
+            _negotiationQueue.Enqueue(new SdpOfferMessage(peerConnection, remoteSessionDescription));
         }
 
         public void EnqueueRenegotiationRequest(IPeerConnection peerConnection)

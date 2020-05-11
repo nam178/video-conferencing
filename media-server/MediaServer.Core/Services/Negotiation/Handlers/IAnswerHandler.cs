@@ -7,6 +7,6 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
 {
     public interface IAnswerHandler
     {
-        Task HandleAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCSessionDescription answer);
+        Task HandleAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, Guid offerId, RTCSessionDescription answer);
     }
 }

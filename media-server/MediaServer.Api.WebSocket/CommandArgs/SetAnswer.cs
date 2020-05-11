@@ -8,5 +8,7 @@ namespace MediaServer.Api.WebSocket.CommandArgs
         public RTCSessionDescription Answer { get; set; }
 
         public Guid PeerConnectionId { get; set; }
+
+        public Guid OfferId { get; set; }
     }
 }

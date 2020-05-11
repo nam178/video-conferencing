@@ -9,10 +9,12 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
 {
     sealed class AnswerHandler : IAnswerHandler
     {
-        public Task HandleAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCSessionDescription answer)
+        public Task HandleAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, Guid offerId, RTCSessionDescription answer)
         {
             Require.NotNull(answer.Sdp);
             Require.NotNull(answer.Type);
+            Require.NotEmpty(offerId);
+            Require.NotEmpty(peerConnectionId);
 
             // Get user and current IPeerConnection for this device
             var deviceData = remoteDevice.GetCustomData();
@@ -24,7 +26,7 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
             if(null == peerConnection)
                 throw new InvalidOperationException($"PeerConnection {peerConnectionId} does not exist for the device {remoteDevice}");
 
-            deviceData.User.Room.NegotiationService.EnqueueRemoteSdpMessage(peerConnection, answer);
+            deviceData.User.Room.NegotiationService.EnqueueRemoteAnswerMessage(peerConnection, offerId, answer);
             return Task.CompletedTask;
         }
     }

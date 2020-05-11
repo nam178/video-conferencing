@@ -20,12 +20,22 @@ namespace MediaServer.Core.Adapters
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         Action<IPeerConnection, RTCIceCandidate> _iceCandidateObserver;
         Action<IPeerConnection> _renegotationNeededObserver;
+        int _addedToRouterState;
+
+        enum AddedToRouterState : int
+        {
+            NotAdded = 0,
+            Added = 1,
+            Removed = 2
+        }
 
         public IRoom Room { get; }
 
         public IRemoteDevice Device { get; }
 
         public Guid Id => _peerConnectionImpl.Id;
+
+        public Guid LastOfferId { get; private set; }
 
         public PeerConnectionAdapter(
             PeerConnectionFactory peerConnectionFactory,
@@ -53,15 +63,6 @@ namespace MediaServer.Core.Adapters
             _peerConnectionObserverImpl.IceCandidateAdded += IceCandidateAdded;
             _peerConnectionObserverImpl.RenegotiationNeeded += RenegotationNeeded;
             _peerConnectionImpl = peerConnectionFactory.CreatePeerConnection(_peerConnectionObserverImpl, config);
-        }
-
-        int _addedToRouterState;
-
-        enum AddedToRouterState : int
-        {
-            NotAdded = 0,
-            Added = 1,
-            Removed = 2
         }
 
 
@@ -104,6 +105,7 @@ namespace MediaServer.Core.Adapters
             if(observer is null)
                 throw new ArgumentNullException(nameof(observer));
             MustNotDisposed();
+            LastOfferId = Guid.NewGuid();
             _peerConnectionImpl.CreateOffer(observer);
         }
 
