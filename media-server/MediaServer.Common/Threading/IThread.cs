@@ -4,6 +4,8 @@ namespace MediaServer.Common.Threading
 {
     public interface IThread : IDispatchQueue
     {
+        void Post(Action<object> handler, object userData = null);
+
         bool IsCurrent { get; }
     }
 

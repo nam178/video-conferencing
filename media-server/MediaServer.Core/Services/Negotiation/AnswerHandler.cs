@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.PeerConnection
+namespace MediaServer.Core.Services.Negotiation
 {
     sealed class AnswerHandler : IAnswerHandler
     {
@@ -24,11 +24,8 @@ namespace MediaServer.Core.Services.PeerConnection
             if(null == peerConnection)
                 throw new InvalidOperationException($"PeerConnection {peerConnectionId} does not exist for the device {remoteDevice}");
 
-            // All good, can start negotiating
-            return deviceData.User.Room.SignallingThread.ExecuteAsync(async delegate
-            {
-                await peerConnection.SetRemoteSessionDescriptionAsync(answer);
-            });
+            deviceData.User.Room.NegotiationService.RemoteSessionDescriptionReceived(peerConnection, answer);
+            return Task.CompletedTask;
         }
     }
 }

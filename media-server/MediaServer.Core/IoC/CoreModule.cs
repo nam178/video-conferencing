@@ -3,7 +3,7 @@ using MediaServer.Common.Threading;
 using MediaServer.Core.Adapters;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
-using MediaServer.Core.Services.PeerConnection;
+using MediaServer.Core.Services.Negotiation;
 using MediaServer.Core.Services.RoomManagement;
 
 namespace MediaServer.Core.IoC
@@ -36,12 +36,15 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<IceCandidateHandler>().AsImplementedInterfaces();
             builder.RegisterType<OfferHandler>().AsImplementedInterfaces();
             builder.RegisterType<TransceiverMetadataSetter>().AsImplementedInterfaces();
-            builder.RegisterType<RenegotationHandler>().AsImplementedInterfaces();
             builder.RegisterType<AnswerHandler>().AsImplementedInterfaces();
 
             // Factories
             builder.RegisterType<RoomFactory>().AsImplementedInterfaces();
             builder.RegisterType<WebRtcInfraAdapter>().AsSelf();
+
+            // Negotiation service
+            builder.RegisterType<OfferMessageSubscriber>().AsImplementedInterfaces();
+            builder.RegisterType<RenegotiationMessageSubscriber>().AsImplementedInterfaces();
         }
     }
 }

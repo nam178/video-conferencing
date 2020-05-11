@@ -2,8 +2,10 @@ using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
+using MediaServer.Core.Services.Negotiation;
 using MediaServer.WebRtc.MediaRouting;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace MediaServer.Models
@@ -23,6 +25,8 @@ namespace MediaServer.Models
         }
 
         public RoomId Id { get; }
+
+        public INegotiationService NegotiationService { get; }
 
         public IUserProfileCollection UserProfiles
         {
@@ -55,12 +59,16 @@ namespace MediaServer.Models
 
         public IDispatchQueue RenegotiationQueue { get; } = new ThreadPoolDispatchQueue(started: true);
 
-        public Room(RoomId id, IWebRtcInfra peerConnectionFactory)
+        public Room(
+            RoomId id,
+            IWebRtcInfra peerConnectionFactory,
+            IEnumerable<INegotiationMessageSubscriber> negotiationMessages)
         {
             Require.NotEmpty(id);
             _infra = peerConnectionFactory
-                ?? throw new System.ArgumentNullException(nameof(peerConnectionFactory));
+                ?? throw new ArgumentNullException(nameof(peerConnectionFactory));
             Id = id;
+            NegotiationService = new NegotiationService(_infra.SignallingThread, negotiationMessages);
         }
 
         int _initLock = 0;

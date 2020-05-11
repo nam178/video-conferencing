@@ -1,13 +1,12 @@
-﻿using MediaServer.Models;
+﻿using MediaServer.Common.Patterns;
+using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using System;
-using System.Threading.Tasks;
 
 namespace MediaServer.Core.Models
 {
     /// <remarks>
-    /// This PeerConnection is thread safe. Members can be called/accessed from any thread.
-    /// The underlying native WebRTC implementation says it will proxy to the correct thread.
+    /// Properties are thread safe, but methods must be called from signalling thread.
     /// </remarks>
     public interface IPeerConnection : IDisposable
     {
@@ -17,20 +16,23 @@ namespace MediaServer.Core.Models
 
         public Guid Id { get; }
 
-        Task<RTCSessionDescription> CreateAnswerAsync();
+        void CreateAnswer(Observer<RTCSessionDescription> observer);
 
-        Task<RTCSessionDescription> CreateOfferAsync();
+        void CreateOffer(Observer<RTCSessionDescription> observer);
 
-        Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description);
+        void SetRemoteSessionDescription(
+            RTCSessionDescription description, Observer observer);
 
-        Task SetLocalSessionDescriptionAsync(RTCSessionDescription description);
+        void SetLocalSessionDescription(
+            RTCSessionDescription description, Observer observer);
 
-        IPeerConnection ObserveIceCandidate(Action<IPeerConnection, RTCIceCandidate> observer);
+        IPeerConnection ObserveIceCandidate(
+            Action<IPeerConnection, RTCIceCandidate> observer);
 
         IPeerConnection ObserveRenegotiationNeeded(Action<IPeerConnection> observer);
 
         void AddIceCandidate(RTCIceCandidate iceCandidate);
 
-        Task CloseAsync();
+        void Close();
     }
 }

@@ -60,5 +60,7 @@ namespace MediaServer.WebRtc.Managed
 
             return taskCompletionSource.Task;
         }
+
+        public void Post(Action<object> handler, object userData = null) => _original.Post(handler, userData);
     }
 }

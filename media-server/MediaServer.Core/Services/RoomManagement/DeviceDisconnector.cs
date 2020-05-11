@@ -23,20 +23,20 @@ namespace MediaServer.Core.Services.RoomManagement
 
             if(deviceData.Room != null)
             {
-                // Remove associated PeerConnections
-                await deviceData.Room.SignallingThread.ExecuteAsync(async delegate
+                await deviceData.Room.SignallingThread.ExecuteAsync(delegate
                 {
+                    // Close associated PeerConnections
                     foreach(var peer in deviceData.PeerConnections)
                     {
                         using(peer)
                         {
-                            await peer.CloseAsync();
+                            peer.Close();
                             _logger.Debug($"{peer} closed due to device disconnect, device {remoteDevice}");
                         }
                     }
+                    // Stop this device from sending data to ther devices
+                    deviceData.Room.VideoRouter.RemoveVideoClient(remoteDevice.Id);
                 });
-                // Stop this device from sending data to ther devices
-                await deviceData.Room.VideoRouter.RemoveVideoClientAsync(remoteDevice.Id);
             }
             else
             {

@@ -1,8 +1,8 @@
 using MediaServer.Api.WebSocket.CommandArgs;
 using MediaServer.Api.WebSocket.Net;
-using MediaServer.Common.Mediator;
+using MediaServer.Common.Patterns;
 using MediaServer.Common.Utils;
-using MediaServer.Core.Services.PeerConnection;
+using MediaServer.Core.Services.Negotiation;
 using System.Threading.Tasks;
 
 namespace MediaServer.Api.WebSocket.CommandHandlers

@@ -1,4 +1,4 @@
-﻿using MediaServer.Common.Mediator;
+﻿using MediaServer.Common.Patterns;
 using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;

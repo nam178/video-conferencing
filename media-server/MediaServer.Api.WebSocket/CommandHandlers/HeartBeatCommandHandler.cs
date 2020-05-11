@@ -1,8 +1,8 @@
-﻿using MediaServer.Common.Mediator;
-using MediaServer.Common.Time;
+﻿using MediaServer.Common.Time;
 using MediaServer.Api.WebSocket.Net;
 using NLog;
 using System.Threading.Tasks;
+using MediaServer.Common.Patterns;
 
 namespace MediaServer.Api.WebSocket.CommandHandlers
 {

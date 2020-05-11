@@ -7,20 +7,13 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.PeerConnection
+namespace MediaServer.Core.Services.Negotiation
 {
     sealed class OfferHandler : IOfferHandler
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        readonly IRenegotationHandler _renegotationHandler;
 
-        public OfferHandler(IRenegotationHandler renegotationHandler)
-        {
-            _renegotationHandler = renegotationHandler
-                ?? throw new ArgumentNullException(nameof(renegotationHandler));
-        }
-
-        public async Task HandleAsync(IRemoteDevice remoteDevice, Guid? peerConnectionId, RTCSessionDescription offer)
+        public Task HandleAsync(IRemoteDevice remoteDevice, Guid? peerConnectionId, RTCSessionDescription offer)
         {
             Require.NotNull(offer.Sdp);
             Require.NotNull(offer.Type);
@@ -49,28 +42,9 @@ namespace MediaServer.Core.Services.PeerConnection
             deviceData.PeerConnections.Add(peerConnection);
             remoteDevice.SetCustomData(deviceData);
 
-            // Then begin negotating
-            await deviceData.User.Room.SignallingThread.ExecuteAsync(async delegate
-            {
-                // Set remote offer
-                await peerConnection.SetRemoteSessionDescriptionAsync(offer);
-                _logger.Info($"Remote {offer} SDP set for {peerConnection}");
-
-                // Create Answer
-                var answer = await peerConnection.CreateAnswerAsync();
-                _logger.Info($"Answer {answer} created for {peerConnection}");
-
-                // Send Answer
-                remoteDevice.EnqueueSessionDescription(peerConnection.Id, answer);
-                _logger.Info($"Answer sent for {peerConnection}");
-
-                // Save the Answer locally
-                // SetLocalSessionDescriptionAsync() must be after SendSessionDescriptionAsync()
-                // because it SetLocalSessionDescriptionAsync() generates ICE candidates,
-                // and we want to send ICE candidates after remote SDP is set.
-                await peerConnection.SetLocalSessionDescriptionAsync(answer);
-                _logger.Info($"Local description {answer} set for {peerConnection}");
-            });
+            // Let the negotiation service handle the rest
+            deviceData.User.Room.NegotiationService.RemoteSessionDescriptionReceived(peerConnection, offer);
+            return Task.CompletedTask;
         }
 
         IPeerConnection CreatePeerConnection(IRemoteDevice remoteDevice, User user, RTCSessionDescription remoteSdp)
@@ -82,7 +56,7 @@ namespace MediaServer.Core.Services.PeerConnection
             // we'll add ICE candidate observer
             peerConnection
                 .ObserveIceCandidate((peer, cand) => remoteDevice.EnqueueIceCandidate(peer.Id, cand))
-                .ObserveRenegotiationNeeded(async peer => await _renegotationHandler.HandleAsync(remoteDevice, peerConnection));
+                .ObserveRenegotiationNeeded(peer => user.Room.NegotiationService.RenegotiationRequired(peerConnection));
 
             return peerConnection;
         }

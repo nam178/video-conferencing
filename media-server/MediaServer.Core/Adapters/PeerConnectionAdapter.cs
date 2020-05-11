@@ -1,4 +1,5 @@
-﻿using MediaServer.Common.Utils;
+﻿using MediaServer.Common.Patterns;
+using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
@@ -7,7 +8,6 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace MediaServer.Core.Adapters
 {
@@ -64,45 +64,64 @@ namespace MediaServer.Core.Adapters
             Removed = 2
         }
 
-        public async Task SetRemoteSessionDescriptionAsync(RTCSessionDescription description)
-        {
-            MustNotDisposed();
-            await _peerConnectionImpl.SetRemoteSessionDescriptionAsync(description.Type, description.Sdp);
 
-            // As per webRTC example, the answerer will SetRemoteSessionDescription() first,
-            // then followed by AddTrack();
-            //
-            // and AddPeerConnectionAsync() will call AddTrack() under the hood,
-            // therefore we call AddPeerConnectionAsync() right after SetRemoteSessionDescription();
-            if(Interlocked.CompareExchange(
-                ref _addedToRouterState,
-                (int)AddedToRouterState.Added,
-                (int)AddedToRouterState.NotAdded) == (int)AddedToRouterState.NotAdded)
-            {
-                await _videoRouter.AddPeerConnectionAsync(Device.Id, _peerConnectionImpl);
-            }
+        public void SetRemoteSessionDescription(RTCSessionDescription description, Observer observer)
+        {
+            if(observer is null)
+                throw new ArgumentNullException(nameof(observer));
+            MustNotDisposed();
+            _peerConnectionImpl.SetRemoteSessionDescription(
+                description.Type,
+                description.Sdp,
+                new Observer().OnSuccess(delegate
+                {
+                    try
+                    {
+                        // As per webRTC example, the answerer will SetRemoteSessionDescription() first,
+                        // then followed by AddTrack();
+                        //
+                        // and AddPeerConnectionAsync() will call AddTrack() under the hood,
+                        // therefore we call AddPeerConnectionAsync() right after SetRemoteSessionDescription();
+                        if(Interlocked.CompareExchange(
+                            ref _addedToRouterState,
+                            (int)AddedToRouterState.Added,
+                            (int)AddedToRouterState.NotAdded) == (int)AddedToRouterState.NotAdded)
+                        {
+                            _videoRouter.AddPeerConnection(Device.Id, _peerConnectionImpl);
+                        }
+                        observer.Success();
+                    }
+                    catch(Exception ex)
+                    {
+                        observer.Error(ex.Message);
+                    }
+
+                }).OnError(msg => observer.Error(msg)));
         }
 
-        public async Task<RTCSessionDescription> CreateOfferAsync()
+        public void CreateOffer(Observer<RTCSessionDescription> observer)
         {
+            if(observer is null)
+                throw new ArgumentNullException(nameof(observer));
             MustNotDisposed();
-            return await _peerConnectionImpl.CreateOfferAsync();
+            _peerConnectionImpl.CreateOffer(observer);
         }
 
-        public async Task<RTCSessionDescription> CreateAnswerAsync()
+        public void CreateAnswer(Observer<RTCSessionDescription> observer)
         {
             MustNotDisposed();
-            return await _peerConnectionImpl.CreateAnswerAsync();
+            _peerConnectionImpl.CreateAnswer(observer);
         }
 
-        public async Task SetLocalSessionDescriptionAsync(RTCSessionDescription localDescription)
+        public void SetLocalSessionDescription(RTCSessionDescription localDescription, Observer observer)
         {
             MustNotDisposed();
             // After generating answer, must set LocalSdp,
             // otherwise ICE candidates won't be gathered.
-            await _peerConnectionImpl.SetLocalSessionDescriptionAsync(
+            _peerConnectionImpl.SetLocalSessionDescription(
                 localDescription.Type,
-                localDescription.Sdp);
+                localDescription.Sdp,
+                observer);
         }
 
         public void AddIceCandidate(RTCIceCandidate iceCandidate)
@@ -137,7 +156,7 @@ namespace MediaServer.Core.Adapters
             return this;
         }
 
-        public async Task CloseAsync()
+        public void Close()
         {
             MustNotDisposed();
             if(Interlocked.CompareExchange(
@@ -145,7 +164,7 @@ namespace MediaServer.Core.Adapters
                 (int)AddedToRouterState.Removed,
                 (int)AddedToRouterState.Added) == (int)AddedToRouterState.Added)
             {
-                await _videoRouter.RemovePeerConnectionAsync(Device.Id, _peerConnectionImpl, _peerConnectionObserverImpl);
+                _videoRouter.RemovePeerConnection(Device.Id, _peerConnectionImpl, _peerConnectionObserverImpl);
             }
             _peerConnectionImpl.Close();
         }

@@ -1,4 +1,4 @@
-﻿using MediaServer.Common.Mediator;
+﻿using MediaServer.Common.Patterns;
 using MediaServer.Common.Utils;
 using System;
 using System.IO;

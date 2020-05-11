@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.PeerConnection
+namespace MediaServer.Core.Services.Negotiation
 {
     sealed class TransceiverMetadataSetter : ITransceiverMetadataSetter
     {
@@ -24,12 +24,15 @@ namespace MediaServer.Core.Services.PeerConnection
                 throw new UnauthorizedAccessException();
 
             // All good, tell the router what transceiver mid to expect.
-            foreach(var transceiver in transceivers)
+            await data.Room.SignallingThread.ExecuteAsync(delegate
             {
-                if(string.IsNullOrWhiteSpace(transceiver.TransceiverMid))
-                    throw new ArgumentException("TrackId is NULL or empty");
-                await data.Room.VideoRouter.PrepareAsync(device.Id, transceiver.TrackQuality, transceiver.Kind, transceiver.TransceiverMid);
-            }
+                foreach(var transceiver in transceivers)
+                {
+                    if(string.IsNullOrWhiteSpace(transceiver.TransceiverMid))
+                        throw new ArgumentException("TrackId is NULL or empty");
+                    data.Room.VideoRouter.Prepare(device.Id, transceiver.TrackQuality, transceiver.Kind, transceiver.TransceiverMid);
+                }
+            });
         }
     }
 }

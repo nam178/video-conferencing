@@ -84,3 +84,28 @@ Shim::RtpTransceiver *CONVENTION PeerConnectionAddTransceiver(Shim::PeerConnecti
                                                ? cricket::MediaType::MEDIA_TYPE_AUDIO
                                                : cricket::MediaType::MEDIA_TYPE_VIDEO);
 }
+
+Shim::RtpSender *CONVENTION PeerConnectionAddTrack(Shim::PeerConnection *peer_connection,
+                                                   Shim::MediaStreamTrack *media_stream_track,
+                                                   const char *stream_id)
+{
+    std::string stream_id_str(stream_id);
+    std::vector<std::string> stream_ids{stream_id_str};
+    auto result = peer_connection->AddTrack(media_stream_track->GetMediaStreamTrack(), stream_ids);
+    if(result)
+    {
+        return result.release();
+    }
+    return nullptr;
+}
+
+void CONVENTION PeerConnectionRemoveTrack(Shim::PeerConnection *peer_connection,
+                                          Shim::RtpSender *rtp_sender)
+{
+    if(!peer_connection)
+    {
+        RTC_LOG(LS_ERROR) << "peer_connection is NULL";
+        throw new std::runtime_error("peer_connection is NULL");
+    }
+    peer_connection->RemoveTrack(rtp_sender);
+}

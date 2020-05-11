@@ -1,8 +1,6 @@
 ﻿<Project>
-
-  <!-- This needs to go first, before Microsoft.Common.props is imported  -->
   <PropertyGroup>
-    <BaseIntermediateOutputPath>..\..\build\Microsoft.MixedReality.WebRTC\$(Configuration)</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>..\build\MediaServer.WebRtc.Managed\$(Configuration)</BaseIntermediateOutputPath>
     <OutputPath></OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
@@ -13,20 +11,22 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <LangVersion>7.3</LangVersion>
-    <Company>Microsoft</Company>
-    <Authors>Mixed Reality Sharing Team</Authors>
+    <Company></Company>
+    <Authors></Authors>
     <DefineConstants Condition="'$(Configuration)'=='Debug'">TRACE</DefineConstants>
     <DefineConstants>MR_SHARING_WIN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>0.1.0</Version>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://microsoft.github.io/MixedReality-WebRTC/</PackageProjectUrl>
-    <PackageIconUrl>https://github.com/microsoft/MixedReality-WebRTC/blob/master/docs/mr-webrtc_icon.png</PackageIconUrl>
-    <RepositoryUrl>https://github.com/microsoft/MixedReality-WebRTC</RepositoryUrl>
-    <RepositoryType>github</RepositoryType>
-    <Copyright>Copyright (c) Microsoft Corporation</Copyright>
-    <PackageTags>webrtc video audio streaming</PackageTags>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageProjectUrl></PackageProjectUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <RepositoryUrl></RepositoryUrl>
+    <RepositoryType></RepositoryType>
+    <Copyright></Copyright>
+    <PackageTags></PackageTags>
     <DocumentationFile></DocumentationFile>
+    <PackageId />
+    <Product />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -40,10 +40,6 @@
     <EmbeddedResource Remove="obj\**" />
     <None Remove="Microsoft\**" />
     <None Remove="obj\**" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <NativeUnityPluginSourceFiles Include="$(OutputPath)\Microsoft.MixedReality.WebRTC.dll;$(OutputPath)\Microsoft.MixedReality.WebRTC.pdb" />
   </ItemGroup>
   
   <ItemGroup>

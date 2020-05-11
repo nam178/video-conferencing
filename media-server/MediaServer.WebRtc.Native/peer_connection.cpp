@@ -239,3 +239,33 @@ Shim::RtpTransceiver *Shim::PeerConnection::AddTransceiver(cricket::MediaType me
     }
     return nullptr;
 }
+
+std::unique_ptr<Shim::RtpSender> Shim::PeerConnection::AddTrack(
+    rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
+    const std::vector<std::string> &stream_ids)
+{
+
+    std::unique_ptr<Shim::RtpSender> result{};
+    auto add_track_result = _peer_connection_interface->AddTrack(track, stream_ids);
+    if(!add_track_result.ok())
+    {
+        RTC_LOG(LS_ERROR) << "Failed adding track into PeerConnection";
+        return result;
+    }
+    result.reset(new Shim::RtpSender(std::move(add_track_result.value())));
+    return result;
+}
+
+void Shim::PeerConnection::RemoveTrack(Shim::RtpSender *rtp_sender)
+{
+    if(!rtp_sender)
+    {
+        RTC_LOG(LS_ERROR) << "rtp_sender is nullptr";
+        throw new std::runtime_error("rtp_sender is nullptr");
+    }
+
+    if(false == _peer_connection_interface->RemoveTrack(rtp_sender->Native()))
+    {
+        RTC_LOG(LS_ERROR) << "Failed removing track id=" << rtp_sender->Native()->track()->id();
+    }
+}

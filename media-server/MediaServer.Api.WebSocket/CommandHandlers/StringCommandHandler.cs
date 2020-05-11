@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using MediaServer.Common.Mediator;
 using MediaServer.Api.WebSocket.Net;
 using MediaServer.Api.WebSocket;
 using Newtonsoft.Json;
@@ -9,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using MediaServer.Common.Patterns;
 
 namespace MediaServer.Api.WebSocket.CommandHandlers
 {

@@ -1,4 +1,4 @@
-﻿using MediaServer.Common.Mediator;
+﻿using MediaServer.Common.Patterns;
 using MediaServer.Core.Common;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
@@ -53,7 +53,10 @@ namespace MediaServer.Core.Services.RoomManagement
 
             // Add this device to the router, 
             // so the router knows about it and will route media to it.
-            await deviceData.Room.VideoRouter.AddVideoClientAsync(remoteDevice.Id);
+            await room.SignallingThread.ExecuteAsync(delegate
+            {
+                deviceData.Room.VideoRouter.AddVideoClient(remoteDevice.Id);
+            });
 
             // Broadcast the status update
             await _syncMessenger.SendAsync(room);

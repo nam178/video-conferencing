@@ -1,4 +1,4 @@
-﻿using MediaServer.Common.Mediator;
+﻿using MediaServer.Common.Patterns;
 using MediaServer.Core.Services.RoomManagement;
 using NLog;
 using System.Threading.Tasks;

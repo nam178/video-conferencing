@@ -1,6 +1,7 @@
 ﻿using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Repositories;
+using MediaServer.Core.Services.Negotiation;
 using MediaServer.WebRtc.MediaRouting;
 using System.Threading.Tasks;
 
@@ -18,6 +19,11 @@ namespace MediaServer.Models
         /// </summary>
         /// <exception cref="System.InvalidOperationException">When the room is not initialised</exception>
         IDispatchQueue SignallingThread { get; }
+
+        /// <summary>
+        /// Use this service to handle complicated negotiation
+        /// </summary>
+        INegotiationService NegotiationService { get; }
 
         /// <summary>   
         /// The room id

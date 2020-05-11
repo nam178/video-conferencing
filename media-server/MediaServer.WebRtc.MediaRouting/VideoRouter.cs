@@ -27,153 +27,143 @@ namespace MediaServer.WebRtc.MediaRouting
                 ?? throw new ArgumentNullException(nameof(peerConnectionFactory));
         }
 
-        public Task AddVideoClientAsync(Guid videoClientId)
+        public void AddVideoClient(Guid videoClientId)
         {
             Require.NotEmpty(videoClientId);
+            _signallingThread.EnsureCurrentThread();
 
-            return _signallingThread.ExecuteAsync(delegate
-            {
-                var videoClient = _videoClients.AddVideoClient(videoClientId);
-                _logger.Info($"Added {videoClient} into {_videoClients}");
-            });
+            var videoClient = _videoClients.AddVideoClient(videoClientId);
+            _logger.Info($"Added {videoClient} into {_videoClients}");
         }
 
-        public Task PrepareAsync(Guid videoClientId, MediaQuality mediaQuality, MediaKind mediaKind, string transceiverMid)
+        public void Prepare(Guid videoClientId, MediaQuality mediaQuality, MediaKind mediaKind, string transceiverMid)
         {
             Require.NotEmpty(videoClientId);
             Require.NotNullOrWhiteSpace(transceiverMid);
 
             // Ignore audio tracks for now
             if(mediaKind != MediaKind.Video)
-                return Task.CompletedTask;
+                return;
+            _signallingThread.EnsureCurrentThread();
 
-            return _signallingThread.ExecuteAsync(delegate
+            // Prepare the source for this quality, if it was not created
+            var videoClient = _videoClients.Get(videoClientId);
+            var videoSource = videoClient.VideoSources.ContainsKey(mediaQuality)
+                ? videoClient.VideoSources[mediaQuality]
+                : null;
+            if(null == videoSource)
             {
-                // Prepare the source for this quality, if it was not created
-                var videoClient = _videoClients.Get(videoClientId);
-                var videoSource = videoClient.VideoSources.ContainsKey(mediaQuality)
-                    ? videoClient.VideoSources[mediaQuality]
-                    : null;
-                if(null == videoSource)
-                {
-                    videoSource = _videoClients.CreateVideoSource(videoClientId, mediaQuality);
-                    videoSource.VideoTrackSource = new PassiveVideoTrackSource();
-                    videoSource.VideoSinkAdapter = new VideoSinkAdapter(videoSource.VideoTrackSource, false);
-                    _logger.Info($"Created {videoSource}");
-                    OnVideoSourceAdded(videoClient, videoSource, mediaQuality);
-                }
+                videoSource = _videoClients.CreateVideoSource(videoClientId, mediaQuality);
+                videoSource.VideoTrackSource = new PassiveVideoTrackSource();
+                videoSource.VideoSinkAdapter = new VideoSinkAdapter(videoSource.VideoTrackSource, false);
+                _logger.Info($"Created {videoSource}");
+                OnVideoSourceAdded(videoClient, videoSource, mediaQuality);
+            }
 
-                // Flag this source to say it should be 
-                // linked with the provided track
-                videoSource.ExpectedTransceiverMid = transceiverMid;
-                _logger.Info($"Associated {videoSource} with transceiver mid {transceiverMid}");
-            });
+            // Flag this source to say it should be 
+            // linked with the provided track
+            videoSource.ExpectedTransceiverMid = transceiverMid;
+            _logger.Info($"Associated {videoSource} with transceiver mid {transceiverMid}");
         }
 
-        public Task AddPeerConnectionAsync(Guid videoClientId, PeerConnection peerConnection)
+        public void AddPeerConnection(Guid videoClientId, PeerConnection peerConnection)
         {
             Require.NotNull(peerConnection);
+            _signallingThread.EnsureCurrentThread();
 
-            return _signallingThread.ExecuteAsync(delegate
+            // Add PeerConnection into VideoClient
+            var videoClient = _videoClients.Get(videoClientId);
+            if(videoClient.PeerConnections.Contains(peerConnection))
             {
-                // Add PeerConnection into VideoClient
-                var videoClient = _videoClients.Get(videoClientId);
-                if(videoClient.PeerConnections.Contains(peerConnection))
-                {
-                    throw new InvalidProgramException($"{peerConnection} already added into {videoClient}");
-                }
-                videoClient.PeerConnections.Add(peerConnection);
-                _logger.Info($"Added {peerConnection} into {videoClient}, total PeerConnections for this client={videoClient.PeerConnections.Count}");
+                throw new InvalidProgramException($"{peerConnection} already added into {videoClient}");
+            }
+            videoClient.PeerConnections.Add(peerConnection);
+            _logger.Info($"Added {peerConnection} into {videoClient}, total PeerConnections for this client={videoClient.PeerConnections.Count}");
 
-                // If this PeerConnetion has some existing transceivers,
-                // add them.
-                // TODO: listen for future transceivers and add them too, too lazy to implement this for now.
-                var currenTransceivers = peerConnection.GetTransceivers();
-                foreach(var transceiver in currenTransceivers)
-                {
-                    OnRemoteTrackAdded(videoClient, peerConnection, transceiver);
-                }
+            // If this PeerConnetion has some existing transceivers,
+            // add them.
+            // TODO: listen for future transceivers and add them too, too lazy to implement this for now.
+            var currenTransceivers = peerConnection.GetTransceivers();
+            foreach(var transceiver in currenTransceivers)
+            {
+                OnRemoteTrackAdded(videoClient, peerConnection, transceiver);
+            }
 
-                // Link this PeerConnection with any existing local VideoSources
-                foreach(var other in _videoClients
-                    .OtherThan(videoClient)
-                    .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredVideoQuality)))
-                {
-                    var localVideoLink = new LocalVideoLink(
-                        _peerConnectionFactory,
-                        other.VideoSources[videoClient.DesiredVideoQuality],
-                        peerConnection);
-                    _localVideoLinks.Add(localVideoLink);
-                    _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
-                }
-            });
+            // Link this PeerConnection with any existing local VideoSources
+            foreach(var other in _videoClients
+                .OtherThan(videoClient)
+                .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredVideoQuality)))
+            {
+                var localVideoLink = new LocalVideoLink(
+                    _peerConnectionFactory,
+                    other.VideoSources[videoClient.DesiredVideoQuality],
+                    peerConnection);
+                _localVideoLinks.Add(localVideoLink);
+                _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
+            }
         }
 
-        public Task RemovePeerConnectionAsync(
+        public void RemovePeerConnection(
             Guid videoClientId,
             PeerConnection peerConnection,
             PeerConnectionObserver peerConnectionObserver)
         {
-            return _signallingThread.ExecuteAsync(delegate
-            {
-                // Remove all video links that was created for this PeerConnection
-                _localVideoLinks.RemoveByPeerConnection(peerConnection);
-                _logger.Info($"Removed all video links for {peerConnection} from {_localVideoLinks}");
+            _signallingThread.EnsureCurrentThread();
+            // Remove all video links that was created for this PeerConnection
+            _localVideoLinks.RemoveByPeerConnection(peerConnection);
+            _logger.Info($"Removed all video links for {peerConnection} from {_localVideoLinks}");
 
-                // Remove all video links that was created for this PeerConnetion's remote tracks
-                _remoteVideoLinks.RemoveByPeerConnection(peerConnection);
-                _logger.Info($"Removed all video links for {peerConnection} from {_remoteVideoLinks}");
+            // Remove all video links that was created for this PeerConnetion's remote tracks
+            _remoteVideoLinks.RemoveByPeerConnection(peerConnection);
+            _logger.Info($"Removed all video links for {peerConnection} from {_remoteVideoLinks}");
 
-                // Remove this PeerConnection from VideoClient
-                var videoClient = _videoClients.Get(videoClientId);
-                var removed = videoClient.PeerConnections.Remove(peerConnection);
-                if(!removed)
-                    throw new InvalidProgramException("PeerConnection did not removed from memory");
-                _logger.Info($"Removed {peerConnection} from {videoClient}, remaining PeerConnections for this client={videoClient.PeerConnections.Count}");
-            });
+            // Remove this PeerConnection from VideoClient
+            var videoClient = _videoClients.Get(videoClientId);
+            var removed = videoClient.PeerConnections.Remove(peerConnection);
+            if(!removed)
+                throw new InvalidProgramException("PeerConnection did not removed from memory");
+            _logger.Info($"Removed {peerConnection} from {videoClient}, remaining PeerConnections for this client={videoClient.PeerConnections.Count}");
         }
 
-        public Task RemoveVideoClientAsync(Guid videoClientId)
+        public void RemoveVideoClient(Guid videoClientId)
         {
-            return _signallingThread.ExecuteAsync(delegate
+            _signallingThread.EnsureCurrentThread();
+            // Remove the video sources
+            var videoClient = _videoClients.Get(videoClientId);
+            if(videoClient.PeerConnections.Count > 0)
+                throw new InvalidProgramException("VideoClient's PeerConnections were not removed");
+
+            // Remove each video source
+            foreach(var kv in videoClient.VideoSources)
             {
-                // Remove the video sources
-                var videoClient = _videoClients.Get(videoClientId);
-                if(videoClient.PeerConnections.Count > 0)
-                    throw new InvalidProgramException("VideoClient's PeerConnections were not removed");
+                var videoSource = kv.Value;
 
-                // Remove each video source
-                foreach(var kv in videoClient.VideoSources)
+                if(videoSource.VideoTrackSource == null)
+                    throw new InvalidProgramException($"{nameof(videoSource.VideoTrackSource)} is null");
+                if(videoSource.VideoSinkAdapter == null)
+                    throw new InvalidProgramException($"{nameof(videoSource.VideoSinkAdapter)} is null");
+
+                using(videoSource.VideoTrackSource)
+                using(videoSource.VideoSinkAdapter)
                 {
-                    var videoSource = kv.Value;
-
-                    if(videoSource.VideoTrackSource == null)
-                        throw new InvalidProgramException($"{nameof(videoSource.VideoTrackSource)} is null");
-                    if(videoSource.VideoSinkAdapter == null)
-                        throw new InvalidProgramException($"{nameof(videoSource.VideoSinkAdapter)} is null");
-
-                    using(videoSource.VideoTrackSource)
-                    using(videoSource.VideoSinkAdapter)
+                    // At this point, there must be no remote link to this VideoSource,
+                    // because they are removed when PeerConnection closes.
+                    // If not, it's a programmer mistake.
+                    if(_remoteVideoLinks.Exists(videoSource))
                     {
-                        // At this point, there must be no remote link to this VideoSource,
-                        // because they are removed when PeerConnection closes.
-                        // If not, it's a programmer mistake.
-                        if(_remoteVideoLinks.Exists(videoSource))
-                        {
-                            throw new InvalidProgramException(
-                                "All remote VideoSource must be removed at the time VideoClient left.");
-                        }
-
-                        // Disconnect all any remote video links.
-                        _localVideoLinks.RemoveByVideoSource(videoSource);
-                        _logger.Info($"Removed {videoSource} from {_localVideoLinks}");
+                        throw new InvalidProgramException(
+                            "All remote VideoSource must be removed at the time VideoClient left.");
                     }
-                }
 
-                // Remove the video client
-                _videoClients.Remove(videoClientId);
-                _logger.Info($"Removed client {videoClient} from {_videoClients}");
-            });
+                    // Disconnect all any remote video links.
+                    _localVideoLinks.RemoveByVideoSource(videoSource);
+                    _logger.Info($"Removed {videoSource} from {_localVideoLinks}");
+                }
+            }
+
+            // Remove the video client
+            _videoClients.Remove(videoClientId);
+            _logger.Info($"Removed client {videoClient} from {_videoClients}");
         }
 
         /// <summary>

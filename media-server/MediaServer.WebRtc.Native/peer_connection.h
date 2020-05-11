@@ -67,6 +67,16 @@ class PeerConnection final
     // The caller owns the returned transceiver.
     Shim::RtpTransceiver *AddTransceiver(cricket::MediaType mediaType);
 
+    // Add and remove local tracks,
+    // and return the rtp sender associated with this track
+    // Don't use this - for testing only
+    std::unique_ptr<Shim::RtpSender> AddTrack(
+        rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
+        const std::vector<std::string> &stream_ids);
+
+    // Don't use this - for testing only
+    void RemoveTrack(Shim::RtpSender *rtp_sender);
+
   private:
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> _peer_connection_interface;
     std::unordered_map<webrtc::RtpTransceiverInterface *, Shim::RtpTransceiver *>

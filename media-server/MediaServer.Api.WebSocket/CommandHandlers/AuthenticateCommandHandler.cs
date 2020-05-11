@@ -1,7 +1,7 @@
-﻿using MediaServer.Common.Mediator;
-using MediaServer.Api.WebSocket.CommandArgs;
+﻿using MediaServer.Api.WebSocket.CommandArgs;
 using MediaServer.Api.WebSocket.Net;
 using System.Threading.Tasks;
+using MediaServer.Common.Patterns;
 
 namespace MediaServer.Api.WebSocket.CommandHandlers
 {

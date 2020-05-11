@@ -19,7 +19,7 @@ namespace MediaServer.WebRtc.Managed
             _handle = intPtr;
         }
 
-        public void Post(Action<object> handler, object userData)
+        public void Post(Action<object> handler, object userData = null)
         {
             var actualHandler = new RtcThreadInterops.Handler(userDataPtr =>
             {

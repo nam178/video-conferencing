@@ -3,7 +3,7 @@ using MediaServer.WebRtc.Managed;
 using System;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.PeerConnection
+namespace MediaServer.Core.Services.Negotiation
 {
     public interface IAnswerHandler
     {

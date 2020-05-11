@@ -2,7 +2,7 @@
 using MediaServer.Models;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.PeerConnection
+namespace MediaServer.Core.Services.Negotiation
 {
     public interface ITransceiverMetadataSetter
     {

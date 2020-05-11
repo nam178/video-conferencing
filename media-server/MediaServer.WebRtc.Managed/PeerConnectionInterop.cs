@@ -51,5 +51,11 @@ namespace MediaServer.WebRtc.Managed
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddTransceiver")]
         public static extern IntPtr AddTransceiver(PeerConnectionSafeHandle handle, [MarshalAs(UnmanagedType.I1)] bool isAudioTransceiver);
+
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddTrack")]
+        public static extern IntPtr AddTrack(PeerConnectionSafeHandle handle, MediaStreamTrackSafeHandle mediaStreamTrackSafeHandle, string streamId);
+
+        [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionRemoveTrack")]
+        public static extern void RemoveTrack(PeerConnectionSafeHandle handle, RtpSenderSafeHandle rtpSender);
     }
 }

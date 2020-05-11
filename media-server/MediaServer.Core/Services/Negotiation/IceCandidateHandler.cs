@@ -5,11 +5,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Services.PeerConnection
+namespace MediaServer.Core.Services.Negotiation
 {
     sealed class IceCandidateHandler : IIceCandidateHandler
     {
-        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public async Task AddAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, RTCIceCandidate iceCandidate)
         {
@@ -20,7 +20,7 @@ namespace MediaServer.Core.Services.PeerConnection
                     $"Could not find PeerConnection with Id {peerConnectionId} in {remoteDevice}"
                     );
             }
-            
+
             if(null == peerConnection.Room)
             {
                 throw new InvalidProgramException();
