@@ -1,16 +1,26 @@
-﻿using MediaServer.Core.Models;
+﻿using Autofac;
+using MediaServer.Core.Models;
 using MediaServer.WebRtc.Managed;
 
 namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
     sealed class IceCandidateMessage : Message
     {
+        /// <summary>
+        /// The candidate
+        /// </summary>
         public RTCIceCandidate Candidate { get; }
 
-        public IceCandidateMessage(IPeerConnection peerConnection, RTCIceCandidate candidate)
+        /// <summary>
+        /// Whenever this is locally generated ICE candidate, or received from remote
+        /// </summary>
+        public bool IsRemote { get; }
+
+        public IceCandidateMessage(IPeerConnection peerConnection, RTCIceCandidate candidate, bool isRemote)
             : base(peerConnection)
         {
             Candidate = candidate;
+            IsRemote = isRemote;
         }
     }
 }

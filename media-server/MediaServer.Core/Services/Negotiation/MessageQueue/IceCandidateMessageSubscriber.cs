@@ -5,17 +5,40 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
     sealed class IceCandidateMessageSubscriber : IMessageSubscriber
     {
-        public bool CanHandle(Message message) => message is IceCandidateMessage;
+        public bool CanHandle(Message message) => (message is IceCandidateMessage);
 
         public void Handle(Message message, Observer completionCallback)
         {
-            try
+            var iceCandidateMessage = ((IceCandidateMessage)message);
+
+            // Remote ICE candidate? Receive it.
+            if(iceCandidateMessage.IsRemote)
             {
-                message.PeerConnection.AddIceCandidate(((IceCandidateMessage)message).Candidate);
+                try
+                {
+                    message.PeerConnection.AddIceCandidate(iceCandidateMessage.Candidate);
+                }
+                catch(Exception ex)
+                {
+                    completionCallback.Error(
+                        $"{nameof(message.PeerConnection.AddIceCandidate)} failed: {ex.Message}");
+                    return;
+                }
             }
-            catch(Exception ex)
+            // Locally generated ICE candidate? Send it.
+            else
             {
-                completionCallback.Error($"{nameof(message.PeerConnection.AddIceCandidate)} failed: {ex.Message}");
+                try
+                {
+                    message.PeerConnection.Device.EnqueueIceCandidate(
+                        message.PeerConnection.Id, iceCandidateMessage.Candidate);
+                }
+                catch(Exception ex)
+                {
+                    completionCallback.Error(
+                        $"{nameof(message.PeerConnection.AddIceCandidate)} failed: {ex.Message}");
+                    return;
+                }
             }
             completionCallback.Success();
         }

@@ -20,14 +20,11 @@ namespace MediaServer.Core.Models
 
         void CreateOffer(Observer<RTCSessionDescription> observer);
 
-        void SetRemoteSessionDescription(
-            RTCSessionDescription description, Observer observer);
+        void SetRemoteSessionDescription(RTCSessionDescription description, Observer observer);
 
-        void SetLocalSessionDescription(
-            RTCSessionDescription description, Observer observer);
+        void SetLocalSessionDescription(RTCSessionDescription description, Observer observer);
 
-        IPeerConnection ObserveIceCandidate(
-            Action<IPeerConnection, RTCIceCandidate> observer);
+        IPeerConnection ObserveIceCandidate(Action<IPeerConnection, RTCIceCandidate> observer);
 
         IPeerConnection ObserveRenegotiationNeeded(Action<IPeerConnection> observer);
 

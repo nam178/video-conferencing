@@ -26,7 +26,11 @@ namespace MediaServer.Models
         /// <summary>
         /// Set custom data associated with this device
         /// </summary>
-        /// <remarks>This method is thread safe</remarks>
+        /// <remarks>
+        /// This method is thread safe however might still race, 
+        /// when multiple threads call this, the last one wins.
+        /// Therefore should be called from the device message thread only.
+        /// </remarks>
         /// <param name="customData"></param>
         void SetCustomData(RemoteDeviceData customData);
 

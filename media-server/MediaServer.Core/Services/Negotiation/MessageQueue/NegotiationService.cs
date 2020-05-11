@@ -20,19 +20,24 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             _negotiationQueue = new NegotiationQueue(subscribers, signallingThread);
         }
 
-        public void RemoteIceCandidateReceived(IPeerConnection peerConnection, RTCIceCandidate candidate)
+        public void EnqueueLocalIceCandidate(IPeerConnection peerConnection, RTCIceCandidate candidate)
         {
-            _negotiationQueue.Enqueue(new IceCandidateMessage(peerConnection, candidate));
+            _negotiationQueue.Enqueue(new IceCandidateMessage(peerConnection, candidate, false));
         }
 
-        public void RemoteSessionDescriptionReceived(
+        public void EnqueueRemoteIceCandidate(IPeerConnection peerConnection, RTCIceCandidate candidate)
+        {
+            _negotiationQueue.Enqueue(new IceCandidateMessage(peerConnection, candidate, true));
+        }
+
+        public void EnqueueRemoteSdpMessage(
             IPeerConnection peerConnection,
             RTCSessionDescription remoteSessionDescription)
         {
             _negotiationQueue.Enqueue(new SdpMessage(peerConnection, remoteSessionDescription));
         }
 
-        public void RenegotiationRequired(IPeerConnection peerConnection)
+        public void EnqueueRenegotiationRequest(IPeerConnection peerConnection)
         {
             _negotiationQueue.Enqueue(new RenegotiationMessage(peerConnection));
         }

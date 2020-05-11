@@ -43,7 +43,7 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
             remoteDevice.SetCustomData(deviceData);
 
             // Let the negotiation service handle the rest
-            deviceData.User.Room.NegotiationService.RemoteSessionDescriptionReceived(peerConnection, offer);
+            deviceData.User.Room.NegotiationService.EnqueueRemoteSdpMessage(peerConnection, offer);
             return Task.CompletedTask;
         }
 
@@ -55,8 +55,8 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
             // This is the first time is PeerConnection is created,
             // we'll add ICE candidate observer
             peerConnection
-                .ObserveIceCandidate((peer, cand) => remoteDevice.EnqueueIceCandidate(peer.Id, cand))
-                .ObserveRenegotiationNeeded(peer => user.Room.NegotiationService.RenegotiationRequired(peerConnection));
+                .ObserveIceCandidate((peer, candidate) => user.Room.NegotiationService.EnqueueLocalIceCandidate(peerConnection, candidate))
+                .ObserveRenegotiationNeeded(peer => user.Room.NegotiationService.EnqueueRenegotiationRequest(peerConnection));
 
             return peerConnection;
         }

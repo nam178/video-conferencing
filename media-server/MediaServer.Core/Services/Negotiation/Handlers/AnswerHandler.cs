@@ -24,7 +24,7 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
             if(null == peerConnection)
                 throw new InvalidOperationException($"PeerConnection {peerConnectionId} does not exist for the device {remoteDevice}");
 
-            deviceData.User.Room.NegotiationService.RemoteSessionDescriptionReceived(peerConnection, answer);
+            deviceData.User.Room.NegotiationService.EnqueueRemoteSdpMessage(peerConnection, answer);
             return Task.CompletedTask;
         }
     }

@@ -24,7 +24,7 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
                 throw new InvalidProgramException();
             }
 
-            peerConnection.Room.NegotiationService.RemoteIceCandidateReceived(peerConnection, iceCandidate);
+            peerConnection.Room.NegotiationService.EnqueueRemoteIceCandidate(peerConnection, iceCandidate);
             return Task.CompletedTask;
         }
     }
