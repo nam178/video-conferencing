@@ -9,7 +9,7 @@ namespace MediaServer.Core.Services.Negotiation
 {
     sealed class RenegotiationMessageSubscriber : INegotiationMessageSubscriber
     {
-        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        readonly static ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public bool CanHandle(NegotiationMessage message) => message is RenegotiationMessage;
 
@@ -30,7 +30,7 @@ namespace MediaServer.Core.Services.Negotiation
             }
         }
 
-        private Observer<RTCSessionDescription> CreateOfferObserver(Observer completionCallback, IPeerConnection peerConnection)
+        static Observer<RTCSessionDescription> CreateOfferObserver(Observer completionCallback, IPeerConnection peerConnection)
             => new Observer<RTCSessionDescription>()
                 .OnError(completionCallback)
                 .OnResult(offer =>
@@ -50,13 +50,7 @@ namespace MediaServer.Core.Services.Negotiation
                     }
 
                     // then send candidates later so they processed after the SDP is processed.
-                    var observer = new Observer()
-                        .OnError(completionCallback)
-                        .OnSuccess(delegate
-                        {
-                            _logger.Debug($"[Renegotiation Step 2/3] Local offer set for {peerConnection}.");
-                            completionCallback.Success();
-                        });
+                    var observer = SetLocalSessionDescriptionObserver(completionCallback, peerConnection);
                     try
                     {
                         peerConnection.SetLocalSessionDescription(offer, observer);
@@ -65,6 +59,15 @@ namespace MediaServer.Core.Services.Negotiation
                     {
                         completionCallback.Error($"{nameof(peerConnection.SetLocalSessionDescription)} failed: {ex.Message}");
                     }
+                });
+
+        static Observer SetLocalSessionDescriptionObserver(Observer completionCallback, IPeerConnection peerConnection)
+            => new Observer()
+                .OnError(completionCallback)
+                .OnSuccess(delegate
+                {
+                    _logger.Debug($"[Renegotiation Step 2/3] Local offer set for {peerConnection}.");
+                    completionCallback.Success();
                 });
     }
 }
