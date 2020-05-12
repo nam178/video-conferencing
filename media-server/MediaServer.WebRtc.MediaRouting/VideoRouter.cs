@@ -1,4 +1,5 @@
-﻿using MediaServer.Common.Threading;
+﻿using MediaServer.Common.Media;
+using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
 using MediaServer.WebRtc.Managed;
 using NLog;
@@ -231,6 +232,11 @@ namespace MediaServer.WebRtc.MediaRouting
         }
 
         public void ClearFrozenTransceivers(Guid videoClientId, Guid peerConnectionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GetLocalTransceiverMetadata()
         {
             throw new NotImplementedException();
         }

@@ -47,6 +47,7 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<SdpAnswerMessageSubscriber>().AsImplementedInterfaces();
             builder.RegisterType<RenegotiationMessageSubscriber>().AsImplementedInterfaces();
             builder.RegisterType<IceCandidateMessageSubscriber>().AsImplementedInterfaces();
+            builder.RegisterType<TransceiverMetadataMessageSubscriber>().AsImplementedInterfaces();
         }
     }
 }

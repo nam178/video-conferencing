@@ -1,5 +1,5 @@
-﻿using MediaServer.Common.Threading;
-using MediaServer.Core.Common;
+﻿using MediaServer.Common.Media;
+using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.WebRtc.Managed;
 using System;

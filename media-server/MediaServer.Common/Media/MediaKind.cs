@@ -1,4 +1,4 @@
-﻿namespace MediaServer.WebRtc.Managed
+﻿namespace MediaServer.Common.Media
 {
     public enum MediaKind
     {

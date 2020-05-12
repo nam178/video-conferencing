@@ -1,4 +1,4 @@
-﻿using MediaServer.WebRtc.Managed;
+﻿using MediaServer.Common.Media;
 using System;
 
 namespace MediaServer.WebRtc.MediaRouting
@@ -23,6 +23,8 @@ namespace MediaServer.WebRtc.MediaRouting
         /// <param name="videoClientId">The video client in which the track will be added</param>
         /// <remarks>Must be called from signalling thread</remarks>
         void SetRemoteTransceiverMetadata(Guid videoClientId, string transceiverMid, MediaQuality trackQuality, MediaKind kind);
+
+        void GetLocalTransceiverMetadata();
 
         /// <summary>
         /// Notify the router that it's clear to activate frozen transceivers, 

@@ -1,4 +1,4 @@
-﻿namespace MediaServer.WebRtc.MediaRouting
+﻿namespace MediaServer.Common.Media
 {
     public enum MediaQuality
     {

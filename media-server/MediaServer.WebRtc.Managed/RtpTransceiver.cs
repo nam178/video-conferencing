@@ -1,4 +1,5 @@
-﻿using MediaServer.Common.Threading;
+﻿using MediaServer.Common.Media;
+using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
 using System;
 using System.Runtime.InteropServices;

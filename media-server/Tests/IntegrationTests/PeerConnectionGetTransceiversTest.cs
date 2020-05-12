@@ -1,4 +1,5 @@
-﻿using MediaServer.WebRtc.Managed;
+﻿using MediaServer.Common.Media;
+using MediaServer.WebRtc.Managed;
 using System;
 using System.Threading.Tasks;
 using Xunit;

@@ -1,7 +1,4 @@
-﻿using MediaServer.WebRtc.Managed;
-using MediaServer.WebRtc.MediaRouting;
-
-namespace MediaServer.Core.Common
+﻿namespace MediaServer.Common.Media
 {
     public sealed class TransceiverMetadata
     {
