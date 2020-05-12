@@ -13,14 +13,11 @@ namespace MediaServer.Api.WebSocket.CommandHandlers
     sealed class SetOfferCommandHandler : IHandler<IWebSocketRemoteDevice, CommandArgs.SetOffer>
     {
         readonly IOfferHandler _offerHandler;
-        readonly ITransceiverMetadataSetter _transceiverMetadataHandler;
 
-        public SetOfferCommandHandler(IOfferHandler offerHandler, ITransceiverMetadataSetter transceiverMetadataHandler)
+        public SetOfferCommandHandler(IOfferHandler offerHandler)
         {
             _offerHandler = offerHandler
                 ?? throw new ArgumentNullException(nameof(offerHandler));
-            _transceiverMetadataHandler
-                = transceiverMetadataHandler ?? throw new ArgumentNullException(nameof(transceiverMetadataHandler));
         }
 
         public async Task HandleAsync(IWebSocketRemoteDevice remoteDevice, SetOffer args)
@@ -29,9 +26,11 @@ namespace MediaServer.Api.WebSocket.CommandHandlers
             Require.NotNull(args.Offer.Type);
             Require.NotNull(args.TransceiverMetadata);
 
-            await _transceiverMetadataHandler.HandleAsync(remoteDevice,
+            await _offerHandler.HandleAsync(
+                remoteDevice,
+                args.PeerConnectionId,
+                args.Offer,
                 args.TransceiverMetadata.Select(m => (TransceiverMetadata)m).ToArray());
-            await _offerHandler.HandleAsync(remoteDevice, args.PeerConnectionId, args.Offer);
         }
     }
 }

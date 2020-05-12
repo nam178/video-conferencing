@@ -1,11 +1,20 @@
-﻿using MediaServer.Core.Models;
+﻿using MediaServer.Core.Common;
+using MediaServer.Core.Models;
 using MediaServer.WebRtc.Managed;
 using System;
+using System.Collections.Generic;
 
 namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
     public interface INegotiationService
     {
+        /// <summary>
+        /// Inform the negotation service that we received transceiver metadata from the client.
+        /// </summary>
+        void EnqueueRemoteTransceiverMetadata(
+            IPeerConnection peerConnection,
+            IReadOnlyList<TransceiverMetadata> transceiverMetadataMessage);
+
         /// <summary>
         /// Inform the negotiation service that we received remote offer.
         /// Must be called before RemoteIceCandidateReceived() is called, because offer must be queued
@@ -13,7 +22,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
         /// </summary>
         /// <param name="peerConnection">The PeerConnection in which the offer is for</param>
         /// <param name="remoteSessionDescription"></param>
-        void EnqueueRemoteOfferMessage(
+        void EnqueueRemoteOffer(
             IPeerConnection peerConnection,
             RTCSessionDescription remoteSessionDescription);
 
@@ -23,7 +32,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
         /// <param name="peerConnection"></param>
         /// <param name="offerId"></param>
         /// <param name="remoteSessionDescription"></param>
-        void EnqueueRemoteAnswerMessage(
+        void EnqueueRemoteAnswer(
             IPeerConnection peerConnection,
             Guid offerId,
             RTCSessionDescription remoteSessionDescription

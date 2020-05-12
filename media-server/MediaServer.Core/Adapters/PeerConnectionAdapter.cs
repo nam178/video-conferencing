@@ -65,7 +65,6 @@ namespace MediaServer.Core.Adapters
             _peerConnectionImpl = peerConnectionFactory.CreatePeerConnection(_peerConnectionObserverImpl, config);
         }
 
-
         public void SetRemoteSessionDescription(RTCSessionDescription description, Observer observer)
         {
             if(observer is null)

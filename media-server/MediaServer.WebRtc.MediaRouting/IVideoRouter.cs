@@ -22,7 +22,7 @@ namespace MediaServer.WebRtc.MediaRouting
         /// </summary>
         /// <param name="videoClientId">The video client in which the track will be added</param>
         /// <remarks>Must be called from signalling thread</remarks>
-        void Prepare(Guid videoClientId, MediaQuality trackQuality, MediaKind kind, string transceiverMid);
+        void SetRemoteTransceiverMetadata(Guid videoClientId, string transceiverMid, MediaQuality trackQuality, MediaKind kind);
 
         /// <summary>
         /// Notify the router that it's clear to activate frozen transceivers, 

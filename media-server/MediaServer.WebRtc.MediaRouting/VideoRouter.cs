@@ -35,7 +35,7 @@ namespace MediaServer.WebRtc.MediaRouting
             _logger.Info($"Added {videoClient} into {_videoClients}");
         }
 
-        public void Prepare(Guid videoClientId, MediaQuality mediaQuality, MediaKind mediaKind, string transceiverMid)
+        public void SetRemoteTransceiverMetadata(Guid videoClientId, string transceiverMid, MediaQuality mediaQuality, MediaKind mediaKind)
         {
             Require.NotEmpty(videoClientId);
             Require.NotNullOrWhiteSpace(transceiverMid);

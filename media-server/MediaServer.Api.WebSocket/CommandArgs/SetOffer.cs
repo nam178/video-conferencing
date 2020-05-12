@@ -27,12 +27,11 @@ namespace MediaServer.Api.WebSocket.CommandArgs
 
             public static implicit operator TransceiverMetadata(WebSocketTransceiverMetadata transceiverInfo)
             {
-                return new TransceiverMetadata
-                {
-                    Kind = transceiverInfo.Kind,
-                    TrackQuality = transceiverInfo.Quality,
-                    TransceiverMid = transceiverInfo.TransceiverMid
-                };
+                return new TransceiverMetadata(
+                    transceiverInfo.TransceiverMid,
+                    transceiverInfo.Quality,
+                    transceiverInfo.Kind
+                    );
             }
         }
     }

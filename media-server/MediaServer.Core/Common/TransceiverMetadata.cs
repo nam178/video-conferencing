@@ -5,10 +5,19 @@ namespace MediaServer.Core.Common
 {
     public sealed class TransceiverMetadata
     {
-        public string TransceiverMid { get; set; }
+        public TransceiverMetadata(string mid, MediaQuality quality, MediaKind kind)
+        {
+            if(string.IsNullOrWhiteSpace(mid))
+                throw new System.ArgumentException("Mid cannot be NULL or empty", nameof(mid));
+            TransceiverMid = mid;
+            TrackQuality = quality;
+            Kind = kind;
+        }
 
-        public MediaQuality TrackQuality { get; set; }
+        public string TransceiverMid { get; }
 
-        public MediaKind Kind { get; set; }
+        public MediaQuality TrackQuality { get; }
+
+        public MediaKind Kind { get; }
     }
 }

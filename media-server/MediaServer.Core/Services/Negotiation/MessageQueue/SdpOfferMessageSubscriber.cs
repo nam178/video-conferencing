@@ -30,7 +30,6 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     _logger.Error(ex);
                 }
             }
-
         }
 
         static Observer GetRemoteSessionDescriptionObserver(Message message, Observer completionCallback, RTCSessionDescription sdp)
