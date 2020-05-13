@@ -2,6 +2,7 @@ import WebSocketMessageHandler from './websocket-message-handler';
 import PeerConnectionId from './peer-connection-id';
 import FatalErrorHandler from '../handlers/fatal-error-handler';
 import Logger from '../logging/logger';
+import sleep from '../utils/sleep'
 
 var logger = new Logger('PeerConnectionOfferProcess');
 
@@ -65,8 +66,8 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         super(webSocketClient, logger);
         this._peerConnection = peerConnection;
         this._peerConnectionId = peerConnectionId;
-        this._handleIceCandidate = this._handleIceCandidate.bind(this);
-        this._handleIceCandidate = this._handleIceConnectionChange.bind(this);
+        this._onLocalIceCandidate = this._onLocalIceCandidate.bind(this);
+        this._onLocalIceConnectionChange = this._onLocalIceConnectionChange.bind(this);
     }
 
     async startAsync() {
@@ -76,8 +77,8 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         this.startObservingWebSocketMessages();
 
         // Preparation: listen to ICE candidate events
-        this._peerConnection.addEventListener('icecandidate', this._handleIceCandidate);
-        this._peerConnection.addEventListener('iceconnectionstatechange', this._handleIceConnectionChange);
+        this._peerConnection.addEventListener('icecandidate', this._onLocalIceCandidate);
+        this._peerConnection.addEventListener('iceconnectionstatechange', this._onLocalIceConnectionChange);
 
         // Step 1: Create Offer
         var offer = await this._peerConnection.createOffer();
@@ -118,12 +119,13 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
             return;
         }
         this.stopObservingWebSocketMessages();
-        this._peerConnection.removeEventListener('icecandidate', this._handleIceCandidate);
+        this._peerConnection.removeEventListener('icecandidate', this._onLocalIceCandidate);
+        this._peerConnection.removeEventListener('iceconnectionstatechange', this._onLocalIceConnectionChange);
         this._cancelled = true;
     }
 
-    _handleIceCandidate(e) {
-        logger.debug('Local ICE candidate generated', e);
+    // called when 'icecandidate' event occurs on local PeerConnection
+    async _onLocalIceCandidate(e) {
         if (e.candidate) {
             // We shouldn't be sending ICE candidates unless the offer has been sent,
             // As ICE candidate can't be added (on the remote side) unless SDP is set.
@@ -134,8 +136,9 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         }
     }
 
-    _handleIceConnectionChange(e) {
-        logger.debug('ice state change', e);
+    // called when 'iceconnectionstatechange' event occurs on local PeerConnection
+    _onLocalIceConnectionChange(e) {
+        // logger.debug('ice state change', e);
         if (this._peerConnection.iceConnectionState === "failed" ||
             this._peerConnection.iceConnectionState === "disconnected" ||
             this._peerConnection.iceConnectionState === "closed") {
@@ -144,6 +147,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         }
     }
 
+    // called when we receive 'Answer' message from websocket
     async _onAnswer(args) {
         if (!this._peerConnectionId.hasValue) {
             this._peerConnectionId.value = args.peerConnectionId;
@@ -164,14 +168,17 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         logger.info(`[Step 4/5] Received answer and remote SDP set`);
 
         // Final step is to flush any pending ICE candidates
-        this._pendingIceCandidates.forEach(candidate => sendIceCandidate(this.webSocketClient, candidate, this._peerConnectionId));
+        this._pendingIceCandidates
+            .forEach(candidate => sendIceCandidate(
+                this.webSocketClient, 
+                candidate, 
+                this._peerConnectionId));
         logger.info(`[Step 5/5] Flushed ${this._pendingIceCandidates.length} ICE candidates`)
-        this._pendingIceCandidates = null;
+        this._pendingIceCandidates = [];
 
         // offer process completed,
         // automatically unsubscribe from WebSocket events
         this.stopObservingWebSocketMessages();
-        this._completionCallbacks.forEach(f => f());
     }
 
     _onTransceiversMetadataSet() {

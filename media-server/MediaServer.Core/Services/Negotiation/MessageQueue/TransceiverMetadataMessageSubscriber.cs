@@ -9,22 +9,32 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
 
         public void Handle(Message message, Observer completionCallback)
         {
-            var msg = ((TransceiverMetadataMessage)message);
-            if(null == msg.Transceivers)
+            try
             {
-                throw new NullReferenceException(nameof(msg.Transceivers));
+                var msg = ((TransceiverMetadataMessage)message);
+                if(null == msg.Transceivers)
+                {
+                    throw new NullReferenceException(nameof(msg.Transceivers));
+                }
+
+                foreach(var transceiver in msg.Transceivers)
+                {
+                    if(string.IsNullOrWhiteSpace(transceiver.TransceiverMid))
+                        throw new ArgumentException("TrackId is NULL or empty");
+
+                    message.PeerConnection.Room.VideoRouter.SetRemoteTransceiverMetadata(
+                        message.PeerConnection.Device.Id,
+                        transceiver.TransceiverMid,
+                        transceiver.TrackQuality,
+                        transceiver.Kind);
+                }
+
+                completionCallback.Success();
             }
-
-            foreach(var transceiver in msg.Transceivers)
+            catch(Exception ex)
             {
-                if(string.IsNullOrWhiteSpace(transceiver.TransceiverMid))
-                    throw new ArgumentException("TrackId is NULL or empty");
-
-                message.PeerConnection.Room.VideoRouter.SetRemoteTransceiverMetadata(
-                    message.PeerConnection.Device.Id,
-                    transceiver.TransceiverMid,
-                    transceiver.TrackQuality,
-                    transceiver.Kind);
+                completionCallback.Error(ex.Message);
+                throw;
             }
         }
     }
