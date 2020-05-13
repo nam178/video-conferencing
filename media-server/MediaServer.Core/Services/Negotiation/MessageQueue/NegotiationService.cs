@@ -1,5 +1,4 @@
 ﻿using MediaServer.Common.Media;
-using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.WebRtc.Managed;
 using System;
@@ -11,15 +10,11 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
     {
         readonly NegotiationQueue _negotiationQueue;
 
-        public NegotiationService(
-            IThread signallingThread,
-            IEnumerable<IMessageSubscriber> subscribers)
+        public NegotiationService(IEnumerable<IMessageSubscriber> subscribers)
         {
-            if(signallingThread is null)
-                throw new ArgumentNullException(nameof(signallingThread));
             if(subscribers is null)
                 throw new ArgumentNullException(nameof(subscribers));
-            _negotiationQueue = new NegotiationQueue(subscribers, signallingThread);
+            _negotiationQueue = new NegotiationQueue(subscribers);
         }
 
         public void EnqueueLocalIceCandidate(IPeerConnection peerConnection, RTCIceCandidate candidate)
@@ -54,7 +49,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
         }
 
         public void EnqueueRemoteTransceiverMetadata(
-            IPeerConnection peerConnection, 
+            IPeerConnection peerConnection,
             IReadOnlyList<TransceiverMetadata> transceiverMetadataMessage)
         {
             if(peerConnection is null)

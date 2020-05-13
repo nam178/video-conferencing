@@ -1,4 +1,5 @@
 ﻿using MediaServer.Common.Utils;
+using MediaServer.Core.Services.Negotiation.MessageQueue;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using System;
@@ -9,6 +10,14 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
 {
     sealed class AnswerHandler : IAnswerHandler
     {
+        readonly INegotiationService _negotiationService;
+
+        public AnswerHandler(INegotiationService negotiationService)
+        {
+            _negotiationService = negotiationService 
+                ?? throw new ArgumentNullException(nameof(negotiationService));
+        }
+
         public Task HandleAsync(IRemoteDevice remoteDevice, Guid peerConnectionId, Guid offerId, RTCSessionDescription answer)
         {
             Require.NotNull(answer.Sdp);
@@ -26,7 +35,7 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
             if(null == peerConnection)
                 throw new InvalidOperationException($"PeerConnection {peerConnectionId} does not exist for the device {remoteDevice}");
 
-            deviceData.User.Room.NegotiationService.EnqueueRemoteAnswer(peerConnection, offerId, answer);
+            _negotiationService.EnqueueRemoteAnswer(peerConnection, offerId, answer);
             return Task.CompletedTask;
         }
     }

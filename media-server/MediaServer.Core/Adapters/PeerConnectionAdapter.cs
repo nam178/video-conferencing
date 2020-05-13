@@ -4,7 +4,6 @@ using MediaServer.Core.Models;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using MediaServer.WebRtc.MediaRouting;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Threading;

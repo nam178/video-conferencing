@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using MediaServer.Api.WebSocket.Net;
-using MediaServer.Api.WebSocket;
 using Newtonsoft.Json;
 using NLog;
 using System;

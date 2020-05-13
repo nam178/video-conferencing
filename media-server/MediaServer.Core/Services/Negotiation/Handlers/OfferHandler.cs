@@ -1,6 +1,7 @@
 ﻿using MediaServer.Common.Media;
 using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
+using MediaServer.Core.Services.Negotiation.MessageQueue;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using NLog;
@@ -13,6 +14,13 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
     sealed class OfferHandler : IOfferHandler
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        readonly INegotiationService _negotiationService;
+
+        public OfferHandler(INegotiationService negotiationService)
+        {
+            _negotiationService = negotiationService 
+                ?? throw new ArgumentNullException(nameof(negotiationService));
+        }
 
         public Task HandleAsync(
             IRemoteDevice remoteDevice,
@@ -52,8 +60,8 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
             // so at the time processing remote sdp (which has remote transceivers) 
             // we know transceviers' metadata inhand.
             // Fail to do so will cause errors.
-            deviceData.User.Room.NegotiationService.EnqueueRemoteTransceiverMetadata(peerConnection, transceivers);
-            deviceData.User.Room.NegotiationService.EnqueueRemoteOffer(peerConnection, offer);
+            _negotiationService.EnqueueRemoteTransceiverMetadata(peerConnection, transceivers);
+            _negotiationService.EnqueueRemoteOffer(peerConnection, offer);
             return Task.CompletedTask;
         }
 
@@ -65,8 +73,8 @@ namespace MediaServer.Core.Services.Negotiation.Handlers
             // This is the first time is PeerConnection is created,
             // we'll add ICE candidate observer
             peerConnection
-                .ObserveIceCandidate((peer, candidate) => user.Room.NegotiationService.EnqueueLocalIceCandidate(peerConnection, candidate))
-                .ObserveRenegotiationNeeded(peer => user.Room.NegotiationService.EnqueueRenegotiationRequest(peerConnection));
+                .ObserveIceCandidate((peer, candidate) => _negotiationService.EnqueueLocalIceCandidate(peerConnection, candidate))
+                .ObserveRenegotiationNeeded(peer => _negotiationService.EnqueueRenegotiationRequest(peerConnection));
 
             return peerConnection;
         }

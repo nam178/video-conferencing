@@ -48,6 +48,7 @@ namespace MediaServer.Core.IoC
             builder.RegisterType<RenegotiationMessageSubscriber>().AsImplementedInterfaces();
             builder.RegisterType<IceCandidateMessageSubscriber>().AsImplementedInterfaces();
             builder.RegisterType<TransceiverMetadataMessageSubscriber>().AsImplementedInterfaces();
+            builder.RegisterType<NegotiationService>().AsImplementedInterfaces().SingleInstance();
         }
     }
 }

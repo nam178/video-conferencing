@@ -1,5 +1,4 @@
-﻿using MediaServer.Common.Threading;
-using System;
+﻿using System;
 
 namespace MediaServer.WebRtc.Managed
 {

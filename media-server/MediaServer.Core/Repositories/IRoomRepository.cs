@@ -1,5 +1,4 @@
-﻿using MediaServer.Common.Threading;
-using MediaServer.Core.Models;
+﻿using MediaServer.Core.Models;
 using MediaServer.Models;
 
 namespace MediaServer.Core.Repositories

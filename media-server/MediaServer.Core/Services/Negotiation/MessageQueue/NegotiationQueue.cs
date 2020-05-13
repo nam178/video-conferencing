@@ -1,7 +1,5 @@
 ﻿using MediaServer.Common.Patterns;
-using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
-using MediaServer.WebRtc.Managed;
 using NLog;
 using System;
 using System.Collections.Concurrent;
@@ -15,7 +13,6 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
     {
         readonly IReadOnlyList<IMessageSubscriber> _subscribers;
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        readonly IThread _signallingThread;
         readonly Thread _dequeueThread;
         readonly ConcurrentQueue<Message> _messages = new ConcurrentQueue<Message>();
         readonly AutoResetEvent _backgroundThreadWakeUpSignal = new AutoResetEvent(false);
@@ -24,17 +21,13 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
 
         int _state;
 
-        public NegotiationQueue(
-            IEnumerable<IMessageSubscriber> subscribers,
-            IThread signallingThread)
+        public NegotiationQueue(IEnumerable<IMessageSubscriber> subscribers)
         {
             _subscribers = (subscribers
                 ?? throw new ArgumentNullException(nameof(subscribers))).ToList();
             _dequeueThread = new Thread(DequeueThread);
             _dequeueThread.Name = "Dequeue Thread";
             _dequeueThread.Start();
-            _signallingThread = signallingThread
-                ?? throw new ArgumentNullException(nameof(signallingThread));
         }
 
         void DequeueThread()
@@ -71,7 +64,8 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                         // Any further request to process is PeerConnection will be put into its own queue,
                         // and requeued later.
                         var subscriber = GetSubscriber(message);
-                        _signallingThread.Post(delegate
+                        var signallingThread = message.PeerConnection.Room.SignallingThread;
+                        signallingThread.Post(delegate
                         {
                             subscriber.Handle(
                                 message,
@@ -123,6 +117,10 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                 throw new InvalidOperationException("Already stopped");
             else if(state == 2)
                 throw new ObjectDisposedException(GetType().FullName);
+            if(message.PeerConnection == null)
+                throw new ArgumentException($"{nameof(message.PeerConnection)} is NULL");
+            if(message.PeerConnection.Room == null)
+                throw new InvalidProgramException($"{nameof(message.PeerConnection.Room)} is NULL");
 
             var subscriber = GetSubscriber(message);
             if(subscriber != null)
@@ -149,8 +147,6 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
         // We'll re-queue any messages that was queued during the processing of this message.
         void OnProcessingComplete(Message message)
         {
-            _signallingThread.EnsureCurrentThread();
-
             lock(_peerConnectionQueue)
             {
                 if(false == _peerConnectionQueue.ContainsKey(message.PeerConnection))
