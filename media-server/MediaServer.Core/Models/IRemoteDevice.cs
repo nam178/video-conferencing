@@ -1,7 +1,8 @@
-﻿using MediaServer.Core.Models;
+﻿using MediaServer.Common.Media;
+using MediaServer.Core.Models;
 using MediaServer.WebRtc.Managed;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace MediaServer.Models
 {
@@ -61,7 +62,10 @@ namespace MediaServer.Models
         /// </summary>
         /// <param name="description">Could be either offer or answer</param>
         /// <returns></returns>
-        void EnqueueOffer(Guid peerConnectionId, Guid offerId, RTCSessionDescription description);
+        void EnqueueOffer(
+            Guid peerConnectionId,
+            Guid offerId,
+            IReadOnlyList<TransceiverMetadata> transceivers, RTCSessionDescription description);
 
         /// <summary>
         /// Terminate the connection with this device.

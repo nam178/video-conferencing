@@ -44,7 +44,11 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     // those generated from SetLocalSessionDescriptionAsync();
                     try
                     {
-                        peerConnection.Device.EnqueueOffer(peerConnection.Id, peerConnection.LastOfferId, offer);
+                        var transceivers = peerConnection.Room.VideoRouter.GetLocalTransceiverMetadata(
+                                peerConnection.Device.Id,
+                                peerConnection.Id);
+                        peerConnection.Device.EnqueueOffer(peerConnection.Id, peerConnection.LastOfferId, transceivers,
+                                                           offer);
                         _logger.Debug($"[Renegotiation Step 1/3] Offer generated and sent for {peerConnection}.");
                     }
                     catch(Exception ex)

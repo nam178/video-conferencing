@@ -17,7 +17,6 @@ namespace MediaServer.Core.Adapters
         readonly PeerConnection _peerConnectionImpl;
         readonly object _syncRoot = new object();
         readonly VideoRouter _videoRouter;
-        readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         Action<IPeerConnection, RTCIceCandidate> _iceCandidateObserver;
         Action<IPeerConnection> _renegotationNeededObserver;
         int _addedToRouterState;
@@ -77,16 +76,23 @@ namespace MediaServer.Core.Adapters
                 {
                     try
                     {
-                        // As per webRTC example, the answerer will SetRemoteSessionDescription() first,
-                        // then followed by AddTrack();
+                        // TODO: move this,
+                        // AddPeerConnection() should be called right after the peer connection
+                        // factory returns the newly created PeerConnection.
                         //
-                        // and AddPeerConnectionAsync() will call AddTrack() under the hood,
-                        // therefore we call AddPeerConnectionAsync() right after SetRemoteSessionDescription();
+                        // To accomplish this, make sure VideoRouter listens to PeerConnection's track events,
+                        // because when PeerConnection has just been created, it has no track, however 
+                        // SetRemoteSessionDescription() above adds track after the PeerConnection is added to the router.
                         if(Interlocked.CompareExchange(
                             ref _addedToRouterState,
                             (int)AddedToRouterState.Added,
                             (int)AddedToRouterState.NotAdded) == (int)AddedToRouterState.NotAdded)
                         {
+                            // As per webRTC example, the answerer will SetRemoteSessionDescription() first,
+                            // then followed by AddTrack();
+                            //
+                            // and AddPeerConnectionAsync() will call AddTrack() under the hood,
+                            // therefore we call AddPeerConnectionAsync() right after SetRemoteSessionDescription();
                             _videoRouter.AddPeerConnection(Device.Id, _peerConnectionImpl);
                         }
                         observer.Success();

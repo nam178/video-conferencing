@@ -172,7 +172,7 @@ export default class PeerConnectionBase extends EventTarget {
         }
         // Send the generated sdp to the server
         this.webSocketClient.queueMessage('SetAnswer', {
-            answer: {
+            answer: {  
                 type: answer.type,
                 sdp: answer.sdp
             },

@@ -52,11 +52,8 @@ namespace MediaServer.WebRtc.MediaRouting
             _transceiver = _transceiver ?? TargetPeerConnection.AddTransceiver(mediaKind);
 
             // Notes: AddTransceiver() triggers re-negotation, so does ToBusyState();
-            // However re-negotation will be triggered only once by libWebRTC, because
-            // we're in the signalling thread, re-negotiation won't happen until
-            // we exit this thread, and multiple re-negotiation triggers will be grouped to just one
-            // according to documentation.
-            // 
+            // Need to test to confirm we won't re-negotiate multiple times
+
             // Next, set/replace the track:
             _transceiver.ToBusyState(_track, streamId);
 

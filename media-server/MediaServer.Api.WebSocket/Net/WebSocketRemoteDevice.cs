@@ -1,10 +1,12 @@
-﻿using MediaServer.Core.Models;
+﻿using MediaServer.Common.Media;
+using MediaServer.Core.Models;
 using MediaServer.Models;
 using MediaServer.WebRtc.Managed;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MediaServer.Api.WebSocket.Net
@@ -45,9 +47,10 @@ namespace MediaServer.Api.WebSocket.Net
             _ = SendAsync("IceCandidate", new { candidate, peerConnectionId });
         }
 
-        public void EnqueueOffer(Guid peerConnectionId, Guid offerId, RTCSessionDescription description)
+        public void EnqueueOffer(Guid peerConnectionId, Guid offerId, IReadOnlyList<TransceiverMetadata> transceivers,
+                                 RTCSessionDescription description)
         {
-            var args = new { sdp = description, peerConnectionId, offerId };
+            var args = new { sdp = description, peerConnectionId, offerId, transceivers };
             const string command = "Offer";
             _ = SendAsync(command, args);
         }

@@ -4,6 +4,7 @@ using MediaServer.Common.Utils;
 using MediaServer.WebRtc.Managed;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MediaServer.WebRtc.MediaRouting
@@ -47,7 +48,7 @@ namespace MediaServer.WebRtc.MediaRouting
             _signallingThread.EnsureCurrentThread();
 
             // Prepare the source for this quality, if it was not created
-            var videoClient = _videoClients.Get(videoClientId);
+            var videoClient = _videoClients.GetOrThrow(videoClientId);
             var videoSource = videoClient.VideoSources.ContainsKey(mediaQuality)
                 ? videoClient.VideoSources[mediaQuality]
                 : null;
@@ -72,7 +73,7 @@ namespace MediaServer.WebRtc.MediaRouting
             _signallingThread.EnsureCurrentThread();
 
             // Add PeerConnection into VideoClient
-            var videoClient = _videoClients.Get(videoClientId);
+            var videoClient = _videoClients.GetOrThrow(videoClientId);
             if(videoClient.PeerConnections.Contains(peerConnection))
             {
                 throw new InvalidProgramException($"{peerConnection} already added into {videoClient}");
@@ -92,11 +93,11 @@ namespace MediaServer.WebRtc.MediaRouting
             // Link this PeerConnection with any existing local VideoSources
             foreach(var other in _videoClients
                 .OtherThan(videoClient)
-                .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredVideoQuality)))
+                .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredMediaQuality)))
             {
                 var localVideoLink = new LocalVideoLink(
                     _peerConnectionFactory,
-                    other.VideoSources[videoClient.DesiredVideoQuality],
+                    other.VideoSources[videoClient.DesiredMediaQuality],
                     peerConnection);
                 _localVideoLinks.Add(localVideoLink);
                 _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
@@ -118,7 +119,7 @@ namespace MediaServer.WebRtc.MediaRouting
             _logger.Info($"Removed all video links for {peerConnection} from {_remoteVideoLinks}");
 
             // Remove this PeerConnection from VideoClient
-            var videoClient = _videoClients.Get(videoClientId);
+            var videoClient = _videoClients.GetOrThrow(videoClientId);
             var removed = videoClient.PeerConnections.Remove(peerConnection);
             if(!removed)
                 throw new InvalidProgramException("PeerConnection did not removed from memory");
@@ -129,7 +130,7 @@ namespace MediaServer.WebRtc.MediaRouting
         {
             _signallingThread.EnsureCurrentThread();
             // Remove the video sources
-            var videoClient = _videoClients.Get(videoClientId);
+            var videoClient = _videoClients.GetOrThrow(videoClientId);
             if(videoClient.PeerConnections.Count > 0)
                 throw new InvalidProgramException("VideoClient's PeerConnections were not removed");
 
@@ -220,7 +221,7 @@ namespace MediaServer.WebRtc.MediaRouting
             // we'll have to connect this source to any existing sending-PeerConnection
             foreach(var otherVideoClient in _videoClients
                 .OtherThan(videoClient)
-                .Where(other => other.DesiredVideoQuality == mediaQuality && other.PeerConnections.Count > 0))
+                .Where(other => other.DesiredMediaQuality == mediaQuality && other.PeerConnections.Count > 0))
             {
                 var localVideoLink = new LocalVideoLink(
                     _peerConnectionFactory,
@@ -233,12 +234,51 @@ namespace MediaServer.WebRtc.MediaRouting
 
         public void ClearFrozenTransceivers(Guid videoClientId, Guid peerConnectionId)
         {
-            throw new NotImplementedException();
+            _signallingThread.EnsureCurrentThread();
+
+            var videoClient = _videoClients.GetOrThrow(videoClientId);
+            var peerConnection = videoClient.GetPeerConnectionOrThrow(peerConnectionId);
+            var transceivers = peerConnection.GetTransceivers();
+            var count = 0;
+            for(int i = 0; i < transceivers.Count; i++)
+            {
+                if(transceivers[i].ReusabilityState == ReusabilityState.Fronzen)
+                {
+                    transceivers[i].ToAvailableState();
+                    count++;
+                }
+            }
+            if(count > 0)
+            {
+                _logger.Info(
+                    $"Made {count} frozen transceiver(s) available for {peerConnection}, " +
+                    $"total transceivers: {transceivers.Count}");
+            }
         }
 
-        public void GetLocalTransceiverMetadata()
+        public IReadOnlyList<TransceiverMetadata> GetLocalTransceiverMetadata(Guid videoClientId, Guid peerConnectionId)
         {
-            throw new NotImplementedException();
+            _signallingThread.EnsureCurrentThread();
+            var videoClient = _videoClients.GetOrThrow(videoClientId);
+            var peerConnection = videoClient.GetPeerConnectionOrThrow(peerConnectionId);
+
+
+            var transceivers = peerConnection.GetTransceivers();
+            if(null == transceivers)
+                throw new NullReferenceException(nameof(transceivers));
+
+            var result = new List<TransceiverMetadata>();
+            for(var i = 0; i < transceivers.Count; i++)
+            {
+                if(transceivers[i].ReusabilityState == ReusabilityState.Busy)
+                {
+                    result.Add(new TransceiverMetadata(
+                        transceivers[i].Mid,
+                        videoClient.DesiredMediaQuality,
+                        transceivers[i].MediaKind));
+                }
+            }
+            return result;
         }
     }
 }

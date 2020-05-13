@@ -23,14 +23,13 @@ export default class WebSocketMessageHandler {
         this._webSocketClient = webSocketClient;
         this._logger = logger;
         this._handleWebSocketMessage = this._handleWebSocketMessage.bind(this);
-        this.startListeningToWebSocketEvents();
     }
 
-    startListeningToWebSocketEvents() {
+    startObservingWebSocketMessages() {
         this._webSocketClient.addEventListener('message', this._handleWebSocketMessage);
     }
 
-    stopListeningToWebSocketEvents() {
+    stopObservingWebSocketMessages() {
         this._webSocketClient.removeEventListener('message', this._handleWebSocketMessage);
     }
 

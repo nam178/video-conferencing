@@ -1,5 +1,6 @@
 ﻿using MediaServer.Common.Media;
 using System;
+using System.Collections.Generic;
 
 namespace MediaServer.WebRtc.MediaRouting
 {
@@ -24,7 +25,14 @@ namespace MediaServer.WebRtc.MediaRouting
         /// <remarks>Must be called from signalling thread</remarks>
         void SetRemoteTransceiverMetadata(Guid videoClientId, string transceiverMid, MediaQuality trackQuality, MediaKind kind);
 
-        void GetLocalTransceiverMetadata();
+        /// <summary>
+        /// Clients can use this to generate transceiver metadata to send along with SDP.
+        /// </summary>
+        /// <param name="videoClientId"></param>
+        /// <param name="peerConnectionId"></param>
+        /// <returns>Transceiver metadata as a copy</returns>
+        /// <remarks>Must be called from signalling thread</remarks>
+        IReadOnlyList<TransceiverMetadata> GetLocalTransceiverMetadata(Guid videoClientId, Guid peerConnectionId);
 
         /// <summary>
         /// Notify the router that it's clear to activate frozen transceivers, 

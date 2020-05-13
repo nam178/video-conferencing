@@ -38,7 +38,7 @@ namespace MediaServer.WebRtc.MediaRouting
             return t;
         }
 
-        public VideoClient Get(Guid videoClientId)
+        public VideoClient GetOrThrow(Guid videoClientId)
         {
             ThrowWhenKeyNotExist(videoClientId);
             return _indexByVideoClientId[videoClientId];

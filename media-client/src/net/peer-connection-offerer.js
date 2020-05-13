@@ -29,10 +29,9 @@ function sendIceCandidate(webSocketClient, candidate, peerConnectionId) {
  * @param {RTCPeerConnection} peerConnection 
  * @returns {Object[]}
  */
-function getTransceiverMetadata(peerConnection)
-{
-      // Tell the servers about the transceivers we have
-      return peerConnection.getTransceivers()
+function getTransceiverMetadata(peerConnection) {
+    // Tell the servers about the transceivers we have
+    return peerConnection.getTransceivers()
         .filter(t => !!t.sender.track)
         .map(function (t) {
             return {
@@ -62,56 +61,23 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
     /** @type {RTCIceCandidate[]} */
     _pendingIceCandidates = [];
 
-    /** @type {Boolean} */
-    _isCompleted = false;
-
-    /** @type {Function} */
-    _completionCallbacks = [];
-
-    get isCompleted() { return this._isCompleted; }
-
     constructor(peerConnection, peerConnectionId, webSocketClient) {
         super(webSocketClient, logger);
         this._peerConnection = peerConnection;
         this._peerConnectionId = peerConnectionId;
-    }
-
-    onComplete(callback) {
-        if(this._isCompleted) {
-            throw 'AlreadyCompleted';
-        }
-        if(this._cancelled) {
-            throw 'AlreadyCancelled';
-        }
-        _completionCallbacks.push(callback);
+        this._handleIceCandidate = this._handleIceCandidate.bind(this);
+        this._handleIceCandidate = this._handleIceConnectionChange.bind(this);
     }
 
     async startAsync() {
         if (this._cancelled) throw 'AlreadyCancelled';
         if (this._started) throw 'AlreadyStarted';
         this._started = true;
+        this.startObservingWebSocketMessages();
 
         // Preparation: listen to ICE candidate events
-        this._peerConnection.addEventListener('icecandidate', e => {
-            logger.debug('Local ICE candidate generated', e);
-            if (e.candidate) {
-                // We shouldn't be sending ICE candidates unless the offer has been sent,
-                // As ICE candidate can't be added (on the remote side) unless SDP is set.
-                if (this._pendingIceCandidates)
-                    this._pendingIceCandidates.push(e.candidate);
-                else
-                    sendIceCandidate(this.webSocketClient, e.candidate, this._peerConnectionId);
-            }
-        });
-        this._peerConnection.addEventListener('iceconnectionstatechange', e => {
-            logger.debug('ice state change', e);
-            if (this._peerConnection.iceConnectionState === "failed" ||
-                this._peerConnection.iceConnectionState === "disconnected" ||
-                this._peerConnection.iceConnectionState === "closed") {
-                // TODO Handle ice connection failure
-                logger.error('TODO: handle ICE connection failure');
-            }
-        });
+        this._peerConnection.addEventListener('icecandidate', this._handleIceCandidate);
+        this._peerConnection.addEventListener('iceconnectionstatechange', this._handleIceConnectionChange);
 
         // Step 1: Create Offer
         var offer = await this._peerConnection.createOffer();
@@ -151,8 +117,31 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         if (this._cancelled) {
             return;
         }
-        this.stopListeningToWebSocketEvents();
+        this.stopObservingWebSocketMessages();
+        this._peerConnection.removeEventListener('icecandidate', this._handleIceCandidate);
         this._cancelled = true;
+    }
+
+    _handleIceCandidate(e) {
+        logger.debug('Local ICE candidate generated', e);
+        if (e.candidate) {
+            // We shouldn't be sending ICE candidates unless the offer has been sent,
+            // As ICE candidate can't be added (on the remote side) unless SDP is set.
+            if (this._pendingIceCandidates)
+                this._pendingIceCandidates.push(e.candidate);
+            else
+                sendIceCandidate(this.webSocketClient, e.candidate, this._peerConnectionId);
+        }
+    }
+
+    _handleIceConnectionChange(e) {
+        logger.debug('ice state change', e);
+        if (this._peerConnection.iceConnectionState === "failed" ||
+            this._peerConnection.iceConnectionState === "disconnected" ||
+            this._peerConnection.iceConnectionState === "closed") {
+            // TODO Handle ice connection failure
+            logger.error('TODO: handle ICE connection failure');
+        }
     }
 
     async _onAnswer(args) {
@@ -181,8 +170,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
 
         // offer process completed,
         // automatically unsubscribe from WebSocket events
-        this.stopListeningToWebSocketEvents();
-        this._isCompleted = true;
+        this.stopObservingWebSocketMessages();
         this._completionCallbacks.forEach(f => f());
     }
 
