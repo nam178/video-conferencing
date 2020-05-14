@@ -2,9 +2,13 @@ import WebSocketMessageHandler from './websocket-message-handler';
 import PeerConnectionId from './peer-connection-id';
 import FatalErrorHandler from '../handlers/fatal-error-handler';
 import Logger from '../logging/logger';
-import sleep from '../utils/sleep'
+import Throttle from '../utils/throttle';
 
 var logger = new Logger('PeerConnectionOfferProcess');
+var sentIceCandidateLogThrottle = new Throttle(2000);
+var sentIceCandidates = [];    // for logging purpose
+var receiveIceCandidateLogThrottle = new Throttle(2000);
+var receivedIceCandidates = []; // for logging purpose
 
 /**
  * @param {WebSocketClient} webSocketClient
@@ -23,7 +27,11 @@ function sendIceCandidate(webSocketClient, candidate, peerConnectionId) {
         },
         peerConnectionId: peerConnectionId.value
     });
-    logger.log('Local ICE candidate sent', candidate);
+    sentIceCandidates.push(candidate);
+    sentIceCandidateLogThrottle.run(() => {
+        logger.info(`${sentIceCandidates.length} local ICE candidate(s) sent`);
+        sentIceCandidates = [];
+    });
 }
 
 /**
@@ -170,21 +178,30 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         // Final step is to flush any pending ICE candidates
         this._pendingIceCandidates
             .forEach(candidate => sendIceCandidate(
-                this.webSocketClient, 
-                candidate, 
+                this.webSocketClient,
+                candidate,
                 this._peerConnectionId));
         logger.info(`[Step 5/5] Flushed ${this._pendingIceCandidates.length} ICE candidates`)
         this._pendingIceCandidates = [];
 
-        // offer process completed,
-        // automatically unsubscribe from WebSocket events
-        this.stopObservingWebSocketMessages();
+        // Notes - offer process completed,
+        // but don't unsubscribe from WebSocket events, as we are still
+        // expecting ICE candidates
     }
 
-    _onTransceiversMetadataSet() {
-        if (this._pendingSendTrackInfoResolve) {
-            this._pendingSendTrackInfoResolve();
-            this._pendingSendTrackInfoResolve = null;
+    _onIceCandidate(args) {
+        if (!this._peerConnectionId.hasValue) {
+            FatalErrorHandler.failFast(
+                'Received ICE candidate while PeerConnectionId was not set', args);
+            return;
         }
+        if (args.peerConnectionId != this._peerConnectionId.value) {
+            return;
+        }
+        this._peerConnection.addIceCandidate(args.candidate);
+        receivedIceCandidates.push(args);
+        receiveIceCandidateLogThrottle.run(() => {
+            logger.info(`Received and added ${receivedIceCandidates.length} remote ICE candidate(s)`);
+        });
     }
 }

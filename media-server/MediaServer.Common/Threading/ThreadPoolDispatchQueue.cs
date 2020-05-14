@@ -144,14 +144,16 @@ namespace MediaServer.Common.Threading
             {
                 throw new InvalidOperationException();
             }
-            Task.Run(TaskExecutionThread).ContinueWith(task =>
-            {
-                var ex = task.Exception?.InnerException;
-                if(ex != null && !(ex is OperationCanceledException))
+            Task.Factory
+                .StartNew(TaskExecutionThread, TaskCreationOptions.LongRunning)
+                .ContinueWith(task =>
                 {
-                    _logger.Error(ex);
-                }
-            });
+                    var ex = task.Exception?.InnerException;
+                    if(ex != null && !(ex is OperationCanceledException))
+                    {
+                        _logger.Error(ex);
+                    }
+                });
         }
 
         async Task TaskExecutionThread()

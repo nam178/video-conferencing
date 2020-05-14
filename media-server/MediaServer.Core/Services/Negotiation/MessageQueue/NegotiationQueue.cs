@@ -43,40 +43,43 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                         _logger.Debug("Cancelling dequeue thread..");
                         return;
                     }
-                    // Dequeue a message
-                    if(_messages.TryDequeue(out var message))
+                    // Dequeue all available messages
+                    while(_messages.Count > 0)
                     {
-                        // We can only process 1 PeerConnection at a time,
-                        // if this PeerConnection being processed, queue this message so it gets processed later.
-                        lock(_peerConnectionQueue)
+                        if(_messages.TryDequeue(out var message))
                         {
-                            var isBeingProcessed = _peerConnectionQueue.ContainsKey(message.PeerConnection);
-                            if(isBeingProcessed)
+                            // We can only process 1 PeerConnection at a time,
+                            // if this PeerConnection being processed, queue this message so it gets processed later.
+                            lock(_peerConnectionQueue)
                             {
-                                _peerConnectionQueue[message.PeerConnection].Enqueue(message);
-                                continue;
+                                var isBeingProcessed = _peerConnectionQueue.ContainsKey(message.PeerConnection);
+                                if(isBeingProcessed)
+                                {
+                                    _peerConnectionQueue[message.PeerConnection].Enqueue(message);
+                                    continue;
+                                }
+                                else
+                                    _peerConnectionQueue[message.PeerConnection] = new Queue<Message>();
                             }
-                            else
-                                _peerConnectionQueue[message.PeerConnection] = new Queue<Message>();
-                        }
 
-                        // At this point, this PeerConnection is free to be processed.
-                        // Any further request to process is PeerConnection will be put into its own queue,
-                        // and requeued later.
-                        var subscriber = GetSubscriber(message);
-                        var signallingThread = message.PeerConnection.Room.SignallingThread;
-                        signallingThread.Post(delegate
-                        {
-                            subscriber.Handle(
-                                message,
-                                new Observer()
-                                    .OnError((err) =>
-                                    {
-                                        _logger.Warn(err);
-                                        OnProcessingComplete(message);
-                                    })
-                                    .OnSuccess(() => OnProcessingComplete(message)));
-                        });
+                            // At this point, this PeerConnection is free to be processed.
+                            // Any further request to process is PeerConnection will be put into its own queue,
+                            // and requeued later.
+                            var subscriber = GetSubscriber(message);
+                            var signallingThread = message.PeerConnection.Room.SignallingThread;
+                            signallingThread.Post(delegate
+                            {
+                                subscriber.Handle(
+                                    message,
+                                    new Observer()
+                                        .OnError((err) =>
+                                        {
+                                            _logger.Warn(err);
+                                            OnProcessingComplete(message);
+                                        })
+                                        .OnSuccess(() => OnProcessingComplete(message)));
+                            });
+                        }
                     }
                 }
             }

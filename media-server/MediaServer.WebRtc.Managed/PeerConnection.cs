@@ -12,7 +12,7 @@ namespace MediaServer.WebRtc.Managed
 {
     /// <summary>
     /// </summary>
-    /// <remarks>This class is thread safe, due to some method is called from singalling threads, while other from device threads</remarks>
+    /// <remarks>Call methods must be called from signalling thread. Not thread safe.</remarks>
     public class PeerConnection : IDisposable
     {
         readonly PeerConnectionSafeHandle _handle;
@@ -111,15 +111,6 @@ namespace MediaServer.WebRtc.Managed
                 });
             _pendingObservers.Add(observer);
             PeerConnectionInterop.SetRemoteSessionDescription(_handle, type, sdp, _setRemoteSessionDescCallback, IntPtr.Zero);
-        }
-
-        void Complete(Observer observer, bool sucess, string errorMessage)
-        {
-            _pendingObservers.Remove(observer);
-            if(sucess)
-                observer.Success();
-            else
-                observer.Error(errorMessage ?? string.Empty);
         }
 
         /// <summary>
@@ -290,17 +281,39 @@ namespace MediaServer.WebRtc.Managed
             _signallingThread.EnsureCurrentThread();
         }
 
+        void Complete(Observer observer, bool sucess, string errorMessage)
+        {
+            try
+            {
+                _pendingObservers.Remove(observer);
+                if(sucess)
+                    observer.Success();
+                else
+                    observer.Error(errorMessage ?? string.Empty);
+            }
+            // Notes
+            // Observer may already completed by the Close() method,
+            // we ignore the error in such case.
+            catch(ObserverAlreadyCompletedException) { }
+        }
+
         void Complete(
             Observer<RTCSessionDescription> observer,
             PeerConnectionInterop.CreateAnswerResult result)
         {
-            _pendingObservers.Remove(observer);
-            if(result.Success)
-                observer.Result(new RTCSessionDescription { Sdp = result.Sdp, Type = result.SdpType });
-            else
-                observer.Error(result.ErrorMessage ?? string.Empty);
+            try
+            {
+                _pendingObservers.Remove(observer);
+                if(result.Success)
+                    observer.Result(new RTCSessionDescription { Sdp = result.Sdp, Type = result.SdpType });
+                else
+                    observer.Error(result.ErrorMessage ?? string.Empty);
+            }
+            // Notes
+            // Observer may already completed by the Close() method,
+            // we ignore the error in such case.
+            catch(ObserverAlreadyCompletedException) { }
         }
-
 
         int _disposed;
         public void Dispose()
