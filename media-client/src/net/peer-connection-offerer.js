@@ -3,8 +3,10 @@ import PeerConnectionId from './peer-connection-id';
 import FatalErrorHandler from '../handlers/fatal-error-handler';
 import Logger from '../logging/logger';
 import Throttle from '../utils/throttle';
+import WebSocketClient from './websocket-client';
+import PeerConnectionMediaHandler from './peer-connection-media-handler';
 
-var logger = new Logger('PeerConnectionOfferProcess');
+var logger = new Logger('PeerConnectionOfferer');
 var sentIceCandidateLogThrottle = new Throttle(2000);
 var sentIceCandidates = [];    // for logging purpose
 var receiveIceCandidateLogThrottle = new Throttle(2000);
@@ -70,12 +72,22 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
     /** @type {RTCIceCandidate[]} */
     _pendingIceCandidates = [];
 
-    constructor(peerConnection, peerConnectionId, webSocketClient) {
+    /** @type {PeerConnectionMediaHandler} */
+    _mediaHandler = null;
+
+    /**
+     * @param {RTCPeerConnection} peerConnection 
+     * @param {PeerConnectionId} peerConnectionId 
+     * @param {WebSocketClient} webSocketClient 
+     * @param {PeerConnectionMediaHandler} mediaHandler 
+     */
+    constructor(peerConnection, peerConnectionId, webSocketClient, mediaHandler) {
         super(webSocketClient, logger);
         this._peerConnection = peerConnection;
         this._peerConnectionId = peerConnectionId;
         this._onLocalIceCandidate = this._onLocalIceCandidate.bind(this);
         this._onLocalIceConnectionChange = this._onLocalIceConnectionChange.bind(this);
+        this._mediaHandler = mediaHandler;
     }
 
     async startAsync() {
@@ -165,11 +177,13 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         }
         if (this._cancelled) return;
 
+        this._mediaHandler.setTransceiversMetadata(args.transceivers);
         try {
             await this._peerConnection.setRemoteDescription(args.sdp);
         }
-        catch (err) {
-            FatalErrorHandler.failFast(`Failed setting remote description`);
+        catch (err) { // likely that setRemoteDescription will fail due to sdp format issue
+            logger.error(err);
+            FatalErrorHandler.failFast(`setRemoteDescription failed ${err}`);
         }
 
         if (this._cancelled) return;
@@ -189,7 +203,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         // expecting ICE candidates
     }
 
-    _onIceCandidate(args) {
+    async _onIceCandidate(args) {
         if (!this._peerConnectionId.hasValue) {
             FatalErrorHandler.failFast(
                 'Received ICE candidate while PeerConnectionId was not set', args);
@@ -198,7 +212,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         if (args.peerConnectionId != this._peerConnectionId.value) {
             return;
         }
-        this._peerConnection.addIceCandidate(args.candidate);
+        await this._peerConnection.addIceCandidate(args.candidate);
         receivedIceCandidates.push(args);
         receiveIceCandidateLogThrottle.run(() => {
             logger.info(`Received and added ${receivedIceCandidates.length} remote ICE candidate(s)`);

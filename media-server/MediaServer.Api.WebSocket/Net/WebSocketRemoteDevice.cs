@@ -47,17 +47,23 @@ namespace MediaServer.Api.WebSocket.Net
             _ = SendAsync("IceCandidate", new { candidate, peerConnectionId });
         }
 
-        public void EnqueueOffer(Guid peerConnectionId, Guid offerId, IReadOnlyList<TransceiverMetadata> transceivers,
-                                 RTCSessionDescription description)
+        public void EnqueueOffer(
+            Guid peerConnectionId,
+            Guid offerId,
+            RTCSessionDescription description,
+            IReadOnlyList<TransceiverMetadata> transceivers)
         {
             var args = new { sdp = description, peerConnectionId, offerId, transceivers };
             const string command = "Offer";
             _ = SendAsync(command, args);
         }
 
-        public void EnqueueAnswer(Guid peerConnectionId, RTCSessionDescription description)
+        public void EnqueueAnswer(
+            Guid peerConnectionId,
+            RTCSessionDescription description,
+            IReadOnlyList<TransceiverMetadata> transceivers)
         {
-            var args = new { sdp = description, peerConnectionId };
+            var args = new { sdp = description, peerConnectionId, transceivers };
             const string command = "Answer";
             _ = SendAsync(command, args);
         }

@@ -39,29 +39,8 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                 .OnError(completionCallback)
                 .OnResult(offer =>
                 {
-                    // Step 2: Send the SDP, then SetLocalSessionDescription, 
-                    // so the sdp processed by remote peer before they process ICE candidates,
-                    // those generated from SetLocalSessionDescriptionAsync();
-                    try
-                    {
-                        var transceivers = peerConnection.Room.VideoRouter.GetLocalTransceiverMetadata(
-                                peerConnection.Device.Id,
-                                peerConnection.Id);
-                        peerConnection.Device.EnqueueOffer(peerConnection.Id, peerConnection.LastOfferId, transceivers,
-                                                           offer);
-                        _logger.Debug($"[Renegotiation Step 1/3] Offer generated and sent for {peerConnection}.");
-                    }
-                    catch(Exception ex)
-                    {
-                        completionCallback.Error($"{nameof(IRemoteDevice.EnqueueOffer)} failed: {ex.Message}");
-                        if(!(ex is ObjectDisposedException))
-                        {
-                            _logger.Error(ex);
-                        }
-                        return;
-                    }
-
-                    // then send candidates later so they processed after the SDP is processed.
+                    // SetLocalSessionDescription() first before calling GetLocalTransceiverMetadata(),
+                    // otherwise we'll get NULL transceiver mids.
                     var observer = SetLocalSessionDescriptionObserver(completionCallback, peerConnection);
                     try
                     {
@@ -74,6 +53,26 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                         {
                             _logger.Error(ex);
                         }
+                    }
+
+                    // Then generate transceiver metadata and send along with the offer.
+                    try
+                    {
+                        var transceivers = peerConnection.Room.VideoRouter.GetLocalTransceiverMetadata(
+                                peerConnection.Device.Id,
+                                peerConnection.Id);
+                        peerConnection.Device.EnqueueOffer(peerConnection.Id, peerConnection.LastOfferId, offer,
+                            transceivers);
+                        _logger.Debug($"[Renegotiation Step 1/3] Offer generated and sent for {peerConnection}.");
+                    }
+                    catch(Exception ex)
+                    {
+                        completionCallback.Error($"{nameof(IRemoteDevice.EnqueueOffer)} failed: {ex.Message}");
+                        if(!(ex is ObjectDisposedException))
+                        {
+                            _logger.Error(ex);
+                        }
+                        return;
                     }
                 });
 

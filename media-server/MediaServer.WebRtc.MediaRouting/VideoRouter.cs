@@ -242,7 +242,7 @@ namespace MediaServer.WebRtc.MediaRouting
             var count = 0;
             for(int i = 0; i < transceivers.Count; i++)
             {
-                if(transceivers[i].ReusabilityState == ReusabilityState.Fronzen)
+                if(transceivers[i].ReusabilityState == TransceiverReusabilityState.Fronzen)
                 {
                     transceivers[i].ToAvailableState();
                     count++;
@@ -261,8 +261,6 @@ namespace MediaServer.WebRtc.MediaRouting
             _signallingThread.EnsureCurrentThread();
             var videoClient = _videoClients.GetOrThrow(videoClientId);
             var peerConnection = videoClient.GetPeerConnectionOrThrow(peerConnectionId);
-
-
             var transceivers = peerConnection.GetTransceivers();
             if(null == transceivers)
                 throw new NullReferenceException(nameof(transceivers));
@@ -270,12 +268,19 @@ namespace MediaServer.WebRtc.MediaRouting
             var result = new List<TransceiverMetadata>();
             for(var i = 0; i < transceivers.Count; i++)
             {
-                if(transceivers[i].ReusabilityState == ReusabilityState.Busy)
+                if(transceivers[i].ReusabilityState == TransceiverReusabilityState.Busy)
                 {
+                    if(null == transceivers[i].CustomData)
+                        throw new InvalidProgramException("Transceiver custom data is  NULL");
+                    var localVideoLink = transceivers[i].CustomData as LocalVideoLink;
+                    if(null == transceivers[i].CustomData)
+                        throw new InvalidProgramException($"Transceiver custom data is not {nameof(LocalVideoLink)}");
+
                     result.Add(new TransceiverMetadata(
                         transceivers[i].Mid,
                         videoClient.DesiredMediaQuality,
-                        transceivers[i].MediaKind));
+                        transceivers[i].MediaKind,
+                        localVideoLink.VideoSource.VideoClient.Id));
                 }
             }
             return result;

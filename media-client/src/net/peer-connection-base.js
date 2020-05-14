@@ -204,7 +204,6 @@ export default class PeerConnectionBase extends EventTarget {
     _handleWebSocketMessage(e) {
         var commandName = `_on${e.detail.command}`;
         if (typeof this[commandName] != 'undefined') {
-            this._logger.debug(`Executing method ${commandName} with args=`, e.detail.args);
             this[commandName](e.detail.args);
         }
     }

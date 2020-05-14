@@ -9,11 +9,12 @@ namespace MediaServer.WebRtc.MediaRouting
     {
         readonly VideoTrack _track;
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        readonly RtpTransceiver _transceiver;
 
         public PeerConnection TargetPeerConnection { get; }
 
         public VideoSource VideoSource { get; }
+
+        public RtpTransceiver Transceiver { get; }
 
         public LocalVideoLink(PeerConnectionFactory peerConnectionFactory, VideoSource videoSource, PeerConnection targetPeerConnection)
         {
@@ -39,23 +40,24 @@ namespace MediaServer.WebRtc.MediaRouting
             // Or add a new one
             var mediaKind = _track.Kind;
             var transceivers = TargetPeerConnection.GetTransceivers();
-            _transceiver = null;
+            Transceiver = null;
             for(var i = 0; i < transceivers.Count; i++)
             {
-                if(transceivers[i].ReusabilityState == ReusabilityState.Available
+                if(transceivers[i].ReusabilityState == TransceiverReusabilityState.Available
                     && transceivers[i].MediaKind == mediaKind)
                 {
-                    _transceiver = transceivers[i];
+                    Transceiver = transceivers[i];
                     break;
                 }
             }
-            _transceiver = _transceiver ?? TargetPeerConnection.AddTransceiver(mediaKind);
+            Transceiver = Transceiver ?? TargetPeerConnection.AddTransceiver(mediaKind);
+            Transceiver.CustomData = this;
 
             // Notes: AddTransceiver() triggers re-negotation, so does ToBusyState();
             // Need to test to confirm we won't re-negotiate multiple times
 
             // Next, set/replace the track:
-            _transceiver.ToBusyState(_track, streamId);
+            Transceiver.ToBusyState(_track, streamId);
 
             // Add track to peer
             _logger.Debug($"Local track created {_track}");
@@ -67,7 +69,8 @@ namespace MediaServer.WebRtc.MediaRouting
         {
             if(Interlocked.CompareExchange(ref _close, 1, 0) != 0)
                 throw new InvalidOperationException("Already Closed");
-            _transceiver.ToFrozenState();
+            Transceiver.ToFrozenState();
+            Transceiver.CustomData = null;
         }
 
         public void Dispose()

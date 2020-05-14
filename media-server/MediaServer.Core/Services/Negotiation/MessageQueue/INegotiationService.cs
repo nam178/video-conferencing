@@ -54,9 +54,9 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
         /// <summary>
         /// Inform the negotiation service that we generated a local ICE candidate, ready to send.
         /// 
-        /// Don't send the ICE candidate directly, but let this service to schedule it. At the
-        /// moment there is no real advantages of doing it via this service yet, other than
-        /// keeping it consistent with RemoteIceCandidateReceived();
+        /// Don't send the ICE candidate directly, but let this service to schedule it instead. Otherwise
+        /// ICE candidates will be sent and processed by the client before sdp is sent, causing
+        /// errors from the client side.
         /// </summary>
         /// <param name="peerConnection"></param>
         /// <param name="candidate"></param>

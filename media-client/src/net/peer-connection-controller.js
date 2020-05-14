@@ -4,6 +4,9 @@ import WebSocketMessageHandler from './websocket-message-handler';
 import PeerConnectionOfferer from './peer-connection-offerer';
 import PeerConnectionId from './peer-connection-id';
 import PeerConnectionAnswerer from './peer-connection-answerer';
+import PeerConnectionMediaHandler from './peer-connection-media-handler.js';
+import WebSocketClient from './websocket-client.js';
+import StreamIndex from '../models/stream-index.js';
 
 var logger = new Logger('PeerConnectionController');
 
@@ -47,6 +50,8 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
     _audioTransceiver = null;
     /** @type {RTCRtpTransceiver} */
     _videoTransceiver = null;
+    /** @type {PeerConnectionMediaHandler} */
+    _mediaHandler = null;
 
     /**
      * @return {MediaStream}
@@ -62,10 +67,16 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
             this._replaceTracksFromStream(value);
     }
 
-    constructor(webSocketClient) {
+    /**
+     * 
+     * @param {WebSocketClient} webSocketClient 
+     * @param {StreamIndex} streamIndex 
+     */
+    constructor(webSocketClient, streamIndex) {
         super(webSocketClient, 'PeerConnectionController');
 
         // Listen to 'room' event -> _handleRoomJoined
+        this._mediaHandler = new PeerConnectionMediaHandler(streamIndex);
         this._handleRoomJoined = this._handleRoomJoined.bind(this);
         this.webSocketClient.addEventListener('room', this._handleRoomJoined);
         this.startObservingWebSocketMessages();
@@ -126,7 +137,8 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
         this._offerer = new PeerConnectionOfferer(
             this._peerConnection,
             this._peerConnectionId,
-            this.webSocketClient);
+            this.webSocketClient,
+            this._mediaHandler);
         this._offerer
             .startAsync()
             .catch(err => {
@@ -147,7 +159,10 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
     // Offer received, this starts the answer process.
     _onOffer(args) {
         this._cancelCurrentAnswerer();
-        this._answerer = new PeerConnectionAnswerer(this._peerConnectionId);
+        this._answerer = new PeerConnectionAnswerer(
+            this._peerConnectionId, 
+            this._peerConnection, 
+            this._mediaHandler);
         this._answerer.startAsync(args);
     }
 

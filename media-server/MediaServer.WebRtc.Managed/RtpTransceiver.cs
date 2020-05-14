@@ -5,29 +5,6 @@ using System.Threading;
 
 namespace MediaServer.WebRtc.Managed
 {
-    public enum ReusabilityState
-    {
-        /// <summary>
-        /// The transceiver is available for use.
-        /// The sender has no track and can be safely replaced with newer track.
-        /// </summary>
-        Available,
-
-        /// <summary>
-        /// The transceiver's sender currently has track and cannot be reused
-        /// </summary>
-        Busy,
-
-        /// <summary>
-        /// The transceiver is nearly availble for re-use. 
-        /// Awaiting confirmation from the client to ack that is has updated its UI accordingly.
-        /// 
-        /// If we re-use this transceiver at this stage, may lead to video from one person showing
-        /// in the wrong slot from the client side.
-        /// </summary>
-        Fronzen
-    }
-
     /// <summary>
     /// </summary>
     /// <remarks>This instance is not thread safe. Access from the same thread only.</remarks>
@@ -67,14 +44,14 @@ namespace MediaServer.WebRtc.Managed
         }
 
         bool _isFrozen;
-        public ReusabilityState ReusabilityState
+        public TransceiverReusabilityState ReusabilityState
         {
             get
             {
                 SafetyCheck();
                 if(Sender.Track != null)
-                    return ReusabilityState.Busy;
-                return _isFrozen ? ReusabilityState.Fronzen : ReusabilityState.Available;
+                    return TransceiverReusabilityState.Busy;
+                return _isFrozen ? TransceiverReusabilityState.Fronzen : TransceiverReusabilityState.Available;
             }
         }
 
@@ -86,6 +63,8 @@ namespace MediaServer.WebRtc.Managed
                 return _sender;
             }
         }
+
+        public object CustomData { get; set; }
 
         public RtpTransceiver(IntPtr native, RtcThread signallingThread)
         {
@@ -103,7 +82,7 @@ namespace MediaServer.WebRtc.Managed
         public void ToBusyState(MediaStreamTrack track, Guid streamId)
         {
             SafetyCheck();
-            ThrowIfCurrentStateIsNot(ReusabilityState.Available);
+            ThrowIfCurrentStateIsNot(TransceiverReusabilityState.Available);
             Sender.Track = track;
             Sender.StreamId = streamId.ToString();
         }
@@ -111,7 +90,7 @@ namespace MediaServer.WebRtc.Managed
         public void ToFrozenState()
         {
             SafetyCheck();
-            ThrowIfCurrentStateIsNot(ReusabilityState.Busy);
+            ThrowIfCurrentStateIsNot(TransceiverReusabilityState.Busy);
             Sender.Track = null;
             _isFrozen = true;
         }
@@ -119,11 +98,11 @@ namespace MediaServer.WebRtc.Managed
         public void ToAvailableState()
         {
             SafetyCheck();
-            ThrowIfCurrentStateIsNot(ReusabilityState.Fronzen);
+            ThrowIfCurrentStateIsNot(TransceiverReusabilityState.Fronzen);
             _isFrozen = false;
         }
 
-        void ThrowIfCurrentStateIsNot(ReusabilityState desiredState)
+        void ThrowIfCurrentStateIsNot(TransceiverReusabilityState desiredState)
         {
             if(ReusabilityState != desiredState)
                 throw new InvalidOperationException($"Must call this method in {desiredState}, currentState={ReusabilityState}");

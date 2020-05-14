@@ -55,7 +55,10 @@ namespace MediaServer.Models
         /// </summary>
         /// <param name="description">Could be either offer or answer</param>
         /// <returns></returns>
-        void EnqueueAnswer(Guid peerConnectionId, RTCSessionDescription description);
+        void EnqueueAnswer(
+            Guid peerConnectionId,
+            RTCSessionDescription description,
+            IReadOnlyList<TransceiverMetadata> transceivers);
 
         /// <summary>
         /// Send the specified SDP to the remote peer
@@ -65,7 +68,8 @@ namespace MediaServer.Models
         void EnqueueOffer(
             Guid peerConnectionId,
             Guid offerId,
-            IReadOnlyList<TransceiverMetadata> transceivers, RTCSessionDescription description);
+            RTCSessionDescription description,
+            IReadOnlyList<TransceiverMetadata> transceivers);
 
         /// <summary>
         /// Terminate the connection with this device.

@@ -1,5 +1,6 @@
 import PeerConnectionId from './peer-connection-id'
 import Logger from '../logging/logger';
+import PeerConnectionMediaHandler from './peer-connection-media-handler';
 
 var logger = new Logger('PeerConnectionAnswerer');
 
@@ -11,13 +12,18 @@ export default class PeerConnectionAnswerer {
     /** @type {RTCPeerConnection} */
     _peerConnection = null;
 
+    /** @type {PeerConnectionMediaHandler} */
+    _mediaHandler = null;
+
     /**
      * @param {PeerConnectionId} peerConnectionId 
      * @param {RTCPeerConnection} peerConnection
+     * @param {PeerConnectionMediaHandler} mediaHandler
      */
-    constructor(peerConnectionId, peerConnection) {
+    constructor(peerConnectionId, peerConnection, mediaHandler) {
         this._peerConnectionId = peerConnectionId;
         this._peerConnectionId = peerConnection;
+        this._mediaHandler = mediaHandler;
     }
 
     async startAsync(offer) {
@@ -34,11 +40,23 @@ export default class PeerConnectionAnswerer {
             return;
         }
 
+        
+        this._mediaHandler.setTransceiversMetadata(offer.transceivers);
+        try
+        {
+            await this._peerConnection.setRemoteDescription(offer.sdp);
+        }
+        catch(err) { // likely that setRemoteDescription will fail due to sdp format issue
+            FatalErrorHandler.failFast(`setRemoteDescription failed ${err}`);
+        }
+        
+        logger.debug('[Step 1/4] Remote offer received and set', answer);
+
         var answer = await this._peerConnection.createAnswer();
-        logger.debug('[Step 1/3] Answer created', answer);
+        logger.debug('[Step 2/4] Answer created', answer);
 
         await this._peerConnection.setLocalDescription(answer);
-        logger.debug('[Step 2/3] Answer set as local description', answer);
+        logger.debug('[Step 3/4] Answer set as local description', answer);
 
         this.webSocketClient.queueMessage('SetAnswer', {
             answer: {  
@@ -47,6 +65,6 @@ export default class PeerConnectionAnswerer {
             },
             peerConnectionId: this.peerConnection.value
         });
-        logger.info('[Step 3/3] Answer sent');
+        logger.info('[Step 4/4] Answer sent');
     }
 }

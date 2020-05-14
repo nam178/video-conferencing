@@ -59,25 +59,12 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                 .OnError(completionCallback)
                 .OnResult(answer => // signalling thread
                 {
-                    // Step 3: Send Answer + SetLocalSessionDescription
-                    try
-                    {
-                        message.PeerConnection.Device.EnqueueAnswer(message.PeerConnection.Id, answer);
-                        _logger.Debug($"[Negotiation Step 2/3] Answer {answer} created and sent for {message.PeerConnection}");
-                    }
-                    catch(Exception ex)
-                    {
-                        completionCallback.Error($"{nameof(IRemoteDevice.EnqueueAnswer)} failed: {ex.Message}");
-                        if(!(ex is ObjectDisposedException))
-                        {
-                            _logger.Error(ex);
-                        }
-                        return;
-                    }
-
-                    // SetLocalSessionDescriptionAsync() must be after EnqueueSessionDescription()
-                    // because it SetLocalSessionDescriptionAsync() generates ICE candidates,
-                    // and we want to send ICE candidates after remote SDP is set.
+                    // SetLocalSessionDescription() first before calling GetLocalTransceiverMetadata(),
+                    // otherwise we'll get NULL transceiver mids.
+                    //
+                    // SetLocalSessionDescription() also generates ICE candidates, 
+                    // however they are queued (by negotiation queue)
+                    // and won't be send until this negotiation process completes
                     var observer = SetLocalSessionDescriptionObserver(message, completionCallback, answer);
                     try
                     {
@@ -98,6 +85,26 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                 .OnError(completionCallback)
                 .OnSuccess(delegate // signalling thread
                 {
+                    // Next, send the answer along with transceiver metadata
+                    try
+                    {
+                        var transceivers = message.PeerConnection.Room.VideoRouter.GetLocalTransceiverMetadata(
+                            message.PeerConnection.Device.Id,
+                            message.PeerConnection.Id);
+                        message.PeerConnection.Device.EnqueueAnswer(message.PeerConnection.Id, answer, transceivers);
+                        _logger.Debug($"[Negotiation Step 2/3] Answer {answer} created and sent for {message.PeerConnection}");
+                    }
+                    catch(Exception ex)
+                    {
+                        completionCallback.Error($"{nameof(IRemoteDevice.EnqueueAnswer)} failed: {ex.Message}");
+                        if(!(ex is ObjectDisposedException))
+                        {
+                            _logger.Error(ex);
+                        }
+                        return;
+                    }
+
+                    // And complete the process
                     _logger.Info($"[Negotiation Step 3/3] Local description {answer} set for {message.PeerConnection}");
                     completionCallback.Success();
                 });
