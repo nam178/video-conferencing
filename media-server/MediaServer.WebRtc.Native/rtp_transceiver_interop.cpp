@@ -68,3 +68,21 @@ int32_t CONVENTION RtpTransceiverGetMediaKind(Shim::RtpTransceiver *transceiver)
         return 2;
     }
 }
+
+Shim::RtpTransceiverDirection CONVENTION
+RtpTransceiverGetDirection(Shim::RtpTransceiver *transceiver)
+{
+    return transceiver->Direction();
+}
+
+void CONVENTION RtpTransceiverSetDirection(Shim::RtpTransceiver *transceiver,
+                                           Shim::RtpTransceiverDirection direction)
+{
+    transceiver->SetDirection(direction);
+}
+
+bool CONVENTION RtpTransceiverTryGetCurrentDirection(Shim::RtpTransceiver *transceiver,
+                                                     Shim::RtpTransceiverDirection &out_direction)
+{
+    return transceiver->CurrentDirection(out_direction);
+}

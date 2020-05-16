@@ -7,29 +7,37 @@
 
 namespace Shim
 {
+
+enum class RtpTransceiverDirection : int32_t
+{
+    SendRecv = 0,
+    SendOnly = 1,
+    RecvOnly = 2,
+    Inactive = 3,
+    Stopped = 4,
+};
+
+static_assert((int)RtpTransceiverDirection::SendRecv ==
+              (int)webrtc::RtpTransceiverDirection::kSendRecv);
+static_assert((int)RtpTransceiverDirection::SendOnly ==
+              (int)webrtc::RtpTransceiverDirection::kSendOnly);
+static_assert((int)RtpTransceiverDirection::RecvOnly ==
+              (int)webrtc::RtpTransceiverDirection::kRecvOnly);
+static_assert((int)RtpTransceiverDirection::Inactive ==
+              (int)webrtc::RtpTransceiverDirection::kInactive);
+static_assert((int)RtpTransceiverDirection::Stopped ==
+              (int)webrtc::RtpTransceiverDirection::kStopped);
+
 class RtpTransceiver
 {
 
   public:
     RtpTransceiver(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> &&transceiver);
 
-    const char *Mid()
-    {
-        // Copy the mid locally so we can ensure it is null-terminated and
-        // to return to unmanaged_transceiver code
-        auto tmp = _transceiver->mid();
-        if(tmp.has_value())
-        {
-            _mid = tmp.value();
-            Utils::StringHelper::EnsureNullTerminatedCString(_mid);
-            return _mid.c_str();
-        }
-        else
-        {
-            return nullptr;
-        }
-    }
-
+    const char *Mid();
+    RtpTransceiverDirection Direction() const;
+    void SetDirection(RtpTransceiverDirection direction);
+    bool CurrentDirection(RtpTransceiverDirection &direction) const;
     Shim::RtpReceiver *Receiver();
     Shim::RtpSender *Sender();
     cricket::MediaType MediaKind();

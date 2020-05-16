@@ -265,10 +265,14 @@ namespace MediaServer.WebRtc.MediaRouting
             if(null == transceivers)
                 throw new NullReferenceException(nameof(transceivers));
 
+            // We only generate transceiver metadata those are:
+            //  1. Currently being used (TransceiverReusabilityState busy)
+            //  2. Has been negotiated (Mid is not null)
             var result = new List<TransceiverMetadata>();
             for(var i = 0; i < transceivers.Count; i++)
             {
-                if(transceivers[i].ReusabilityState == TransceiverReusabilityState.Busy)
+                if(transceivers[i].ReusabilityState == TransceiverReusabilityState.Busy
+                    && false == string.IsNullOrWhiteSpace(transceivers[i].Mid))
                 {
                     if(null == transceivers[i].CustomData)
                         throw new InvalidProgramException("Transceiver custom data is  NULL");

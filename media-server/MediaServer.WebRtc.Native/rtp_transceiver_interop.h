@@ -17,4 +17,13 @@ extern "C"
 
     EXPORT int32_t CONVENTION RtpTransceiverGetMediaKind(Shim::RtpTransceiver *transceiver);
 
+    EXPORT Shim::RtpTransceiverDirection CONVENTION
+    RtpTransceiverGetDirection(Shim::RtpTransceiver *transceiver);
+    
+    EXPORT void CONVENTION RtpTransceiverSetDirection(Shim::RtpTransceiver *transceiver,
+                                                      Shim::RtpTransceiverDirection direction);
+
+    EXPORT bool CONVENTION
+    RtpTransceiverTryGetCurrentDirection(Shim::RtpTransceiver *transceiver,
+                                         Shim::RtpTransceiverDirection &out_direction);
 }

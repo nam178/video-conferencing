@@ -16,7 +16,9 @@ namespace MediaServer.WebRtc.MediaRouting
 
         public RtpTransceiver Transceiver { get; }
 
-        public LocalVideoLink(PeerConnectionFactory peerConnectionFactory, VideoSource videoSource, PeerConnection targetPeerConnection)
+        public LocalVideoLink(PeerConnectionFactory peerConnectionFactory,
+            VideoSource videoSource,
+            PeerConnection targetPeerConnection)
         {
             if(peerConnectionFactory is null)
                 throw new ArgumentNullException(nameof(peerConnectionFactory));
@@ -50,11 +52,8 @@ namespace MediaServer.WebRtc.MediaRouting
                     break;
                 }
             }
-            Transceiver = Transceiver ?? TargetPeerConnection.AddTransceiver(mediaKind);
+            Transceiver = Transceiver ?? TargetPeerConnection.AddTransceiver(mediaKind, RtpTransceiverDirection.SendOnly);
             Transceiver.CustomData = this;
-
-            // Notes: AddTransceiver() triggers re-negotation, so does ToBusyState();
-            // Need to test to confirm we won't re-negotiate multiple times
 
             // Next, set/replace the track:
             Transceiver.ToBusyState(_track, streamId);

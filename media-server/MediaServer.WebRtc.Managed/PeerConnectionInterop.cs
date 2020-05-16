@@ -50,7 +50,7 @@ namespace MediaServer.WebRtc.Managed
         public static extern void FreeGetTransceiversResult(PeerConnectionSafeHandle handle, IntPtr outputArray);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddTransceiver")]
-        public static extern IntPtr AddTransceiver(PeerConnectionSafeHandle handle, [MarshalAs(UnmanagedType.I1)] bool isAudioTransceiver);
+        public static extern IntPtr AddTransceiver(PeerConnectionSafeHandle handle, [MarshalAs(UnmanagedType.I1)] bool isAudioTransceiver, RtpTransceiverDirection direction);
 
         [DllImport(InteropSettings.DLL_PATH, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "PeerConnectionAddTrack")]
         public static extern IntPtr AddTrack(PeerConnectionSafeHandle handle, MediaStreamTrackSafeHandle mediaStreamTrackSafeHandle, string streamId);

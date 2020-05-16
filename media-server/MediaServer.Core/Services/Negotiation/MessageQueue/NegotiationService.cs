@@ -21,13 +21,19 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
         {
             if(peerConnection is null)
                 throw new ArgumentNullException(nameof(peerConnection));
+            ThrowWhenInvalidIceCandidate(candidate);
             _negotiationQueue.Enqueue(new IceCandidateMessage(peerConnection, candidate, false));
         }
 
-        public void EnqueueRemoteAnswer(IPeerConnection peerConnection, Guid offerId, RTCSessionDescription remoteSessionDescription)
+        public void EnqueueRemoteAnswer(
+            IPeerConnection peerConnection,
+            Guid offerId,
+            RTCSessionDescription remoteSessionDescription)
         {
             if(peerConnection is null)
                 throw new ArgumentNullException(nameof(peerConnection));
+            ThrowWhenInvalidSessionDescription(remoteSessionDescription);
+
             _negotiationQueue.Enqueue(new SdpAnswerMessage(peerConnection, remoteSessionDescription, offerId));
         }
 
@@ -35,6 +41,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
         {
             if(peerConnection is null)
                 throw new ArgumentNullException(nameof(peerConnection));
+            ThrowWhenInvalidIceCandidate(candidate);
 
             _negotiationQueue.Enqueue(new IceCandidateMessage(peerConnection, candidate, true));
         }
@@ -45,6 +52,8 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
         {
             if(peerConnection is null)
                 throw new ArgumentNullException(nameof(peerConnection));
+            ThrowWhenInvalidSessionDescription(remoteSessionDescription);
+
             _negotiationQueue.Enqueue(new SdpOfferMessage(peerConnection, remoteSessionDescription));
         }
 
@@ -56,6 +65,14 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                 throw new ArgumentNullException(nameof(peerConnection));
             if(transceiverMetadataMessage is null)
                 throw new ArgumentNullException(nameof(transceiverMetadataMessage));
+
+            // Validate TransceiverMetadata
+            foreach(var message in transceiverMetadataMessage)
+            {
+                if(string.IsNullOrWhiteSpace(message.TransceiverMid))
+                    throw new ArgumentException($"{nameof(message.TransceiverMid)} is NULL or empty");
+            }
+
             _negotiationQueue.Enqueue(new TransceiverMetadataMessage(transceiverMetadataMessage, peerConnection));
         }
 
@@ -65,6 +82,22 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                 throw new ArgumentNullException(nameof(peerConnection));
 
             _negotiationQueue.Enqueue(new RenegotiationMessage(peerConnection));
+        }
+
+        static void ThrowWhenInvalidSessionDescription(RTCSessionDescription remoteSessionDescription)
+        {
+            if(string.IsNullOrWhiteSpace(remoteSessionDescription.Sdp))
+                throw new ArgumentException($"{nameof(remoteSessionDescription.Sdp)} cannot be null or empty");
+            if(string.IsNullOrWhiteSpace(remoteSessionDescription.Type))
+                throw new ArgumentException($"{nameof(remoteSessionDescription.Type)} cannot be null or empty");
+        }
+
+        static void ThrowWhenInvalidIceCandidate(RTCIceCandidate candidate)
+        {
+            if(string.IsNullOrWhiteSpace(candidate.Candidate))
+                throw new ArgumentException($"{nameof(candidate.Candidate)} cannot be null or empty");
+            if(string.IsNullOrWhiteSpace(candidate.SdpMid))
+                throw new ArgumentException($"{nameof(candidate.SdpMid)} cannot be null or empty");
         }
     }
 }

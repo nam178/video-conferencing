@@ -64,6 +64,25 @@ namespace MediaServer.WebRtc.Managed
             }
         }
 
+        public RtpTransceiverDirection Direction
+        {
+            get => RtpTransceiverInterops.GetDirection(Handle);
+            private set => RtpTransceiverInterops.SetDirection(Handle, value);
+        }
+
+        public RtpTransceiverDirection? CurrentDirection
+        {
+            get
+            {
+                RtpTransceiverDirection rtpTransceiverDirection = default;
+                if(RtpTransceiverInterops.TryGetCurrentDirection(Handle, ref rtpTransceiverDirection))
+                {
+                    return rtpTransceiverDirection;
+                }
+                return null;
+            }
+        }
+
         public object CustomData { get; set; }
 
         public RtpTransceiver(IntPtr native, RtcThread signallingThread)
@@ -81,8 +100,30 @@ namespace MediaServer.WebRtc.Managed
 
         public void ToBusyState(MediaStreamTrack track, Guid streamId)
         {
+            // Checks
             SafetyCheck();
             ThrowIfCurrentStateIsNot(TransceiverReusabilityState.Available);
+
+            // Change direction - make sure the sender will send data.
+            switch(Direction)
+            {
+                case RtpTransceiverDirection.RecvOnly:
+                    Direction = RtpTransceiverDirection.SendRecv;
+                    break;
+
+                case RtpTransceiverDirection.SendOnly:
+                case RtpTransceiverDirection.SendRecv:
+                    // Does not have to do anything
+                    break;
+
+                case RtpTransceiverDirection.Inactive:
+                case RtpTransceiverDirection.Stopped:
+                    throw new InvalidProgramException(
+                        $"Impossible to have {nameof(ToBusyState)} called when Direction={Direction}"
+                        );
+            }
+
+            // Set track and stream
             Sender.Track = track;
             Sender.StreamId = streamId.ToString();
         }
@@ -91,6 +132,27 @@ namespace MediaServer.WebRtc.Managed
         {
             SafetyCheck();
             ThrowIfCurrentStateIsNot(TransceiverReusabilityState.Busy);
+
+            // Change direction - make sure the sender won't send data
+            switch(Direction)
+            {
+                case RtpTransceiverDirection.SendRecv:
+                    Direction = RtpTransceiverDirection.RecvOnly;
+                    break;
+
+                case RtpTransceiverDirection.RecvOnly:
+                    // Does not have to do anything
+                    break;
+
+                case RtpTransceiverDirection.SendOnly:
+                case RtpTransceiverDirection.Inactive:
+                case RtpTransceiverDirection.Stopped:
+                    throw new InvalidProgramException(
+                        $"Impossible to have {nameof(ToFrozenState)} called when Direction={Direction}"
+                        );
+            }
+
+            // Then remove track
             Sender.Track = null;
             _isFrozen = true;
         }
@@ -128,6 +190,6 @@ namespace MediaServer.WebRtc.Managed
             }
         }
 
-        public override string ToString() => $"[RtpTransceiver mid={Mid}]";
+        public override string ToString() => $"[RtpTransceiver mid={Mid}, dir={Direction}, cur={CurrentDirection}]";
     }
 }

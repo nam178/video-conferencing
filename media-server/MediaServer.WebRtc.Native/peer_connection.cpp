@@ -205,7 +205,6 @@ void Shim::PeerConnection::GetTransceivers(Shim::RtpTransceiver ***transceiver, 
         }
     }
 
-
     // Finally output the result
     *size = _last_known_transceivers.size();
     if(*size > 0)
@@ -226,9 +225,12 @@ void Shim::PeerConnection::FreeGetTransceiversResult(Shim::RtpTransceiver **tran
     delete[] transceiver;
 }
 
-Shim::RtpTransceiver *Shim::PeerConnection::AddTransceiver(cricket::MediaType mediaType)
+Shim::RtpTransceiver *Shim::PeerConnection::AddTransceiver(cricket::MediaType mediaType,
+                                                           Shim::RtpTransceiverDirection direction)
 {
-    auto result = _peer_connection_interface->AddTransceiver(mediaType);
+    RtpTransceiverInit init{};
+    init.direction = (webrtc::RtpTransceiverDirection)direction;
+    auto result = _peer_connection_interface->AddTransceiver(mediaType, init);
     if(result.ok())
     {
         return new Shim::RtpTransceiver(std::move(result.value()));

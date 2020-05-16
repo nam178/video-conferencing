@@ -1,10 +1,13 @@
 ﻿using MediaServer.Common.Patterns;
+using NLog;
 using System;
 
 namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
     sealed class TransceiverMetadataMessageSubscriber : IMessageSubscriber
     {
+        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public bool CanHandle(Message message) => message is TransceiverMetadataMessage;
 
         public void Handle(Message message, Observer completionCallback)
@@ -34,7 +37,11 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             catch(Exception ex)
             {
                 completionCallback.Error(ex.Message);
-                throw;
+                if(ex is ObjectDisposedException)
+                {
+                    _logger.Warn($"Error occured while setting remote transceiver metadata: {ex.Message}");
+                }
+                else throw;
             }
         }
     }

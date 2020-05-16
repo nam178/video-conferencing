@@ -162,7 +162,8 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
         this._answerer = new PeerConnectionAnswerer(
             this._peerConnectionId, 
             this._peerConnection, 
-            this._mediaHandler);
+            this._mediaHandler,
+            this.webSocketClient);
         this._answerer.startAsync(args);
     }
 

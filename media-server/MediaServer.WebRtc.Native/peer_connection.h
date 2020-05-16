@@ -65,7 +65,8 @@ class PeerConnection final
 
     // Add a new transceiver into this PeerConnection.
     // The caller owns the returned transceiver.
-    Shim::RtpTransceiver *AddTransceiver(cricket::MediaType mediaType);
+    Shim::RtpTransceiver *AddTransceiver(cricket::MediaType mediaType,
+                                         Shim::RtpTransceiverDirection direction);
 
     // Add and remove local tracks,
     // and return the rtp sender associated with this track

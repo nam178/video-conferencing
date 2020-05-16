@@ -61,5 +61,7 @@ extern "C"
                                             Shim::RtpTransceiver **transceivers);
 
     EXPORT Shim::RtpTransceiver *CONVENTION
-    PeerConnectionAddTransceiver(Shim::PeerConnection *peer_connection, bool is_audio_transceiver);
+    PeerConnectionAddTransceiver(Shim::PeerConnection *peer_connection,
+                                 bool is_audio_transceiver,
+                                 Shim::RtpTransceiverDirection direction);
 }

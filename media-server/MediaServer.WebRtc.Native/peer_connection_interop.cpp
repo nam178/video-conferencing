@@ -77,12 +77,15 @@ void CONVENTION PeerConnectionFreeGetTransceiversResult(Shim::PeerConnection *pe
     peer_connection->FreeGetTransceiversResult(transceivers);
 }
 
-Shim::RtpTransceiver *CONVENTION PeerConnectionAddTransceiver(Shim::PeerConnection *peer_connection,
-                                                              bool is_audio_transceiver)
+Shim::RtpTransceiver *CONVENTION
+PeerConnectionAddTransceiver(Shim::PeerConnection *peer_connection,
+                             bool is_audio_transceiver,
+                             Shim::RtpTransceiverDirection direction)
 {
     return peer_connection->AddTransceiver(is_audio_transceiver
                                                ? cricket::MediaType::MEDIA_TYPE_AUDIO
-                                               : cricket::MediaType::MEDIA_TYPE_VIDEO);
+                                               : cricket::MediaType::MEDIA_TYPE_VIDEO,
+                                           direction);
 }
 
 Shim::RtpSender *CONVENTION PeerConnectionAddTrack(Shim::PeerConnection *peer_connection,

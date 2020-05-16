@@ -4,6 +4,7 @@ using MediaServer.Common.Utils;
 using MediaServer.WebRtc.Managed.Errors;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -22,13 +23,22 @@ namespace MediaServer.WebRtc.Managed
 
         public PeerConnectionObserver Observer { get; }
 
-        public Guid Id = Guid.NewGuid();
+        public Guid Id { get; }
 
         PeerConnectionInterop.CreateSdpResultCallback _createOfferCallback;
         PeerConnectionInterop.CreateSdpResultCallback _createAnswerCallback;
         PeerConnectionInterop.SetSessionDescriptionCallback _setRemoteSessionDescCallback;
         PeerConnectionInterop.SetSessionDescriptionCallback _setLocalSessionDescCallback;
         bool _isClosed;
+
+        // Helps debugging easier by hard-coding the first few PeerConnection ids
+        static IReadOnlyList<Guid> _debugIds = new Guid[]
+        {
+            Guid.Parse("c86a51c1-188d-4521-8c0c-8aff999fc645"),
+            Guid.Parse("1d6b12a4-e039-492a-a9a3-a11c4825fa8e"),
+            Guid.Parse("267ea6d1-3bdb-4e1e-9b78-5324e3a02539")
+        };
+        static int _debugIdPtr = -1;
 
         /// <summary>
         /// 
@@ -41,6 +51,16 @@ namespace MediaServer.WebRtc.Managed
             _signallingThread = signallingThread
                 ?? throw new ArgumentNullException(nameof(signallingThread));
             Observer = observer;
+            Id = Guid.NewGuid();
+
+            if(Debugger.IsAttached)
+            {
+                var index = Interlocked.Increment(ref _debugIdPtr);
+                if(index < _debugIds.Count)
+                {
+                    Id = _debugIds[index];
+                }
+            }
         }
 
         /// <summary>
@@ -216,13 +236,13 @@ namespace MediaServer.WebRtc.Managed
             return _knownTransceivers.Values.ToList();
         }
 
-        public RtpTransceiver AddTransceiver(MediaKind kind)
+        public RtpTransceiver AddTransceiver(MediaKind kind, RtpTransceiverDirection direction)
         {
             SafetyCheck();
             if(kind == MediaKind.Data)
                 throw new NotSupportedException();
 
-            var transceiverPtr = PeerConnectionInterop.AddTransceiver(_handle, kind == MediaKind.Audio);
+            var transceiverPtr = PeerConnectionInterop.AddTransceiver(_handle, kind == MediaKind.Audio, direction);
             if(transceiverPtr == IntPtr.Zero)
                 throw new AddTransceiverFailedException();
 
