@@ -24,3 +24,8 @@ void CONVENTION RtpSenderSetStreamId(Shim::RtpSender *rtp_sender, const char *st
 {
     rtp_sender->SetStreamId(stream_id);
 }
+
+const char *CONVENTION RtpSenderGetStreamId(Shim::RtpSender *rtp_sender)
+{
+    return rtp_sender->GetStreamId();
+}

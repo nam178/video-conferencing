@@ -46,7 +46,12 @@ namespace MediaServer.WebRtc.MediaRouting
             for(var i = 0; i < transceivers.Count; i++)
             {
                 if(transceivers[i].ReusabilityState == TransceiverReusabilityState.Available
-                    && transceivers[i].MediaKind == mediaKind)
+                    && transceivers[i].MediaKind == mediaKind
+                    // Notes:
+                    // We keep the first 2 transceivers just to receive data, those marked with RecvOnly
+                    // and the rest to send data.
+                    // (cleaner that way) so ignore them in this search.
+                    && transceivers[i].Direction != RtpTransceiverDirection.RecvOnly)
                 {
                     Transceiver = transceivers[i];
                     break;
@@ -56,7 +61,15 @@ namespace MediaServer.WebRtc.MediaRouting
             Transceiver.CustomData = this;
 
             // Next, set/replace the track:
-            Transceiver.ToBusyState(_track, streamId);
+            Transceiver.ToBusyState(_track);
+
+            // If stream id has not been set, set it.
+            // WebRTC does not allow us to change the stream id, but we don't care either,
+            // we just want it to be unique.
+            if(Transceiver.Sender.StreamId == null)
+            {
+                Transceiver.Sender.StreamId = Guid.NewGuid().ToString();
+            }
 
             // Add track to peer
             _logger.Debug($"Local track created {_track}");

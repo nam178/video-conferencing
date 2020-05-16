@@ -120,8 +120,12 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
                 this._onRemoteStream(e);
             }
         });
-        this._audioTransceiver = this._peerConnection.addTransceiver('audio');
-        this._videoTransceiver = this._peerConnection.addTransceiver('video');
+        this._audioTransceiver = this._peerConnection.addTransceiver('audio', {
+            direction: 'sendonly'
+        });
+        this._videoTransceiver = this._peerConnection.addTransceiver('video', {
+            direction: 'sendonly'
+        });
         logger.info('PeerConnection created');
     }
 

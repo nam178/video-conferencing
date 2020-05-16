@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace MediaServer.WebRtc.Managed
 {
@@ -10,6 +11,11 @@ namespace MediaServer.WebRtc.Managed
 
         public string StreamId
         {
+            get
+            {
+                _signallingThread.EnsureCurrentThread();
+                return Marshal.PtrToStringAnsi(RtpSenderInterops.GetStreamId(Handle));
+            }
             set
             {
                 _signallingThread.EnsureCurrentThread();

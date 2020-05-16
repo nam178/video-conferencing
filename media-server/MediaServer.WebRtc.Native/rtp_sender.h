@@ -18,11 +18,15 @@ class RtpSender
 
     void SetStreamId(const char *stream_id);
 
+    const char *GetStreamId();
+
     // Not thread safe
     Shim::MediaStreamTrack *GetTrack();
 
   private:
     rtc::scoped_refptr<webrtc::RtpSenderInterface> _native;
     Shim::MediaStreamTrack *_track = nullptr;
+    std::string _stream_id{};
+    std::mutex _stream_id_mutex{};
 };
 } // namespace Shim

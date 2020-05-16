@@ -59,3 +59,19 @@ void Shim::RtpSender::SetStreamId(const char *stream_id)
     stream_ids.push_back(stream_id);
     _native->SetStreams(stream_ids);
 }
+
+const char *Shim::RtpSender::GetStreamId()
+{
+    std::scoped_lock(_stream_id_mutex);
+
+    auto ids = _native->stream_ids();
+
+    if(ids.size() >= 1) // probably always 1
+    {
+        auto &tmp = ids[0];
+        Utils::StringHelper::EnsureNullTerminatedCString(tmp);
+        _stream_id = tmp;
+    }
+
+    return _stream_id.c_str();
+}

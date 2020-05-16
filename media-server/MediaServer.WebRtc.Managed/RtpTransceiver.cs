@@ -98,7 +98,7 @@ namespace MediaServer.WebRtc.Managed
             _sender = new RtpSender(RtpTransceiverInterops.GetSender(Handle), signallingThread);
         }
 
-        public void ToBusyState(MediaStreamTrack track, Guid streamId)
+        public void ToBusyState(MediaStreamTrack track)
         {
             // Checks
             SafetyCheck();
@@ -107,16 +107,16 @@ namespace MediaServer.WebRtc.Managed
             // Change direction - make sure the sender will send data.
             switch(Direction)
             {
-                case RtpTransceiverDirection.RecvOnly:
-                    Direction = RtpTransceiverDirection.SendRecv;
+                case RtpTransceiverDirection.Inactive:
+                    Direction = RtpTransceiverDirection.SendOnly;
                     break;
 
                 case RtpTransceiverDirection.SendOnly:
-                case RtpTransceiverDirection.SendRecv:
                     // Does not have to do anything
                     break;
 
-                case RtpTransceiverDirection.Inactive:
+                case RtpTransceiverDirection.SendRecv:
+                case RtpTransceiverDirection.RecvOnly:
                 case RtpTransceiverDirection.Stopped:
                     throw new InvalidProgramException(
                         $"Impossible to have {nameof(ToBusyState)} called when Direction={Direction}"
@@ -125,7 +125,6 @@ namespace MediaServer.WebRtc.Managed
 
             // Set track and stream
             Sender.Track = track;
-            Sender.StreamId = streamId.ToString();
         }
 
         public void ToFrozenState()
@@ -136,16 +135,13 @@ namespace MediaServer.WebRtc.Managed
             // Change direction - make sure the sender won't send data
             switch(Direction)
             {
-                case RtpTransceiverDirection.SendRecv:
-                    Direction = RtpTransceiverDirection.RecvOnly;
-                    break;
-
-                case RtpTransceiverDirection.RecvOnly:
-                    // Does not have to do anything
-                    break;
-
                 case RtpTransceiverDirection.SendOnly:
+                    Direction = RtpTransceiverDirection.Inactive;
+                    break;
+
                 case RtpTransceiverDirection.Inactive:
+                case RtpTransceiverDirection.RecvOnly:
+                case RtpTransceiverDirection.SendRecv:
                 case RtpTransceiverDirection.Stopped:
                     throw new InvalidProgramException(
                         $"Impossible to have {nameof(ToFrozenState)} called when Direction={Direction}"

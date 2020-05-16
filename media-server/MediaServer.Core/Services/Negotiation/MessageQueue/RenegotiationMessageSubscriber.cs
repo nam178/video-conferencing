@@ -41,7 +41,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                 {
                     // SetLocalSessionDescription() first before calling GetLocalTransceiverMetadata(),
                     // otherwise we'll get NULL transceiver mids.
-                    var observer = SetLocalSessionDescriptionObserver(completionCallback, peerConnection);
+                    var observer = SetLocalSessionDescriptionObserver(completionCallback, peerConnection, offer);
                     try
                     {
                         peerConnection.SetLocalSessionDescription(offer, observer);
@@ -54,8 +54,14 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                             _logger.Error(ex);
                         }
                     }
+                });
 
-                    // Then generate transceiver metadata and send along with the offer.
+        static Observer SetLocalSessionDescriptionObserver(Observer completionCallback, IPeerConnection peerConnection, RTCSessionDescription offer)
+            => new Observer()
+                .OnError(completionCallback)
+                .OnSuccess(delegate
+                {
+                    // Generate transceiver metadata and send along with the offer.
                     try
                     {
                         var transceivers = peerConnection.Room.VideoRouter.GetLocalTransceiverMetadata(
@@ -74,13 +80,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                         }
                         return;
                     }
-                });
 
-        static Observer SetLocalSessionDescriptionObserver(Observer completionCallback, IPeerConnection peerConnection)
-            => new Observer()
-                .OnError(completionCallback)
-                .OnSuccess(delegate
-                {
                     _logger.Debug($"[Renegotiation Step 2/3] Local offer set for {peerConnection}.");
                     completionCallback.Success();
                 });
