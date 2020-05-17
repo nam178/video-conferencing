@@ -111,8 +111,10 @@ export default class InputDeviceManager extends EventTarget2 {
                     this._logger.info('Media stream accquired', stream);
                     // Set the current device ids
                     stream.getTracks().forEach(track => {
-                        if (track.kind == 'audio')
+                        if (track.kind == 'audio') {
+                            track.echoCancellation = true;
                             this._currentAudioInputDeviceId = track.getSettings().deviceId;
+                        }
                         if (track.kind == 'video')
                             this._currentVideoInputDeviceId = track.getSettings().deviceId;
                         this._logger.info('Found track', track);
