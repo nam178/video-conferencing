@@ -233,7 +233,10 @@ Shim::RtpTransceiver *Shim::PeerConnection::AddTransceiver(cricket::MediaType me
     auto result = _peer_connection_interface->AddTransceiver(mediaType, init);
     if(result.ok())
     {
-        return new Shim::RtpTransceiver(std::move(result.value()));
+        auto transceiver_native_ptr = result.value().get();
+        auto transceiver_shim = new Shim::RtpTransceiver(std::move(result.value()));
+        _last_known_transceivers[transceiver_native_ptr] = transceiver_shim;
+        return transceiver_shim;
     }
     else
     {
