@@ -4,7 +4,16 @@
 #include "noop_video_decoder.h"
 #include "noop_video_frame_buffer.h"
 
+const int32_t KEYFRAME_REQUEST_INTERVAL = 5;
+
 using namespace webrtc;
+
+NoopVideo::Decoder::NoopVideoDecoder::NoopVideoDecoder()
+    : _callback(nullptr),
+      _last_keyframe_request(std::chrono::system_clock::now() -
+                             std::chrono::seconds(KEYFRAME_REQUEST_INTERVAL))
+{
+}
 
 int32_t NoopVideo::Decoder::NoopVideoDecoder::InitDecode(const VideoCodec *, int32_t)
 {
@@ -70,11 +79,12 @@ int32_t NoopVideo::Decoder::NoopVideoDecoder::Decode(const EncodedImage &input_i
 
     _callback->Decoded(result);
 
-    // Request keyframe every 90 frames
-    _propagation_cnt++;
-    if(_propagation_cnt >= 90)
+    // Request keyframe every 5 seconds
+    auto now = std::chrono::system_clock::now();
+    std::chrono::duration<double> duration_since_last_iframe = now - _last_keyframe_request;
+    if(duration_since_last_iframe.count() >= KEYFRAME_REQUEST_INTERVAL)
     {
-        _propagation_cnt = 0;
+        _last_keyframe_request = now;
         return WEBRTC_VIDEO_CODEC_OK_REQUEST_KEYFRAME;
     }
     // Request key frame when we reach the threashold
