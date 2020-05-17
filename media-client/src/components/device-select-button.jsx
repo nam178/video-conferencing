@@ -22,7 +22,7 @@ export default class DeviceSelectButton extends React.Component
     }
 
     handleOtherPopups(e) {
-        if(e.detail != this) {
+        if(e != this) {
             this.setState({ isOptionsShow: false });
         }
     }

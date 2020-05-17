@@ -1,6 +1,7 @@
 import Logger from '../logging/logger.js';
+import EventTarget2 from '../utils/events'
 
-export default class PeerConnectionBase extends EventTarget {
+export default class PeerConnectionBase extends EventTarget2 {
     /**
      * @return {WebSocketClient}
      */
@@ -144,7 +145,7 @@ export default class PeerConnectionBase extends EventTarget {
             return;
         }
         this._setSdp(args.sdp);
-        this.dispatchEvent(new CustomEvent('negotiation-completed'));
+        this.dispatchEvent('negotiation-completed');
 
         // Flush pending ice candidates
         this._pendingIceCandidates.forEach(ice => this._sendIceCandidate(ice));
@@ -202,9 +203,9 @@ export default class PeerConnectionBase extends EventTarget {
     }
 
     _handleWebSocketMessage(e) {
-        var commandName = `_on${e.detail.command}`;
+        var commandName = `_on${e.command}`;
         if (typeof this[commandName] != 'undefined') {
-            this[commandName](e.detail.args);
+            this[commandName](e.args);
         }
     }
 }

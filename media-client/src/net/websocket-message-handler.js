@@ -34,9 +34,9 @@ export default class WebSocketMessageHandler {
     }
 
     _handleWebSocketMessage(e) {
-        var commandName = `_on${e.detail.command}`;
+        var commandName = `_on${e.command}`;
         if (typeof this[commandName] != 'undefined') {
-            this[commandName](e.detail.args);
+            this[commandName](e.args);
         }
     }
 }

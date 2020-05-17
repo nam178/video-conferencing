@@ -2,8 +2,9 @@ import Logger from '../logging/logger.js'
 import ConferenceSettings from '../models/conference-settings.js';
 import UserInfo from '../models/user-info.js';
 import FatalErrorHandler from '../handlers/fatal-error-handler'
+import EventTarget2 from '../utils/events.js';
 
-export default class WebSocketClient extends EventTarget {
+export default class WebSocketClient extends EventTarget2 {
     /**
      * @returns {Logger}
      */
@@ -110,7 +111,7 @@ export default class WebSocketClient extends EventTarget {
             // Do we have a handler? If so, invoke the handler,
             // otherwise trigger an event for externals
             if (typeof this[commandName] == 'undefined') {
-                this.dispatchEvent(new CustomEvent('message', { detail: response }));
+                this.dispatchEvent('message', response);
             }
             else
                 this[commandName](response.args);
@@ -130,7 +131,7 @@ export default class WebSocketClient extends EventTarget {
         this.logger.info(`Authentication successful, devieId=${args.deviceId}`);
         this._tryCreateRoom();
         this._deviceId = args.deviceId;
-        this.dispatchEvent(new CustomEvent('deviceidchange'));
+        this.dispatchEvent('deviceidchange');
     }
 
     _tryCreateRoom() {
@@ -150,7 +151,7 @@ export default class WebSocketClient extends EventTarget {
 
     _onJoinRoomSuccess() {
         this._initializeAsyncResolve();
-        this.dispatchEvent(new CustomEvent('room'));
+        this.dispatchEvent('room');
     }
 
     _onJoinRoomFailed(errorMessage) {
@@ -164,9 +165,7 @@ export default class WebSocketClient extends EventTarget {
         }
         this._users = tmp;
         this._logger.info('Synced', this.users);
-        this.dispatchEvent(new CustomEvent('users', {
-            detail: this.users
-        }));
+        this.dispatchEvent('users', this.users);
     }
 
     _sendHeartBeat() {

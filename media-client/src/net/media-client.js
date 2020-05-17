@@ -5,6 +5,7 @@ import UserInfo from '../models/user-info.js';
 import StreamIndex from '../models/stream-index'
 import Logger from '../logging/logger.js';
 import PeerConnectionController from './peer-connection-controller'
+import EventTarget2 from '../utils/events.js';
 
 export let NotSelectedInputDeviceId = -1;
 
@@ -18,7 +19,7 @@ export class InputDeviceManagerState {
 /**
  * @event MediaClient#user
  */
-export default class MediaClient extends EventTarget {
+export default class MediaClient extends EventTarget2 {
     /**
      * @type {WebSocketClient}
      */
@@ -188,7 +189,7 @@ export default class MediaClient extends EventTarget {
 
     _handleWebSocketClientUsersChange(e) {
         this._rebuildStreams();
-        this.dispatchEvent(new CustomEvent('users'));
+        this.dispatchEvent('users');
     }
 
     _handleInputDeviceStreamChange(e) {
@@ -210,7 +211,7 @@ export default class MediaClient extends EventTarget {
             });
         });
         this._logger.info('Streams updated', this._streams);
-        this.dispatchEvent(new CustomEvent('streams'));
+        this.dispatchEvent('streams');
     }
 
     _rememberAudioChoice() {
@@ -237,7 +238,7 @@ export default class MediaClient extends EventTarget {
             throw 'AlreadyInitializingDevices';
         }
         this._inputDeviceManagerState = InputDeviceManagerState.Scanning;
-        this.dispatchEvent(new CustomEvent('device-scanning-started'));
+        this.dispatchEvent('device-scanning-started');
         try {
             await this._inputDeviceManager.requestAccessToDevicesAsync();
             this._inputDeviceManagerState = InputDeviceManagerState.Ok;
@@ -248,7 +249,7 @@ export default class MediaClient extends EventTarget {
             this._inputDeviceManagerState = InputDeviceManagerState.Error;
         }
         finally {
-            this.dispatchEvent(new CustomEvent('device-scanning-completed'));
+            this.dispatchEvent('device-scanning-completed');
         }
     }
 }

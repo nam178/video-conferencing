@@ -1,6 +1,7 @@
 import Logger from '../logging/logger.js';
+import EventTarget2 from '../utils/events.js';
 
-export default class InputDeviceManager extends EventTarget {
+export default class InputDeviceManager extends EventTarget2 {
     /**
      * @return {MediaStream}
      */
@@ -135,7 +136,7 @@ export default class InputDeviceManager extends EventTarget {
     }
 
     _triggerStreamChangeEvent() {
-        this.dispatchEvent(new CustomEvent('streamchange'));
+        this.dispatchEvent('streamchange');
     }
 
     _refreshDevicesAsync() {

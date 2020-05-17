@@ -1,7 +1,9 @@
-class PopupManager extends EventTarget
+import EventTarget2 from "../utils/events";
+
+class PopupManager extends EventTarget2
 {
     notifyPopup(popup) {
-        this.dispatchEvent(new CustomEvent('popup', {detail: popup}));
+        this.dispatchEvent(popup);
     }
 }
 

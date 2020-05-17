@@ -1,8 +1,9 @@
 import Logger from "../logging/logger";
+import EventTarget2 from "../utils/events";
 
 var logger = new Logger('StreamIndex');
 
-export default class StreamIndex extends EventTarget
+export default class StreamIndex extends EventTarget2
 {
     _index = {};
 
@@ -13,7 +14,7 @@ export default class StreamIndex extends EventTarget
     put(deviceId, stream) {
         this._index[deviceId] = stream;
         logger.debug(`Added stream ${stream.id}`);
-        this.dispatchEvent(new CustomEvent('changed'));
+        this.dispatchEvent('changed');
     }
 
     /**
@@ -34,7 +35,7 @@ export default class StreamIndex extends EventTarget
         if(this._index[deviceId]) {
             delete this._index[deviceId];
             logger.debug(`Removed stream ${deviceId}`);
-            this.dispatchEvent(new CustomEvent('changed'));
+            this.dispatchEvent('changed');
         }
     }
 
