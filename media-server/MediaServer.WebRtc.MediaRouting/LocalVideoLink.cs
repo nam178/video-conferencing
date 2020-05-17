@@ -66,7 +66,7 @@ namespace MediaServer.WebRtc.MediaRouting
             // If stream id has not been set, set it.
             // WebRTC does not allow us to change the stream id, but we don't care either,
             // we just want it to be unique.
-            if(Transceiver.Sender.StreamId == null)
+            if(string.IsNullOrWhiteSpace(Transceiver.Sender.StreamId))
             {
                 Transceiver.Sender.StreamId = Guid.NewGuid().ToString();
             }

@@ -134,7 +134,7 @@ export default class MediaClient extends EventTarget {
         this._rebuildStreams = this._rebuildStreams.bind(this);
 
         this._webSocketClient = new WebSocketClient();
-        this._peerConnectionController = new PeerConnectionController(this._webSocketClient);
+        this._peerConnectionController = new PeerConnectionController(this._webSocketClient, this._streamIndex);
         this._webSocketClient.addEventListener('users', this._handleWebSocketClientUsersChange);
         this._webSocketClient.addEventListener('deviceidchange', this._handleMyNetworkDeviceIdChange);
         this._inputDeviceManager.addEventListener('streamchange', this._handleInputDeviceStreamChange);

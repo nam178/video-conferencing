@@ -87,6 +87,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         this._peerConnectionId = peerConnectionId;
         this._onLocalIceCandidate = this._onLocalIceCandidate.bind(this);
         this._onLocalIceConnectionChange = this._onLocalIceConnectionChange.bind(this);
+        this._onTrack = this._onTrack.bind(this);
         this._mediaHandler = mediaHandler;
     }
 
@@ -99,6 +100,7 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         // Preparation: listen to ICE candidate events
         this._peerConnection.addEventListener('icecandidate', this._onLocalIceCandidate);
         this._peerConnection.addEventListener('iceconnectionstatechange', this._onLocalIceConnectionChange);
+        this._peerConnection.addEventListener('track', this._onTrack);
 
         // Step 1: Create Offer
         var offer = await this._peerConnection.createOffer();
@@ -141,7 +143,16 @@ export default class PeerConnectionOfferer extends WebSocketMessageHandler {
         this.stopObservingWebSocketMessages();
         this._peerConnection.removeEventListener('icecandidate', this._onLocalIceCandidate);
         this._peerConnection.removeEventListener('iceconnectionstatechange', this._onLocalIceConnectionChange);
+        this._peerConnection.removeEventListener('track', this._onTrack);
         this._cancelled = true;
+    }
+
+    _onTrack(e) {
+        logger.info('Received remote stream', e);
+        if(e.streams.length != 1) {
+            FatalErrorHandler.failFast('PeerConnection expect to receive exact 1 stream for each track');
+        }
+        this._mediaHandler.trackAdded(e.transceiver, e.streams[0]);
     }
 
     // called when 'icecandidate' event occurs on local PeerConnection

@@ -12,6 +12,7 @@ export default class FatalErrorHandler {
         logger.error(errorMessage);
         // TODO: make nicer message
         alert('FATAL ERROR: ' + errorMessage);
-        window.location.reload()
+        window.location.reload();
+        throw errorMessage;
     }
 }

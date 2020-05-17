@@ -14,7 +14,12 @@ namespace MediaServer.WebRtc.Managed
             get
             {
                 _signallingThread.EnsureCurrentThread();
-                return Marshal.PtrToStringAnsi(RtpSenderInterops.GetStreamId(Handle));
+                var streamId = RtpSenderInterops.GetStreamId(Handle);
+                if(streamId == IntPtr.Zero)
+                {
+                    return null;
+                }
+                return Marshal.PtrToStringAnsi(streamId);
             }
             set
             {

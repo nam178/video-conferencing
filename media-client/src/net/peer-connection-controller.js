@@ -114,12 +114,6 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
             logger.warn('re-negotiation needed, starting new offerer process..');
             this._startOfferProcess();
         }, false);
-        this._peerConnection.addEventListener('track', e => {
-            logger.info('Received remote stream', e);
-            if (this._onRemoteStream) {
-                this._onRemoteStream(e);
-            }
-        });
         this._audioTransceiver = this._peerConnection.addTransceiver('audio', {
             direction: 'sendonly'
         });

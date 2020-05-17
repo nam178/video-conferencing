@@ -6,24 +6,48 @@ export default class StreamIndex extends EventTarget
 {
     _index = {};
 
-    put(stream) {
-        this._index[stream.id] = stream;
+    /**
+     * @param {String} deviceId 
+     * @param {MediaStream} stream 
+     */
+    put(deviceId, stream) {
+        this._index[deviceId] = stream;
         logger.debug(`Added stream ${stream.id}`);
         this.dispatchEvent(new CustomEvent('changed'));
     }
 
-    get(streamId) {
-        if(this._index[streamId]) {
-            return this._index[streamId];
+    /**
+     * @param {String} deviceId 
+     * @returns {MediaStream}
+     */
+    get(deviceId) {
+        if(this._index[deviceId]) {
+            return this._index[deviceId];
         }
         return null;
     }
 
-    remove(streamId) {
-        if(this._index[streamId]) {
-            delete this._index[streamId];
-            logger.debug(`Removed stream ${streamId}`);
+    /**
+     * @param {String} deviceId 
+     */
+    remove(deviceId) {
+        if(this._index[deviceId]) {
+            delete this._index[deviceId];
+            logger.debug(`Removed stream ${deviceId}`);
             this.dispatchEvent(new CustomEvent('changed'));
         }
+    }
+
+    /**
+     * @returns {String[]}
+     */
+    getDeviceIds() {
+        var deviceIds = [];
+
+        for(var i in this._index) {
+            deviceIds.push(i);
+        }
+
+        return deviceIds;
     }
 }
