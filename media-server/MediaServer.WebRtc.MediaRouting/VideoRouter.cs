@@ -234,6 +234,8 @@ namespace MediaServer.WebRtc.MediaRouting
 
         public void ClearFrozenTransceivers(Guid videoClientId, Guid peerConnectionId)
         {
+            return;
+
             _signallingThread.EnsureCurrentThread();
 
             var videoClient = _videoClients.GetOrThrow(videoClientId);
