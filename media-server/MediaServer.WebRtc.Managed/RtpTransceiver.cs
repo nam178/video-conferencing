@@ -100,30 +100,8 @@ namespace MediaServer.WebRtc.Managed
 
         public void ToBusyState(MediaStreamTrack track)
         {
-            // Checks
             SafetyCheck();
             ThrowIfCurrentStateIsNot(TransceiverReusabilityState.Available);
-
-            // Change direction - make sure the sender will send data.
-            switch(Direction)
-            {
-                case RtpTransceiverDirection.Inactive:
-                    Direction = RtpTransceiverDirection.SendOnly;
-                    break;
-
-                case RtpTransceiverDirection.SendOnly:
-                    // Does not have to do anything
-                    break;
-
-                case RtpTransceiverDirection.SendRecv:
-                case RtpTransceiverDirection.RecvOnly:
-                case RtpTransceiverDirection.Stopped:
-                    throw new InvalidProgramException(
-                        $"Impossible to have {nameof(ToBusyState)} called when Direction={Direction}"
-                        );
-            }
-
-            // Set track and stream
             Sender.Track = track;
         }
 
@@ -131,24 +109,6 @@ namespace MediaServer.WebRtc.Managed
         {
             SafetyCheck();
             ThrowIfCurrentStateIsNot(TransceiverReusabilityState.Busy);
-
-            // Change direction - make sure the sender won't send data
-            switch(Direction)
-            {
-                case RtpTransceiverDirection.SendOnly:
-                    Direction = RtpTransceiverDirection.Inactive;
-                    break;
-
-                case RtpTransceiverDirection.Inactive:
-                case RtpTransceiverDirection.RecvOnly:
-                case RtpTransceiverDirection.SendRecv:
-                case RtpTransceiverDirection.Stopped:
-                    throw new InvalidProgramException(
-                        $"Impossible to have {nameof(ToFrozenState)} called when Direction={Direction}"
-                        );
-            }
-
-            // Then remove track
             Sender.Track = null;
             _isFrozen = true;
         }

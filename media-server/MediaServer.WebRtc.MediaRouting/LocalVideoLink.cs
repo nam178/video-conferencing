@@ -35,7 +35,6 @@ namespace MediaServer.WebRtc.MediaRouting
             // Create tracks, for simplicity, the stream id MUST be the same as the video client ID.
             // This is very important, so that the remote clients know which track belongs to which client.
             var trackId = Guid.NewGuid();
-            var streamId = videoSource.VideoClient.Id;
             _track = peerConnectionFactory.CreateVideoTrack(trackId.ToString(), videoSource.VideoTrackSource);
 
             // Find the first available transceiver,
