@@ -1,11 +1,10 @@
 using MediaServer.Common.Threading;
 using MediaServer.Common.Utils;
-using MediaServer.Core.Models;
 using MediaServer.Core.Models.Repositories;
 using System;
 using System.Threading;
 
-namespace MediaServer.Models
+namespace MediaServer.Core.Models
 {
     sealed class Room : IRoom
     {

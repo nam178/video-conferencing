@@ -1,5 +1,5 @@
 ﻿using MediaServer.Common.Patterns;
-using MediaServer.Models;
+using MediaServer.Core.Models;
 using MediaServer.WebRtc.Common;
 using NLog;
 using System;

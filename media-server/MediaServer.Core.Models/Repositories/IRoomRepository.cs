@@ -1,7 +1,4 @@
-﻿using MediaServer.Core.Models;
-using MediaServer.Models;
-
-namespace MediaServer.Core.Models.Repositories
+﻿namespace MediaServer.Core.Models.Repositories
 {
     /// <summary>
     /// Store rooms. Designed to be a singleton for the server.

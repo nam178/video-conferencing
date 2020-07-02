@@ -1,5 +1,4 @@
 ﻿using MediaServer.Common.Threading;
-using MediaServer.Models;
 
 namespace MediaServer.Core.Models
 {

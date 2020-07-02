@@ -1,5 +1,4 @@
 ﻿using MediaServer.Core.Models;
-using MediaServer.Models;
 using MediaServer.Api.WebSocket.Net;
 using System.Threading.Tasks;
 using MediaServer.Core.Services.RoomManagement;

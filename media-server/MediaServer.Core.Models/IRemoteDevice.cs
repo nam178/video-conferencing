@@ -1,10 +1,9 @@
 ﻿using MediaServer.Common.Media;
-using MediaServer.Core.Models;
 using MediaServer.WebRtc.Common;
 using System;
 using System.Collections.Generic;
 
-namespace MediaServer.Models
+namespace MediaServer.Core.Models
 {
     /// <summary>
     /// Represents a remote device that connected to us.
@@ -39,7 +38,7 @@ namespace MediaServer.Models
         /// Send an user-update message to this device
         /// </summary>
         /// <param name="message"></param>
-        /// <exception cref="System.Exception">When network error or things like that occurs</exception>
+        /// <exception cref="Exception">When network error or things like that occurs</exception>
         /// <returns></returns>
         void EnqueueMessage(SyncMessage message);
 

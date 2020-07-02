@@ -1,4 +1,4 @@
-﻿using MediaServer.Models;
+﻿using MediaServer.Core.Models;
 using MediaServer.WebRtc.Common;
 using System;
 using System.Threading.Tasks;

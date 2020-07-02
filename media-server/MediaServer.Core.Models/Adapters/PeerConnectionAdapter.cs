@@ -1,8 +1,6 @@
 ﻿using MediaServer.Common.Patterns;
 using MediaServer.Common.Utils;
-using MediaServer.Core.Models;
 using MediaServer.Core.Models.MediaRouting;
-using MediaServer.Models;
 using MediaServer.WebRtc.Common;
 using MediaServer.WebRtc.Managed;
 using System;

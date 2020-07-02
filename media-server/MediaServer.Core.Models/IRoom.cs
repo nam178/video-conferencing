@@ -1,8 +1,7 @@
 ﻿using MediaServer.Common.Threading;
-using MediaServer.Core.Models;
 using MediaServer.Core.Models.Repositories;
 
-namespace MediaServer.Models
+namespace MediaServer.Core.Models
 {
     /// <summary>
     /// The room model.

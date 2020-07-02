@@ -2,7 +2,6 @@
 using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Models.Repositories;
-using MediaServer.Models;
 using NLog;
 using System;
 using System.Threading.Tasks;

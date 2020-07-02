@@ -2,7 +2,6 @@
 using MediaServer.Core.Models;
 using MediaServer.Core.Models.Repositories;
 using MediaServer.Core.Services.Common;
-using MediaServer.Models;
 using NLog;
 using System;
 using System.Linq;

@@ -2,7 +2,6 @@
 using MediaServer.Common.Utils;
 using MediaServer.Core.Models;
 using MediaServer.Core.Services.Negotiation.MessageQueue;
-using MediaServer.Models;
 using MediaServer.WebRtc.Common;
 using NLog;
 using System;

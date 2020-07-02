@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MediaServer.Models
+namespace MediaServer.Core.Models
 {
     /// <summary>
     /// The message that we will send to devices at an interval

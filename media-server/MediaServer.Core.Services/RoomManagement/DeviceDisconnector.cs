@@ -1,4 +1,4 @@
-﻿using MediaServer.Models;
+﻿using MediaServer.Core.Models;
 using NLog;
 using System;
 using System.Linq;

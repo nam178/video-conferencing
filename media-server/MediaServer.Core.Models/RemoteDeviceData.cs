@@ -1,5 +1,4 @@
-﻿using MediaServer.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace MediaServer.Core.Models
 {

@@ -1,5 +1,4 @@
 ﻿using MediaServer.Core.Models.Repositories;
-using MediaServer.Models;
 using System;
 
 namespace MediaServer.Core.Models

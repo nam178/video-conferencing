@@ -1,4 +1,4 @@
-﻿namespace MediaServer.Models
+﻿namespace MediaServer.Core.Models
 {
     public enum RoomState
     {

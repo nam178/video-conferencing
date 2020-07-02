@@ -1,4 +1,4 @@
-﻿using MediaServer.Models;
+﻿using MediaServer.Core.Models;
 using System.Threading.Tasks;
 
 namespace MediaServer.Core.Services.RoomManagement

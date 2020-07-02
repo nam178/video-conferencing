@@ -2,7 +2,6 @@
 using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Services.Negotiation.MessageQueue;
-using MediaServer.Models;
 using Moq;
 using System;
 using System.Threading;
