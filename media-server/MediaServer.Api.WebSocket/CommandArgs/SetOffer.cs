@@ -1,5 +1,5 @@
 ﻿using MediaServer.Common.Media;
-using MediaServer.WebRtc.Managed;
+using MediaServer.WebRtc.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;

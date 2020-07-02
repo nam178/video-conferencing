@@ -1,7 +1,7 @@
 ﻿using MediaServer.Common.Patterns;
 using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
-using MediaServer.Core.Repositories;
+using MediaServer.Core.Models.Repositories;
 using MediaServer.Models;
 using NLog;
 using System;

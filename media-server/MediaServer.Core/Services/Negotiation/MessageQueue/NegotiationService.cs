@@ -1,6 +1,6 @@
 ﻿using MediaServer.Common.Media;
 using MediaServer.Core.Models;
-using MediaServer.WebRtc.Managed;
+using MediaServer.WebRtc.Common;
 using System;
 using System.Collections.Generic;
 

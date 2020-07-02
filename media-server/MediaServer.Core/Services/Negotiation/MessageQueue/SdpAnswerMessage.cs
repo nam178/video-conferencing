@@ -1,5 +1,5 @@
 ﻿using MediaServer.Core.Models;
-using MediaServer.WebRtc.Managed;
+using MediaServer.WebRtc.Common;
 using System;
 
 namespace MediaServer.Core.Services.Negotiation.MessageQueue

@@ -49,6 +49,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\MediaServer.Common\MediaServer.Common.csproj" />
+    <ProjectReference Include="..\MediaServer.WebRtc.Common\MediaServer.WebRtc.Common.csproj" />
   </ItemGroup>
 
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />

@@ -1,7 +1,7 @@
 ﻿using MediaServer.Common.Media;
 using MediaServer.Core.Models;
 using MediaServer.Models;
-using MediaServer.WebRtc.Managed;
+using MediaServer.WebRtc.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NLog;

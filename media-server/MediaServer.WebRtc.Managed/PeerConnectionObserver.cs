@@ -1,4 +1,5 @@
 ﻿using MediaServer.Common.Utils;
+using MediaServer.WebRtc.Common;
 using NLog;
 using System;
 using System.Runtime.InteropServices;
@@ -47,7 +48,17 @@ namespace MediaServer.WebRtc.Managed
             var source = GCHandleHelper.FromIntPtr<PeerConnectionObserver>(userData);
             source?.IceCandidateAdded?.Invoke(
                 source,
-                new EventArgs<RTCIceCandidate>(new RTCIceCandidate(iceCandidate)));
+                new EventArgs<RTCIceCandidate>(GetRTCIceCandidate(iceCandidate)));
+        }
+
+        static RTCIceCandidate GetRTCIceCandidate(IceCandidate iceCandidate)
+        {
+            return new RTCIceCandidate
+            {
+                SdpMid = iceCandidate.SdpMid,
+                Candidate = iceCandidate.Sdp,
+                SdpMLineIndex = iceCandidate.MLineIndex
+            };
         }
 
         static void IceConnectionChangeCallback(IntPtr userData, RTCIceConnectionState state)

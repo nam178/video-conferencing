@@ -1,6 +1,7 @@
 ﻿using MediaServer.Common.Media;
 using MediaServer.Common.Patterns;
 using MediaServer.Common.Utils;
+using MediaServer.WebRtc.Common;
 using MediaServer.WebRtc.Managed.Errors;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace MediaServer.WebRtc.Managed
     public class PeerConnection : IDisposable
     {
         readonly PeerConnectionSafeHandle _handle;
-        readonly List<Common.Patterns.IObserver> _pendingObservers = new List<Common.Patterns.IObserver>();
+        readonly List<MediaServer.Common.Patterns.IObserver> _pendingObservers = new List<MediaServer.Common.Patterns.IObserver>();
         readonly Dictionary<IntPtr, RtpTransceiver> _knownTransceivers = new Dictionary<IntPtr, RtpTransceiver>();
         readonly RtcThread _signallingThread;
 

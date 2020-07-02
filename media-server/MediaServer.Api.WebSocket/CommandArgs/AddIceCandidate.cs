@@ -1,4 +1,4 @@
-﻿using MediaServer.WebRtc.Managed;
+﻿using MediaServer.WebRtc.Common;
 using System;
 
 namespace MediaServer.Api.WebSocket.CommandArgs

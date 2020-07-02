@@ -1,6 +1,6 @@
 ﻿using MediaServer.Core.Services.Negotiation.MessageQueue;
 using MediaServer.Models;
-using MediaServer.WebRtc.Managed;
+using MediaServer.WebRtc.Common;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
