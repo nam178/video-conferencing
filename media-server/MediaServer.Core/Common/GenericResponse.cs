@@ -1,4 +1,4 @@
-﻿namespace MediaServer.Core.Common
+﻿namespace MediaServer.Core.Services.Common
 {
     public class GenericResponse
     {
@@ -6,17 +6,17 @@
 
         public string ErrorMessage { get; set; }
 
-        public static GenericResponse SuccessResponse() 
+        public static GenericResponse SuccessResponse()
             => new GenericResponse { Success = true };
 
-        public static GenericResponse ErrorResponse(string errorMessage) 
+        public static GenericResponse ErrorResponse(string errorMessage)
             => new GenericResponse
             {
                 Success = false,
                 ErrorMessage = errorMessage
             };
 
-        public static GenericResponse InternalServerErrorResponse(string errorMessage) 
+        public static GenericResponse InternalServerErrorResponse(string errorMessage)
             => ErrorResponse($"Internal Server Error: {errorMessage}");
     }
 }

@@ -37,7 +37,7 @@ namespace MediaServerConsole
                     .ConfigureContainer<ContainerBuilder>(builder =>
                     {
                         builder.RegisterModule<global::MediaServer.Api.WebSocket.IoC.WebSocketModule>();
-                        builder.RegisterModule<global::MediaServer.Core.IoC.CoreModule>();
+                        builder.RegisterModule<global::MediaServer.Core.Services.IoC.CoreModule>();
                         builder.RegisterModule<global::MediaServer.Common.IoC.CommonModule>();
                     })
                     .RunConsoleAsync();

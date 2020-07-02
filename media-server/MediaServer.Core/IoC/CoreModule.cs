@@ -4,7 +4,7 @@ using MediaServer.Core.Services.Negotiation.Handlers;
 using MediaServer.Core.Services.Negotiation.MessageQueue;
 using MediaServer.Core.Services.RoomManagement;
 
-namespace MediaServer.Core.IoC
+namespace MediaServer.Core.Services.IoC
 {
     public sealed class CoreModule : Module
     {
