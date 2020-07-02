@@ -16,29 +16,29 @@ namespace MediaServer.WebRtc.MediaRouting
 
         public RtpTransceiver Transceiver { get; }
 
-        public LocalVideoLink(PeerConnectionFactory peerConnectionFactory,
-            VideoSource videoSource,
-            PeerConnection targetPeerConnection)
+        public LocalVideoLink(
+            PeerConnectionFactory peerConnectionFactory,
+            VideoSource source,
+            PeerConnection target)
         {
             if(peerConnectionFactory is null)
                 throw new ArgumentNullException(nameof(peerConnectionFactory));
-            if(videoSource is null)
-                throw new ArgumentNullException(nameof(videoSource));
-            if(targetPeerConnection is null)
-                throw new ArgumentNullException(nameof(targetPeerConnection));
-            if(null == videoSource.VideoTrackSource)
+            if(source is null)
+                throw new ArgumentNullException(nameof(source));
+            if(target is null)
+                throw new ArgumentNullException(nameof(target));
+            if(null == source.VideoTrackSource)
                 throw new InvalidProgramException("VideoTrackSource is NULL");
 
-            TargetPeerConnection = targetPeerConnection;
-            VideoSource = videoSource;
+            TargetPeerConnection = target;
+            VideoSource = source;
 
             // Create tracks, for simplicity, the stream id MUST be the same as the video client ID.
             // This is very important, so that the remote clients know which track belongs to which client.
             var trackId = Guid.NewGuid();
-            _track = peerConnectionFactory.CreateVideoTrack(trackId.ToString(), videoSource.VideoTrackSource);
+            _track = peerConnectionFactory.CreateVideoTrack(trackId.ToString(), source.VideoTrackSource);
 
-            // Find the first available transceiver,
-            // Or add a new one
+            // Find the first available transceiver
             var mediaKind = _track.Kind;
             var transceivers = TargetPeerConnection.GetTransceivers();
             Transceiver = null;
@@ -56,7 +56,16 @@ namespace MediaServer.WebRtc.MediaRouting
                     break;
                 }
             }
-            Transceiver = Transceiver ?? TargetPeerConnection.AddTransceiver(mediaKind, RtpTransceiverDirection.SendOnly);
+            // If no available transceiver, create a new one
+            if(Transceiver is null)
+            {
+                Transceiver = TargetPeerConnection.AddTransceiver(mediaKind, RtpTransceiverDirection.SendOnly);
+            }
+            else
+            {
+                // Otherwise, we're re-using an existing transceivers.
+                // Transceiver metadata will need to be sent for clients to update their UIs.
+            }
             Transceiver.CustomData = this;
 
             // Next, set/replace the track:

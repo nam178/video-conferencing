@@ -30,7 +30,12 @@ namespace MediaServer.Api.WebSocket.CommandHandlers
                 remoteDevice,
                 args.PeerConnectionId,
                 args.Offer,
-                args.TransceiverMetadata.Select(m => (TransceiverMetadata)m).ToArray());
+                args.TransceiverMetadata.Select(m => new TransceiverMetadata(
+                    m.TransceiverMid,
+                    m.Quality,
+                    m.Kind,
+                    remoteDevice.Id
+                    )).ToArray());
         }
     }
 }

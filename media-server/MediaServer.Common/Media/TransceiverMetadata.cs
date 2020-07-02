@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediaServer.Common.Utils;
+using System;
 
 namespace MediaServer.Common.Media
 {
@@ -20,22 +21,18 @@ namespace MediaServer.Common.Media
         public MediaKind Kind { get; }
 
         /// <summary>
-        /// The device id in which the content comes from or NULL when unspecified
+        /// The device id in which the media for this transceiver is produced from.
         /// </summary>
-        public Guid? SourceDeviceId { get; }
-
-        public TransceiverMetadata(string mid, MediaQuality quality, MediaKind kind)
-        {
-            if(string.IsNullOrWhiteSpace(mid))
-                throw new System.ArgumentException("Mid cannot be NULL or empty", nameof(mid));
-            TransceiverMid = mid;
-            TrackQuality = quality;
-            Kind = kind;
-        }
+        public Guid SourceDeviceId { get; }
 
         public TransceiverMetadata(string mid, MediaQuality quality, MediaKind kind, Guid sourceDeviceId)
-            : this(mid, quality, kind)
         {
+            Require.NotNullOrWhiteSpace(mid);
+            Require.NotEmpty(sourceDeviceId);
+
+            TransceiverMid = mid.Trim();
+            TrackQuality = quality;
+            Kind = kind;
             SourceDeviceId = sourceDeviceId;
         }
     }

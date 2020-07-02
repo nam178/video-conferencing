@@ -23,15 +23,6 @@ namespace MediaServer.Api.WebSocket.CommandArgs
 
             [JsonConverter(typeof(StringEnumConverter))]
             public MediaKind Kind { get; set; }
-
-            public static implicit operator TransceiverMetadata(WebSocketTransceiverMetadata transceiverInfo)
-            {
-                return new TransceiverMetadata(
-                    transceiverInfo.TransceiverMid,
-                    transceiverInfo.Quality,
-                    transceiverInfo.Kind
-                    );
-            }
         }
     }
 }

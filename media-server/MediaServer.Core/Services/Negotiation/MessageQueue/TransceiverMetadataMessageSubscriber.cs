@@ -25,11 +25,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     if(string.IsNullOrWhiteSpace(transceiver.TransceiverMid))
                         throw new ArgumentException("TrackId is NULL or empty");
 
-                    message.PeerConnection.Room.VideoRouter.SetRemoteTransceiverMetadata(
-                        message.PeerConnection.Device.Id,
-                        transceiver.TransceiverMid,
-                        transceiver.TrackQuality,
-                        transceiver.Kind);
+                    message.PeerConnection.Room.VideoRouter.SetRemoteTransceiverMetadata(transceiver);
                 }
 
                 completionCallback.Success();

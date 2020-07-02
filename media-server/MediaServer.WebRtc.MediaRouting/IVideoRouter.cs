@@ -19,11 +19,11 @@ namespace MediaServer.WebRtc.MediaRouting
         void AddVideoClient(Guid videoClientId);
 
         /// <summary>
-        /// Notify this router that a track will be added into it with specified quality.
+        /// Notify this router that we received remote transceiver metadata.
         /// </summary>
         /// <param name="videoClientId">The video client in which the track will be added</param>
         /// <remarks>Must be called from signalling thread</remarks>
-        void SetRemoteTransceiverMetadata(Guid videoClientId, string transceiverMid, MediaQuality trackQuality, MediaKind kind);
+        void SetRemoteTransceiverMetadata(TransceiverMetadata transceiverMetadata);
 
         /// <summary>
         /// Clients can use this to generate transceiver metadata to send along with SDP.

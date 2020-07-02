@@ -2,6 +2,7 @@
 using MediaServer.Common.Threading;
 using MediaServer.Core.Models;
 using MediaServer.Core.Services.Negotiation.MessageQueue;
+using MediaServer.Models;
 using Moq;
 using System;
 using System.Threading;
@@ -21,7 +22,7 @@ namespace Tests.Services
             _queue = new NegotiationQueue(new IMessageSubscriber[]
             {
                 _mockSubscriber.Object,
-            }, _mockSignallingThread.Object);
+            });
 
             _mockSignallingThread.Setup(x => x.IsCurrent).Returns(true);
             _mockSignallingThread
@@ -30,6 +31,7 @@ namespace Tests.Services
                 {
                     _ = Task.Run(() => action(u));
                 });
+
             _mockSubscriber
                 .Setup(x => x.CanHandle(It.IsAny<Message>()))
                 .Returns(true);
@@ -41,7 +43,7 @@ namespace Tests.Services
             _queue.Stop();
             Assert.Throws<InvalidOperationException>(delegate
             {
-                _queue.Enqueue(new Message(Mock.Of<IPeerConnection>()));
+                _queue.Enqueue(new Message(MockPeerConnection()));
             });
         }
 
@@ -61,7 +63,7 @@ namespace Tests.Services
                         observer.Success();
                         wh.Set();
                     });
-                _queue.Enqueue(new Message(Mock.Of<IPeerConnection>()));
+                _queue.Enqueue(new Message(MockPeerConnection()));
 
                 Assert.True(wh.WaitOne(TimeSpan.FromSeconds(15)));
             }
@@ -73,7 +75,7 @@ namespace Tests.Services
             var firstMessageProcessingStart = new ManualResetEvent(false);
             var secondMessageSubmitted = new ManualResetEvent(false);
             var secondMessageProcessingEnded = new ManualResetEvent(false);
-            var p = Mock.Of<IPeerConnection>();
+            var p = MockPeerConnection();
             var m1 = new Message(p);
             var m2 = new Message(p);
 
@@ -123,8 +125,8 @@ namespace Tests.Services
         {
             var m1Processed = new ManualResetEvent(false);
             var m2Processed = new ManualResetEvent(false);
-            var m1 = new Message(Mock.Of<IPeerConnection>());
-            var m2 = new Message(Mock.Of<IPeerConnection>());
+            var m1 = new Message(MockPeerConnection());
+            var m2 = new Message(MockPeerConnection());
             var m1ProcessingStarted = false;
 
             // Mock processing first message:
@@ -159,6 +161,19 @@ namespace Tests.Services
 
             Assert.True(m1Processed.WaitOne(TimeSpan.FromSeconds(5)));
             Assert.True(m2Processed.WaitOne(TimeSpan.FromSeconds(5)));
+        }
+
+        IPeerConnection MockPeerConnection()
+        {
+
+            var _mockPeerConnection = new Mock<IPeerConnection>();
+            _mockPeerConnection.Setup(x => x.Room).Returns(delegate
+            {
+                var room = new Mock<IRoom>();
+                room.Setup(x => x.SignallingThread).Returns(_mockSignallingThread.Object);
+                return room.Object;
+            });
+            return _mockPeerConnection.Object;
         }
 
         public void Dispose()

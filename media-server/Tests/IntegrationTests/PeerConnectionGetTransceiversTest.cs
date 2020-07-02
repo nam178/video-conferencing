@@ -40,7 +40,7 @@ namespace Tests.IntegrationTests
             {
                 using(var peerConnectionObserver = new PeerConnectionObserver())
                 using(var peerConnection = _peerConnectionFactory.CreatePeerConnection(peerConnectionObserver, _config))
-                using(var transceiver = peerConnection.AddTransceiver(mediaKind))
+                using(var transceiver = peerConnection.AddTransceiver(mediaKind, RtpTransceiverDirection.SendOnly))
                 {
                     Assert.NotNull(transceiver);
                     Assert.Equal(mediaKind, transceiver.MediaKind);

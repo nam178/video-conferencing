@@ -37,34 +37,31 @@ namespace MediaServer.WebRtc.MediaRouting
             _logger.Info($"Added {videoClient} into {_videoClients}");
         }
 
-        public void SetRemoteTransceiverMetadata(Guid videoClientId, string transceiverMid, MediaQuality mediaQuality, MediaKind mediaKind)
+        public void SetRemoteTransceiverMetadata(TransceiverMetadata transceiverMetadata)
         {
-            Require.NotEmpty(videoClientId);
-            Require.NotNullOrWhiteSpace(transceiverMid);
-
             // Ignore audio tracks for now
-            if(mediaKind != MediaKind.Video)
+            if(transceiverMetadata.Kind != MediaKind.Video)
                 return;
             _signallingThread.EnsureCurrentThread();
 
             // Prepare the source for this quality, if it was not created
-            var videoClient = _videoClients.GetOrThrow(videoClientId);
-            var videoSource = videoClient.VideoSources.ContainsKey(mediaQuality)
-                ? videoClient.VideoSources[mediaQuality]
+            var videoClient = _videoClients.GetOrThrow(transceiverMetadata.SourceDeviceId);
+            var videoSource = videoClient.VideoSources.ContainsKey(transceiverMetadata.TrackQuality)
+                ? videoClient.VideoSources[transceiverMetadata.TrackQuality]
                 : null;
             if(null == videoSource)
             {
-                videoSource = _videoClients.CreateVideoSource(videoClientId, mediaQuality);
+                videoSource = _videoClients.CreateVideoSource(transceiverMetadata.SourceDeviceId, transceiverMetadata.TrackQuality);
                 videoSource.VideoTrackSource = new PassiveVideoTrackSource();
                 videoSource.VideoSinkAdapter = new VideoSinkAdapter(videoSource.VideoTrackSource, false);
                 _logger.Info($"Created {videoSource}");
-                OnVideoSourceAdded(videoClient, videoSource, mediaQuality);
+                OnVideoSourceAdded(videoClient, videoSource, transceiverMetadata.TrackQuality);
             }
 
             // Flag this source to say it should be 
             // linked with the provided track
-            videoSource.ExpectedTransceiverMid = transceiverMid;
-            _logger.Info($"Associated {videoSource} with transceiver mid {transceiverMid}");
+            videoSource.ExpectedTransceiverMid = transceiverMetadata.TransceiverMid;
+            _logger.Info($"Associated {videoSource} with transceiver mid {transceiverMetadata.TransceiverMid}");
         }
 
         public void AddPeerConnection(Guid videoClientId, PeerConnection peerConnection)
