@@ -4,17 +4,17 @@ using System;
 
 namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
-    sealed class TransceiverMetadataMessageSubscriber : IMessageSubscriber
+    sealed class RemoteTransceiverMetadataMessageSubscriber : IMessageSubscriber
     {
         readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public bool CanHandle(Message message) => message is TransceiverMetadataMessage;
+        public bool CanHandle(Message message) => message is RemoteTransceiverMetadataMessage;
 
         public void Handle(Message message, Callback completionCallback)
         {
             try
             {
-                var msg = ((TransceiverMetadataMessage)message);
+                var msg = ((RemoteTransceiverMetadataMessage)message);
                 if(null == msg.Transceivers)
                 {
                     throw new NullReferenceException(nameof(msg.Transceivers));

@@ -37,7 +37,7 @@ namespace MediaServer.Core.Services.IoC
             builder.RegisterType<SdpAnswerMessageSubscriber>().AsImplementedInterfaces();
             builder.RegisterType<RenegotiationMessageSubscriber>().AsImplementedInterfaces();
             builder.RegisterType<IceCandidateMessageSubscriber>().AsImplementedInterfaces();
-            builder.RegisterType<TransceiverMetadataMessageSubscriber>().AsImplementedInterfaces();
+            builder.RegisterType<RemoteTransceiverMetadataMessageSubscriber>().AsImplementedInterfaces();
             builder.RegisterType<NegotiationService>().AsImplementedInterfaces().SingleInstance();
 
             // Observers

@@ -38,20 +38,31 @@ export default class PeerConnectionMediaHandler {
         //  so later in trackAdded() we can query.
         this._transceiverMetadataIndexByMid = {};
         this._transceiverMetadataIndexByDeviceId = {};
-        transceivers.forEach(transceiver => {
-            this._transceiverMetadataIndexByMid[transceiver.transceiverMid] = transceiver;
-            this._transceiverMetadataIndexByDeviceId[transceiver.sourceDeviceId] = transceiver;
-        });
+        transceivers.forEach(transceiver => this._setTransceiverMetadata(transceiver));
 
         logger.debug('Transceiver metadata index by mid updated', this._transceiverMetadataIndexByMid);
         logger.debug('Transceiver metadata index by source device id updated', this._transceiverMetadataIndexByDeviceId);
 
-        // Remove the devices in StreamIndex that no longer exist.
-        this._streamIndex.getDeviceIds().forEach(deviceId => {
-            if(this._transceiverMetadataIndexByDeviceId[deviceId] == undefined) {
-                this._streamIndex.remove(deviceId);
-            }
-        });
+        this._transceiverMetadataChanged();
+    }
+
+    /**
+     * Called whenever we receive transceiver metadata 
+     * 
+     * @param {Object} transceiverMetadata 
+     */
+    setTransceiverMetadata(transceiverMetadata) {
+
+        var previous = this._transceiverMetadataIndexByMid[transceiverMetadata.transceiverMid];
+        if(previous) {
+            delete this._transceiverMetadataIndexByDeviceId[previous.sourceDeviceId];
+        }
+
+        this._setTransceiverMetadata(transceiverMetadata);
+
+        logger.debug('Transceiver metadata updated', transceiverMetadata);
+
+        this._transceiverMetadataChanged();
     }
 
     /**
@@ -74,5 +85,19 @@ export default class PeerConnectionMediaHandler {
         {
             this._streamIndex.put(metadata.sourceDeviceId, stream);
         }
+    }
+
+    _transceiverMetadataChanged() {
+        // Remove the devices in StreamIndex that no longer exist.
+        this._streamIndex.getDeviceIds().forEach(deviceId => {
+            if(this._transceiverMetadataIndexByDeviceId[deviceId] == undefined) {
+                this._streamIndex.remove(deviceId);
+            }
+        });
+    }
+
+    _setTransceiverMetadata(transceiverMetadata) {
+        this._transceiverMetadataIndexByMid[transceiverMetadata.transceiverMid] = transceiverMetadata;
+        this._transceiverMetadataIndexByDeviceId[transceiverMetadata.sourceDeviceId] = transceiverMetadata;
     }
 }

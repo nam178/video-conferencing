@@ -166,6 +166,7 @@ namespace MediaServer.Core.Models
         public void Close()
         {
             MustNotDisposed();
+            // TODO: move this to services layer
             if(Interlocked.CompareExchange(
                 ref _addedToRouterState,
                 (int)AddedToRouterState.Removed,

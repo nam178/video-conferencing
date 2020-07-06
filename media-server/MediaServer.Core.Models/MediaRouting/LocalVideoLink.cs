@@ -109,8 +109,8 @@ namespace MediaServer.Core.Models.MediaRouting
             }
         }
 
-        void RaiseTransceiverMetadataUdatedEvent() => _parent.Raise(new TransceiverMetadataUpdatedEvent(
-                                TargetPeerConnection.Id,
+        void RaiseTransceiverMetadataUdatedEvent() => _parent.Submit(new TransceiverMetadataUpdatedEvent(
+                                TargetPeerConnection,
                                 new Common.Media.TransceiverMetadata(
                                     Transceiver.Mid,
                                     VideoSource.Quality,

@@ -11,15 +11,14 @@ namespace MediaServer.Core.Models
     /// </summary>
     public sealed class TransceiverMetadataUpdatedEvent
     {
-        public Guid PeerConnectionId { get; }
+        public IPeerConnection PeerConnection { get; }
 
         public TransceiverMetadata TransceiverMetadata { get; }
 
-        public TransceiverMetadataUpdatedEvent(Guid peerConnectionId, TransceiverMetadata transceiverMetadata)
+        public TransceiverMetadataUpdatedEvent(IPeerConnection peerConnection, TransceiverMetadata transceiverMetadata)
         {
-            Require.NotEmpty(peerConnectionId);
             Require.NotNull(transceiverMetadata);
-            PeerConnectionId = peerConnectionId;
+            PeerConnection = peerConnection;
             TransceiverMetadata = transceiverMetadata;
         }
     }

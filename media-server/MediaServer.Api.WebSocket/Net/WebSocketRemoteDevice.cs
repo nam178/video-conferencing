@@ -36,7 +36,7 @@ namespace MediaServer.Api.WebSocket.Net
 
         public override string ToString() => $"[WebSocketClientRemoteDevice Id={Id.ToString().Substring(0, 8)} {WebSocketClient}]";
 
-        public void EnqueueMessage(SyncMessage message)
+        public void EnqueueSyncMessage(SyncMessage message)
         {
             _ = SendAsync("Sync", message);
         }
@@ -65,6 +65,11 @@ namespace MediaServer.Api.WebSocket.Net
             var args = new { sdp = description, peerConnectionId, transceivers };
             const string command = "Answer";
             _ = SendAsync(command, args);
+        }
+
+        public void EnqueueTransceiverMetadata(TransceiverMetadata transceiverMetadata)
+        {
+            _ = SendAsync("TransceiverMetadata", transceiverMetadata);
         }
 
         public void Teminate() => WebSocketClient.Dispose();

@@ -165,6 +165,14 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
         this._answerer.startAsync(args);
     }
 
+    // Received a single transceiver metadata
+    _onTransceiverMetadata(transceiverMetadata) {
+        this._mediaHandler.setTransceiverMetadata(transceiverMetadata);
+        this._webSocketClient.tryQueueMessage('AckTransceiverMetadata', {
+            transceiverMetadata: transceiverMetadata
+        });
+    }
+
     _cancelCurrentAnswerer() {
         if(this._answerer) {
             this._answerer.cancel();

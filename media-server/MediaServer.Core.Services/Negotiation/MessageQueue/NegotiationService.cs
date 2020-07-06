@@ -73,7 +73,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     throw new ArgumentException($"{nameof(message.TransceiverMid)} is NULL or empty");
             }
 
-            _negotiationQueue.Enqueue(new TransceiverMetadataMessage(transceiverMetadataMessage, peerConnection));
+            _negotiationQueue.Enqueue(new RemoteTransceiverMetadataMessage(transceiverMetadataMessage, peerConnection));
         }
 
         public void EnqueueLocalTransceiverMetadata(
@@ -85,7 +85,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             if(transceiverMetadata is null)
                 throw new ArgumentNullException(nameof(transceiverMetadata));
 
-            throw new NotImplementedException();
+            _negotiationQueue.Enqueue(new LocalTransceiverMetadataMessage(transceiverMetadata, peerConnection));
         }
 
         public void EnqueueRenegotiationRequest(IPeerConnection peerConnection)

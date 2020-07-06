@@ -37,23 +37,18 @@ namespace MediaServer.Core.Models
         /// <summary>
         /// Send an user-update message to this device
         /// </summary>
-        /// <param name="message"></param>
-        /// <exception cref="Exception">When network error or things like that occurs</exception>
-        /// <returns></returns>
-        void EnqueueMessage(SyncMessage message);
+        void EnqueueSyncMessage(SyncMessage message);
 
         /// <summary>
         /// Send the
         /// </summary>
         /// <param name="candidate">The ICE candidate genrated from this server</param>
-        /// <returns></returns>
         void EnqueueIceCandidate(Guid peerConnectionId, RTCIceCandidate candidate);
 
         /// <summary>
         /// Send the specified SDP to the remote peer
         /// </summary>
         /// <param name="description">Could be either offer or answer</param>
-        /// <returns></returns>
         void EnqueueAnswer(
             Guid peerConnectionId,
             RTCSessionDescription description,
@@ -63,12 +58,16 @@ namespace MediaServer.Core.Models
         /// Send the specified SDP to the remote peer
         /// </summary>
         /// <param name="description">Could be either offer or answer</param>
-        /// <returns></returns>
         void EnqueueOffer(
             Guid peerConnectionId,
             Guid offerId,
             RTCSessionDescription description,
             IReadOnlyList<TransceiverMetadata> transceivers);
+
+        /// <summary>
+        /// Send the specified transceiver metadata to the remote peer
+        /// </summary>
+        void EnqueueTransceiverMetadata(TransceiverMetadata transceiverMetadata);
 
         /// <summary>
         /// Terminate the connection with this device.

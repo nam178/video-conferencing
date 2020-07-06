@@ -18,7 +18,7 @@ namespace MediaServer.Core.Models.MediaRouting
         readonly LocalVideoLinkCollection _localVideoLinks = new LocalVideoLinkCollection();
         readonly RemoteVideoLinkCollection _remoteVideoLinks = new RemoteVideoLinkCollection();
 
-        IObserver<TransceiverMetadataUpdatedEvent> _observer;
+        IObserver<TransceiverMetadataUpdatedEvent> _transceiverMetadataObserver;
 
         internal PeerConnectionFactory PeerConnectionFactory { get; }
 
@@ -172,12 +172,12 @@ namespace MediaServer.Core.Models.MediaRouting
 
         public IDisposable Subscribe(IObserver<TransceiverMetadataUpdatedEvent> observer)
         {
-            if(_observer != null)
+            if(_transceiverMetadataObserver != null)
             {
                 throw new NotSupportedException();
             }
-            _observer = observer;
-            return new Disposer(() => _observer = null);
+            _transceiverMetadataObserver = observer;
+            return new Disposer(() => _transceiverMetadataObserver = null);
         }
 
         public void AddPeerConnection(IRemoteDevice remoteDevice, IPeerConnection peerConnection)
@@ -236,7 +236,7 @@ namespace MediaServer.Core.Models.MediaRouting
             _logger.Info($"Removed {peerConnection} from {client}, remaining PeerConnections for this client={client.PeerConnections.Count}");
         }
 
-        internal void Raise(TransceiverMetadataUpdatedEvent e) => _observer.OnNext(e);
+        internal void Submit(TransceiverMetadataUpdatedEvent e) => _transceiverMetadataObserver.OnNext(e);
 
         internal void OnRemoteTrackAdded(Client client, IPeerConnection peerConnection, RtpTransceiver transceiver)
         {

@@ -6,28 +6,20 @@ namespace MediaServer.Core.Services.RoomManagement
 {
     sealed class TransceiverMetadataUpdatedEventObserver : IObserver<TransceiverMetadataUpdatedEvent>
     {
-        readonly IRoom _room;
         readonly INegotiationService _negotiationService;
 
-        public TransceiverMetadataUpdatedEventObserver(
-            IRoom room,
-            INegotiationService negotiationService)
+        public TransceiverMetadataUpdatedEventObserver(INegotiationService negotiationService)
         {
-            _room = room 
-                ?? throw new ArgumentNullException(nameof(room));
             _negotiationService = negotiationService
                 ?? throw new ArgumentNullException(nameof(negotiationService));
         }
 
         public void OnNext(TransceiverMetadataUpdatedEvent args)
         {
-            // not assume any thread here.
-            // _room.UserProfiles
-
-            // _negotiationService.EnqueueLocalTransceiverMetadata();
+            _negotiationService.EnqueueLocalTransceiverMetadata(args.PeerConnection, args.TransceiverMetadata);
         }
 
-        public void OnCompleted() => throw new NotImplementedException();
+        public void OnCompleted() { }
 
         public void OnError(Exception error) => throw new NotImplementedException();
     }

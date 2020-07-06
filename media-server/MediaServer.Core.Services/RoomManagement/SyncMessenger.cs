@@ -38,7 +38,7 @@ namespace MediaServer.Core.Services.RoomManagement
                 // so it's OK for dumping the messages to the devices all together
                 foreach(var device in destinationDevices)
                 {
-                    device.EnqueueMessage(syncMessage);
+                    device.EnqueueSyncMessage(syncMessage);
                 }
             });
         }

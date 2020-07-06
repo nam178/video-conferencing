@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace MediaServer.Core.Services.Negotiation.MessageQueue
 {
-    public sealed class TransceiverMetadataMessage : Message
+    public sealed class RemoteTransceiverMetadataMessage : Message
     {
         public IReadOnlyList<TransceiverMetadata> Transceivers { get; }
 
-        public TransceiverMetadataMessage(IReadOnlyList<TransceiverMetadata> transceiverMetadata, IPeerConnection peerConnection)
+        public RemoteTransceiverMetadataMessage(IReadOnlyList<TransceiverMetadata> transceiverMetadata, IPeerConnection peerConnection)
             : base(peerConnection)
         {
             Transceivers = transceiverMetadata
