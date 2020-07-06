@@ -44,23 +44,6 @@ namespace MediaServer.Core.Models.MediaRouting
             return _indexById[videoClientId];
         }
 
-        public Client FindByObserver(PeerConnectionObserver observer, out PeerConnection peerConnection)
-        {
-            foreach(var kv in _indexById)
-            {
-                for(var i = 0; i < kv.Value.PeerConnections.Count; i++)
-                {
-                    if(kv.Value.PeerConnections[i].Observer == observer)
-                    {
-                        peerConnection = kv.Value.PeerConnections[i];
-                        return kv.Value;
-                    }
-                }
-            }
-            peerConnection = null;
-            return null;
-        }
-
         public IEnumerable<Client> OtherThan(Client videoClient) => _indexById.Where(kv => kv.Value != videoClient).Select(kv => kv.Value);
 
         public void Remove(IRemoteDevice remoteDevice)

@@ -11,13 +11,13 @@ namespace MediaServer.Core.Models.MediaRouting
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly VideoRouter _parent;
 
-        public PeerConnection TargetPeerConnection { get; }
+        public IPeerConnection TargetPeerConnection { get; }
 
         public VideoSource VideoSource { get; }
 
         public RtpTransceiver Transceiver { get; }
 
-        public LocalVideoLink(VideoRouter parent, VideoSource source, PeerConnection target)
+        public LocalVideoLink(VideoRouter parent, VideoSource source, IPeerConnection target)
         {
             if(source is null)
                 throw new ArgumentNullException(nameof(source));
@@ -67,7 +67,7 @@ namespace MediaServer.Core.Models.MediaRouting
         void GetOrCreateTransceiver(out RtpTransceiver transceiver, out bool isReusingTransceivers)
         {
             var mediaKind = _track.Kind;
-            var transceivers = TargetPeerConnection.GetTransceivers();
+            var transceivers = TargetPeerConnection.Native.GetTransceivers();
             transceiver = null;
             isReusingTransceivers = false;
             for(var i = 0; i < transceivers.Count; i++)
@@ -87,7 +87,7 @@ namespace MediaServer.Core.Models.MediaRouting
             // If no available transceiver, create a new one
             if(transceiver is null)
             {
-                transceiver = TargetPeerConnection.AddTransceiver(mediaKind, RtpTransceiverDirection.SendOnly);
+                transceiver = TargetPeerConnection.Native.AddTransceiver(mediaKind, RtpTransceiverDirection.SendOnly);
                 isReusingTransceivers = true;
             }
 

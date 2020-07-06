@@ -76,6 +76,18 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             _negotiationQueue.Enqueue(new TransceiverMetadataMessage(transceiverMetadataMessage, peerConnection));
         }
 
+        public void EnqueueLocalTransceiverMetadata(
+            IPeerConnection peerConnection,
+            TransceiverMetadata transceiverMetadata)
+        {
+            if(peerConnection is null)
+                throw new ArgumentNullException(nameof(peerConnection));
+            if(transceiverMetadata is null)
+                throw new ArgumentNullException(nameof(transceiverMetadata));
+
+            throw new NotImplementedException();
+        }
+
         public void EnqueueRenegotiationRequest(IPeerConnection peerConnection)
         {
             if(peerConnection is null)

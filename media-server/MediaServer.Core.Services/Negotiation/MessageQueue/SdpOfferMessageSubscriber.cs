@@ -88,9 +88,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     // Next, send the answer along with transceiver metadata
                     try
                     {
-                        var transceivers = message.PeerConnection.Room.VideoRouter.GetLocalTransceiverMetadata(
-                            message.PeerConnection.Device.Id,
-                            message.PeerConnection.Id);
+                        var transceivers = message.PeerConnection.Room.VideoRouter.GetLocalTransceiverMetadata(message.PeerConnection);
                         message.PeerConnection.Device.EnqueueAnswer(message.PeerConnection.Id, answer, transceivers);
                         _logger.Debug($"[Negotiation Step 2/3] Answer {answer} created and sent for {message.PeerConnection}");
                     }

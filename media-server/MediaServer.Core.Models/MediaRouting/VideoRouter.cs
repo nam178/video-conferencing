@@ -109,15 +109,18 @@ namespace MediaServer.Core.Models.MediaRouting
             _logger.Info($"Removed client {client} from {_clients}");
         }
 
-        public void AckTransceiverMetadata(Guid remoteDeviceId, Guid peerConnectionId, string transceiverMid)
+        public void AckTransceiverMetadata(IPeerConnection peerConnection, string transceiverMid)
         {
+            Require.NotNull(peerConnection);
+            Require.NotNull(transceiverMid);
             _signallingThread.EnsureCurrentThread();
 
-            var videoClient = _clients.GetOrThrow(remoteDeviceId);
-            var peerConnection = videoClient.GetPeerConnectionOrThrow(peerConnectionId);
+            var videoClient = _clients.GetOrThrow(peerConnection.Device.Id);
+            if(null == videoClient)
+                throw new InvalidProgramException($"PeerConnection {peerConnection} does not belong to this router");
 
             // Get the transceiver, if it is frozen, mark it as available.
-            var transceivers = peerConnection.GetTransceivers();
+            var transceivers = peerConnection.Native.GetTransceivers();
             for(int i = 0; i < transceivers.Count; i++)
             {
                 if(transceivers[i].ReusabilityState == TransceiverReusabilityState.Fronzen
@@ -130,12 +133,15 @@ namespace MediaServer.Core.Models.MediaRouting
             }
         }
 
-        public IReadOnlyList<TransceiverMetadata> GetLocalTransceiverMetadata(Guid videoClientId, Guid peerConnectionId)
+        public IReadOnlyList<TransceiverMetadata> GetLocalTransceiverMetadata(IPeerConnection peerConnection)
         {
+            Require.NotNull(peerConnection);
             _signallingThread.EnsureCurrentThread();
-            var videoClient = _clients.GetOrThrow(videoClientId);
-            var peerConnection = videoClient.GetPeerConnectionOrThrow(peerConnectionId);
-            var transceivers = peerConnection.GetTransceivers();
+
+            var videoClient = _clients.GetOrThrow(peerConnection.Device.Id);
+            if(null == videoClient)
+                throw new InvalidProgramException($"PeerConnection {peerConnection} does not belong to this router");
+            var transceivers = peerConnection.Native.GetTransceivers();
             if(null == transceivers)
                 throw new NullReferenceException(nameof(transceivers));
 
@@ -174,13 +180,13 @@ namespace MediaServer.Core.Models.MediaRouting
             return new Disposer(() => _observer = null);
         }
 
-        internal void AddPeerConnection(Guid remotedDeviceId, PeerConnection peerConnection)
+        public void AddPeerConnection(IRemoteDevice remoteDevice, IPeerConnection peerConnection)
         {
             Require.NotNull(peerConnection);
             _signallingThread.EnsureCurrentThread();
 
             // Add PeerConnection into VideoClient
-            var client = _clients.GetOrThrow(remotedDeviceId);
+            var client = _clients.GetOrThrow(remoteDevice.Id);
             if(client.PeerConnections.Contains(peerConnection))
             {
                 throw new InvalidProgramException($"{peerConnection} already added into {client}");
@@ -191,7 +197,7 @@ namespace MediaServer.Core.Models.MediaRouting
             // If this PeerConnetion has some existing transceivers,
             // add them.
             // TODO: listen for future transceivers and add them too, too lazy to implement this for now.
-            var currenTransceivers = peerConnection.GetTransceivers();
+            var currenTransceivers = peerConnection.Native.GetTransceivers();
             foreach(var transceiver in currenTransceivers)
             {
                 OnRemoteTrackAdded(client, peerConnection, transceiver);
@@ -211,7 +217,7 @@ namespace MediaServer.Core.Models.MediaRouting
             }
         }
 
-        internal void RemovePeerConnection(Guid remoteDeviceId, PeerConnection peerConnection)
+        public void RemovePeerConnection(IRemoteDevice remoteDevice, IPeerConnection peerConnection)
         {
             _signallingThread.EnsureCurrentThread();
             // Remove all video links that was created for this PeerConnection
@@ -223,7 +229,7 @@ namespace MediaServer.Core.Models.MediaRouting
             _logger.Info($"Removed all video links for {peerConnection} from {_remoteVideoLinks}");
 
             // Remove this PeerConnection from VideoClient
-            var client = _clients.GetOrThrow(remoteDeviceId);
+            var client = _clients.GetOrThrow(remoteDevice.Id);
             var removed = client.PeerConnections.Remove(peerConnection);
             if(!removed)
                 throw new InvalidProgramException("PeerConnection did not removed from memory");
@@ -232,7 +238,7 @@ namespace MediaServer.Core.Models.MediaRouting
 
         internal void Raise(TransceiverMetadataUpdatedEvent e) => _observer.OnNext(e);
 
-        internal void OnRemoteTrackAdded(Client client, PeerConnection peerConnection, RtpTransceiver transceiver)
+        internal void OnRemoteTrackAdded(Client client, IPeerConnection peerConnection, RtpTransceiver transceiver)
         {
             _signallingThread.EnsureCurrentThread();
             Require.NotNull(peerConnection);

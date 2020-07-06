@@ -11,7 +11,7 @@ namespace MediaServer.Core.Models.MediaRouting
 
         public Dictionary<MediaQuality, VideoSource> VideoSources { get; } = new Dictionary<MediaQuality, VideoSource>();
 
-        public List<PeerConnection> PeerConnections = new List<PeerConnection>();
+        public List<IPeerConnection> PeerConnections = new List<IPeerConnection>();
 
         public MediaQuality DesiredMediaQuality => MediaQuality.High; // todo - support multiple quality streams
 
@@ -20,9 +20,9 @@ namespace MediaServer.Core.Models.MediaRouting
             Device = device ?? throw new ArgumentNullException(nameof(device));
         }
 
-        public PeerConnection GetPeerConnectionOrThrow(Guid peerConnectionId)
+        public IPeerConnection GetPeerConnectionOrThrow(Guid peerConnectionId)
         {
-            PeerConnection peerConnection = null;
+            IPeerConnection peerConnection = null;
             for(var i = 0; i < PeerConnections.Count; i++)
             {
                 if(PeerConnections[i].Id == peerConnectionId)

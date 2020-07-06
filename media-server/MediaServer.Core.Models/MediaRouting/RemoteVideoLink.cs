@@ -20,9 +20,9 @@ namespace MediaServer.Core.Models.MediaRouting
         /// <summary>
         /// The PeerConnection in which the RemoteTrack belongs to
         /// </summary>
-        public PeerConnection PeerConnection { get; }
+        public IPeerConnection PeerConnection { get; }
 
-        public RemoteVideoLink(PeerConnection peerConnection, VideoSource videoSource, RtpReceiver remoteTrack)
+        public RemoteVideoLink(IPeerConnection peerConnection, VideoSource videoSource, RtpReceiver remoteTrack)
         {
             PeerConnection = peerConnection
                 ?? throw new System.ArgumentNullException(nameof(peerConnection));

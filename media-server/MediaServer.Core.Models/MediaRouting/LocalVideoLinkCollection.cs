@@ -12,12 +12,12 @@ namespace MediaServer.Core.Models.MediaRouting
     /// <remarks>Not thread safe.</remarks>
     sealed class LocalVideoLinkCollection
     {
-        readonly Dictionary<PeerConnection, HashSet<LocalVideoLink>> _indexByPeerConnection;
+        readonly Dictionary<IPeerConnection, HashSet<LocalVideoLink>> _indexByPeerConnection;
         readonly Dictionary<VideoSource, HashSet<LocalVideoLink>> _indexByVideoSource;
 
         public LocalVideoLinkCollection()
         {
-            _indexByPeerConnection = new Dictionary<PeerConnection, HashSet<LocalVideoLink>>();
+            _indexByPeerConnection = new Dictionary<IPeerConnection, HashSet<LocalVideoLink>>();
             _indexByVideoSource = new Dictionary<VideoSource, HashSet<LocalVideoLink>>();
         }
 
@@ -27,8 +27,7 @@ namespace MediaServer.Core.Models.MediaRouting
             _indexByPeerConnection.Add(link.TargetPeerConnection, link);
         }
 
-
-        public void RemoveByPeerConnection(PeerConnection peerConnection)
+        public void RemoveByPeerConnection(IPeerConnection peerConnection)
         {
             if(_indexByPeerConnection.ContainsKey(peerConnection))
             {

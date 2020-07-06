@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using MediaServer.Core.Models.Adapters;
 using System;
 
 namespace MediaServer.Core.Models

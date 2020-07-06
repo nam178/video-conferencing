@@ -12,15 +12,15 @@ namespace MediaServer.Core.Models.MediaRouting
     /// <remarks>Not thread safe</remarks>
     sealed class RemoteVideoLinkCollection
     {
-        readonly Dictionary<RtpReceiver, (VideoSource Source, PeerConnection PeerConnection)> _indexByVideoTrack;
+        readonly Dictionary<RtpReceiver, (VideoSource Source, IPeerConnection PeerConnection)> _indexByVideoTrack;
         readonly Dictionary<VideoSource, RtpReceiver> _indexByVideoSource;
-        readonly Dictionary<PeerConnection, HashSet<RtpReceiver>> _indexByPeerConnection;
+        readonly Dictionary<IPeerConnection, HashSet<RtpReceiver>> _indexByPeerConnection;
 
         public RemoteVideoLinkCollection()
         {
-            _indexByVideoTrack = new Dictionary<RtpReceiver, (VideoSource Sorce, PeerConnection PeerConnection)>();
+            _indexByVideoTrack = new Dictionary<RtpReceiver, (VideoSource Sorce, IPeerConnection PeerConnection)>();
             _indexByVideoSource = new Dictionary<VideoSource, RtpReceiver>();
-            _indexByPeerConnection = new Dictionary<PeerConnection, HashSet<RtpReceiver>>();
+            _indexByPeerConnection = new Dictionary<IPeerConnection, HashSet<RtpReceiver>>();
         }
 
         public void AddOrUpdate(RemoteVideoLink link)
@@ -62,7 +62,7 @@ namespace MediaServer.Core.Models.MediaRouting
 
         public bool Exists(VideoSource videoSource) => _indexByVideoSource.ContainsKey(videoSource);
 
-        public void RemoveByPeerConnection(PeerConnection peerConnection)
+        public void RemoveByPeerConnection(IPeerConnection peerConnection)
         {
             if(_indexByPeerConnection.ContainsKey(peerConnection))
             {

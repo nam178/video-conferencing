@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace MediaServer.Core.Models.Adapters
+namespace MediaServer.Core.Models
 {
     sealed class PeerConnectionAdapter : IPeerConnection
     {
@@ -33,6 +33,8 @@ namespace MediaServer.Core.Models.Adapters
         public Guid Id => _peerConnectionImpl.Id;
 
         public Guid LastOfferId { get; private set; }
+
+        PeerConnection IPeerConnection.Native => _peerConnectionImpl;
 
         public PeerConnectionAdapter(
             PeerConnectionFactory peerConnectionFactory,
@@ -91,7 +93,7 @@ namespace MediaServer.Core.Models.Adapters
                             //
                             // and AddPeerConnectionAsync() will call AddTrack() under the hood,
                             // therefore we call AddPeerConnectionAsync() right after SetRemoteSessionDescription();
-                            _videoRouter.AddPeerConnection(Device.Id, _peerConnectionImpl);
+                            _videoRouter.AddPeerConnection(Device, this);
                         }
                         callback.Success();
                     }
@@ -169,7 +171,7 @@ namespace MediaServer.Core.Models.Adapters
                 (int)AddedToRouterState.Removed,
                 (int)AddedToRouterState.Added) == (int)AddedToRouterState.Added)
             {
-                _videoRouter.RemovePeerConnection(Device.Id, _peerConnectionImpl);
+                _videoRouter.RemovePeerConnection(Device, this);
             }
             _peerConnectionImpl.Close();
         }

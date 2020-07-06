@@ -1,5 +1,6 @@
 ﻿using MediaServer.Common.Patterns;
 using MediaServer.WebRtc.Common;
+using MediaServer.WebRtc.Managed;
 using System;
 
 namespace MediaServer.Core.Models
@@ -9,13 +10,15 @@ namespace MediaServer.Core.Models
     /// </remarks>
     public interface IPeerConnection : IDisposable
     {
-        public IRoom Room { get; }
+        IRoom Room { get; }
 
-        public IRemoteDevice Device { get; }
+        IRemoteDevice Device { get; }
 
-        public Guid Id { get; }
+        Guid Id { get; }
 
-        public Guid LastOfferId { get; }
+        Guid LastOfferId { get; }
+
+        internal PeerConnection Native { get; }
 
         void CreateAnswer(Callback<RTCSessionDescription> callback);
 

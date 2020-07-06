@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using MediaServer.Core.Models.Adapters;
 using MediaServer.Core.Models.Repositories;
 
 namespace MediaServer.Core.Models.IoC

@@ -63,9 +63,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     // Generate transceiver metadata and send along with the offer.
                     try
                     {
-                        var transceivers = peerConnection.Room.VideoRouter.GetLocalTransceiverMetadata(
-                                peerConnection.Device.Id,
-                                peerConnection.Id);
+                        var transceivers = peerConnection.Room.VideoRouter.GetLocalTransceiverMetadata(peerConnection);
                         peerConnection.Device.EnqueueOffer(peerConnection.Id, peerConnection.LastOfferId, offer,
                             transceivers);
                         _logger.Debug($"[Renegotiation Step 1/3] Offer generated and sent for {peerConnection}.");

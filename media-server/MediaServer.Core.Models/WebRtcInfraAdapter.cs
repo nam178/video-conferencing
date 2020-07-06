@@ -4,7 +4,7 @@ using MediaServer.WebRtc.Managed;
 using System;
 using System.Threading;
 
-namespace MediaServer.Core.Models.Adapters
+namespace MediaServer.Core.Models
 {
     sealed class WebRtcInfraAdapter : IWebRtcInfra
     {
