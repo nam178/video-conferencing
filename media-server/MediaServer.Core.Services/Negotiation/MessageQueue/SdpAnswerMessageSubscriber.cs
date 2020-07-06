@@ -10,7 +10,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
 
         public bool CanHandle(Message message) => message is SdpAnswerMessage;
 
-        public void Handle(Message message, Observer completionCallback)
+        public void Handle(Message message, Callback completionCallback)
         {
             var answerMsg = ((SdpAnswerMessage)message);
 
@@ -36,32 +36,12 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             }
         }
 
-        static Observer SetRemoteSessionDescriptionObserver(Message message, Observer completionCallback, SdpAnswerMessage answerMsg)
-            => new Observer()
+        static Callback SetRemoteSessionDescriptionObserver(Message message, Callback completionCallback, SdpAnswerMessage answerMsg)
+            => new Callback()
                 .OnError(completionCallback)
                 .OnSuccess(delegate
                 {
                     _logger.Info($"[Renegotiation Step 3/3] remote answer {answerMsg} set for {message.PeerConnection}");
-
-                    // When we receive an answer,
-                    // that means the remote peer has acked that they 
-                    // received the latest transceiver metadata update.
-                    try
-                    {
-                        message.PeerConnection.Room.VideoRouter.ClearFrozenTransceivers(
-                            message.PeerConnection.Device.Id,
-                            message.PeerConnection.Id);
-                    }
-                    catch(Exception ex)
-                    {
-                        completionCallback.Error($"{nameof(message.PeerConnection.Room.VideoRouter.ClearFrozenTransceivers)} failed: {ex.Message}");
-                        if(!(ex is ObjectDisposedException))
-                        {
-                            _logger.Error(ex);
-                        }
-                        return;
-                    }
-                    completionCallback.Success();
                 });
     }
 }

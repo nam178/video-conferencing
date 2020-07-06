@@ -56,8 +56,8 @@ namespace Tests.Services
             {
                 var wh = new ManualResetEvent(false);
                 _mockSubscriber
-                    .Setup(x => x.Handle(It.IsAny<Message>(), It.IsAny<Observer>()))
-                    .Callback<Message, Observer>((m, observer) =>
+                    .Setup(x => x.Handle(It.IsAny<Message>(), It.IsAny<Callback>()))
+                    .Callback<Message, Callback>((m, observer) =>
                     {
                         observer.Success();
                         wh.Set();
@@ -80,8 +80,8 @@ namespace Tests.Services
 
             // Mock processing first message:
             _mockSubscriber
-                .Setup(x => x.Handle(m1, It.IsAny<Observer>()))
-                .Callback<Message, Observer>((m, observer) =>
+                .Setup(x => x.Handle(m1, It.IsAny<Callback>()))
+                .Callback<Message, Callback>((m, observer) =>
                 {
                     // Signal to indicate that the first message has begun processing
                     firstMessageProcessingStart.Set();
@@ -99,8 +99,8 @@ namespace Tests.Services
 
             // Mock processing second message
             _mockSubscriber
-                .Setup(x => x.Handle(m2, It.IsAny<Observer>()))
-                .Callback<Message, Observer>((m, observer) =>
+                .Setup(x => x.Handle(m2, It.IsAny<Callback>()))
+                .Callback<Message, Callback>((m, observer) =>
                 {
                     observer.Success();
                     secondMessageProcessingEnded.Set();
@@ -130,8 +130,8 @@ namespace Tests.Services
 
             // Mock processing first message:
             _mockSubscriber
-                .Setup(x => x.Handle(It.IsAny<Message>(), It.IsAny<Observer>()))
-                .Callback<Message, Observer>(async (msg, observer) =>
+                .Setup(x => x.Handle(It.IsAny<Message>(), It.IsAny<Callback>()))
+                .Callback<Message, Callback>(async (msg, observer) =>
                 {
                     if(msg == m1)
                         m1ProcessingStarted = true;

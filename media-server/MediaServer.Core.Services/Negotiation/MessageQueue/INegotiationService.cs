@@ -16,6 +16,14 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             IReadOnlyList<TransceiverMetadata> transceiverMetadataMessage);
 
         /// <summary>
+        /// Inform the negotiation service that there's a TransceiverMetadata to be sent.
+        /// </summary>
+        void EnqueueLocalTransceiverMetadata(
+            IPeerConnection peerConnection,
+            TransceiverMetadata transceiverMetadata
+            );
+
+        /// <summary>
         /// Inform the negotiation service that we received remote offer.
         /// Must be called before RemoteIceCandidateReceived() is called, because offer must be queued
         /// and processed before ICE candidates, otherwise libWebRTC will throw errors.

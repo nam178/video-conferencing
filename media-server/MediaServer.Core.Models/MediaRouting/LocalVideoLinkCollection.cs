@@ -42,7 +42,6 @@ namespace MediaServer.Core.Models.MediaRouting
                     using(link)
                     {
                         _indexByVideoSource.Remove(link.VideoSource, link);
-                        link.Close();
                     }
                 }
                 _indexByPeerConnection.Remove(peerConnection);
@@ -63,7 +62,6 @@ namespace MediaServer.Core.Models.MediaRouting
                     using(link)
                     {
                         _indexByPeerConnection.Remove(link.TargetPeerConnection, link);
-                        link.Close();
                     }
                 }
 

@@ -10,7 +10,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
 
         public bool CanHandle(Message message) => message is TransceiverMetadataMessage;
 
-        public void Handle(Message message, Observer completionCallback)
+        public void Handle(Message message, Callback completionCallback)
         {
             try
             {

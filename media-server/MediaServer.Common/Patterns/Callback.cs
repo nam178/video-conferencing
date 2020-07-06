@@ -3,14 +3,14 @@ using System.Threading;
 
 namespace MediaServer.Common.Patterns
 {
-    public interface IObserver
+    public interface ICallback
     {
         void Error(string errorMessage);
     }
 
-    public sealed class ObserverAlreadyCompletedException : System.Exception { }
+    public sealed class CallbackAlreadyCalledException : System.Exception { }
 
-    public sealed class Observer<TResult> : IObserver
+    public sealed class Callback<TResult> : ICallback
     {
         Action<TResult> _resultHandler;
         Action<string> _errorHandler;
@@ -20,7 +20,7 @@ namespace MediaServer.Common.Patterns
         {
             if(Interlocked.CompareExchange(ref _called, 1, 0) == 1)
             {
-                throw new ObserverAlreadyCompletedException();
+                throw new CallbackAlreadyCalledException();
             }
             _resultHandler?.Invoke(result);
         }
@@ -29,12 +29,12 @@ namespace MediaServer.Common.Patterns
         {
             if(Interlocked.CompareExchange(ref _called, 1, 0) == 1)
             {
-                throw new ObserverAlreadyCompletedException();
+                throw new CallbackAlreadyCalledException();
             }
             _errorHandler?.Invoke(errorMessage);
         }
 
-        public Observer<TResult> OnResult(Action<TResult> resultHandler)
+        public Callback<TResult> OnResult(Action<TResult> resultHandler)
         {
             if(resultHandler is null)
                 throw new ArgumentNullException(nameof(resultHandler));
@@ -42,7 +42,7 @@ namespace MediaServer.Common.Patterns
             return this;
         }
 
-        public Observer<TResult> OnError(Action<string> errorHandler)
+        public Callback<TResult> OnError(Action<string> errorHandler)
         {
             if(errorHandler is null)
                 throw new ArgumentNullException(nameof(errorHandler));
@@ -50,10 +50,10 @@ namespace MediaServer.Common.Patterns
             return this;
         }
 
-        public Observer<TResult> OnError(IObserver other) => OnError(err => other.Error(err));
+        public Callback<TResult> OnError(ICallback other) => OnError(err => other.Error(err));
     }
 
-    public sealed class Observer : IObserver
+    public sealed class Callback : ICallback
     {
         Action _successHandler;
         Action<string> _errorHandler;
@@ -63,7 +63,7 @@ namespace MediaServer.Common.Patterns
         {
             if(Interlocked.CompareExchange(ref _called, 1, 0) == 1)
             {
-                throw new ObserverAlreadyCompletedException();
+                throw new CallbackAlreadyCalledException();
             }
             _successHandler?.Invoke();
         }
@@ -72,14 +72,14 @@ namespace MediaServer.Common.Patterns
         {
             if(Interlocked.CompareExchange(ref _called, 1, 0) == 1)
             {
-                throw new ObserverAlreadyCompletedException();
+                throw new CallbackAlreadyCalledException();
             }
             _errorHandler?.Invoke(errorMessage);
         }
 
-        public Observer OnError(IObserver other) => OnError(err => other.Error(err));
+        public Callback OnError(ICallback other) => OnError(err => other.Error(err));
 
-        public Observer OnError(Action<string> errorHandler)
+        public Callback OnError(Action<string> errorHandler)
         {
             if(errorHandler is null)
                 throw new ArgumentNullException(nameof(errorHandler));
@@ -87,7 +87,7 @@ namespace MediaServer.Common.Patterns
             return this;
         }
 
-        public Observer OnSuccess(Action successCallback)
+        public Callback OnSuccess(Action successCallback)
         {
             if(successCallback is null)
                 throw new ArgumentNullException(nameof(successCallback));

@@ -12,7 +12,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
 
         public bool CanHandle(Message message) => message is RenegotiationMessage;
 
-        public void Handle(Message message, Observer completionCallback)
+        public void Handle(Message message, Callback completionCallback)
         {
             var peerConnection = message.PeerConnection;
             _logger.Debug($"[Renegotiation Step 0/3] Re-negotiating with {peerConnection}..");
@@ -33,8 +33,8 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             }
         }
 
-        static Observer<RTCSessionDescription> CreateOfferObserver(Observer completionCallback, IPeerConnection peerConnection)
-            => new Observer<RTCSessionDescription>()
+        static Callback<RTCSessionDescription> CreateOfferObserver(Callback completionCallback, IPeerConnection peerConnection)
+            => new Callback<RTCSessionDescription>()
                 .OnError(completionCallback)
                 .OnResult(offer =>
                 {
@@ -55,8 +55,8 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     }
                 });
 
-        static Observer SetLocalSessionDescriptionObserver(Observer completionCallback, IPeerConnection peerConnection, RTCSessionDescription offer)
-            => new Observer()
+        static Callback SetLocalSessionDescriptionObserver(Callback completionCallback, IPeerConnection peerConnection, RTCSessionDescription offer)
+            => new Callback()
                 .OnError(completionCallback)
                 .OnSuccess(delegate
                 {

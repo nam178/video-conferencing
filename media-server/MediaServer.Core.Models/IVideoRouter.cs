@@ -1,14 +1,34 @@
 ﻿using MediaServer.Common.Media;
+using MediaServer.Common.Utils;
 using System;
 using System.Collections.Generic;
 
 namespace MediaServer.Core.Models
 {
     /// <summary>
+    /// Occurs when a transceiver's content has changed, the supplied metadata
+    /// will need to be sent to the coresponding client.
+    /// </summary>
+    public sealed class TransceiverMetadataUpdatedEvent
+    {
+        public Guid PeerConnectionId { get; }
+
+        public TransceiverMetadata TransceiverMetadata { get; }
+
+        public TransceiverMetadataUpdatedEvent(Guid peerConnectionId, TransceiverMetadata transceiverMetadata)
+        {
+            Require.NotEmpty(peerConnectionId);
+            Require.NotNull(transceiverMetadata);
+            PeerConnectionId = peerConnectionId;
+            TransceiverMetadata = transceiverMetadata;
+        }
+    }
+
+    /// <summary>
     /// Media router deals with the complicated add/remove tracks, transceivers, etc.
     /// All we need to do is to tell us about those involve (peer connections, devices, etc.);
     /// </summary>
-    public interface IVideoRouter
+    public interface IVideoRouter : IObservable<TransceiverMetadataUpdatedEvent>
     {
         /// <summary>
         /// Notify this router that a video client has joined the routing.
@@ -35,19 +55,11 @@ namespace MediaServer.Core.Models
         IReadOnlyList<TransceiverMetadata> GetLocalTransceiverMetadata(Guid videoClientId, Guid peerConnectionId);
 
         /// <summary>
-        /// Notify the router that it's clear to activate frozen transceivers, 
-        /// Use this when the remote peer has ack'ed our latest transceiver metadata. 
-        /// (via sdp answer message)
-        /// 
-        /// Ununsed transceivers are frozen, that is, marked not suitable for reuse,
-        /// until the remote client has acked that they know about those unused transceivers,
-        /// (so they can remove from their UIs);
-        /// 
-        /// If we don't do this, since re-using transceivers are seamless, UI clients may 
-        /// (briefly) display people in the wrong spot when we switch transceivers'
-        /// tracks.
+        /// After TransceiverMetadataUpdated occurs, 
+        /// we send the client the metadata,
+        /// then the client will ack that it received the metadata via this method.
         /// </summary>
-        void ClearFrozenTransceivers(Guid videoClientId, Guid peerConnectionId);
+        void AckTransceiverMetadata(Guid videoClientId, Guid peerConnectionId, string transceiverMid);
 
         /// <summary>
         /// Notify this router that a video client has left the current routing.

@@ -71,7 +71,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                             {
                                 subscriber.Handle(
                                     message,
-                                    new Observer()
+                                    new Callback()
                                         .OnError((err) =>
                                         {
                                             _logger.Warn(err);

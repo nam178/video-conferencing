@@ -13,12 +13,14 @@ namespace MediaServer.Core.Services.RoomManagement
         readonly IDispatchQueue _centralDispatchQueue;
         readonly IRoomRepository _roomRepository;
         readonly IRoomFactory _roomFactory;
+        readonly IObserver<TransceiverMetadataUpdatedEvent> _transceiverMetadataUpdatedObserver;
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public NewRoomRequestHandler(
             IDispatchQueue centralDispatchQueue,
             IRoomRepository roomRepository,
-            IRoomFactory roomFactory)
+            IRoomFactory roomFactory,
+            IObserver<TransceiverMetadataUpdatedEvent> transceiverMetadataUpdatedObserver)
         {
             _centralDispatchQueue = centralDispatchQueue
                 ?? throw new ArgumentNullException(nameof(centralDispatchQueue));
@@ -26,6 +28,8 @@ namespace MediaServer.Core.Services.RoomManagement
                 ?? throw new ArgumentNullException(nameof(roomRepository));
             _roomFactory = roomFactory
                 ?? throw new ArgumentNullException(nameof(roomFactory));
+            _transceiverMetadataUpdatedObserver = transceiverMetadataUpdatedObserver
+                ?? throw new ArgumentNullException(nameof(transceiverMetadataUpdatedObserver));
         }
 
         public async Task<RoomId> HandleAsync(IRemoteDevice remoteDevice, NewRoomRequest request)
@@ -58,6 +62,7 @@ namespace MediaServer.Core.Services.RoomManagement
             if(isNewRoomCreated)
             {
                 room.Initialize();
+                room.VideoRouter.Subscribe(_transceiverMetadataUpdatedObserver);
             }
 
             return roomId;

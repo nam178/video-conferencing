@@ -18,7 +18,7 @@ namespace MediaServer.WebRtc.Managed
     public class PeerConnection : IDisposable
     {
         readonly PeerConnectionSafeHandle _handle;
-        readonly List<MediaServer.Common.Patterns.IObserver> _pendingObservers = new List<MediaServer.Common.Patterns.IObserver>();
+        readonly List<MediaServer.Common.Patterns.ICallback> _pendingCallbacks = new List<MediaServer.Common.Patterns.ICallback>();
         readonly Dictionary<IntPtr, RtpTransceiver> _knownTransceivers = new Dictionary<IntPtr, RtpTransceiver>();
         readonly RtcThread _signallingThread;
 
@@ -70,19 +70,19 @@ namespace MediaServer.WebRtc.Managed
         /// <returns></returns>
         /// <remarks>Can be called from any thread</remarks>
         /// <exception cref="Errors.CreateAnswerFailedException" />
-        public void CreateAnswer(Observer<RTCSessionDescription> observer)
+        public void CreateAnswer(Callback<RTCSessionDescription> callback)
         {
-            if(observer is null)
-                throw new ArgumentNullException(nameof(observer));
+            if(callback is null)
+                throw new ArgumentNullException(nameof(callback));
             SafetyCheck();
             RequireCallbackNotSet(_createAnswerCallback);
             _createAnswerCallback = new PeerConnectionInterop.CreateSdpResultCallback((userData, result) =>
             {
                 _signallingThread.EnsureCurrentThread();
                 _createAnswerCallback = null;
-                Complete(observer, result);
+                Complete(callback, result);
             });
-            _pendingObservers.Add(observer);
+            _pendingCallbacks.Add(callback);
             PeerConnectionInterop.CreateAnswer(_handle, _createAnswerCallback, IntPtr.Zero);
         }
 
@@ -91,7 +91,7 @@ namespace MediaServer.WebRtc.Managed
         /// </summary>
         /// <remarks>Can be called from any thread</remarks>
         /// <returns></returns>
-        public void CreateOffer(Observer<RTCSessionDescription> observer)
+        public void CreateOffer(Callback<RTCSessionDescription> callback)
         {
             SafetyCheck();
             RequireCallbackNotSet(_createOfferCallback);
@@ -99,9 +99,9 @@ namespace MediaServer.WebRtc.Managed
             {
                 _signallingThread.EnsureCurrentThread();
                 _createOfferCallback = null;
-                Complete(observer, result);
+                Complete(callback, result);
             });
-            _pendingObservers.Add(observer);
+            _pendingCallbacks.Add(callback);
             PeerConnectionInterop.CreateOffer(_handle, _createOfferCallback, IntPtr.Zero);
         }
 
@@ -112,14 +112,14 @@ namespace MediaServer.WebRtc.Managed
         /// <param name="sdp"></param>
         /// <exception cref="Errors.SetSessionDescriptionFailedException"></exception>
         /// <returns></returns>
-        public void SetRemoteSessionDescription(string type, string sdp, Observer observer)
+        public void SetRemoteSessionDescription(string type, string sdp, Callback callback)
         {
             if(type is null)
                 throw new ArgumentNullException(nameof(type));
             if(sdp is null)
                 throw new ArgumentNullException(nameof(sdp));
-            if(observer is null)
-                throw new ArgumentNullException(nameof(observer));
+            if(callback is null)
+                throw new ArgumentNullException(nameof(callback));
 
             SafetyCheck();
             RequireCallbackNotSet(_setRemoteSessionDescCallback);
@@ -128,9 +128,9 @@ namespace MediaServer.WebRtc.Managed
                 {
                     _signallingThread.EnsureCurrentThread();
                     _setRemoteSessionDescCallback = null;
-                    Complete(observer, sucess, errorMessage);
+                    Complete(callback, sucess, errorMessage);
                 });
-            _pendingObservers.Add(observer);
+            _pendingCallbacks.Add(callback);
             PeerConnectionInterop.SetRemoteSessionDescription(_handle, type, sdp, _setRemoteSessionDescCallback, IntPtr.Zero);
         }
 
@@ -138,7 +138,7 @@ namespace MediaServer.WebRtc.Managed
         /// Call this immediately after CreateAnswer()
         /// </summary>
         /// <exception cref="Errors.SetSessionDescriptionFailedException"></exception>
-        public void SetLocalSessionDescription(string type, string sdp, Observer observer)
+        public void SetLocalSessionDescription(string type, string sdp, Callback observer)
         {
             if(type is null)
                 throw new ArgumentNullException(nameof(type));
@@ -156,7 +156,7 @@ namespace MediaServer.WebRtc.Managed
                     _setLocalSessionDescCallback = null;
                     Complete(observer, sucess, errorMessage);
                 });
-            _pendingObservers.Add(observer);
+            _pendingCallbacks.Add(observer);
             PeerConnectionInterop.SetLocalSessionDescription(_handle, type, sdp, _setLocalSessionDescCallback, IntPtr.Zero);
         }
 
@@ -190,8 +190,8 @@ namespace MediaServer.WebRtc.Managed
                 throw new InvalidOperationException("Already closed");
             _isClosed = true;
 
-            _pendingObservers.ToList().ForEach(l => l.Error("Cancelled"));
-            _pendingObservers.Clear();
+            _pendingCallbacks.ToList().ForEach(l => l.Error("Cancelled"));
+            _pendingCallbacks.Clear();
 
             PeerConnectionInterop.Close(_handle);
         }
@@ -302,11 +302,11 @@ namespace MediaServer.WebRtc.Managed
             _signallingThread.EnsureCurrentThread();
         }
 
-        void Complete(Observer observer, bool sucess, string errorMessage)
+        void Complete(Callback observer, bool sucess, string errorMessage)
         {
             try
             {
-                _pendingObservers.Remove(observer);
+                _pendingCallbacks.Remove(observer);
                 if(sucess)
                     observer.Success();
                 else
@@ -315,16 +315,16 @@ namespace MediaServer.WebRtc.Managed
             // Notes
             // Observer may already completed by the Close() method,
             // we ignore the error in such case.
-            catch(ObserverAlreadyCompletedException) { }
+            catch(CallbackAlreadyCalledException) { }
         }
 
         void Complete(
-            Observer<RTCSessionDescription> observer,
+            Callback<RTCSessionDescription> observer,
             PeerConnectionInterop.CreateAnswerResult result)
         {
             try
             {
-                _pendingObservers.Remove(observer);
+                _pendingCallbacks.Remove(observer);
                 if(result.Success)
                     observer.Result(new RTCSessionDescription { Sdp = result.Sdp, Type = result.SdpType });
                 else
@@ -333,7 +333,7 @@ namespace MediaServer.WebRtc.Managed
             // Notes
             // Observer may already completed by the Close() method,
             // we ignore the error in such case.
-            catch(ObserverAlreadyCompletedException) { }
+            catch(CallbackAlreadyCalledException) { }
         }
 
         int _disposed;

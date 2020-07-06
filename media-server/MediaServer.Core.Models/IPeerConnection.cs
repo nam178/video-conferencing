@@ -17,13 +17,13 @@ namespace MediaServer.Core.Models
 
         public Guid LastOfferId { get; }
 
-        void CreateAnswer(Observer<RTCSessionDescription> observer);
+        void CreateAnswer(Callback<RTCSessionDescription> callback);
 
-        void CreateOffer(Observer<RTCSessionDescription> observer);
+        void CreateOffer(Callback<RTCSessionDescription> callback);
 
-        void SetRemoteSessionDescription(RTCSessionDescription description, Observer observer);
+        void SetRemoteSessionDescription(RTCSessionDescription description, Callback callback);
 
-        void SetLocalSessionDescription(RTCSessionDescription description, Observer observer);
+        void SetLocalSessionDescription(RTCSessionDescription description, Callback callback);
 
         IPeerConnection ObserveIceCandidate(Action<IPeerConnection, RTCIceCandidate> observer);
 

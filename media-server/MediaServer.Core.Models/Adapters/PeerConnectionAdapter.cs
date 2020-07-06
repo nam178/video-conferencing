@@ -62,15 +62,15 @@ namespace MediaServer.Core.Models.Adapters
             _peerConnectionImpl = peerConnectionFactory.CreatePeerConnection(_peerConnectionObserverImpl, config);
         }
 
-        public void SetRemoteSessionDescription(RTCSessionDescription description, Observer observer)
+        public void SetRemoteSessionDescription(RTCSessionDescription description, Callback callback)
         {
-            if(observer is null)
-                throw new ArgumentNullException(nameof(observer));
+            if(callback is null)
+                throw new ArgumentNullException(nameof(callback));
             MustNotDisposed();
             _peerConnectionImpl.SetRemoteSessionDescription(
                 description.Type,
                 description.Sdp,
-                new Observer().OnSuccess(delegate
+                new Callback().OnSuccess(delegate
                 {
                     try
                     {
@@ -93,32 +93,32 @@ namespace MediaServer.Core.Models.Adapters
                             // therefore we call AddPeerConnectionAsync() right after SetRemoteSessionDescription();
                             _videoRouter.AddPeerConnection(Device.Id, _peerConnectionImpl);
                         }
-                        observer.Success();
+                        callback.Success();
                     }
                     catch(Exception ex)
                     {
-                        observer.Error(ex.Message);
+                        callback.Error(ex.Message);
                     }
 
-                }).OnError(msg => observer.Error(msg)));
+                }).OnError(msg => callback.Error(msg)));
         }
 
-        public void CreateOffer(Observer<RTCSessionDescription> observer)
+        public void CreateOffer(Callback<RTCSessionDescription> callback)
         {
-            if(observer is null)
-                throw new ArgumentNullException(nameof(observer));
+            if(callback is null)
+                throw new ArgumentNullException(nameof(callback));
             MustNotDisposed();
             LastOfferId = Guid.NewGuid();
-            _peerConnectionImpl.CreateOffer(observer);
+            _peerConnectionImpl.CreateOffer(callback);
         }
 
-        public void CreateAnswer(Observer<RTCSessionDescription> observer)
+        public void CreateAnswer(Callback<RTCSessionDescription> callback)
         {
             MustNotDisposed();
-            _peerConnectionImpl.CreateAnswer(observer);
+            _peerConnectionImpl.CreateAnswer(callback);
         }
 
-        public void SetLocalSessionDescription(RTCSessionDescription localDescription, Observer observer)
+        public void SetLocalSessionDescription(RTCSessionDescription localDescription, Callback callback)
         {
             MustNotDisposed();
             // After generating answer, must set LocalSdp,
@@ -126,7 +126,7 @@ namespace MediaServer.Core.Models.Adapters
             _peerConnectionImpl.SetLocalSessionDescription(
                 localDescription.Type,
                 localDescription.Sdp,
-                observer);
+                callback);
         }
 
         public void AddIceCandidate(RTCIceCandidate iceCandidate)
@@ -169,7 +169,7 @@ namespace MediaServer.Core.Models.Adapters
                 (int)AddedToRouterState.Removed,
                 (int)AddedToRouterState.Added) == (int)AddedToRouterState.Added)
             {
-                _videoRouter.RemovePeerConnection(Device.Id, _peerConnectionImpl, _peerConnectionObserverImpl);
+                _videoRouter.RemovePeerConnection(Device.Id, _peerConnectionImpl);
             }
             _peerConnectionImpl.Close();
         }

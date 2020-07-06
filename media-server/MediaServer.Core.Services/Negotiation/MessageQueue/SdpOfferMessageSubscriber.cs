@@ -12,7 +12,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
 
         public bool CanHandle(Message message) => message is SdpOfferMessage;
 
-        public void Handle(Message message, Observer completionCallback) // signalling thread
+        public void Handle(Message message, Callback completionCallback) // signalling thread
         {
             var sdp = ((SdpOfferMessage)message).SessionDescription;
             var observer = GetRemoteSessionDescriptionObserver(message, completionCallback, sdp);
@@ -32,8 +32,8 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             }
         }
 
-        static Observer GetRemoteSessionDescriptionObserver(Message message, Observer completionCallback, RTCSessionDescription sdp)
-            => new Observer()
+        static Callback GetRemoteSessionDescriptionObserver(Message message, Callback completionCallback, RTCSessionDescription sdp)
+            => new Callback()
                 .OnError(completionCallback)
                 .OnSuccess(delegate // signalling thread
                 {
@@ -54,8 +54,8 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     }
                 });
 
-        static Observer<RTCSessionDescription> CreateAnswerObserver(Message message, Observer completionCallback)
-            => new Observer<RTCSessionDescription>()
+        static Callback<RTCSessionDescription> CreateAnswerObserver(Message message, Callback completionCallback)
+            => new Callback<RTCSessionDescription>()
                 .OnError(completionCallback)
                 .OnResult(answer => // signalling thread
                 {
@@ -80,8 +80,8 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                     }
                 });
 
-        static Observer SetLocalSessionDescriptionObserver(Message message, Observer completionCallback, RTCSessionDescription answer)
-            => new Observer()
+        static Callback SetLocalSessionDescriptionObserver(Message message, Callback completionCallback, RTCSessionDescription answer)
+            => new Callback()
                 .OnError(completionCallback)
                 .OnSuccess(delegate // signalling thread
                 {

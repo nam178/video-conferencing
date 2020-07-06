@@ -6,6 +6,6 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
     {
         bool CanHandle(Message message);
 
-        void Handle(Message message, Observer completionCallback);
+        void Handle(Message message, Callback completionCallback);
     }
 }
