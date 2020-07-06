@@ -35,7 +35,7 @@ namespace MediaServer.Core.Services.RoomManagement
                         }
                     }
                     // Stop this device from sending data to ther devices
-                    deviceData.Room.VideoRouter.RemoveVideoClient(remoteDevice.Id);
+                    deviceData.Room.VideoRouter.RemoveRemoteDevice(remoteDevice);
                 });
             }
             else

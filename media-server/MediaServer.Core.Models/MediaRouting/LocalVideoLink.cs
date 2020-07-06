@@ -115,7 +115,7 @@ namespace MediaServer.Core.Models.MediaRouting
                                     Transceiver.Mid,
                                     VideoSource.Quality,
                                     Transceiver.MediaKind,
-                                    VideoSource.VideoClient.Id)
+                                    VideoSource.VideoClient.Device.Id)
                                 ));
 
         public override string ToString() => $"[LocalVideoLink Source={VideoSource}, Target={TargetPeerConnection}, Track={_track}]";

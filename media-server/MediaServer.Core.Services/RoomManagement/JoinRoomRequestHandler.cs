@@ -54,7 +54,7 @@ namespace MediaServer.Core.Services.RoomManagement
             // so the router knows about it and will route media to it.
             await room.SignallingThread.ExecuteAsync(delegate
             {
-                deviceData.Room.VideoRouter.AddVideoClient(remoteDevice.Id);
+                deviceData.Room.VideoRouter.AddRemoteDevice(remoteDevice);
             });
 
             // Broadcast the status update

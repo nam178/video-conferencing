@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace MediaServer.Core.Models.MediaRouting
 {
-    sealed class VideoClient
+    sealed class Client
     {
-        public Guid Id { get; }
+        public IRemoteDevice Device { get; }
 
         public Dictionary<MediaQuality, VideoSource> VideoSources { get; } = new Dictionary<MediaQuality, VideoSource>();
 
@@ -15,28 +15,19 @@ namespace MediaServer.Core.Models.MediaRouting
 
         public MediaQuality DesiredMediaQuality => MediaQuality.High; // todo - support multiple quality streams
 
-        public VideoClient(Guid id)
+        public Client(IRemoteDevice device)
         {
-            if(id == Guid.Empty)
-            {
-                throw new ArgumentException();
-            }
-            Id = id;
+            Device = device ?? throw new ArgumentNullException(nameof(device));
         }
 
-        public override string ToString() => $"[VideoClient {Id.ToString().Substring(0, 8)}]";
-    }
-
-    static class VideoClientExtensions
-    {
-        public static PeerConnection GetPeerConnectionOrThrow(this VideoClient videoClient, Guid peerConnectionId)
+        public PeerConnection GetPeerConnectionOrThrow(Guid peerConnectionId)
         {
             PeerConnection peerConnection = null;
-            for(var i = 0; i < videoClient.PeerConnections.Count; i++)
+            for(var i = 0; i < PeerConnections.Count; i++)
             {
-                if(videoClient.PeerConnections[i].Id == peerConnectionId)
+                if(PeerConnections[i].Id == peerConnectionId)
                 {
-                    peerConnection = videoClient.PeerConnections[i];
+                    peerConnection = PeerConnections[i];
                     break;
                 }
             }
@@ -47,5 +38,8 @@ namespace MediaServer.Core.Models.MediaRouting
                     $"no PeerConnection found with id {peerConnectionId}");
             return peerConnection;
         }
+
+        public override string ToString() => $"[Client {Device.Id.ToString().Substring(0, 8)}]";
+
     }
 }

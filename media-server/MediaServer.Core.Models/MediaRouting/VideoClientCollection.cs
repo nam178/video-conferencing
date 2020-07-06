@@ -8,45 +8,45 @@ namespace MediaServer.Core.Models.MediaRouting
 {
     sealed class VideoClientCollection
     {
-        readonly Dictionary<Guid, VideoClient> _indexByVideoClientId;
+        readonly Dictionary<Guid, Client> _indexById;
 
         public VideoClientCollection()
         {
-            _indexByVideoClientId = new Dictionary<Guid, VideoClient>();
+            _indexById = new Dictionary<Guid, Client>();
         }
 
-        public VideoClient AddVideoClient(Guid videoClientId)
+        public Client Add(IRemoteDevice remoteDevice)
         {
-            if(_indexByVideoClientId.ContainsKey(videoClientId))
-            {
-                throw new InvalidOperationException($"VideoClient with id {videoClientId} already added.");
-            }
-            var videoClient = new VideoClient(videoClientId);
-            _indexByVideoClientId[videoClientId] = videoClient;
+            if(remoteDevice is null)
+                throw new ArgumentNullException(nameof(remoteDevice));
+            if(_indexById.ContainsKey(remoteDevice.Id))
+                throw new InvalidOperationException($"VideoClient with id {remoteDevice.Id} already added.");
+            var videoClient = new Client(remoteDevice);
+            _indexById[remoteDevice.Id] = videoClient;
             return videoClient;
         }
 
         public VideoSource CreateVideoSource(Guid videoClientId, MediaQuality mediaQuality)
         {
             ThrowWhenKeyNotExist(videoClientId);
-            if(_indexByVideoClientId[videoClientId].VideoSources.ContainsKey(mediaQuality))
+            if(_indexById[videoClientId].VideoSources.ContainsKey(mediaQuality))
             {
                 throw new InvalidOperationException();
             }
-            var t = new VideoSource(_indexByVideoClientId[videoClientId], mediaQuality);
-            _indexByVideoClientId[videoClientId].VideoSources[mediaQuality] = t;
+            var t = new VideoSource(_indexById[videoClientId], mediaQuality);
+            _indexById[videoClientId].VideoSources[mediaQuality] = t;
             return t;
         }
 
-        public VideoClient GetOrThrow(Guid videoClientId)
+        public Client GetOrThrow(Guid videoClientId)
         {
             ThrowWhenKeyNotExist(videoClientId);
-            return _indexByVideoClientId[videoClientId];
+            return _indexById[videoClientId];
         }
 
-        public VideoClient FindByObserver(PeerConnectionObserver observer, out PeerConnection peerConnection)
+        public Client FindByObserver(PeerConnectionObserver observer, out PeerConnection peerConnection)
         {
-            foreach(var kv in _indexByVideoClientId)
+            foreach(var kv in _indexById)
             {
                 for(var i = 0; i < kv.Value.PeerConnections.Count; i++)
                 {
@@ -61,22 +61,22 @@ namespace MediaServer.Core.Models.MediaRouting
             return null;
         }
 
-        public IEnumerable<VideoClient> OtherThan(VideoClient videoClient) => _indexByVideoClientId.Where(kv => kv.Value != videoClient).Select(kv => kv.Value);
+        public IEnumerable<Client> OtherThan(Client videoClient) => _indexById.Where(kv => kv.Value != videoClient).Select(kv => kv.Value);
 
-        public void Remove(Guid videoClientId)
+        public void Remove(IRemoteDevice remoteDevice)
         {
-            if(_indexByVideoClientId.ContainsKey(videoClientId))
+            if(_indexById.ContainsKey(remoteDevice.Id))
             {
-                _indexByVideoClientId.Remove(videoClientId);
+                _indexById.Remove(remoteDevice.Id);
             }
         }
 
         void ThrowWhenKeyNotExist(Guid videoClientId)
         {
-            if(!_indexByVideoClientId.ContainsKey(videoClientId))
+            if(!_indexById.ContainsKey(videoClientId))
                 throw new InvalidOperationException($"VideoClient {videoClientId} has not been added.");
         }
 
-        public override string ToString() => $"[VideoClientCollection Total Clients={_indexByVideoClientId.Count}]";
+        public override string ToString() => $"[VideoClientCollection Total Clients={_indexById.Count}]";
     }
 }

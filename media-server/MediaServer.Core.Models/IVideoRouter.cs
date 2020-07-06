@@ -31,12 +31,11 @@ namespace MediaServer.Core.Models
     public interface IVideoRouter : IObservable<TransceiverMetadataUpdatedEvent>
     {
         /// <summary>
-        /// Notify this router that a video client has joined the routing.
-        /// This is before any PeerConnection with the video client is created.
+        /// Notify this router that a remote device has joined the routing.
+        /// This is before any PeerConnection with the remote device is created.
         /// </summary>
-        /// <param name="videoClientId"></param>
         /// <remarks>Must be called from signalling thread</remarks>
-        void AddVideoClient(Guid videoClientId);
+        void AddRemoteDevice(IRemoteDevice remoteDevice);
 
         /// <summary>
         /// Notify this router that we received remote transceiver metadata.
@@ -62,11 +61,10 @@ namespace MediaServer.Core.Models
         void AckTransceiverMetadata(Guid videoClientId, Guid peerConnectionId, string transceiverMid);
 
         /// <summary>
-        /// Notify this router that a video client has left the current routing.
+        /// Notify this router that a remote device has left the current routing.
         /// This is before any data is removed/destroyed, and before any PeerConnection is closed.
         /// </summary>
-        /// <param name="videoClientId"></param>
         /// <remarks>Must be called from signalling thread</remarks>
-        void RemoveVideoClient(Guid videoClientId);
+        void RemoveRemoteDevice(IRemoteDevice remoteDevice);
     }
 }
