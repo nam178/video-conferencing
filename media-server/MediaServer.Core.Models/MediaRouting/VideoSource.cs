@@ -14,7 +14,7 @@ namespace MediaServer.Core.Models.MediaRouting
         /// <summary>
         /// The VideoClient that owns this source
         /// </summary>
-        public Client VideoClient { get; }
+        public Client Client { get; }
 
         /// <summary>
         /// Quality of this source
@@ -23,7 +23,7 @@ namespace MediaServer.Core.Models.MediaRouting
 
         public VideoSource(Client videoClient, MediaQuality quality)
         {
-            VideoClient = videoClient ?? throw new ArgumentNullException(nameof(videoClient));
+            Client = videoClient ?? throw new ArgumentNullException(nameof(videoClient));
             Quality = quality;
         }
 
@@ -31,6 +31,6 @@ namespace MediaServer.Core.Models.MediaRouting
 
         public VideoSinkAdapter VideoSinkAdapter { get; set; }
 
-        public override string ToString() => $"[VideoSource {VideoClient.Device.Id.ToString().Substring(0, 8)}-{Quality}]";
+        public override string ToString() => $"[VideoSource {Client.Device.Id.ToString().Substring(0, 8)}-{Quality}]";
     }
 }

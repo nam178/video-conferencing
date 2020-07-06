@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace MediaServer.Core.Models.MediaRouting
 {
-    sealed class VideoClientCollection
+    sealed class ClientCollection
     {
         readonly Dictionary<Guid, Client> _indexById;
 
-        public VideoClientCollection()
+        public ClientCollection()
         {
             _indexById = new Dictionary<Guid, Client>();
         }

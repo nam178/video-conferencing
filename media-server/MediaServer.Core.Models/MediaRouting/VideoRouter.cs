@@ -14,7 +14,7 @@ namespace MediaServer.Core.Models.MediaRouting
     {
         readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         readonly IThread _signallingThread;
-        readonly VideoClientCollection _clients = new VideoClientCollection();
+        readonly ClientCollection _clients = new ClientCollection();
         readonly LocalVideoLinkCollection _localVideoLinks = new LocalVideoLinkCollection();
         readonly RemoteVideoLinkCollection _remoteVideoLinks = new RemoteVideoLinkCollection();
 
@@ -49,9 +49,9 @@ namespace MediaServer.Core.Models.MediaRouting
             _signallingThread.EnsureCurrentThread();
 
             // Prepare the source for this quality, if it was not created
-            var videoClient = _clients.GetOrThrow(transceiverMetadata.SourceDeviceId);
-            var videoSource = videoClient.VideoSources.ContainsKey(transceiverMetadata.TrackQuality)
-                ? videoClient.VideoSources[transceiverMetadata.TrackQuality]
+            var client = _clients.GetOrThrow(transceiverMetadata.SourceDeviceId);
+            var videoSource = client.VideoSources.ContainsKey(transceiverMetadata.TrackQuality)
+                ? client.VideoSources[transceiverMetadata.TrackQuality]
                 : null;
             if(null == videoSource)
             {
@@ -59,7 +59,7 @@ namespace MediaServer.Core.Models.MediaRouting
                 videoSource.VideoTrackSource = new PassiveVideoTrackSource();
                 videoSource.VideoSinkAdapter = new VideoSinkAdapter(videoSource.VideoTrackSource, false);
                 _logger.Info($"Created {videoSource}");
-                OnVideoSourceAdded(videoClient, videoSource, transceiverMetadata.TrackQuality);
+                OnVideoSourceAdded(client, videoSource, transceiverMetadata.TrackQuality);
             }
 
             // Flag this source to say it should be 
@@ -74,7 +74,7 @@ namespace MediaServer.Core.Models.MediaRouting
             // Remove the video sources
             var client = _clients.GetOrThrow(remoteDevice.Id);
             if(client.PeerConnections.Count > 0)
-                throw new InvalidProgramException("VideoClient's PeerConnections were not removed");
+                throw new InvalidProgramException("Client's PeerConnections were not removed");
 
             // Remove each video source
             foreach(var kv in client.VideoSources)
@@ -95,7 +95,7 @@ namespace MediaServer.Core.Models.MediaRouting
                     if(_remoteVideoLinks.Exists(videoSource))
                     {
                         throw new InvalidProgramException(
-                            "All remote VideoSource must be removed at the time VideoClient left.");
+                            "All remote VideoSource must be removed at the time client left.");
                     }
 
                     // Disconnect all any remote video links.
@@ -109,11 +109,11 @@ namespace MediaServer.Core.Models.MediaRouting
             _logger.Info($"Removed client {client} from {_clients}");
         }
 
-        public void AckTransceiverMetadata(Guid videoClientId, Guid peerConnectionId, string transceiverMid)
+        public void AckTransceiverMetadata(Guid remoteDeviceId, Guid peerConnectionId, string transceiverMid)
         {
             _signallingThread.EnsureCurrentThread();
 
-            var videoClient = _clients.GetOrThrow(videoClientId);
+            var videoClient = _clients.GetOrThrow(remoteDeviceId);
             var peerConnection = videoClient.GetPeerConnectionOrThrow(peerConnectionId);
 
             // Get the transceiver, if it is frozen, mark it as available.
@@ -158,7 +158,7 @@ namespace MediaServer.Core.Models.MediaRouting
                         transceivers[i].Mid,
                         videoClient.DesiredMediaQuality,
                         transceivers[i].MediaKind,
-                        localVideoLink.VideoSource.VideoClient.Device.Id));
+                        localVideoLink.VideoSource.Client.Device.Id));
                 }
             }
             return result;
@@ -174,19 +174,19 @@ namespace MediaServer.Core.Models.MediaRouting
             return new Disposer(() => _observer = null);
         }
 
-        internal void AddPeerConnection(Guid videoClientId, PeerConnection peerConnection)
+        internal void AddPeerConnection(Guid remotedDeviceId, PeerConnection peerConnection)
         {
             Require.NotNull(peerConnection);
             _signallingThread.EnsureCurrentThread();
 
             // Add PeerConnection into VideoClient
-            var videoClient = _clients.GetOrThrow(videoClientId);
-            if(videoClient.PeerConnections.Contains(peerConnection))
+            var client = _clients.GetOrThrow(remotedDeviceId);
+            if(client.PeerConnections.Contains(peerConnection))
             {
-                throw new InvalidProgramException($"{peerConnection} already added into {videoClient}");
+                throw new InvalidProgramException($"{peerConnection} already added into {client}");
             }
-            videoClient.PeerConnections.Add(peerConnection);
-            _logger.Info($"Added {peerConnection} into {videoClient}, total PeerConnections for this client={videoClient.PeerConnections.Count}");
+            client.PeerConnections.Add(peerConnection);
+            _logger.Info($"Added {peerConnection} into {client}, total PeerConnections for this client={client.PeerConnections.Count}");
 
             // If this PeerConnetion has some existing transceivers,
             // add them.
@@ -194,24 +194,24 @@ namespace MediaServer.Core.Models.MediaRouting
             var currenTransceivers = peerConnection.GetTransceivers();
             foreach(var transceiver in currenTransceivers)
             {
-                OnRemoteTrackAdded(videoClient, peerConnection, transceiver);
+                OnRemoteTrackAdded(client, peerConnection, transceiver);
             }
 
             // Link this PeerConnection with any existing local VideoSources
             foreach(var other in _clients
-                .OtherThan(videoClient)
-                .Where(other => other.VideoSources.ContainsKey(videoClient.DesiredMediaQuality)))
+                .OtherThan(client)
+                .Where(other => other.VideoSources.ContainsKey(client.DesiredMediaQuality)))
             {
                 var localVideoLink = new LocalVideoLink(
                     this,
-                    other.VideoSources[videoClient.DesiredMediaQuality],
+                    other.VideoSources[client.DesiredMediaQuality],
                     peerConnection);
                 _localVideoLinks.Add(localVideoLink);
                 _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
             }
         }
 
-        internal void RemovePeerConnection(Guid videoClientId, PeerConnection peerConnection)
+        internal void RemovePeerConnection(Guid remoteDeviceId, PeerConnection peerConnection)
         {
             _signallingThread.EnsureCurrentThread();
             // Remove all video links that was created for this PeerConnection
@@ -223,16 +223,16 @@ namespace MediaServer.Core.Models.MediaRouting
             _logger.Info($"Removed all video links for {peerConnection} from {_remoteVideoLinks}");
 
             // Remove this PeerConnection from VideoClient
-            var videoClient = _clients.GetOrThrow(videoClientId);
-            var removed = videoClient.PeerConnections.Remove(peerConnection);
+            var client = _clients.GetOrThrow(remoteDeviceId);
+            var removed = client.PeerConnections.Remove(peerConnection);
             if(!removed)
                 throw new InvalidProgramException("PeerConnection did not removed from memory");
-            _logger.Info($"Removed {peerConnection} from {videoClient}, remaining PeerConnections for this client={videoClient.PeerConnections.Count}");
+            _logger.Info($"Removed {peerConnection} from {client}, remaining PeerConnections for this client={client.PeerConnections.Count}");
         }
 
         internal void Raise(TransceiverMetadataUpdatedEvent e) => _observer.OnNext(e);
 
-        internal void OnRemoteTrackAdded(Client videoClient, PeerConnection peerConnection, RtpTransceiver transceiver)
+        internal void OnRemoteTrackAdded(Client client, PeerConnection peerConnection, RtpTransceiver transceiver)
         {
             _signallingThread.EnsureCurrentThread();
             Require.NotNull(peerConnection);
@@ -244,7 +244,7 @@ namespace MediaServer.Core.Models.MediaRouting
 
             // What's the video source that this track should be connected to?
             var transceiverMid = transceiver.Mid;
-            var videoSource = videoClient.VideoSources
+            var videoSource = client.VideoSources
                 .FirstOrDefault(kv => string.Equals(kv.Value.ExpectedTransceiverMid, transceiverMid, StringComparison.InvariantCultureIgnoreCase))
                 .Value;
             if(null == videoSource)
@@ -266,20 +266,20 @@ namespace MediaServer.Core.Models.MediaRouting
             _logger.Info($"Removed {transceiver.Receiver} from {_remoteVideoLinks}");
         }
 
-        void OnVideoSourceAdded(Client videoClient, VideoSource videoSource, MediaQuality mediaQuality)
+        void OnVideoSourceAdded(Client client, VideoSource videoSource, MediaQuality mediaQuality)
         {
             _signallingThread.EnsureCurrentThread();
 
             // As new video source is added, 
             // we'll have to connect this source to any existing sending-PeerConnection
-            foreach(var otherVideoClient in _clients
-                .OtherThan(videoClient)
+            foreach(var otherClients in _clients
+                .OtherThan(client)
                 .Where(other => other.DesiredMediaQuality == mediaQuality && other.PeerConnections.Count > 0))
             {
                 var localVideoLink = new LocalVideoLink(
                     this,
                     videoSource,
-                    otherVideoClient.PeerConnections[0]);
+                    otherClients.PeerConnections[0]);
                 _localVideoLinks.Add(localVideoLink);
                 _logger.Debug($"Added {localVideoLink} into {_localVideoLinks}");
             }
