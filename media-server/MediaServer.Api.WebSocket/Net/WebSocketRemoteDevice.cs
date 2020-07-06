@@ -1,4 +1,5 @@
-﻿using MediaServer.Common.Media;
+﻿using MediaServer.Api.WebSocket.Models;
+using MediaServer.Common.Media;
 using MediaServer.Core.Models;
 using MediaServer.WebRtc.Common;
 using Newtonsoft.Json;
@@ -6,6 +7,7 @@ using Newtonsoft.Json.Serialization;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaServer.Api.WebSocket.Net
@@ -52,7 +54,12 @@ namespace MediaServer.Api.WebSocket.Net
             RTCSessionDescription description,
             IReadOnlyList<TransceiverMetadata> transceivers)
         {
-            var args = new { sdp = description, peerConnectionId, offerId, transceivers };
+            var args = new { 
+                sdp = description, 
+                peerConnectionId, 
+                offerId, 
+                transceivers = transceivers.Select(t => new WsTransceiverMetadata(t)).ToList() 
+            };
             const string command = "Offer";
             _ = SendAsync(command, args);
         }
@@ -62,14 +69,18 @@ namespace MediaServer.Api.WebSocket.Net
             RTCSessionDescription description,
             IReadOnlyList<TransceiverMetadata> transceivers)
         {
-            var args = new { sdp = description, peerConnectionId, transceivers };
+            var args = new { 
+                sdp = description, 
+                peerConnectionId, 
+                transceivers = transceivers.Select(t => new WsTransceiverMetadata(t)).ToList()
+            };
             const string command = "Answer";
             _ = SendAsync(command, args);
         }
 
         public void EnqueueTransceiverMetadata(TransceiverMetadata transceiverMetadata)
         {
-            _ = SendAsync("TransceiverMetadata", transceiverMetadata);
+            _ = SendAsync("TransceiverMetadata", new WsTransceiverMetadata(transceiverMetadata));
         }
 
         public void Teminate() => WebSocketClient.Dispose();

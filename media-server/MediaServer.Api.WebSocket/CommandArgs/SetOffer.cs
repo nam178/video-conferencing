@@ -1,7 +1,5 @@
-﻿using MediaServer.Common.Media;
+﻿using MediaServer.Api.WebSocket.Models;
 using MediaServer.WebRtc.Common;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 
 namespace MediaServer.Api.WebSocket.CommandArgs
@@ -12,17 +10,6 @@ namespace MediaServer.Api.WebSocket.CommandArgs
 
         public Guid? PeerConnectionId { get; set; }
 
-        public WebSocketTransceiverMetadata[] TransceiverMetadata { get; set; }
-
-        public sealed class WebSocketTransceiverMetadata
-        {
-            public string TransceiverMid { get; set; }
-
-            [JsonConverter(typeof(StringEnumConverter))]
-            public MediaQuality Quality { get; set; }
-
-            [JsonConverter(typeof(StringEnumConverter))]
-            public MediaKind Kind { get; set; }
-        }
+        public WsTransceiverMetadata[] TransceiverMetadata { get; set; }
     }
 }

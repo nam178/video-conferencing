@@ -1,9 +1,9 @@
-﻿using MediaServer.Common.Media;
+﻿using MediaServer.Api.WebSocket.Models;
 
 namespace MediaServer.Api.WebSocket.CommandArgs
 {
     sealed class AckTransceiverMetadata
     {
-        public TransceiverMetadata Acked { get; set; }
+        public WsTransceiverMetadata Acked { get; set; }
     }
 }

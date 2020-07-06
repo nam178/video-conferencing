@@ -106,7 +106,13 @@ namespace MediaServer.Core.Models.MediaRouting
             }
         }
 
-        void RaiseTransceiverMetadataUdatedEvent() => _parent.Submit(new TransceiverMetadataUpdatedEvent(
+        void RaiseTransceiverMetadataUdatedEvent()
+        {
+            if(string.IsNullOrWhiteSpace(Transceiver.Mid))
+            {
+                return;
+            }
+            _parent.Submit(new TransceiverMetadataUpdatedEvent(
                                 TargetPeerConnection,
                                 new Common.Media.TransceiverMetadata(
                                     Transceiver.Mid,
@@ -114,6 +120,7 @@ namespace MediaServer.Core.Models.MediaRouting
                                     Transceiver.MediaKind,
                                     VideoSource.Client.Device.Id)
                                 ));
+        }
 
         public override string ToString() => $"[LocalVideoLink Source={VideoSource}, Target={TargetPeerConnection}, Track={_track}]";
     }

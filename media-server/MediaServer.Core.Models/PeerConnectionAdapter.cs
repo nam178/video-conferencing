@@ -3,6 +3,7 @@ using MediaServer.Common.Utils;
 using MediaServer.Core.Models.MediaRouting;
 using MediaServer.WebRtc.Common;
 using MediaServer.WebRtc.Managed;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -15,6 +16,7 @@ namespace MediaServer.Core.Models
         readonly PeerConnection _peerConnectionImpl;
         readonly object _syncRoot = new object();
         readonly VideoRouter _videoRouter;
+        readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
         Action<IPeerConnection, RTCIceCandidate> _iceCandidateObserver;
         Action<IPeerConnection> _renegotationNeededObserver;
         int _addedToRouterState;
@@ -99,9 +101,9 @@ namespace MediaServer.Core.Models
                     }
                     catch(Exception ex)
                     {
+                        _logger.Error(ex);
                         callback.Error(ex.Message);
                     }
-
                 }).OnError(msg => callback.Error(msg)));
         }
 

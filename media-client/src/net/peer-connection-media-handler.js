@@ -28,7 +28,7 @@ export default class PeerConnectionMediaHandler {
      * @param {Object[]} transceivers 
      */
     setTransceiversMetadata(transceivers) {
-        if(!transceivers) {
+        if (!transceivers) {
             throw 'InvalidArguments';
         }
 
@@ -49,20 +49,25 @@ export default class PeerConnectionMediaHandler {
     /**
      * Called whenever we receive transceiver metadata 
      * 
-     * @param {Object} transceiverMetadata 
+     * @param {RTCRtpTransceiver} transceiver
+     * @param {Object}            transceiverMetadata 
      */
-    setTransceiverMetadata(transceiverMetadata) {
+    setTransceiverMetadata(transceiver, transceiverMetadata) {
 
+        logger.info('Transceiver metadata update received', transceiverMetadata);
+
+        // Delete the previous index
         var previous = this._transceiverMetadataIndexByMid[transceiverMetadata.transceiverMid];
-        if(previous) {
+        if (previous) {
             delete this._transceiverMetadataIndexByDeviceId[previous.sourceDeviceId];
         }
 
+        // Update our state
         this._setTransceiverMetadata(transceiverMetadata);
-
-        logger.debug('Transceiver metadata updated', transceiverMetadata);
-
         this._transceiverMetadataChanged();
+        
+        // Update our streamIndex
+        this._streamIndex.put(transceiverMetadata.sourceDeviceId, new MediaStream([transceiver.receiver.track]));
     }
 
     /**
@@ -74,15 +79,14 @@ export default class PeerConnectionMediaHandler {
         // Get the metadata to find the sourceDeviceId
         // Get the metadata to find the sourceDeviceId
         var metadata = this._transceiverMetadataIndexByMid[transceiver.mid];
-        if(!metadata) {
+        if (!metadata) {
             FatalErrorHandler.failFast(`No transceiver metadata found for mid ${transceiver.mid}`);
         }
-        
+
         // Update stream index,
         // Note that we can have 2 transceivers for each stream (audio/video),
         // therefore check before updating to avoid unnecessary reloads
-        if(this._streamIndex.get(metadata.sourceDeviceId) != stream)
-        {
+        if (this._streamIndex.get(metadata.sourceDeviceId) != stream) {
             this._streamIndex.put(metadata.sourceDeviceId, stream);
         }
     }
@@ -90,7 +94,7 @@ export default class PeerConnectionMediaHandler {
     _transceiverMetadataChanged() {
         // Remove the devices in StreamIndex that no longer exist.
         this._streamIndex.getDeviceIds().forEach(deviceId => {
-            if(this._transceiverMetadataIndexByDeviceId[deviceId] == undefined) {
+            if (this._transceiverMetadataIndexByDeviceId[deviceId] == undefined) {
                 this._streamIndex.remove(deviceId);
             }
         });

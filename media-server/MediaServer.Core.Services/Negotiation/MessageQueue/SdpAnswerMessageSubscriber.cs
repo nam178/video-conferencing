@@ -42,6 +42,7 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
                 .OnSuccess(delegate
                 {
                     _logger.Info($"[Renegotiation Step 3/3] remote answer {answerMsg} set for {message.PeerConnection}");
+                    completionCallback.Success();
                 });
     }
 }

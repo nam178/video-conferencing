@@ -50,16 +50,16 @@ namespace MediaServer.Core.Models.MediaRouting
 
             // Prepare the source for this quality, if it was not created
             var client = _clients.GetOrThrow(transceiverMetadata.SourceDeviceId);
-            var videoSource = client.VideoSources.ContainsKey(transceiverMetadata.TrackQuality)
-                ? client.VideoSources[transceiverMetadata.TrackQuality]
+            var videoSource = client.VideoSources.ContainsKey(transceiverMetadata.Quality)
+                ? client.VideoSources[transceiverMetadata.Quality]
                 : null;
             if(null == videoSource)
             {
-                videoSource = _clients.CreateVideoSource(transceiverMetadata.SourceDeviceId, transceiverMetadata.TrackQuality);
+                videoSource = _clients.CreateVideoSource(transceiverMetadata.SourceDeviceId, transceiverMetadata.Quality);
                 videoSource.VideoTrackSource = new PassiveVideoTrackSource();
                 videoSource.VideoSinkAdapter = new VideoSinkAdapter(videoSource.VideoTrackSource, false);
                 _logger.Info($"Created {videoSource}");
-                OnVideoSourceAdded(client, videoSource, transceiverMetadata.TrackQuality);
+                OnVideoSourceAdded(client, videoSource, transceiverMetadata.Quality);
             }
 
             // Flag this source to say it should be 
@@ -253,14 +253,16 @@ namespace MediaServer.Core.Models.MediaRouting
             var videoSource = client.VideoSources
                 .FirstOrDefault(kv => string.Equals(kv.Value.ExpectedTransceiverMid, transceiverMid, StringComparison.InvariantCultureIgnoreCase))
                 .Value;
-            if(null == videoSource)
-                throw new InvalidOperationException($"Could not find VideoSource for transceiver {transceiver}");
+            // videoSource could be null when the client doesn't have any input devices,
+            // therefore it never calls SetRemoteTransceiverMetadata()
+            if(videoSource != null)
+            {
+                VideoRouterThrowHelper.WhenSourceIsEmpty(videoSource, transceiver.Receiver);
 
-            VideoRouterThrowHelper.WhenSourceIsEmpty(videoSource, transceiver.Receiver);
-
-            var remoteVideoLink = new RemoteVideoLink(peerConnection, videoSource, transceiver.Receiver);
-            _remoteVideoLinks.AddOrUpdate(remoteVideoLink);
-            _logger.Info($"Added {remoteVideoLink} into {_remoteVideoLinks}");
+                var remoteVideoLink = new RemoteVideoLink(peerConnection, videoSource, transceiver.Receiver);
+                _remoteVideoLinks.AddOrUpdate(remoteVideoLink);
+                _logger.Info($"Added {remoteVideoLink} into {_remoteVideoLinks}");
+            }
         }
 
         internal void OnRemoteTrackRemoved(RtpTransceiver transceiver)

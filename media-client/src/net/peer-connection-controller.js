@@ -167,7 +167,16 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
 
     // Received a single transceiver metadata
     _onTransceiverMetadata(transceiverMetadata) {
-        this._mediaHandler.setTransceiverMetadata(transceiverMetadata);
+
+        var transceiver = this._peerConnection
+            .getTransceivers()
+            .find(t => t.mid == transceiverMetadata.transceiverMid);
+
+        if(!transceiver) {
+            FatalErrorHandler.failFast(`Transceiver not found by mid ${transceiverMetadata.transceiverMid}`);
+        }
+
+        this._mediaHandler.setTransceiverMetadata(transceiver, transceiverMetadata);
         this._webSocketClient.tryQueueMessage('AckTransceiverMetadata', {
             acked: transceiverMetadata
         });
