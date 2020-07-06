@@ -69,15 +69,12 @@ namespace MediaServer.Core.Models.MediaRouting
             var mediaKind = _track.Kind;
             var transceivers = TargetPeerConnection.Native.GetTransceivers();
             transceiver = null;
-            isReusingTransceivers = false;
+            isReusingTransceivers = true;
             for(var i = 0; i < transceivers.Count; i++)
             {
                 if(transceivers[i].ReusabilityState == TransceiverReusabilityState.Available
+                    && false == string.IsNullOrWhiteSpace(transceivers[i].Mid)
                     && transceivers[i].MediaKind == mediaKind
-                    // Notes:
-                    // We keep the first 2 transceivers just to receive data, those marked with RecvOnly
-                    // and the rest to send data.
-                    // (cleaner that way) so ignore them in this search.
                     && transceivers[i].Direction != RtpTransceiverDirection.RecvOnly)
                 {
                     transceiver = transceivers[i];
@@ -88,7 +85,7 @@ namespace MediaServer.Core.Models.MediaRouting
             if(transceiver is null)
             {
                 transceiver = TargetPeerConnection.Native.AddTransceiver(mediaKind, RtpTransceiverDirection.SendOnly);
-                isReusingTransceivers = true;
+                isReusingTransceivers = false;
             }
 
             transceiver.CustomData = this;

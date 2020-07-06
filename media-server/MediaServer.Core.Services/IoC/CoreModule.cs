@@ -31,6 +31,7 @@ namespace MediaServer.Core.Services.IoC
             builder.RegisterType<IceCandidateHandler>().AsImplementedInterfaces();
             builder.RegisterType<OfferHandler>().AsImplementedInterfaces();
             builder.RegisterType<AnswerHandler>().AsImplementedInterfaces();
+            builder.RegisterType<AckTransceiverMetadataHandler>().AsImplementedInterfaces();
 
             // Negotiation service
             builder.RegisterType<SdpOfferMessageSubscriber>().AsImplementedInterfaces();

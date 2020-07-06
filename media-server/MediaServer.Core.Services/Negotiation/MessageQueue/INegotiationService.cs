@@ -24,6 +24,15 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             );
 
         /// <summary>
+        /// Inform the negotiation service that the client has 
+        /// received the transceiver metadata that we sent to it.
+        /// </summary>
+        void EnqueueLocalTransceiverMetadataAck(
+            IPeerConnection peerConnection,
+            TransceiverMetadata transceiverMetadata
+            );
+
+        /// <summary>
         /// Inform the negotiation service that we received remote offer.
         /// Must be called before RemoteIceCandidateReceived() is called, because offer must be queued
         /// and processed before ICE candidates, otherwise libWebRTC will throw errors.

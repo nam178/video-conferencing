@@ -169,7 +169,7 @@ export default class PeerConnectionController extends WebSocketMessageHandler {
     _onTransceiverMetadata(transceiverMetadata) {
         this._mediaHandler.setTransceiverMetadata(transceiverMetadata);
         this._webSocketClient.tryQueueMessage('AckTransceiverMetadata', {
-            transceiverMetadata: transceiverMetadata
+            acked: transceiverMetadata
         });
     }
 

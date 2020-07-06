@@ -96,6 +96,13 @@ namespace MediaServer.Core.Services.Negotiation.MessageQueue
             _negotiationQueue.Enqueue(new RenegotiationMessage(peerConnection));
         }
 
+        public void EnqueueLocalTransceiverMetadataAck(
+            IPeerConnection peerConnection,
+            TransceiverMetadata transceiverMetadata)
+        {
+            _negotiationQueue.Enqueue(new LocalTransceiverMetadataAckMessage(peerConnection, transceiverMetadata));
+        }
+
         static void ThrowWhenInvalidSessionDescription(RTCSessionDescription remoteSessionDescription)
         {
             if(string.IsNullOrWhiteSpace(remoteSessionDescription.Sdp))
