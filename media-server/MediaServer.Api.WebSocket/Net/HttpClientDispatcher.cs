@@ -25,6 +25,17 @@ namespace MediaServer.Api.WebSocket.Net
 
         public async void Dispatch(HttpListenerContext httpListenerContext)
         {
+            // For health check requests, OK immediately
+            if(httpListenerContext.Request.RawUrl.Equals("/health-check", StringComparison.InvariantCultureIgnoreCase))
+            {
+                using(httpListenerContext.Response)
+                {
+                    httpListenerContext.Response.StatusCode = 200;
+                    return;
+                }
+            }
+
+            // For other requests, begin websocket upgrade
             WebSocketRemoteDevice remoteDevice = default;
             try
             {

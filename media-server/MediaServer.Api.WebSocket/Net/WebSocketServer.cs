@@ -1,5 +1,6 @@
 ﻿using MediaServer.Common.Patterns;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using NLog;
 using System;
 using System.Net;
@@ -25,7 +26,7 @@ namespace MediaServer.Api.WebSocket.Net
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _httpListener.Start();
-            _logger.Info("WebSocket server started");
+            _logger.Info($"WebSocket server started, prefix={JsonConvert.SerializeObject(_httpListener.Prefixes)}");
 
             BeginAcceptingConnections();
             return Task.CompletedTask;
