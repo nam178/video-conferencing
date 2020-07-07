@@ -56,6 +56,7 @@ webrtc::PeerConnectionInterface::IceServers ConvertToIceServersList(IceServerCon
             server.urls.push_back(line);
         }
         ice_servers++;
+        serverList.push_back(server);
     }
     return serverList;
 }

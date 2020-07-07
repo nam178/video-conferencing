@@ -28,7 +28,7 @@ namespace MediaServer.WebRtc.Managed
             {
                 Username = s.Username,
                 Password = s.Password,
-                CommaSeperatedUrls = string.Join(';', config.IceServers)
+                CommaSeperatedUrls = string.Join(';', s.Urls)
             }).ToArray();
             return new PeerConnection(PeerConnectionFactoryInterop.CreatePeerConnection(
                 Handle,

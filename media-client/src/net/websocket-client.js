@@ -90,7 +90,7 @@ export default class WebSocketClient extends EventTarget2 {
         }
 
         // Start a new one
-        var webSocketEndpoint = `ws://${CONF_SERVER_HOST}:${CONF_SERVER_PORT}`;
+        var webSocketEndpoint = `${CONF_SERVER_PROTOCOL}://${CONF_SERVER_HOST}:${CONF_SERVER_PORT}`;
         this.logger.log(`Connecting to ${webSocketEndpoint}..`)
         this._webSocket = new WebSocket(webSocketEndpoint);
         // Error

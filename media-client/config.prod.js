@@ -1,3 +1,4 @@
 CONF_SERVER_HOST=location.hostname
-CONF_SERVER_PORT='8080'
+CONF_SERVER_PORT='18691'
+CONF_SERVER_PROTOCOL='wss'
 STUN_URLS='stun:stun.l.google.com:19302'
