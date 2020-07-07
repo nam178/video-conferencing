@@ -25,10 +25,6 @@ namespace MediaServerConsole
                 await new HostBuilder()
                     .ConfigureHostConfiguration(config => config.AddEnvironmentVariables())
                     .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                    .ConfigureAppConfiguration((hostingContext, config) =>
-                    {
-                        config.AddEnvironmentVariables();
-                    })
                     .ConfigureServices((context, services) =>
                     {
                         services.AddHostedService<EnterNewLineService>();
