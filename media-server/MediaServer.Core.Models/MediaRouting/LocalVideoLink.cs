@@ -82,7 +82,7 @@ namespace MediaServer.Core.Models.MediaRouting
                 }
             }
             // If no available transceiver, create a new one
-            if(transceiver is null)
+            if(transceiver is null || true)
             {
                 transceiver = TargetPeerConnection.Native.AddTransceiver(mediaKind, RtpTransceiverDirection.SendOnly);
                 isReusingTransceivers = false;
