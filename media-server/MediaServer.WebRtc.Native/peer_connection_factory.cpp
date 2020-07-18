@@ -3,6 +3,8 @@
 #include "noop_audio_device_module.h"
 #include "noop_video_decoder_factory.h"
 #include "noop_video_encoder_factory.h"
+#include "noop_audio_decoder_factory.h"
+#include "noop_audio_encoder_factory.h"
 #include "peer_connection_factory.h"
 #include "api/create_peerconnection_factory.h"
 
@@ -49,8 +51,8 @@ void Shim::PeerConnectionFactory::Initialize()
         _worker_thread.get(),
         _signalling_thread.get(),
         rtc::scoped_refptr(new NoopAudio::NoopAudioDeviceModule()),
-        webrtc::CreateBuiltinAudioEncoderFactory(),
-        webrtc::CreateBuiltinAudioDecoderFactory(),
+        rtc::scoped_refptr(new NoopAudio::NoopAudioEncoderFactory()),
+        rtc::scoped_refptr(new NoopAudio::NoopAudioDecoderFactory()),
         std::make_unique<NoopVideo::Encoder::NoopVideoEncoderFactory>(),
         std::make_unique<NoopVideo::Decoder::NoopVideoDecoderFactory>(),
         nullptr,

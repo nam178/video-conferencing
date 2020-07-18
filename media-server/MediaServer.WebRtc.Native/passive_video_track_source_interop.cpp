@@ -4,21 +4,21 @@
 #include "passive_video_track_source_interop.h"
 
 using namespace webrtc;
-using namespace Video;
+using namespace MediaSources;
 
-EXPORT Video::PassiveVideoTrackSource *CONVENTION PassiveVideoTrackSourceCreate() noexcept
+EXPORT MediaSources::PassiveVideoTrackSource *CONVENTION PassiveVideoTrackSourceCreate() noexcept
 {
     return new PassiveVideoTrackSource();
 }
 
 EXPORT void CONVENTION
-PassiveVideoTrackSourceRelease(Video::PassiveVideoTrackSource *video_track_source) noexcept
+PassiveVideoTrackSourceRelease(MediaSources::PassiveVideoTrackSource *video_track_source) noexcept
 {
     video_track_source->Release();
 }
 
 EXPORT void CONVENTION
-PassiveVideoTrackSourceAddRef(Video::PassiveVideoTrackSource *video_track_source) noexcept
+PassiveVideoTrackSourceAddRef(MediaSources::PassiveVideoTrackSource *video_track_source) noexcept
 {
     video_track_source->AddRef();
 }

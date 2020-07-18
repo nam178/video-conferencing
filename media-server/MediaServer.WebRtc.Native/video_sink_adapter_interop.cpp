@@ -5,13 +5,13 @@
 #include "video_sink_adapter.h"
 #include "video_sink_adapter_interop.h"
 
-Video::VideoSinkAdapter *CONVENTION
-VideoSinkAdapterCreate(Video::PassiveVideoTrackSource *passive_video_track_source)
+MediaSources::VideoSinkAdapter *CONVENTION
+VideoSinkAdapterCreate(MediaSources::PassiveVideoTrackSource *passive_video_track_source)
 {
-    return new Video::VideoSinkAdapter(passive_video_track_source);
+    return new MediaSources::VideoSinkAdapter(passive_video_track_source);
 }
 
-void CONVENTION VideoSinkAdapterDestroy(Video::VideoSinkAdapter *video_sink_adapter_ptr)
+void CONVENTION VideoSinkAdapterDestroy(MediaSources::VideoSinkAdapter *video_sink_adapter_ptr)
 {
     if(video_sink_adapter_ptr)
     {

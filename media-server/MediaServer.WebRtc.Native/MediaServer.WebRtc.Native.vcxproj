@@ -111,10 +111,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="audio_sink_adapter.h" />
     <ClInclude Include="audio_track.h" />
     <ClInclude Include="create_session_description_observer.h" />
     <ClInclude Include="media_stream_track.h" />
     <ClInclude Include="media_stream_track_interop.h" />
+    <ClInclude Include="noop_audio_decoder.h" />
+    <ClInclude Include="noop_audio_decoder_factory.h" />
+    <ClInclude Include="noop_audio_encoder_factory.h" />
+    <ClInclude Include="passive_audio_track_source.h" />
     <ClInclude Include="rtc_thread.h" />
     <ClInclude Include="rtc_thread_interops.h" />
     <ClInclude Include="rtp_receiver_interop.h" />
@@ -157,11 +162,16 @@
     <ClInclude Include="video_track_interops.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="audio_sink_adapter.cpp" />
     <ClCompile Include="audio_track.cpp" />
     <ClCompile Include="create_session_description_observer.cpp" />
     <ClCompile Include="media_stream_track.cpp" />
     <ClCompile Include="media_stream_track_interop.cpp" />
+    <ClCompile Include="noop_audio_decoder.cpp" />
+    <ClCompile Include="noop_audio_decoder_factory.cpp" />
     <ClCompile Include="noop_audio_device_module.cpp" />
+    <ClCompile Include="noop_audio_encoder_factory.cpp" />
+    <ClCompile Include="passive_audio_track_source.cpp" />
     <ClCompile Include="peer_connection.cpp" />
     <ClCompile Include="peer_connection_factory_interop.cpp" />
     <ClCompile Include="peer_connection_interop.cpp" />

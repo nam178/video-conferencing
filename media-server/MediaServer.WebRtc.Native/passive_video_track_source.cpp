@@ -4,35 +4,35 @@
 
 using namespace webrtc;
 using namespace rtc;
-using namespace Video;
+using namespace MediaSources;
 
-Video::PassiveVideoTrackSource::PassiveVideoTrackSource() : _sinks()
+MediaSources::PassiveVideoTrackSource::PassiveVideoTrackSource() : _sinks()
 {
     
 }
 
-void Video::PassiveVideoTrackSource::RegisterObserver(ObserverInterface *observer)
+void MediaSources::PassiveVideoTrackSource::RegisterObserver(ObserverInterface *observer)
 {
     // nothing to observe here
 }
 
-void Video::PassiveVideoTrackSource::UnregisterObserver(ObserverInterface *observer)
+void MediaSources::PassiveVideoTrackSource::UnregisterObserver(ObserverInterface *observer)
 {
     // nothing to observe here
 }
 
-webrtc::MediaSourceInterface::SourceState Video::PassiveVideoTrackSource::state() const
+webrtc::MediaSourceInterface::SourceState MediaSources::PassiveVideoTrackSource::state() const
 {
     return webrtc::MediaSourceInterface::SourceState::kLive;
 }
 
-bool Video::PassiveVideoTrackSource::remote() const
+bool MediaSources::PassiveVideoTrackSource::remote() const
 {
     // not remove, this is a local source
     return false;
 }
 
-void Video::PassiveVideoTrackSource::AddOrUpdateSink(VideoSinkInterface<VideoFrame> *sink,
+void MediaSources::PassiveVideoTrackSource::AddOrUpdateSink(VideoSinkInterface<VideoFrame> *sink,
                                                             const VideoSinkWants &wants)
 {
     for (size_t i = 0; i < _sinks.size(); i++)
@@ -43,7 +43,7 @@ void Video::PassiveVideoTrackSource::AddOrUpdateSink(VideoSinkInterface<VideoFra
     _sinks.push_back(sink);
 }
 
-void Video::PassiveVideoTrackSource::RemoveSink(VideoSinkInterface<VideoFrame> *sink)
+void MediaSources::PassiveVideoTrackSource::RemoveSink(VideoSinkInterface<VideoFrame> *sink)
 {
     for (size_t i = 0; i < _sinks.size(); i++)
     {
@@ -55,22 +55,22 @@ void Video::PassiveVideoTrackSource::RemoveSink(VideoSinkInterface<VideoFrame> *
     }
 }
 
-bool Video::PassiveVideoTrackSource::is_screencast() const
+bool MediaSources::PassiveVideoTrackSource::is_screencast() const
 {
     return false;
 }
 
-absl::optional<bool> Video::PassiveVideoTrackSource::needs_denoising() const
+absl::optional<bool> MediaSources::PassiveVideoTrackSource::needs_denoising() const
 {
     return absl::optional<bool>(false);
 }
 
-bool Video::PassiveVideoTrackSource::GetStats(Stats *stats)
+bool MediaSources::PassiveVideoTrackSource::GetStats(Stats *stats)
 {
     return false;
 }
 
-void Video::PassiveVideoTrackSource::PushVideoFrame(const VideoFrame &frame)
+void MediaSources::PassiveVideoTrackSource::PushVideoFrame(const VideoFrame &frame)
 {
     // Must be called via the worker thread,
     // there fore it's safe to interate the sinks

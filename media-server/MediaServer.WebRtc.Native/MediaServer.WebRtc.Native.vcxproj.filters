@@ -3,10 +3,10 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="passive_video_track_source.cpp">
-      <Filter>video</Filter>
+      <Filter>media_sources</Filter>
     </ClCompile>
     <ClCompile Include="passive_video_track_source_interop.cpp">
-      <Filter>video</Filter>
+      <Filter>media_sources</Filter>
     </ClCompile>
     <ClCompile Include="noop_video_decoder_factory.cpp">
       <Filter>noop_video</Filter>
@@ -75,10 +75,10 @@
       <Filter>shim\peer_connection</Filter>
     </ClCompile>
     <ClCompile Include="video_sink_adapter.cpp">
-      <Filter>video</Filter>
+      <Filter>media_sources</Filter>
     </ClCompile>
     <ClCompile Include="video_sink_adapter_interop.cpp">
-      <Filter>video</Filter>
+      <Filter>media_sources</Filter>
     </ClCompile>
     <ClCompile Include="rtc_thread.cpp">
       <Filter>shim</Filter>
@@ -104,14 +104,27 @@
     <ClCompile Include="rtp_transceiver.cpp">
       <Filter>shim\peer_connection</Filter>
     </ClCompile>
+    <ClCompile Include="noop_audio_encoder_factory.cpp">
+      <Filter>noop_audio</Filter>
+    </ClCompile>
+    <ClCompile Include="noop_audio_decoder_factory.cpp">
+      <Filter>noop_audio</Filter>
+    </ClCompile>
+    <ClCompile Include="passive_audio_track_source.cpp">
+      <Filter>media_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="noop_audio_decoder.cpp">
+      <Filter>noop_audio</Filter>
+    </ClCompile>
+    <ClCompile Include="audio_sink_adapter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="passive_video_track_source.h">
-      <Filter>video</Filter>
+      <Filter>media_sources</Filter>
     </ClInclude>
     <ClInclude Include="passive_video_track_source_interop.h">
-      <Filter>video</Filter>
+      <Filter>media_sources</Filter>
     </ClInclude>
     <ClInclude Include="export.h" />
     <ClInclude Include="result.h" />
@@ -200,13 +213,13 @@
       <Filter>shim\peer_connection</Filter>
     </ClInclude>
     <ClInclude Include="video_sink_adapter.h">
-      <Filter>video</Filter>
+      <Filter>media_sources</Filter>
     </ClInclude>
     <ClInclude Include="thread_sync.h">
       <Filter>misc</Filter>
     </ClInclude>
     <ClInclude Include="video_sink_adapter_interop.h">
-      <Filter>video</Filter>
+      <Filter>media_sources</Filter>
     </ClInclude>
     <ClInclude Include="video_track_interops.h">
       <Filter>shim\interops</Filter>
@@ -232,6 +245,21 @@
     <ClInclude Include="rtp_transceiver_interops.h">
       <Filter>shim\interops</Filter>
     </ClInclude>
+    <ClInclude Include="noop_audio_encoder_factory.h">
+      <Filter>noop_audio</Filter>
+    </ClInclude>
+    <ClInclude Include="noop_audio_decoder_factory.h">
+      <Filter>noop_audio</Filter>
+    </ClInclude>
+    <ClInclude Include="noop_audio_decoder.h">
+      <Filter>noop_audio</Filter>
+    </ClInclude>
+    <ClInclude Include="passive_audio_track_source.h">
+      <Filter>media_sources</Filter>
+    </ClInclude>
+    <ClInclude Include="audio_sink_adapter.h">
+      <Filter>media_sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -246,9 +274,6 @@
     <Filter Include="noop_audio">
       <UniqueIdentifier>{9e1557b4-ff96-46ce-836e-f5bd1d99cc09}</UniqueIdentifier>
     </Filter>
-    <Filter Include="video">
-      <UniqueIdentifier>{cb7cbb6b-1fc6-468d-90ef-daae27c47907}</UniqueIdentifier>
-    </Filter>
     <Filter Include="shim">
       <UniqueIdentifier>{834550d2-8830-48b9-bae4-5382e27a08c6}</UniqueIdentifier>
     </Filter>
@@ -260,6 +285,9 @@
     </Filter>
     <Filter Include="shim\interops">
       <UniqueIdentifier>{839919e9-cc17-4d81-b000-dfec8e93c925}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="media_sources">
+      <UniqueIdentifier>{cb7cbb6b-1fc6-468d-90ef-daae27c47907}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

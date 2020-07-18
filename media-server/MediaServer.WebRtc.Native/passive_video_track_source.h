@@ -5,16 +5,12 @@
 using namespace webrtc;
 using namespace rtc;
 
-namespace Video
+namespace MediaSources
 {
 class PassiveVideoTrackSource : public rtc::RefCountedObject<webrtc::VideoTrackSourceInterface>
 {
   public:
     PassiveVideoTrackSource();
-    ~PassiveVideoTrackSource()
-    {
-        ;
-    }
 
     // Push a frame into this source
     // Must be invoked on worker thread
@@ -35,4 +31,4 @@ class PassiveVideoTrackSource : public rtc::RefCountedObject<webrtc::VideoTrackS
   private:
     std::vector<VideoSinkInterface<VideoFrame> *> _sinks;
 };
-} // namespace Video
+} // namespace MediaSources

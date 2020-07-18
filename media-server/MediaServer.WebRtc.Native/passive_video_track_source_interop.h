@@ -9,11 +9,11 @@ using namespace webrtc;
 
 extern "C"
 {
-    EXPORT Video::PassiveVideoTrackSource *CONVENTION PassiveVideoTrackSourceCreate() noexcept;
+    EXPORT MediaSources::PassiveVideoTrackSource *CONVENTION PassiveVideoTrackSourceCreate() noexcept;
 
     EXPORT void CONVENTION
-    PassiveVideoTrackSourceRelease(Video::PassiveVideoTrackSource *video_track_source) noexcept;
+    PassiveVideoTrackSourceRelease(MediaSources::PassiveVideoTrackSource *video_track_source) noexcept;
     
     EXPORT void CONVENTION
-    PassiveVideoTrackSourceAddRef(Video::PassiveVideoTrackSource *video_track_source) noexcept;
+    PassiveVideoTrackSourceAddRef(MediaSources::PassiveVideoTrackSource *video_track_source) noexcept;
 }

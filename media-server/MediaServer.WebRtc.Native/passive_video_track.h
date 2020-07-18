@@ -7,7 +7,7 @@
 using namespace rtc;
 using namespace webrtc;
 
-namespace Video
+namespace MediaSources
 {
 class PassiveVideoTrack
 {
@@ -21,4 +21,4 @@ class PassiveVideoTrack
   private:
     scoped_refptr<VideoTrackInterface> _video_track;
 };
-} // namespace Video
+} // namespace MediaSources

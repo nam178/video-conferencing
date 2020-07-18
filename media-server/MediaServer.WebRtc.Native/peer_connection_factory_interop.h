@@ -38,7 +38,7 @@ extern "C"
 
     EXPORT Shim::VideoTrack *CONVENTION
     PeerConnectionFactoryCreateVideoTrack(Shim::PeerConnectionFactory *peer_connection_factory,
-                                          Video::PassiveVideoTrackSource *passive_video_track_souce,
+                                          MediaSources::PassiveVideoTrackSource *passive_video_track_souce,
                                           const char *track_name);
 
     EXPORT Shim::RtcThread *PeerConnectionFactoryGetSignallingThread(

@@ -88,7 +88,7 @@ EXPORT Shim::PeerConnection *CONVENTION PeerConnectionFactoryCreatePeerConnectio
 
 Shim::VideoTrack *CONVENTION
 PeerConnectionFactoryCreateVideoTrack(Shim::PeerConnectionFactory *peer_connection_factory,
-                                      Video::PassiveVideoTrackSource *passive_video_track_souce,
+                                      MediaSources::PassiveVideoTrackSource *passive_video_track_souce,
                                       const char *track_name)
 {
     auto factory = peer_connection_factory->GetPeerConnectionFactory();
